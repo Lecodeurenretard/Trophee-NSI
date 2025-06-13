@@ -18,8 +18,12 @@ class Boutton:
             if self.action:
                 self.action()
 
-boutons = [
+bouttons = [
     Boutton("Jouer", 300, 200, 200, 60, jouer),
     Boutton("Paramètres", 300, 300, 200, 60, ouvrir_parametres),
     Boutton("Crédits", 300, 400, 200, 60, afficher_credits),
 ]
+
+def check_all_clicks(pos):
+    for butt in bouttons:
+        butt.check_click(pos)

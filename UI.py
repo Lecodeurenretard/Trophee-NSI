@@ -13,8 +13,7 @@ def demander_pseudo():
         pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN and len(pseudo) > 0:
                     saisie = False
@@ -83,12 +82,12 @@ def rafraichir_ecran():
     pygame.draw.rect(fenetre, BLANC, (375, (13 * (HAUTEUR // 16)) + 45 , 200, 50), 5)
 
     # Afficher vie des personnages
-    pygame.draw.rect(fenetre, VERT, (50, 50 , variables_globales.barre_vie_adversaire, 10), 0)
-    pygame.draw.rect(fenetre, NOIR, (49, 49 , 202, 11), 2)
+    pygame.draw.rect(fenetre, VERT, (50, 50 , variables_globales.barre_vie_remplie_adversaire, 10), 0)
+    pygame.draw.rect(fenetre, NOIR, (49, 49 , UI_LONGUEUR_BARRE_DE_VIE+2, 11), 2)
     fenetre.blit(police_ecriture.render(variables_globales.nom_adversaire, True, NOIR), (49, 20))
 
-    pygame.draw.rect(fenetre, VERT, (500, 400 , variables_globales.barre_vie_joueur, 10), 0)
-    pygame.draw.rect(fenetre, NOIR, (499, 399 , 202, 11), 2)
+    pygame.draw.rect(fenetre, VERT, (500, 400 , variables_globales.barre_vie_remplie_joueur, 10), 0)
+    pygame.draw.rect(fenetre, NOIR, (499, 399 , UI_LONGUEUR_BARRE_DE_VIE+2, 11), 2)
     fenetre.blit(police_ecriture.render(variables_globales.pseudo_joueur, True, NOIR), (499, 370))
 
     # Dessiner le cercle à la nouvelle position

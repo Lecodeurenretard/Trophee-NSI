@@ -33,5 +33,9 @@ from variables_globales import (
     ROUGE,
     VERT,
     LARGEUR,
-    HAUTEUR
+    HAUTEUR,
+	MAX_COMBAT,
+	INVICIBLE_PLAYER,
+	INVICIBLE_ENNEMI,
+	UI_LONGUEUR_BARRE_DE_VIE,
 )
