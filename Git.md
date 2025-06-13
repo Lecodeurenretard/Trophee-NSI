@@ -84,6 +84,9 @@ git remote add origin "<url>" # ajoute le repo github avec comme nom "origin"
 ```
 (notez que les guillemets sont facultatifs s'il n'y a pas d'espace)
 
+### Gitignore
+Des fois on a pas envie d'inclure des fichiers dans le commit, c'est exactement le but du fichier (.gitignore)[.gitignore] qui inclue tous les fichiers qu'il ne faut pas inclure dans le commit (ils n'apparaitrons même pas comme "untracked" avec `git status`).
+
 ### Exemples
 Commit toutes les modifications depuis le dernier commit:
 ```bash
