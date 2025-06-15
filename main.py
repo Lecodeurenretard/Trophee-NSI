@@ -22,22 +22,22 @@ def change_cursor_pos(evt):
         return
 
     if evt.key == pygame.K_UP:
-        variables_globales.curseur_y = (13 * (HAUTEUR // 16))
+        variables_globales.curseur_y = variables_globales.curseur_pos_attendue_y[0]
     if evt.key == pygame.K_DOWN:
-        variables_globales.curseur_y = (13 * (HAUTEUR // 16)) + 70
+        variables_globales.curseur_y = variables_globales.curseur_pos_attendue_y[1]
     if evt.key == pygame.K_LEFT:
-        variables_globales.curseur_x = 50
+        variables_globales.curseur_x = variables_globales.curseur_pos_attendue_x[0]
     if evt.key == pygame.K_RIGHT:
-        variables_globales.curseur_x = 350
+        variables_globales.curseur_x = variables_globales.curseur_pos_attendue_x[1]
 
 def partie_fin(gagne):
     if gagne:
         fenetre.fill(VERT)
-        fenetre.blit(texte_gagner, ((LARGEUR // 2) - 120, HAUTEUR // 2 - 20))
+        fenetre.blit(texte_gagner, (LARGEUR // 2 - 120, HAUTEUR // 2 - 20))
         print("Vous avez gagné !")
     else:
         fenetre.fill(BLEU_CLAIR)
-        fenetre.blit(texte_perdu, ((LARGEUR // 2) - 120, HAUTEUR // 2 - 20))
+        fenetre.blit(texte_perdu, (LARGEUR // 2 - 120, HAUTEUR // 2 - 20))
         print("Vous avez perdu...")
     pygame.display.flip()
 
@@ -45,37 +45,42 @@ def partie_fin(gagne):
     quit()
 
 nouveau_monstre()
+reset_vie_joueur()
 while True:
     rafraichir_ecran()
-    # clock.tick(60)  # Limite la boucle à 60 FPS # Pas très important (pas de physique)
-
-
+    clock.tick(60)
+    
+    # Le menu qu'il y a avant le jeu
     while variables_globales.menu_running:
         menu_frame()
-
+    
     rafraichir_ecran()
-
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             quit()
-        if event.type == pygame.KEYDOWN and variables_globales.tour_joueur:
-            if event.key == pygame.K_ESCAPE:
-                quit()
-            if event.key == pygame.K_i:
-                afficher_info()
-            
-            change_cursor_pos(event)
-
-            if event.key == pygame.K_SPACE:
-                player_sectionne_attaque()
-                variables_globales.tour_joueur = False
-
-
+        if event.type != pygame.KEYDOWN or not variables_globales.tour_joueur:
+            continue
+       
+        if event.key == pygame.K_ESCAPE:
+            quit()
+        if event.key == pygame.K_i:
+            afficher_info()
+            continue        # Un event ne peut être qu'une seule touche à la fois
+        
+        if event.key == pygame.K_SPACE:
+            joueur_sectionne_attaque()
+            variables_globales.tour_joueur = False
+            continue
+        
+        change_cursor_pos(event)
+    
+    
     if variables_globales.monstre_vie <= 0:
         # on laisse le joueur avec la vie qu'il avait au combat précédent
         
         variables_globales.nbr_combat += 1
-
+        
         variables_globales.tour_joueur = True
         
         if variables_globales.nbr_combat >= MAX_COMBAT:
@@ -84,7 +89,7 @@ while True:
         # else implicite
         afficher_nombre_combat(variables_globales.nbr_combat)
         nouveau_monstre()
-
+    
     if not variables_globales.tour_joueur:
         monstre_attaque()
         variables_globales.tour_joueur = True

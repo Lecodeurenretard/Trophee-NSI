@@ -11,22 +11,53 @@ def nouveau_monstre():
         variables_globales.couleur = BLEU
         variables_globales.nom_adversaire = "Sorcier"
 
+def monstre_choisis_attaque():
+    if variables_globales.nom_adversaire == "Blob":
+        return "physique"
+    if variables_globales.nom_adversaire == "Sorcier":
+        return "magique"
+    return ''
+
 def monstre_attaque():
+    attaque_choisie = monstre_choisis_attaque()
+
+    if attaque_choisie == "":
+        print("Warning: Le monstre n'a pas choisi d'attaque.")
+        return
+
     degats : int
-    col_rect : tuple[int, int, int]
+    if attaque_choisie == "physique":
+        monstre_dessine_attaque(ROUGE)
+        degats = joueur_caluler_degat_physique_recu(variables_globales.monstre_stat, variables_globales.joueur_stat, variables_globales.charge_puissance)
+    elif attaque_choisie == "magique":
+        monstre_dessine_attaque(ROUGE)   #TODO: changer couleur
+        degats = joueur_calculer_degat_magique_recu(variables_globales.monstre_stat, variables_globales.joueur_stat, variables_globales.att_magique_puissance)
+    else:
+        raise NotImplementedError("Le monstre à choisi un type d'attaque incunnue.")
+    
+    joueur_recoit_degats(degats)
 
-    if variables_globales.nom_adversaire == "Blob":  # 50% de chance d'attaquer physiquement
-        col_rect = ROUGE
-        degats = degat_recu_physique(variables_globales.monstre_stat, variables_globales.perso_stat, variables_globales.charge_puissance)
-    else:  # Attaque magique
-        col_rect = ROUGE   #TODO: changer couleur
-        degats = degat_recu_magique(variables_globales.monstre_stat, variables_globales.perso_stat, variables_globales.att_magique_puissance)
-
-    pygame.draw.rect(fenetre, col_rect, (400, 300 , 200, 50), 5)
+def monstre_dessine_attaque(couleur):
+    pygame.draw.rect(fenetre, couleur, (400, 300 , 200, 50), 5)
     pygame.display.flip()
     
-    if not INVICIBLE_PLAYER:
-        variables_globales.joueur_vie = max(0, variables_globales.joueur_vie - degats)
-        update_barre_de_vie_joueur()
     time.sleep(1)
     pygame.event.clear()
+
+
+
+def monstre_recoit_degats(degats_recu):
+    if INVICIBLE_ENNEMI and degats_recu >= 0:
+        return
+
+    variables_globales.monstre_vie -= degats_recu
+    variables_globales.monstre_vie = max(variables_globales.monstre_vie, 0) # Empêche la vie de passer sous 0
+    update_barre_de_vie_monstre()
+
+def joueur_recoit_degats(degats_recu):
+    if INVICIBLE_JOUEUR and degats_recu >= 0:   # INVICIBLE_JOUEUR n'empèche pas les soins
+        return
+
+    variables_globales.joueur_vie -= degats_recu
+    variables_globales.joueur_vie = max(variables_globales.joueur_vie, 0) # Empêche la vie de passer sous 0
+    update_barre_de_vie_joueur()
