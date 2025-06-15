@@ -9,8 +9,10 @@ class Boutton:
 
     def draw(self, surface):
         pygame.draw.rect(surface, self.color, self.rect)
-        text_surf = police.render(self.text, True, BLANC)
+        
+        text_surf = variables_globales.police.render(self.text, True, BLANC)
         text_rect = text_surf.get_rect(center=self.rect.center)
+        
         surface.blit(text_surf, text_rect)
 
     def check_click(self, pos):
@@ -19,9 +21,9 @@ class Boutton:
                 self.action()
 
 bouttons = [
-    Boutton("Jouer", 300, 200, 200, 60, jouer),
+    Boutton("Jouer"     , 300, 200, 200, 60, jouer),
     Boutton("Paramètres", 300, 300, 200, 60, ouvrir_parametres),
-    Boutton("Crédits", 300, 400, 200, 60, afficher_credits),
+    Boutton("Crédits"   , 300, 400, 200, 60, afficher_credits),
 ]
 
 def check_all_clicks(pos):

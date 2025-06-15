@@ -29,6 +29,17 @@ INVICIBLE_ENNEMI = False
 
 UI_LONGUEUR_BARRE_DE_VIE = 200
 
+POLICE_GRAND = pygame.font.Font(None, 36)
+POLICE_PETIT = pygame.font.Font(None, 25)
+
+TEXTE_VICTOIRE      = POLICE_GRAND.render("Vous avez gagné !", True, NOIR)
+TEXTE_DEFAITE       = POLICE_GRAND.render("Vous avez perdu !", True, NOIR)
+TEXTE_ATT_TORGNOLE  = POLICE_GRAND.render("Torgnole"         , True, BLANC)
+TEXTE_ATT_SOIN      = POLICE_GRAND.render("Soin"             , True, BLANC)
+TEXTE_ATT_MAGIQUE   = POLICE_GRAND.render("Att. magique"     , True, BLANC)
+TEXTE_INFO_UTILISER = POLICE_PETIT.render("SPACE : utiliser", True, BLANC)
+TEXTE_INFO_INFO     = POLICE_PETIT.render("I : info"        , True, BLANC)
+
 # Un nombre indéterminé, comme None mais exclusivement pour les nombres
 # N'est égal à aucun nombre, même lui-même (NAN != NAN)
 # Pour vérifier si un nombre est nan, utiliser `math.isnan(x)`
@@ -38,17 +49,6 @@ police = pygame.font.SysFont(None, 50)
 fenetre.fill(BLANC)
 
 nbr_combat = 1
-
-police_ecriture  = pygame.font.Font(None, 36)
-police_ecriture2 = pygame.font.Font(None, 25)
-
-texte_gagner        = police_ecriture.render("Vous avez gagné !", True, NOIR)
-texte_perdu         = police_ecriture.render("Vous avez perdu !", True, NOIR)
-texte_torgnole      = police_ecriture.render("Torgnole"         , True, BLANC)
-texte_soin          = police_ecriture.render("Soin"             , True, BLANC)
-texte_magique       = police_ecriture.render("Att. magique"     , True, BLANC)
-texte_input_ligne1  = police_ecriture2.render("SPACE : utiliser", True, BLANC)
-texte_input_ligne2  = police_ecriture2.render("I : info"        , True, BLANC)
 
 tour_joueur = True
 charge_puissance = 20
@@ -71,7 +71,7 @@ joueur_vie  = joueur_stat["vie"]
 monstre_vie = 0
 
 menu_running = True
-couleur = NOIR
+couleur_monstre = NOIR
 
 nom_adversaire = ""
 pseudo_joueur = ""

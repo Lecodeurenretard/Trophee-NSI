@@ -12,7 +12,7 @@ def ouvrir_parametres():
     ...
 
 def afficher_credits():
-    texte_credits = police.render("Développé par Jules et Lucas", True, BLANC)
+    texte_credits = variables_globales.police.render("Développé par Jules et Lucas", True, BLANC)
     credit_y = HAUTEUR
     running = False
     while credit_y > 0:

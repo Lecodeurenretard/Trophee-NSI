@@ -33,11 +33,11 @@ def change_cursor_pos(evt):
 def partie_fin(gagne):
     if gagne:
         fenetre.fill(VERT)
-        fenetre.blit(texte_gagner, (LARGEUR // 2 - 120, HAUTEUR // 2 - 20))
+        fenetre.blit(TEXTE_VICTOIRE, (LARGEUR // 2 - 120, HAUTEUR // 2 - 20))
         print("Vous avez gagné !")
     else:
         fenetre.fill(BLEU_CLAIR)
-        fenetre.blit(texte_perdu, (LARGEUR // 2 - 120, HAUTEUR // 2 - 20))
+        fenetre.blit(TEXTE_DEFAITE, (LARGEUR // 2 - 120, HAUTEUR // 2 - 20))
         print("Vous avez perdu...")
     pygame.display.flip()
 
@@ -83,7 +83,7 @@ while True:
         
         variables_globales.tour_joueur = True
         
-        if variables_globales.nbr_combat >= MAX_COMBAT:
+        if variables_globales.nbr_combat > MAX_COMBAT:
             partie_fin(gagne=True)
         
         # else implicite

@@ -1,4 +1,5 @@
 from import_var import *
+from fonctions_vrac import *
 
 def demander_pseudo():
     pseudo = ""
@@ -29,8 +30,8 @@ def demander_pseudo():
 def afficher_info():
     curseur_empl = get_curseur_emplacement()
     if curseur_empl == (0, 0):
-        info = variables_globales.police_ecriture.render("Puissance: 0,5", True, NOIR)
-        info2 = variables_globales.police_ecriture.render("Soigner-vous de quelque pv ", True, NOIR)
+        info = variables_globales.POLICE_GRAND.render("Puissance: 0,5", True, NOIR)
+        info2 = variables_globales.POLICE_GRAND.render("Soigner-vous de quelque pv ", True, NOIR)
         fenetre.fill(BLANC)
         fenetre.blit(info, (3*(LARGEUR//10), (HAUTEUR//2)))
         fenetre.blit(info2, (3*(LARGEUR//10)-100, (HAUTEUR//2)+30))
@@ -39,8 +40,8 @@ def afficher_info():
         return
     
     if curseur_empl == (0, 1):
-        info = variables_globales.police_ecriture.render("Puissance: 20", True, NOIR)
-        info2 = variables_globales.police_ecriture.render("Infligez des dégâts physiques à l'adversaire", True, NOIR)
+        info = variables_globales.POLICE_GRAND.render("Puissance: 20", True, NOIR)
+        info2 = variables_globales.POLICE_GRAND.render("Infligez des dégâts physiques à l'adversaire", True, NOIR)
         fenetre.fill(BLANC)
         fenetre.blit(info, (3*(LARGEUR//10), (HAUTEUR//2)))
         fenetre.blit(info2, (3*(LARGEUR//10)-100, (HAUTEUR//2)+30))
@@ -56,7 +57,7 @@ def chargement():
     while barre < 700:
         fenetre.fill(BLANC)
         pygame.draw.rect(fenetre, NOIR, (50, 300, barre, 50), 0)
-        texte_chargement = police_ecriture.render("Chargement...", True, NOIR)
+        texte_chargement = variables_globales.POLICE_GRAND.render("Chargement...", True, NOIR)
         fenetre.blit(texte_chargement, (300, 350))
         pygame.display.flip()
         barre += 2
@@ -64,7 +65,7 @@ def chargement():
         pygame.event.clear()
 
 def afficher_nombre_combat(nbr_combat):
-    texte_combat = police_ecriture.render(f"Combat n°{nbr_combat}", True, NOIR)
+    texte_combat = variables_globales.POLICE_GRAND.render(f"Combat n°{nbr_combat}", True, NOIR)
     fenetre.fill(BLANC)
     fenetre.blit(texte_combat, (LARGEUR // 2 - 100, HAUTEUR // 2 - 20))
     pygame.display.flip()
@@ -82,41 +83,46 @@ def dessiner_barre_de_vie(pos_x, pos_y, vie_actuelle, vie_max, longueur_rempliss
 
 def dessiner_nom(nom, position):
     # c'est plus clair de mettre cette ligne en procédure
-    fenetre.blit(police_ecriture.render(nom, True, NOIR), position)
+    fenetre.blit(variables_globales.POLICE_GRAND.render(nom, True, NOIR), position)
 
+def dessiner_bouttons_attaques():
+    # Dessiner les boites
+    pygame.draw.rect(fenetre, BLANC, (70 , (13 * HAUTEUR // 16) - 25, 200, 50), 5) # soin
+    pygame.draw.rect(fenetre, BLANC, (70 , (13 * HAUTEUR // 16) + 45, 200, 50), 5) # torgnole
+    pygame.draw.rect(fenetre, BLANC, (375, (13 * HAUTEUR // 16) - 25, 200, 50), 5) #...
+    pygame.draw.rect(fenetre, BLANC, (375, (13 * HAUTEUR // 16) + 45, 200, 50), 5)
+    
+    # Dessiner les noms
+    fenetre.blit(TEXTE_ATT_SOIN    , (140, (13 * HAUTEUR // 16) - 12))
+    fenetre.blit(TEXTE_ATT_TORGNOLE, (120, (13 * HAUTEUR // 16) + 60))
+    fenetre.blit(TEXTE_ATT_MAGIQUE , (400, (13 * HAUTEUR // 16) - 12))
 
 def rafraichir_ecran():
     # Effacer l'écran en redessinant l'arrière-plan
     fenetre.fill(BLANC)
-
-
-    # Redessiner les éléments fixes (par exemple, les rectangles)
-    pygame.draw.rect(fenetre, NOIR                      , (    0            , 3 * HAUTEUR // 4      , 800, 600), 0)
-    pygame.draw.rect(fenetre, BLEU                      , (    LARGEUR // 4 , 3 * HAUTEUR // 4 - 100, 100, 100), 0)
-    pygame.draw.rect(fenetre, variables_globales.couleur, (6 * LARGEUR // 10,     HAUTEUR // 4 - 100, 100, 100), 0)
-
-    pygame.draw.rect(fenetre, BLANC, (70 , (13 * HAUTEUR // 16) - 25, 200, 50), 5) # soin
-    pygame.draw.rect(fenetre, BLANC, (70 , (13 * HAUTEUR // 16) + 45, 200, 50), 5) # torgnole
-    pygame.draw.rect(fenetre, BLANC, (375, (13 * HAUTEUR // 16) - 25, 200, 50), 5)
-    pygame.draw.rect(fenetre, BLANC, (375, (13 * HAUTEUR // 16) + 45, 200, 50), 5)
-
+    
+    # Dessiner le fond de l'interface
+    pygame.draw.rect(fenetre, NOIR, (0, 3 * HAUTEUR // 4, 800, 600), 0)
+    
+    # Dessiner les personnages (joueur + monstre)
+    pygame.draw.rect(fenetre, BLEU                              , (    LARGEUR // 4 , 3 * HAUTEUR // 4 - 100, 100, 100), 0)
+    pygame.draw.rect(fenetre, variables_globales.couleur_monstre, (6 * LARGEUR // 10,     HAUTEUR // 4 - 100, 100, 100), 0)
+    
     dessiner_barre_de_vie(50, 50, variables_globales.monstre_vie, variables_globales.monstre_stat["vie"], variables_globales.barre_vie_remplie_monstre)
     dessiner_barre_de_vie(500, 400, variables_globales.joueur_vie, variables_globales.joueur_stat["vie"], variables_globales.barre_vie_remplie_joueur)
-
+    
     dessiner_nom(variables_globales.nom_adversaire, (49, 20))
     dessiner_nom(variables_globales.pseudo_joueur, (499, 370))
-
+    
     # Dessiner le cercle à la nouvelle position
     pygame.draw.circle(fenetre, VERT, (variables_globales.curseur_x, variables_globales.curseur_y), 10, 0)
-
-    # Afficher nom des attaques
-    fenetre.blit(texte_soin         , (140, (13 * (HAUTEUR // 16)) - 12))
-    fenetre.blit(texte_torgnole     , (120, (13 * (HAUTEUR // 16)) + 60))
-    fenetre.blit(texte_magique      , (400, (13 * (HAUTEUR // 16)) - 12))
-    fenetre.blit(texte_input_ligne1 , (620, (13 * (HAUTEUR // 16)) - 12))
-    fenetre.blit(texte_input_ligne2 , (620, (13 * (HAUTEUR // 16)) + 20))
-
-
+    
+    # Dessiner le texte
+    fenetre.blit(TEXTE_INFO_UTILISER    , (620, (13 * HAUTEUR // 16) - 12))
+    fenetre.blit(TEXTE_INFO_INFO        , (620, (13 * HAUTEUR // 16) + 20))
+    
+    dessiner_bouttons_attaques()
+    
     # Mettre à jour l'affichage
     pygame.display.flip()
 
@@ -141,19 +147,8 @@ def get_curseur_emplacement():
     
     alors quelle_position_curseur() retournera (NAN, 0)
     """
-    alias_x = variables_globales.curseur_pos_attendue_x     # N'utilise pas de mémoire supplémentaire
-    alias_y = variables_globales.curseur_pos_attendue_y     # v. les références implicites en python
 
-    res_x = NAN
-    for i in range(len(alias_x)):
-        if variables_globales.curseur_x == alias_x[i]:
-            res_x = i
-            break
-    
-    res_y = NAN
-    for i in range(len(alias_y)):
-        if variables_globales.curseur_y == alias_y[i]:
-            res_y = i
-            break
-    
-    return (res_x, res_y)
+    return (
+        find(variables_globales.curseur_pos_attendue_x, variables_globales.curseur_x, NAN),
+        find(variables_globales.curseur_pos_attendue_y, variables_globales.curseur_y, NAN)
+    )
