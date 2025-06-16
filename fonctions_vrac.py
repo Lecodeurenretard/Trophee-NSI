@@ -1,6 +1,9 @@
 # Fonctions qui n'ont nulle part d'autre où aller
+from import_var import *
 
-def find(list: list | tuple, elem, error_value : int | float = -1) -> int | float:	# elem: any
+T = TypeVar('T')    # Generics in the PEP 484
+Err = TypeVar('Err')    # Generics in the PEP 484
+def find(list: list[T] | tuple[T, ...], elem : T, error_value : Err = -1) -> int | Err:	# elem: any
     """
     Find the first occurence of elem in list, if not found return `error_value` (only case where the function can return a float).
     """

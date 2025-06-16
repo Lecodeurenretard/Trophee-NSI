@@ -2,11 +2,11 @@ from monstre import *
 from Boutton import *
 from player import *
 
-def quit(exit_code=0):
+def quit(exit_code : int = 0) -> NoReturn:
     pygame.quit()
     sys.exit(exit_code)
 
-def menu_frame():
+def menu_frame() -> None:
     fenetre.fill(BLEU_CLAIR)
     for bouton in bouttons:
         bouton.draw(fenetre)
@@ -17,7 +17,7 @@ def menu_frame():
         if event.type == pygame.MOUSEBUTTONDOWN:
             check_all_clicks(event.pos)
 
-def change_cursor_pos(evt):
+def change_cursor_pos(evt : pygame.event.Event) -> None:
     if event.type != pygame.KEYDOWN or not variables_globales.tour_joueur:
         return
 
@@ -30,7 +30,7 @@ def change_cursor_pos(evt):
     if evt.key == pygame.K_RIGHT:
         variables_globales.curseur_x = variables_globales.curseur_pos_attendue_x[1]
 
-def partie_fin(gagne):
+def partie_fin(gagne : bool) -> NoReturn:
     if gagne:
         fenetre.fill(VERT)
         fenetre.blit(TEXTE_VICTOIRE, (LARGEUR // 2 - 120, HAUTEUR // 2 - 20))

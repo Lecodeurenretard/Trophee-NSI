@@ -1,91 +1,121 @@
-from import_var import *
 from fonctions_vrac import *
 
-def demander_pseudo():
-    pseudo = ""
-    saisie = True
-    font = pygame.font.SysFont(None, 48)
+def demander_pseudo() -> str:
+    pseudo : str  = ""
+    saisie : bool = True
+    texte : pygame.Surface = variables_globales.POLICE_GRAND.render("Entrez votre pseudo :", True, NOIR)
     while saisie:
+        pseudo, continuer = texte_entree_event(pseudo)
+        if not continuer:
+            break
+
         fenetre.fill(BLANC)
-        texte = font.render("Entrez votre pseudo :", True, NOIR)
         fenetre.blit(texte, (LARGEUR // 2 - 180, HAUTEUR // 2 - 60))
-        pseudo_affiche = font.render(pseudo, True, BLEU)
+        
+        pseudo_affiche : pygame.Surface = variables_globales.POLICE_GRAND.render(pseudo, True, BLEU)
         fenetre.blit(pseudo_affiche, (LARGEUR // 2 - 100, HAUTEUR // 2))
+        
         pygame.display.flip()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN and len(pseudo) > 0:
-                    saisie = False
-                elif event.key == pygame.K_BACKSPACE:
-                    pseudo = pseudo[:-1]
-                else:
-                    if len(pseudo) < 12 and event.unicode.isprintable():
-                        pseudo += event.unicode
     return pseudo
 
+def texte_entree_event(texte : str) -> tuple[str, bool]:
+    continuer : bool = True
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            quit()
+        if event.type != pygame.KEYDOWN:
+            continue
+        
+        if event.key == pygame.K_RETURN and len(texte) > 0:
+            continuer = False
+            continue
+        if event.key == pygame.K_BACKSPACE:
+            texte = texte[:-1]
+            continue
+        if len(texte) < 12 and event.unicode.isprintable():
+            texte += event.unicode
+            continue
+    return (texte, continuer)
 
 
-def afficher_info():
-    curseur_empl = get_curseur_emplacement()
+def afficher_info() -> None:
+    curseur_empl : tuple[int|NaN, int|NaN]= get_curseur_emplacement()
+    texte_info1 : pygame.Surface
+    texte_info2 : pygame.Surface
+    
+    if math.isnan(curseur_empl[0]) or math.isnan(curseur_empl[1]):
+        print(f"Position du curseur: {(variables_globales.curseur_x, variables_globales.curseur_y)}")
+        raise ValueError("Le curseur n'est pas à un emplacement autorisé.")
+    
     if curseur_empl == (0, 0):
-        info = variables_globales.POLICE_GRAND.render("Puissance: 0,5", True, NOIR)
-        info2 = variables_globales.POLICE_GRAND.render("Soigner-vous de quelque pv ", True, NOIR)
-        fenetre.fill(BLANC)
-        fenetre.blit(info, (3*(LARGEUR//10), (HAUTEUR//2)))
-        fenetre.blit(info2, (3*(LARGEUR//10)-100, (HAUTEUR//2)+30))
-        pygame.display.flip()
-        time.sleep(2)
-        return
+        texte_info1 = variables_globales.POLICE_GRAND.render(f"Puissance: {variables_globales.att_soin_puissance}", True, NOIR)
+        texte_info2 = variables_globales.POLICE_GRAND.render("Soigner-vous de quelque pv", True, NOIR)
+    
+    if curseur_empl == (1, 0):
+        texte_info1 = variables_globales.POLICE_GRAND.render(f"Puissance: {variables_globales.att_magique_puissance}", True, NOIR)
+        texte_info2 = variables_globales.POLICE_GRAND.render("Infligez des dégâts magique à l'adversaire", True, NOIR)
     
     if curseur_empl == (0, 1):
-        info = variables_globales.POLICE_GRAND.render("Puissance: 20", True, NOIR)
-        info2 = variables_globales.POLICE_GRAND.render("Infligez des dégâts physiques à l'adversaire", True, NOIR)
-        fenetre.fill(BLANC)
-        fenetre.blit(info, (3*(LARGEUR//10), (HAUTEUR//2)))
-        fenetre.blit(info2, (3*(LARGEUR//10)-100, (HAUTEUR//2)+30))
-        pygame.display.flip()
-        time.sleep(2)
-        return
-
-
-
-
-def chargement():
-    barre = 0
-    while barre < 700:
-        fenetre.fill(BLANC)
-        pygame.draw.rect(fenetre, NOIR, (50, 300, barre, 50), 0)
-        texte_chargement = variables_globales.POLICE_GRAND.render("Chargement...", True, NOIR)
-        fenetre.blit(texte_chargement, (300, 350))
-        pygame.display.flip()
-        barre += 2
-        time.sleep(0.01)
-        pygame.event.clear()
-
-def afficher_nombre_combat(nbr_combat):
-    texte_combat = variables_globales.POLICE_GRAND.render(f"Combat n°{nbr_combat}", True, NOIR)
+        texte_info1 = variables_globales.POLICE_GRAND.render(f"Puissance: {variables_globales.att_charge_puissance}", True, NOIR)
+        texte_info2 = variables_globales.POLICE_GRAND.render("Infligez des dégâts physiques à l'adversaire", True, NOIR)
+    
+    if curseur_empl == (1, 1):
+        texte_info1 = variables_globales.POLICE_GRAND.render("Puissance: 0", True, NOIR)
+        texte_info2 = variables_globales.POLICE_GRAND.render("Passez votre tour.", True, NOIR)
+    
     fenetre.fill(BLANC)
-    fenetre.blit(texte_combat, (LARGEUR // 2 - 100, HAUTEUR // 2 - 20))
+    
+    fenetre.blit(texte_info1, (3 * LARGEUR // 10      , HAUTEUR // 2))
+    fenetre.blit(texte_info2, (3 * LARGEUR // 10 - 100, HAUTEUR // 2 + 30))
+    
     pygame.display.flip()
     time.sleep(2)
 
-def dessiner_barre_de_vie(pos_x, pos_y, vie_actuelle, vie_max, longueur_remplissage):
-    couleur_remplissage = VERT
+
+
+
+
+def chargement(duree : float = 7.0) -> None:
+    barre : int = 0
+    NB_ITERATION : int = 700
+    while barre < NB_ITERATION:
+        fenetre.fill(BLANC)
+        
+        pygame.draw.rect(fenetre, NOIR, (50, 300, barre, 50), 0)
+        
+        texte_chargement : pygame.Surface = variables_globales.POLICE_GRAND.render("Chargement...", True, NOIR)
+        fenetre.blit(texte_chargement, (300, 350))
+        
+        pygame.display.flip()
+        
+        barre += 2
+        time.sleep(duree / NB_ITERATION)    # On assume que toutes les actions de la boucle sont instantanées
+
+def afficher_nombre_combat(nbr_combat : int) -> None:
+    texte_combat : pygame.Surface = variables_globales.POLICE_GRAND.render(f"Combat n°{nbr_combat}", True, NOIR)
+
+    fenetre.fill(BLANC)
+    fenetre.blit(texte_combat, (LARGEUR // 2 - 100, HAUTEUR // 2 - 20))
+
+    pygame.display.flip()
+    time.sleep(2)
+
+def dessiner_barre_de_vie(pos_x : int, pos_y : int, vie_actuelle : int, vie_max : int, longueur_remplissage : int) -> None:
+    couleur_remplissage : color = VERT
+
     if vie_actuelle < vie_max / 5:
         couleur_remplissage = ROUGE
     elif vie_actuelle < vie_max / 2:
         couleur_remplissage = JAUNE
-    pygame.draw.rect(fenetre, couleur_remplissage, (pos_x, pos_y , longueur_remplissage, 10), 0)
     
-    pygame.draw.rect(fenetre, NOIR, (pos_x-1, pos_y-1 , UI_LONGUEUR_BARRE_DE_VIE+2, 11), 2)
+    pygame.draw.rect(fenetre, couleur_remplissage   , (pos_x  , pos_y  , longueur_remplissage      , 10), 0)
+    pygame.draw.rect(fenetre, NOIR                  , (pos_x-1, pos_y-1, UI_LONGUEUR_BARRE_DE_VIE+2, 11), 2)
 
-def dessiner_nom(nom, position):
+def dessiner_nom(nom : str, position : pos) -> None:
     # c'est plus clair de mettre cette ligne en procédure
     fenetre.blit(variables_globales.POLICE_GRAND.render(nom, True, NOIR), position)
 
-def dessiner_bouttons_attaques():
+def dessiner_bouttons_attaques() -> None:
     # Dessiner les boites
     pygame.draw.rect(fenetre, BLANC, (70 , (13 * HAUTEUR // 16) - 25, 200, 50), 5) # soin
     pygame.draw.rect(fenetre, BLANC, (70 , (13 * HAUTEUR // 16) + 45, 200, 50), 5) # torgnole
@@ -97,7 +127,7 @@ def dessiner_bouttons_attaques():
     fenetre.blit(TEXTE_ATT_TORGNOLE, (120, (13 * HAUTEUR // 16) + 60))
     fenetre.blit(TEXTE_ATT_MAGIQUE , (400, (13 * HAUTEUR // 16) - 12))
 
-def rafraichir_ecran():
+def rafraichir_ecran() -> None:
     # Effacer l'écran en redessinant l'arrière-plan
     fenetre.fill(BLANC)
     
@@ -108,7 +138,8 @@ def rafraichir_ecran():
     pygame.draw.rect(fenetre, BLEU                              , (    LARGEUR // 4 , 3 * HAUTEUR // 4 - 100, 100, 100), 0)
     pygame.draw.rect(fenetre, variables_globales.couleur_monstre, (6 * LARGEUR // 10,     HAUTEUR // 4 - 100, 100, 100), 0)
     
-    dessiner_barre_de_vie(50, 50, variables_globales.monstre_vie, variables_globales.monstre_stat["vie"], variables_globales.barre_vie_remplie_monstre)
+    if not math.isnan(variables_globales.monstre_stat["vie"]):
+        dessiner_barre_de_vie(50, 50, variables_globales.monstre_vie, variables_globales.monstre_stat["vie"], variables_globales.barre_vie_remplie_monstre) # type: ignore
     dessiner_barre_de_vie(500, 400, variables_globales.joueur_vie, variables_globales.joueur_stat["vie"], variables_globales.barre_vie_remplie_joueur)
     
     dessiner_nom(variables_globales.nom_adversaire, (49, 20))
@@ -126,7 +157,7 @@ def rafraichir_ecran():
     # Mettre à jour l'affichage
     pygame.display.flip()
 
-def get_curseur_emplacement():
+def get_curseur_emplacement() -> tuple[int| NaN, int| NaN]:
     """
     Retourne une tuple caractérisant la position du curseur si le curseur n'est à aucune position connue, met un NaN sur la coordonée correspondante.
 

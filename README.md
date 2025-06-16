@@ -6,5 +6,8 @@ Ce fichier est un [fichier markdown](https://www.markdownguide.org/basic-syntax/
 ## Utiliser Github
 J'ai rédigé [un fichier](Git.md) pour ça.
 
+## Des notions de Python
+Des notions Python que l'on a pas vu en NSI: [Python.md](Python.md)
+
 ## Comment marche le jeu
 <!--...-->

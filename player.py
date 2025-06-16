@@ -1,7 +1,7 @@
 from monstre import *
 from UI import *
 
-def joueur_dessine_attaque(couleur):
+def joueur_dessine_attaque(couleur : color) -> None:
     pygame.draw.rect(fenetre, couleur, (400, 300 , 200, 50), 5)
     pygame.display.flip()
     time.sleep(1)
@@ -11,29 +11,29 @@ def joueur_dessine_attaque(couleur):
     
     pygame.event.clear()
 
-def joueur_attaque_soin():
-    soin = joueur_calculer_attaque_soin(variables_globales.joueur_stat, 1.5)
+def joueur_attaque_soin() -> None:
+    soin : int = joueur_calculer_attaque_soin(variables_globales.joueur_stat, variables_globales.att_soin_puissance)
     joueur_recoit_degats(-soin) # degats négatifs => soins
     
     joueur_dessine_attaque(VERT)
 
-def joueur_attaque_magique():
-    degat_magique = joueur_calculer_degat_magique_inflige(variables_globales.joueur_stat, variables_globales.monstre_stat, variables_globales.att_magique_puissance)
+def joueur_attaque_magique() -> None:
+    degat_magique : int = joueur_calculer_degat_magique_inflige(variables_globales.joueur_stat, variables_globales.monstre_stat, variables_globales.att_magique_puissance)
     monstre_recoit_degats(degat_magique)
     
     joueur_dessine_attaque(BLEU)
 
-def joueur_attaque_physique():
-    degats = joueur_caluler_degat_physique_inflige(variables_globales.joueur_stat, variables_globales.monstre_stat, variables_globales.charge_puissance)
+def joueur_attaque_physique() -> None:
+    degats : int = joueur_caluler_degat_physique_inflige(variables_globales.joueur_stat, variables_globales.monstre_stat, variables_globales.att_charge_puissance)
     monstre_recoit_degats(degats)
     
     joueur_dessine_attaque(ROUGE)
 
-def joueur_skip_tour():
+def joueur_skip_tour() -> None:
     joueur_dessine_attaque(NOIR)
 
 def joueur_sectionne_attaque():
-    curseur_empl = get_curseur_emplacement()
+    curseur_empl : tuple[int|NaN, int|NaN] = get_curseur_emplacement()
 
     if curseur_empl == (0, 0):
         joueur_attaque_soin()
