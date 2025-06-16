@@ -312,3 +312,130 @@ pour_les_francophones	: meilleure_str = ("Oi!",)
 
 C'était un guide assez détaillé, pour plus de possiblilités allez voir la [documentation de `typing`](https://docs.python.org/3/library/typing.html).  
 Si jamais, vous voulez des définitions plus formelles allez voir la [PEP 484](https://peps.python.org/pep-0484/)
+
+
+## 2. La programation orientée objet
+La programmation orientée objet (POO ou OOP en anglais) est l'un des styles majeurs de _design_ de code avec l'impératif et le fonctionnel. Pour résumer, ce style repose sur la définition de plans pour construire des _objets_ qui peuvent être utilisés pour faire des actions.
+
+### Introduction
+Disons que nous sommes dans une usines de chaises et qu'il faut coder les machines pour fabriquer des chaises. Pour cela, il nous faut définir les caractéristiques que chaque chaise a, il nous faut:
+- le nombre de pieds
+- si la chaise à des roullettes
+- les dimensions de la chaise
+
+
+### Le constructeur
+Il nous faut définir une _classe_ "chaise" qui définira ce qu'auront chaque chaises puis à partir de cette classe nous allons construire des _objets_ (ou instances) qui représenterons une chaise à fabriquer avec les machines. Dans la classe, il doit y avoir une fonction qui "construit" les objets, elle s'appelle le _constructeur_ et est la fonction `__init__()`.  
+Voici la synatxe en Python:
+```Python
+class Chaise:
+	# On définit le constructeur de Chaise
+	def __init__(self, nb_pied : int, a_roullettes : bool, dimensions : tuple[float, float, float]):
+		self.nb_pied : int = nb_pied
+		self.a_des_roues : int = a_roullettes
+		self.dim : tuple[float, float, float] = dimensions
+
+ma_chaise : Chaise = Chaise(4, False, (.5, .5, 1))
+```
+
+L'exemple ci-dessus, définit le constructeur puis l'appelle pour créer une chaise.  
+A partir de la ligne 5, on définit des variables comme `self.nb_pied`, ce sont des variables qui appartiennent à l'objet. Notez, que la fonction `__init__()` est **la seule** fonction à pouvoir déclarer des variables qui appartiennent à `self`.  
+Nous pouvons voir que le premier argument `self`, est **ignoré** lors de l'appel du constructeur; il représente l'objet que l'on est en train de construire, c'est pour cela que les variables définie appartiennent à `self`, c'est des variables inhérentes à l'objet.
+
+A la dernière ligne, la variable `ma_chaise` est définie, elle est de type `Chaise` et pour qu'elle soit une chaise, on appelle le constructeur qui est, pour l'instant, le seul moyen d'obtenir une chaise. De part les paramètre du constructeur, on en déduit que:
+```Python
+ma_chaise.nb_pied	== 4
+ma_chaise.a_des_roues	== False
+ma_chaise.dim		== (.5, .5, 1)
+```
+
+Pour résumer, les constructeurs sont les moyens principaux de créer des objets, définissent les variables des instances et peuvent être appelés avec le nom de la classe qu'ils contruisent.
+
+### Parenthèse vocabulaire
+Petit point lexique:
+
+Les variables appartenants aux objets sont appelés _variables membre_ ou alors _attributs_.  
+Les fonctions définies dans une classe sont des _fonctions membre_ ou _méthodes_.
+
+_Instance d'une classe_ désigne la même chose qu'un objet.
+
+### Créer des méthodes
+Créer une méthode, c'est créer une fonction normale mais on indente pour qu'elle appartienne à la classe, toute méthode prend comme premier paramètre `self`, qui représente l'objet qui fait l'appel de la méthode. Pour les utiliser, c'est comme les méthodes des listes (`.append()`, `.pop()`, ...).
+
+Dans notre scénarion, nous pourrions avoir des méthodes qui gère la fabrication de la chaise:
+```Python
+class Chaise:
+	# On définit le constructeur de Chaise
+	def __init__(self, nb_pied : int, a_roullettes : bool, dimensions : tuple[float, float, float]):
+		self.nb_pied : int = nb_pied
+		self.a_des_roues : int = a_roullettes
+		self.dim : tuple[float, float, float] = dimensions
+	
+	def placer_pieds(self) -> None:
+		demander_pieds(self.nb_pieds)	# demande le bon nombre de pieds
+		...	# fait autre chose
+	
+	def placer_dossier(self) -> None:
+		pass
+	
+	def placer_assise(self) -> None:
+		pass
+
+	def construire(self, combien : int) -> None:
+		for _ in range(combien):	# fait combien itérations (aucune variable)
+			self.placer_pieds()
+			self.placer_assise()
+			self.placer_dossier()
+			...
+
+ma_chaise : Chaise = Chaise(4, False, (.5, .5, 1))
+ma_chaise.construire(5)		# Construit 5 chaise avec les propriétés de ma_chaise
+```
+
+Certaines méthodes ont des noms qui commencent et terminent par deux underscores `__`, ce sont les _méthodes magiques_, il y en a pas mal et elles ne sont pas utiles pour ce projet du coup, je ne les détaillerais pas mais vous pouvez allez les voir vous même à [la documentation](https://docs.python.org/3.13/reference/datamodel.html#special-method-names).
+
+### L'encapsulation
+L'encapsulation est un concept similaire à celui de la [boite noire](https://fr.wikipedia.org/wiki/Bo%C3%AEte_noire_(syst%C3%A8me)). Le principe est de considérer un objet comme une capsule opaque, creuse et avec des bouttons dessus qui représentent les méthodes, à l'intérieur il y a des données (attributs) qui sont innacessibles à l'utilisateur de la classe qui ne peut qu'appuyer sur les boutons à la surface.  
+En somme, la seule façon de modifier et lire les attributs d'un objet doit être par ses méthodes; malheureusement, en Python il n'existe pas de moyen de s'assurer que c'est respecté mais il y a des conventions, on verra plus tard.
+
+Je me souviens que quand j'ai appris ce concept pour la première fois, je n'y croyais pas beaucoup non plus alors pourquoi devrait-on respecter l'encapsulation en premier lieu? La réponse que j'ai reçu, c'est qu'il ne faut pas submerger l'utilisateur de choix; cependant je ne suis pas convaincu par cette explication, surtout en Python où les variables ne sont pas protègées; ma réponse est qu'avec cette approche, on peut forcer l'utilisateur à utiliser d'une certaine façon.  
+Par exemple, il est possible pour la fabrication de chaises de ne vouloir que de l'extérieur, on ne sache que le type de chaise construite.
+
+Comme on ne peut pas directement prendre une variable, il existe des méthodes conçues uniquement pour récupérer la valeur d'un attribut, on les appelle les fonctions _getters_, de même une fonction conçue uniquement pour changer la valeur d'un attribut s'appelle une fonction _setter_.
+
+Tous ceci est bien mais il nous manque un élément crucial pour pouvoir mettre en place l'encapsulation: un moyen de dire à l'utilisateur de ne pas accéder à un membre d'une classe / d'un objet.  
+Dans un langage de programation orienté objet standard, on trouve deux types de membres: les membres _privés_ et _publics_; les premiers ne peuvent être accédés seulement par une méthode membre de la même classe dont ils sont, les seconds peuvent être accédés depuis n'importe où.  
+Comme je l'ai écrit plus haut, il est impossible en Python de s'assurer qu'un membre soit privé, il existe cependant une convention installée par la [PEP 8](https://peps.python.org/pep-0008/#method-names-and-instance-variables): les attributs non publics commencent par un seul underscore `_`. Comme Python n'a pas d'attribut privés à proprement parler, la [PEP 8](https://peps.python.org/pep-0008/#designing-for-inheritance) indique qu'il ne faudrait pas parler d'attribut "privés" mais "non publics".
+
+Voici une veresion de `Chaise` respectant l'encapsulation:
+```Python
+class Chaise:
+	# On définit le constructeur de Chaise
+	def __init__(self, nb_pied : int, a_roullettes : bool, dimensions : tuple[float, float, float]):
+		self._nb_pied : int = nb_pied
+		self._a_des_roues : int = a_roullettes
+		self._dim : tuple[float, float, float] = dimensions
+
+	# getter pour _nb_pied
+	def get_nb_pied(self) -> int:
+		return self._nb_pied
+	
+	# getter pour _dim
+	def get_nb_pied(self) -> int:
+		return self._dim
+	
+	# Pas de getter pour _a_des_roues, peut-être que ce n'est pas pertinent
+
+	# Pas de setter du tout, une chaise doit rester constante
+
+	# Les méthodes non publiques existent aussis
+	def _est_chaise_gamer(self) -> bool:
+		pass
+
+	def est_comfortable(self, reponse_honnete : bool = False) -> bool:
+		return True		# Toutes les chaises fabriquées sont comfortables
+
+ma_chaise : Chaise = Chaise(4, False, (.5, .5, 1))
+print(ma_chaise.est_comfortable())		# pas d'erreur et autorisé
+print(ma_chaise._est_chaise_gamer())	# pas d'erreur mais va à l'encontre des développeurs de la classe
+```
