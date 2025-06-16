@@ -9,7 +9,7 @@ def find(list: list[T] | tuple[T, ...], elem : T, error_value : Err = -1) -> int
     """
     try:
         return list.index(elem)
-    except:
+    except ValueError:
         return error_value
 
 assert(find([1, 2, 3, 4], 3) == 2)  # Quelques tests
