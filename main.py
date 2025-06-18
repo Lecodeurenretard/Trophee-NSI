@@ -45,7 +45,7 @@ def partie_fin(gagne : bool) -> NoReturn:
     quit()
 
 nouveau_monstre()
-reset_vie_joueur()
+joueur.reset_vie()
 while True:
     rafraichir_ecran()
     clock.tick(60)
@@ -94,5 +94,5 @@ while True:
         monstre_attaque()
         variables_globales.tour_joueur = True
     
-    if variables_globales.joueur_stat.vie <= 0:
+    if joueur.est_mort():
         partie_fin(gagne=False)

@@ -12,21 +12,15 @@ def joueur_dessine_attaque(couleur : color) -> None:
     pygame.event.clear()
 
 def joueur_attaque_soin() -> None:
-    soin : int = joueur_calculer_attaque_soin(variables_globales.joueur_stat, variables_globales.att_soin_puissance)
-    joueur_recoit_degats(-soin) # degats négatifs => soins
-    
+    joueur.attaque_heal()
     joueur_dessine_attaque(VERT)
 
 def joueur_attaque_magique() -> None:
-    degat_magique : int = joueur_calculer_degat_magique_inflige(variables_globales.joueur_stat, variables_globales.monstre_stat, variables_globales.att_magique_puissance)
-    monstre_recoit_degats(degat_magique)
-    
+    joueur.attaquer(variables_globales.monstre_stat, "magique")
     joueur_dessine_attaque(BLEU)
 
 def joueur_attaque_physique() -> None:
-    degats : int = joueur_caluler_degat_physique_inflige(variables_globales.joueur_stat, variables_globales.monstre_stat, variables_globales.att_charge_puissance)
-    monstre_recoit_degats(degats)
-    
+    joueur.attaquer(variables_globales.monstre_stat, "physique")
     joueur_dessine_attaque(ROUGE)
 
 def joueur_skip_tour() -> None:

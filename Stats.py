@@ -1,3 +1,12 @@
+from enum import Enum, auto
+import random
+
+class TypeAttaque(Enum):
+    """Tous les types d'attaques disponibles."""
+    PHYSIQUE = auto(),
+    MAGIQUE  = auto(),
+    SOIN     = auto(),
+
 class Stat:
     """
     Représente les stats de quelque chose.
@@ -87,6 +96,32 @@ class Stat:
             self.vitesse,
             not self.est_initialise,
         )
+    @staticmethod
+    def calculer_degats(force_attaque : float, type_degat : TypeAttaque, stats_attaquant : 'Stat', stats_victime : 'Stat', defense_min = 10) -> int:
+        assert(stats_attaquant.est_initialise), "stat_attaquant n'est pas initialisé dans Stat.calculer_degats()"
+        assert(stats_victime.est_initialise), "stat_victime n'est pas initialisé dans Stat.calculer_degats()"
+        
+        degats : float = random.uniform(0.85, 1.0)
+        match type_degat:
+            case TypeAttaque.PHYSIQUE:
+                attaque = force_attaque * stats_attaquant.force
+                defense = max(defense_min, stats_victime.defense)
+                
+                degats *= attaque / defense
+            
+            case TypeAttaque.MAGIQUE:
+                attaque = force_attaque * stats_attaquant.magie
+                defense = max(defense_min, stats_victime.defense_magique)
+                
+                degats *= attaque / defense
+            
+            case TypeAttaque.SOIN:
+                attaque = force_attaque * stats_attaquant.magie
+                degats *= -attaque
+            
+            case _:
+                raise ValueError("type_degat n'est pas un membre de TypeAttaque dans Stat.calculer_degats.")
+        return round(degats)
     
     def set(
         self,
@@ -109,9 +144,10 @@ class Stat:
         assert(self.est_initialise), "Objet Stat non initatialisé éssaye de baisser sa vie."
         self.vie -= combien
         self.vie = min(self.vie_max, max(0, self.vie))  # 0 <= vie <= vie_max
+    
+    def est_mort(self) -> bool:
+        return self.vie <= 0
 
-
-joueur_stat  : Stat = Stat(50, 35, 40, 20, 30, 50)
 blob_stat    : Stat = Stat(40, 30, 45, 0 , 25, 30)
 sorcier_stat : Stat = Stat(30, 10, 30, 15, 80, 60)
 monstre_stat : Stat = Stat(0, 0, 0, 0, 0, 0, unset=True)

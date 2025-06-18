@@ -546,3 +546,35 @@ objet.deux.append(5)
 print(autre_objet.un)	#-> 3
 print(autre_objet.deux)	#-> [4]
 ```
+
+## 3. Les énumérations
+Une énumération est un type qui ne peut prendre que certaines valeurs. Par exemple, pour une application météo il ne peut faire que: soleil, pluie, nuages.
+
+Pour créer une énumération, il faut créer une classe qui hérite (prend toutes les méthodes et attributs) de `Enum` du module `enum`, on peut ensuite créer des variables globales qui seront les cas de l'énumération.  
+Pour ma météo:
+```Python
+from enum import Enum
+class Meteo(Enum):
+	SOLEIL = "ensoleillé"
+	NUAGES = "nuageux"
+	PLUIE = "pluvieux"
+```
+
+On peut ensuite les comparer avec des variables:
+```Python
+from enum import Enum
+class Meteo(Enum):
+	SOLEIL = "ensoleillé"
+	NUAGES = "nuageux"
+	PLUIE = "pluvieux"
+
+temps_hier : METEO = METEO.SOLEIL
+temps_aujourdhui : METEO = METEO.PLUIE
+
+if temps_hier == temps_aujourdhui:
+	print(f"Il à fait {temps_hier.name} hier et aujourd'hui.")
+else
+	print(f"Il à fait {temps_hier.name} hier alors qu'aujourd'hui il a fait {temps_aujourdhui.name}.")
+```
+
+On peut aussi utiliser la fonction `auto()` du même module pour ne pas se préoccupper des valeurs de chaque cas, cela doit être fait par défaut car les membres d'une énumération ne devrait pas être compré à autre chose que cette même énumération (sauf cas exceptionnel).

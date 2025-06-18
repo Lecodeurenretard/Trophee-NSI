@@ -1,4 +1,5 @@
 from fonctions_vrac import *
+from Joueur import *
 
 def demander_pseudo() -> str:
     pseudo : str  = ""
@@ -100,32 +101,6 @@ def afficher_nombre_combat(nbr_combat : int) -> None:
     pygame.display.flip()
     time.sleep(2)
 
-def dessiner_barre_de_vie(pos_x : int, pos_y : int, vie_actuelle : int, vie_max : int, longueur_remplissage : int) -> None:
-    couleur_remplissage : color = VERT
-
-    if vie_actuelle < vie_max / 5:
-        couleur_remplissage = ROUGE
-    elif vie_actuelle < vie_max / 2:
-        couleur_remplissage = JAUNE
-    
-    pygame.draw.rect(fenetre, couleur_remplissage   , (pos_x  , pos_y  , longueur_remplissage      , 10), 0)
-    pygame.draw.rect(fenetre, NOIR                  , (pos_x-1, pos_y-1, UI_LONGUEUR_BARRE_DE_VIE+2, 11), 2)
-
-def dessiner_nom(nom : str, position : pos) -> None:
-    # c'est plus clair de mettre cette ligne en procédure
-    fenetre.blit(variables_globales.POLICE_GRAND.render(nom, True, NOIR), position)
-
-def dessiner_bouttons_attaques() -> None:
-    # Dessiner les boites
-    pygame.draw.rect(fenetre, BLANC, (70 , (13 * HAUTEUR // 16) - 25, 200, 50), 5) # soin
-    pygame.draw.rect(fenetre, BLANC, (70 , (13 * HAUTEUR // 16) + 45, 200, 50), 5) # torgnole
-    pygame.draw.rect(fenetre, BLANC, (375, (13 * HAUTEUR // 16) - 25, 200, 50), 5) #...
-    pygame.draw.rect(fenetre, BLANC, (375, (13 * HAUTEUR // 16) + 45, 200, 50), 5)
-    
-    # Dessiner les noms
-    fenetre.blit(TEXTE_ATT_SOIN    , (140, (13 * HAUTEUR // 16) - 12))
-    fenetre.blit(TEXTE_ATT_TORGNOLE, (120, (13 * HAUTEUR // 16) + 60))
-    fenetre.blit(TEXTE_ATT_MAGIQUE , (400, (13 * HAUTEUR // 16) - 12))
 
 def rafraichir_ecran() -> None:
     # Effacer l'écran en redessinant l'arrière-plan
@@ -139,9 +114,9 @@ def rafraichir_ecran() -> None:
     pygame.draw.rect(fenetre, variables_globales.couleur_monstre, (6 * LARGEUR // 10,     HAUTEUR // 4 - 100, 100, 100), 0)
     
     if variables_globales.monstre_stat.est_initialise:
-        dessiner_barre_de_vie(50, 50, variables_globales.monstre_stat.vie, variables_globales.monstre_stat.vie_max, variables_globales.barre_vie_remplie_monstre)
-    if variables_globales.joueur_stat.est_initialise:
-        dessiner_barre_de_vie(500, 400, variables_globales.joueur_stat.vie, variables_globales.joueur_stat.vie_max, variables_globales.barre_vie_remplie_joueur)
+        dessiner_barre_de_vie(50, 50, variables_globales.monstre_stat.vie / variables_globales.monstre_stat.vie_max, variables_globales.barre_vie_remplie_monstre)
+
+    joueur.dessiner_barre_de_vie(500, 400)
     
     dessiner_nom(variables_globales.nom_adversaire, (49, 20))
     dessiner_nom(variables_globales.pseudo_joueur, (499, 370))
