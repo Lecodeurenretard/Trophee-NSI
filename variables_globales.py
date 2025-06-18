@@ -4,7 +4,9 @@ import time
 import random
 import math
 from typing import TypeAlias, Callable, TypeVar, NoReturn, Any
+from copy import copy, deepcopy
 
+from Stats import *
 
 pygame.init()
 pygame.display.set_caption("Menu Principal")
@@ -64,20 +66,12 @@ att_soin_puissance    : float = 1.5
 barre_vie_remplie_monstre : int = UI_LONGUEUR_BARRE_DE_VIE
 barre_vie_remplie_joueur  : int = UI_LONGUEUR_BARRE_DE_VIE
 
-joueur_stat  : dict[str, int] = {"vie": 50, "force": 35, "defense": 40, "magie": 20, "defense_magique": 30, "vitesse": 50}
-blob_stat    : dict[str, int] = {"vie": 40, "force": 30, "defense": 45, "magie": 0 , "defense_magique": 25, "vitesse": 30}
-sorcier_stat : dict[str, int] = {"vie": 30, "force": 10, "defense": 30, "magie": 15, "defense_magique": 80, "vitesse": 60}
-monstre_stat : dict[str, int|NaN] = {"vie": NAN, "force": NAN, "defense": NAN, "magie": NAN, "defense_magique": NAN, "vitesse": NAN}
-
 pos : TypeAlias = tuple[int, int]
 curseur_pos_attendue_x : pos= (50, 350)
 curseur_pos_attendue_y : pos= (13 * HAUTEUR // 16, 13 * HAUTEUR // 16 + 70)
 curseur_x, curseur_y = curseur_pos_attendue_x[0], curseur_pos_attendue_y[0]
 
 assert(len(curseur_pos_attendue_x) == len(curseur_pos_attendue_y))	# filet de sécurité
-
-joueur_vie  : int = joueur_stat["vie"]
-monstre_vie : int = 0
 
 menu_running : bool = True
 couleur_monstre : color = NOIR

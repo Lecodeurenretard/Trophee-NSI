@@ -1,7 +1,8 @@
 from combat import *
 
 def nouveau_monstre() -> None:
-    variables_globales.monstre_stat = random.choice([variables_globales.blob_stat, variables_globales.sorcier_stat])
+    stat_choix = (variables_globales.blob_stat, variables_globales.sorcier_stat)
+    variables_globales.monstre_stat = copy(random.choice(stat_choix))
     reset_vie_monstre()
     
     if variables_globales.monstre_stat == variables_globales.blob_stat:
@@ -24,7 +25,7 @@ def monstre_choisis_attaque() -> str:
     return ''
 
 def monstre_attaque() -> None:
-    assert(not math.isnan(variables_globales.monstre_stat["vie"])), "Appel de `monstre_attaque()` avant l'initialisation de `monstre_stat`"
+    assert(variables_globales.monstre_stat.est_initialise), "Appel de `monstre_attaque()` avant l'initialisation de `monstre_stat`"
     
     attaque_choisie : str = monstre_choisis_attaque()
     
@@ -57,20 +58,12 @@ def monstre_recoit_degats(degats_recu : int) -> None:
     if INVICIBLE_ENNEMI and degats_recu >= 0:
         return
     
-    variables_globales.monstre_vie -= degats_recu
-    variables_globales.monstre_vie = max(variables_globales.monstre_vie, 0) # Empêche la vie de passer sous 0
+    variables_globales.monstre_stat.baisser_vie(degats_recu)
     update_barre_de_vie_monstre()
 
 def joueur_recoit_degats(degats_recu : int) -> None:
     if INVICIBLE_JOUEUR and degats_recu >= 0:   # INVICIBLE_JOUEUR n'empèche pas les soins
         return
     
-    variables_globales.joueur_vie -= degats_recu
-    variables_globales.joueur_vie = max( # Empêche la vie de passer sous 0 et d'aller au-dessus du max
-        min(
-            variables_globales.joueur_vie,
-            variables_globales.joueur_stat["vie"]
-        ),
-        0
-    )
+    variables_globales.joueur_stat.baisser_vie(degats_recu)
     update_barre_de_vie_joueur()

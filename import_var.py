@@ -27,6 +27,11 @@ from variables_globales import (
     TypeVar,
     NoReturn,
     Any,
+    Stat,
+    
+    # Fonctions
+    copy,
+    deepcopy,
     
     # ça ne fait pas sens de remplacer ces variables pendant le programme
     # on peut donc se permettre le raccourcit

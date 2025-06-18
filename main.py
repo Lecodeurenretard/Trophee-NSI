@@ -76,7 +76,7 @@ while True:
         change_cursor_pos(event)
     
     
-    if variables_globales.monstre_vie <= 0:
+    if variables_globales.monstre_stat.vie <= 0:
         # on laisse le joueur avec la vie qu'il avait au combat précédent
         
         variables_globales.nbr_combat += 1
@@ -94,5 +94,5 @@ while True:
         monstre_attaque()
         variables_globales.tour_joueur = True
     
-    if variables_globales.joueur_vie <= 0:
+    if variables_globales.joueur_stat.vie <= 0:
         partie_fin(gagne=False)

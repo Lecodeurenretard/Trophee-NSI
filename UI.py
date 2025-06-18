@@ -138,9 +138,10 @@ def rafraichir_ecran() -> None:
     pygame.draw.rect(fenetre, BLEU                              , (    LARGEUR // 4 , 3 * HAUTEUR // 4 - 100, 100, 100), 0)
     pygame.draw.rect(fenetre, variables_globales.couleur_monstre, (6 * LARGEUR // 10,     HAUTEUR // 4 - 100, 100, 100), 0)
     
-    if not math.isnan(variables_globales.monstre_stat["vie"]):
-        dessiner_barre_de_vie(50, 50, variables_globales.monstre_vie, variables_globales.monstre_stat["vie"], variables_globales.barre_vie_remplie_monstre) # type: ignore
-    dessiner_barre_de_vie(500, 400, variables_globales.joueur_vie, variables_globales.joueur_stat["vie"], variables_globales.barre_vie_remplie_joueur)
+    if variables_globales.monstre_stat.est_initialise:
+        dessiner_barre_de_vie(50, 50, variables_globales.monstre_stat.vie, variables_globales.monstre_stat.vie_max, variables_globales.barre_vie_remplie_monstre)
+    if variables_globales.joueur_stat.est_initialise:
+        dessiner_barre_de_vie(500, 400, variables_globales.joueur_stat.vie, variables_globales.joueur_stat.vie_max, variables_globales.barre_vie_remplie_joueur)
     
     dessiner_nom(variables_globales.nom_adversaire, (49, 20))
     dessiner_nom(variables_globales.pseudo_joueur, (499, 370))

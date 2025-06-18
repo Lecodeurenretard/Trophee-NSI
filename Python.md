@@ -488,3 +488,61 @@ class Chaise:
 ### La déscendance (inheritance)
 ### Préférez la composition à la déscendance
 -->
+
+### Détails sur les objets
+#### Passage par référence
+A l'instar des tuples et des listes, les objets sont passés par références. Celà veut dire que les objets ne sont pas copiés quand passés d'une variable à une autre.  
+Pour régler le problème, il faut créer une méthode `__copy__()` ou `__deepcopy__()` qui puis appeler `copy()` ou `deepcopy()` du module `copy`. Pour d'autres questions allez voir [cette réponse stackOverflow](https://stackoverflow.com/questions/4794244/how-can-i-create-a-copy-of-an-object-in-python#answer-46939443).
+
+Exemple:
+```Python
+class ClasseSansCopie:
+	def __init__(self, attr1, attr2):
+		self.un = attr1
+		self.deux = attr2
+
+objet = ClasseSansCopie(3, [4])
+autre_objet = objet
+
+objet.un = 10
+print(autre_objet.un)	#-> 10
+
+
+from copy import copy, deepcopy
+class ClasseAvecCopie:
+	def __init__(self, attr1, attr2):
+		self.un = attr1
+		self.deux = attr2
+	
+	def __copy__(self):
+		return ClasseAvecCopie(self.un, self.deux)
+	
+	def __deepcopy__(self, memo):
+		# memo est un dictionnaire id -> None?
+		# pour être honnête même avec test je ne comprend pas
+		# son fonctionnement
+		if memo.get(id(copy)) is not None:	# je recopie stackOverflow
+			return None
+		
+		return ClasseAvecCopie(
+			deepcopy(self.un),
+			deepcopy(self.deux),
+		)
+
+
+objet = ClasseSansCopie(3, [4])
+autre_objet = copy(objet)
+
+objet.un = 10
+objet.deux.append(5)
+print(autre_objet.un)	#-> 3
+print(autre_objet.deux)	#-> [4, 5], copy() n'a pas copié la liste
+
+objet = ClasseSansCopie(3, [4])
+autre_objet = deepcopy(objet)
+
+objet.un = 10
+objet.deux.append(5)
+print(autre_objet.un)	#-> 3
+print(autre_objet.deux)	#-> [4]
+```
