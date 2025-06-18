@@ -446,5 +446,45 @@ print(ma_chaise._est_chaise_gamer())	# pas d'erreur mais va à l'encontre des d�
 ```
 
 ### Les membres statiques
-### La déscendance (inhéritance)
+Un membre statique est un membre qui appartient à la classe et non à une instance de la classe. Les attributs statiques représentent une valeur lié à ce que représente la classe; les méthodes statiques sont en général, soit des actions souvent utilisées par la classe mais impropre aux objets individuels soit une action sur les attributs statiques.  
+Les attributs statiques doivent au maximum respecter l'encapsulation, bien que l'on soit moins strict dessus que pour les attributs non statiques.
+
+Pour créer un attribut statique, il faut le déclarer dans la classe. Quant aux méthodes statiques, ont utilise le décorateur `@staticmethod` (on peut aussi utiliser [`@classmethod`](https://docs.python.org/3/library/functions.html#classmethod) mais c'est inutile pour le projet).  
+Pour accéder à un membre statique, on fait comme pour les membres classiques mais on met le nom de la classe à la place d'une variable.
+
+```Python
+class Chaise:
+	nom_usine : str = "NSI factory"	# nom_usine est statique
+	_emplacement_usine: tuple[float, float] = (48.639101, 1.821532)
+
+	def __init__(self, nb_pied : int, a_roullettes : bool, dimensions : tuple[float, float, float]):
+		self._nb_pied : int = nb_pied
+		self._a_des_roues : int = a_roullettes
+		self._dim : tuple[float, float, float] = dimensions
+	
+	@staticmethod
+	def fabriquer_fauteuils(combien : int) -> None:	# pas de `self` car il n'y a pas d'objet
+		pass
+
+print(Chaise.nom_usine)		#-> NSI factory
+Chaise.fabriquer_fauteuils(5)
+```
+
+Toutes les méthodes non-statiques peuvent accéder aux méthodes statiques mais l'inverse n'est pas possible.
+
+```Python
+class Chaise:
+	# ...
+	
+	def fabriquer_fauteuil(self) -> None:
+		Chaise.fabriquer_fauteuils(1)
+	
+	@staticmethod
+	def erreur() -> None:
+		self.fabriquer_fauteuil()	# self n'est pas défini
+```
+
+<!-- Je ne pense pas que se soit utile maintenant
+### La déscendance (inheritance)
 ### Préférez la composition à la déscendance
+-->
