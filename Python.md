@@ -1,5 +1,5 @@
 # Quelques concepts sur Python
-On a evidemment pas et on ne va pas tout apprendre sur Python en NSI. Du coup voici des explications pour se mettre au même niveau.
+On a evidemment pas et on ne va pas tout apprendre sur Python en NSI. Du coup voici des explications pour se mettre au même niveau. En lisant ce fichier, il peut sembler que une décision est irréversible; ce qui évidemment faux c'est le principe de la refactorisation, c'est juste plus pénible à faire. Du coup, en codant réfléchissez à la structure finale du projet mais n'y réfléchissez pas trop, il y a toujours des imprévus.
 
 ## 0. Les bonnes pratiques
 Il est facile de créer un code qui fait ce qu'on veut mais il est un peu plus compliqué d'écrire un code compréhensible facilement. Heureusement, des développeurs bien plus expérimenté que nous se sont penchés sur la question et nous ont apporté des conseils pour rendre le code plus lisible et instinctif. J'insiste sur le fait que ce sont des **conseils** et peuvent ce révéler dans certains cas plus contre-productifs qu'autre chose, c'est donc au développeur de réfléchir si il est pertinent d'écrire de cette façon.
@@ -22,13 +22,13 @@ Maintenant c'est mieux que jamais.
 Je vous laisse vous en inspirer.
 
 ### Le principe DRY
-Le principe _D.R.Y._ est simple: _Don't Repeat Yourself_ (ne te répète pas). Dans un code parfais, il ne devrait pas avoir deux lignes qui se ressemble: tout doit être regroupé. Pourquoi?  
+Le principe _D.R.Y._ est simple: _Don't Repeat Yourself_ (ne te répète pas). Dans un code parfais, il ne devrait pas avoir deux lignes qui se ressemblent, tout doit être regroupé. Pourquoi?  
 Pour répondre à cette question, prenons un exemple qu était dans le code avant refactorisation:
 ```Python
 pygame.quit()
 sys.exit()
 ```
-Elles ont une fonction bien précise: quitter le programme et en oublier une ou se tromper dans l'ordre peut potentiellement causer un comportement innatendu du programme. Même en copiant et en collant, c'est un problème; imaginons que pour déboguer l'on veuille ajouter un `print()` à chaque fois que le programme s'arrète, doit-on faire `Ctrl + F` pour chaque fichier et y ajouter son `print()`? Puis quand on veut l'enlever, rebelotte? non, il y a plus simple.
+Elles ont une fonction bien précise: quitter le programme; en oublier une ou se tromper dans l'ordre peut potentiellement causer un comportement innatendu du programme. Même en copiant et en collant, c'est un problème; imaginons que pour déboguer l'on veuille ajouter un `print()` à chaque fois que le programme s'arrète, doit-on faire `Ctrl + F` pour chaque fichier et y ajouter son `print()`? Puis quand on veut l'enlever, rebelotte? non, il y a plus simple.
 
 La solution est simplement de créer une fonction prenant ces deux lignes:
 ```Python
@@ -36,14 +36,14 @@ def quit():
 	pygame.quit()
 	sys.exit()
 ```
-Maintenant s'il faut ajouter un `print()`, on l'ajoute dans la fonction, chaque sortie aura son `print()`.
+Maintenant quand on veut quitter le programme, on appelle `quit()`; s'il faut ajouter un `print()`, on l'ajoute dans la fonction et on est content car il n'y a qu'une ligne de changée.
 
-Il est même pertinent de créer des fonctions même si le code n'est répété car c'est souvent plus propre que de le voir au milieu d'un autre blob de code et rien que le nom de la fonction peut faire office de commentaire vu qu'il explique ce que fait la fonction.
+Il est même pertinent de créer des fonctions même si le code n'est pas nécessairement répété car c'est souvent plus propre que de le voir au milieu d'un autre blob de code. En fait, rien que le nom de la fonction peut faire office de commentaire vu qu'il explique le but du bout de code.
 
 ### Evitez de trop indenter
-Idéalement, l'indentation ne devrait pas dépasser 4 en tout point du code et cette indentation de 4 doit être occasionnelle. La raison est simple: plus un script est nesté (à de `if`, `for`, etc imbriqués), plus ce script est compliqué à lire car il faut se souvenir de chaque condition qu'il a fallut pour y arriver.
+Idéalement, l'indentation ne devrait pas dépasser 4 en tout point du code et cette indentation de 4 doit être occasionnelle. La raison est simple: plus un script est nesté (a de `if`, `for`, etc... imbriqués les uns dans les autres), plus ce script est compliqué à lire du faait qu'il faut se souvenir de chaque condition qu'il a fallut pour y arriver.
 
-Pour dénester le code, il existe 2 technique prominente: la mise en fonction et l'inversion. La première est facile à comprendre: on met le code dans une fonction; la deuxième est un peut plus compliquée, prenons:
+Pour dénester le code, il existe 2 technique prédominentes: la mise en fonction et l'inversion. La première est facile à comprendre: on met le code dans une fonction; la deuxième est un peut plus compliquée, prenons:
 ```Python
 def fonction():
 	if condition:
@@ -60,7 +60,7 @@ def fonction():
 	fait_qql_chose()
 ```
 
-Il est aussi possible de le faire dans des boucles avec `continue`/`break`:
+Il est aussi possible de le faire dans des boucles avec `continue` ou `break`:
 ```Python
 for nombre in (1, 2, 3, 4):
 	if nombre == 1:
@@ -94,7 +94,7 @@ for nombre in liste:
 ______
 **solution**
 ```Python
-def ajouter_jusqua(n):
+def ajouter_jusqua(n):	# mise en fonction
 	resultat = []
 	for nb in range(1, n+1):	# [1, 2, ..., nombre]
 		resultat.append(nb)
@@ -104,7 +104,7 @@ def ajouter_jusqua(n):
 liste = [1, 2, 3, 4]
 jusqu_au_pairs = []
 for nombre in liste:
-	if nombre % 2 != 0:
+	if nombre % 2 != 0:	# inversion
 		continue
 	
 	jusqu_au_pairs.append(ajouter_jusqua(nombre))
@@ -115,19 +115,19 @@ for nombre in liste:
 # ]
 ```
 
-C'est, certes, plus long mais beaucoup facile à lire.
+C'est, certes, plus long mais beaucoup simple à comprendre.
 
 Souvenez-vous que l'objectif est que le plus grand nombre de ligne soit au plus petit niveau d'indentation.
 
 ### Les commentaires peuvent mentir
-Certains développeurs avancent qu'il ne faudrait jamais utiliser de commentaire (à quelques exceptions près). Bein que je ne soit pas d'accord, j'approuve leur argument principal: **il est facile d'oublier de modifier un commentaire**, ce qui provoque un décalage entre le commentaire et le code, ce qui n'est jamais bon.
+Certains développeurs avancent qu'il ne faudrait jamais utiliser de commentaire (à quelques exceptions près). Bien que je ne soit pas d'accord, j'approuve leur argument principal: **il est facile d'oublier de modifier un commentaire** lors d'une modification du code, ce qui provoque un décalage entre le commentaire et le code, ce qui n'est jamais bon.
 
-Il n'y a pas vraiment de solution à ça mais on peut réfléchir au but des commentaires en premier lieu: un commentaire ne doit pas expliquer _ce que fait_ le code, mais **pourquoi** le code est ainsi pour pas que les autres développeurs ou vous du futur fassent une erreur en le modifiant.
+Il n'existe pas vraiment de solution à ce problème mais on peut réfléchir au but des commentaires en premier lieu: un commentaire ne doit pas expliquer _ce que fait_ le code, mais **pourquoi** le code est ainsi pour pas que les autres développeurs ou vous du futur fassent une erreur en le modifiant.
 
-Attention, cela ne veut pas dire qu'il faut néscéssairement abandonner tout commentaire expliquant le code, il faut juste les limiter car les codeurs savent lire du Pythons.
+Attention, cela ne veut pas dire qu'il faut nécessairement abandonner tout commentaire expliquant le code, il faut juste les limiter car les codeurs savent lire du Python.
 
 ### Le principe de la boite noire
-Ce principe dit que toute structure (classe, fonction) doit-être vu comme une [boite noire](https://fr.wikipedia.org/wiki/Bo%C3%AEte_noire_(syst%C3%A8me)); autrement dit: quand on utilise une fonction, on se fiche de comment elle accomplit sa tâche, on n'est intéressé que par ce qu'il lui faut donner en entrée et ce qu'elle renvoie en sortie et rien d'autre. C'est notament parce que quelq'un peut changer l'intérieur dans une mise-à-jour future.
+Ce principe dit que toute structure (classe, fonction) doit-être vu comme une [boite noire](https://fr.wikipedia.org/wiki/Bo%C3%AEte_noire_(syst%C3%A8me)); autrement dit: quand on utilise une fonction, on se fiche de comment elle accomplit sa tâche, on n'est seulement intéressé des entrées et des sorties et rien d'autre. C'est notament parce que quelqun peut changer l'intérieur dans une mise-à-jour future.
 
 ### La PEP 8
 On sait tous à quoi sert la [PEP 8](https://peps.python.org/pep-0008/), c'est un assemblage de règles qui permet d'écrire du Python plus élégament, même si certaines règles sont contestables comme les [lignes de 79 caractères maximum](https://peps.python.org/pep-0008/#maximum-line-length). Il faudrait essayer d'y adhérer le plus possible.
@@ -138,14 +138,15 @@ Cette section est pour des suggestions autres.
 Si vous parlez assez bien anglais, allez voir [CodeAesthetics](https://www.youtube.com/@codeaesthetic), il fait des vidéos de quelques minutes sur comment organiser le code.
 
 ## 1. Les annotations
-Python est ce qu'on appelle un langage [typé dynamiquement](https://fr.wikipedia.org/wiki/Typage_dynamique), c'est-à-dire que le type des variables est deviné par l'interpréteur (la chose qui éxécute le code) Python au moment où une valeur y est assigné; des fois, ça peut être utile mais la plupart du temps c'est plus énervant qu'autre chose. Prenons cette signature de fonction:
+Python est ce qu'on appelle un langage [typé dynamiquement](https://fr.wikipedia.org/wiki/Typage_dynamique), c'est-à-dire que le type des variables est deviné par l'interpréteur (la chose qui éxécute le code) Python au moment où une valeur y est assigné; des fois, ça peut être utile mais la plupart du temps c'est plus énervant qu'autre chose.  
+Prenons cette signature de fonction:
 ```Python
 def calcul_duree(date_debut, date_fin):
 ```
 
-On n'a aucune idée de quoi passer en argument des string sous forme `"dd/mm/aa"`? des ints pour des dates [EPOCH](https://fr.wikipedia.org/wiki/Epoch)? des listes/tuples contenant des ints? et les dates doivent-elles inclure une année? On en a aucune idée sans documentation.
+On n'a aucune idée de quoi passer en argument: des string sous forme `"dd/mm/aa"`? des ints pour des dates [EPOCH](https://fr.wikipedia.org/wiki/Epoch)? des listes/tuples contenant des ints? et les dates doivent-elles inclure une année? On en a aucune idée sans documentation.
 
-Heuresement, il existe des langages [statiquement typés](https://developer.mozilla.org/fr/docs/Glossary/Static_typing) dans lesquels on connait les types, par exemple en C++:
+Heureusement, il existe des langages [statiquement typés](https://developer.mozilla.org/fr/docs/Glossary/Static_typing) dans lesquels on connait les types, par exemple en C++:
 ```C++
 unsigned int calcul_duree(unsigned int[3] dateDebut, unsigned int[3] dateFin) {
 ```
@@ -156,7 +157,7 @@ On peut mimer ce comportement en Python, avec ce qu'on appelle _les annotations_
 def calcul_duree(date_debut : list[int, int, int], date_fin : list[int, int, int]) -> int:
 ```
 
-Attention, j'ai bien écrit "mimer", en effet là où C++ lancera une erreur au visage du programmeur, Python n'en a rien à faire. **Les annotations sont comme les docstrings**, tu peux faire ce qu'elles disent ou pas.
+Attention, j'ai bien écrit "mimer", en effet là où C++ vous lancera une erreur au visage, Python n'en a rien à faire: **les annotations sont ignorées lors de l'éxécution du programme**.
 
 Exemple:
 ```Python
@@ -179,7 +180,7 @@ J'en profite pour rappeler que `==` compare les valeurs (`5 == 5`) et que `is` c
 ### La syntaxe
 La syntaxe est assez simple, il y a 3 règle:
 + Pour annoter une variable, on utilise les deux points `:`.
-+ Pour indiquer le type de retour d'une fonction, on utilise la flèche `->` avant les deux points.
++ Pour indiquer le type de retour d'une fonction, on utilise la flèche `->` avant les deux points commençant la fonction.
 + Si jamais il peut y avoir plusieurs types, on les sépare par l'opérateur de disjonction `|`.
 
 Exemples:
@@ -206,17 +207,17 @@ def ou_alors(p1 : int | float) -> str | None:
 
 Certaines annotations (comme `list`) peuvent prendre des types en paramètre, pour cela il faut ajouter des crochets `[]` avec un ou des types à l'intérieur.
 ```Python
-ma_simple_liste : tuple # une tuple avec un nombre indéterminé d'éléments de types inconnus
+ma_simple_liste : list # une liste avec un nombre indéterminé d'éléments de types inconnus
 
-ma_liste : list[bool]	# une liste avec des booléens à l'intérieur
+ma_liste : list[bool]			# une liste avec des booléens à l'intérieur
 ma_liste : list[int | float]	# une liste avec des int et des float à l'intérieur
-ma_tuple : tuple[()]	# une tuple vide
+ma_tuple : tuple[()]			# une tuple vide
 ma_tuple : tuple[float, str]	# une tuple avec une float et une string à l'intérieur
 ma_tuple : tuple[float, ...]	# une liste avec des float à l'intérieur
 mon_dictionnaire : dict[str, int]	# une dictionnaire avec des strings pour clefs et des entiers pour valeur
 ```
 
-La PEP 484 introduit d'autre syntaxes comme [les _types comments_](https://peps.python.org/pep-0484/#type-comments) (commentaires de type) et les [strings en guise d'annotation de type](https://peps.python.org/pep-0484/#forward-references), mais les deux sont assez rare à utiliser dans ce projet, sachez que ces méthodes existent.
+La [PEP 484](https://peps.python.org/pep-0484/#designing-for-inheritance) introduit d'autre syntaxes comme [les _types comments_](https://peps.python.org/pep-0484/#type-comments) (commentaires de type) et les [strings en guise d'annotation de type](https://peps.python.org/pep-0484/#forward-references), mais les deux sont, pour ce projet, pas très utiles. Sachez que ces méthodes existent.
 ```Python
 facebook : 'str' = "méta string"
 les_coms = 23	# type: int
@@ -233,7 +234,7 @@ Je ne vais pas faire la liste exhaustive (vous en trouverez une bonne partie [ic
 - liste (list): `list`
 - tuple (tuple): `tuple`
 
-Il n'y a presque aucune autre annotation de type en _vanilla_ Python, mais il existe la librarie `typing` qui défini plein d'autre types.  
+Il n'y a presque aucune autre annotation de type en _vanilla_ Python, mais il existe la librarie `typing` qui définie plein d'autre types (on en verra deux plus tard).  
 
 
 Comme vous le savez peut-être les fonctions peuvent être stockées dans des variables, si on importe `Callable` de `collections.abc`, il est possible de d'annoter des fonctions:
@@ -258,7 +259,7 @@ multi_fun = fonction_troiseme
 
 Le module `typing` donne accès aux annotations `Any` et `NoReturn` qui ne représentent pas de type en particuler.  
 `Any` représente une union de tous les types qui existent, il ne faut **pas** l'utiliser si le type d'une variable n'est pas connu (on ne met pas d'annotation dans ce cas), il faut l'utiliser seulement quand une variable peut être (et probablement sera) de n'importe quel type.  
-`NoReturn` ne s'utilise qu'en type de retour d'une fonction et indique que soit la fonction lancera une erreur, soit la fonction fera quitter le programme mais ne doit **jamais** utiliser de `return` explicite ou implicite.  
+`NoReturn` ne s'utilise qu'en type de retour d'une fonction et indique que soit la fonction lancera une erreur, soit la fonction fermera le programme mais ne doit **jamais** utiliser de `return` explicite ou implicite.  
 Exemple:
 ```Python
 from typing import Any, NoReturn
@@ -310,65 +311,66 @@ pour_les_francophones	: meilleure_str = ("Oi!",)
 ```
 
 
-C'était un guide assez détaillé, pour plus de possiblilités allez voir la [documentation de `typing`](https://docs.python.org/3/library/typing.html).  
+Pour plus de possiblilités allez voir la [documentation de `typing`](https://docs.python.org/3/library/typing.html).  
 Si jamais, vous voulez des définitions plus formelles allez voir la [PEP 484](https://peps.python.org/pep-0484/)
 
 
 ## 2. La programation orientée objet
-La programmation orientée objet (POO ou OOP en anglais) est l'un des styles majeurs de _design_ de code avec l'impératif et le fonctionnel. Pour résumer, ce style repose sur la définition de plans pour construire des _objets_ qui peuvent être utilisés pour faire des actions.
+La programmation orientée objet (POO ou OOP en anglais) est l'un des styles majeurs de _design_ de code avec l'impératif et le fonctionnel. Grossièrement ce style repose sur la définition de plans pour construire des _objets_ qui peuvent être utilisés pour faire des actions.
 
 ### Introduction
-Disons que nous sommes dans une usines de chaises et qu'il faut coder les machines pour fabriquer des chaises. Pour cela, il nous faut définir les caractéristiques que chaque chaise a, il nous faut:
+Disons que nous sommes dans une usines de chaises et qu'il faut coder les machines pour fabriquer des chaises. Pour cela, il nous faut définir les caractéristiques que chaque chaise a, il nous faut donc:
 - le nombre de pieds
 - si la chaise à des roullettes
 - les dimensions de la chaise
 
 
 ### Le constructeur
-Il nous faut définir une _classe_ "chaise" qui définira ce qu'auront chaque chaises puis à partir de cette classe nous allons construire des _objets_ (ou instances) qui représenterons une chaise à fabriquer avec les machines. Dans la classe, il doit y avoir une fonction qui "construit" les objets, elle s'appelle le _constructeur_ et est la fonction `__init__()`.  
-Voici la synatxe en Python:
+Il nous faut définir une _classe_ "chaise" qui définira ce qu'auront chaque chaises puis, à partir de cette classe nous allons construire des _objets_ (ou instances) qui représenterons des chaises à fabriquer avec les machines.  
+Dans la classe, il doit y avoir une fonction qui "construit" les objets, on l'appelle le _constructeur_ et en Python ce sera toujours la fonction `__init__()`.  
+
+L'exemple ci-dessous, définit le constructeur de la class `Chaise` puis l'appelle pour créer une objet `Chaise`.  
 ```Python
 class Chaise:
 	# On définit le constructeur de Chaise
 	def __init__(self, nb_pied : int, a_roullettes : bool, dimensions : tuple[float, float, float]):
-		self.nb_pied : int = nb_pied
+		self.nb_pied	 : int = nb_pied
 		self.a_des_roues : int = a_roullettes
-		self.dim : tuple[float, float, float] = dimensions
+		self.dim		 : tuple[float, float, float] = dimensions
 
 ma_chaise : Chaise = Chaise(4, False, (.5, .5, 1))
 ```
 
-L'exemple ci-dessus, définit le constructeur puis l'appelle pour créer une chaise.  
-A partir de la ligne 5, on définit des variables comme `self.nb_pied`, ce sont des variables qui appartiennent à l'objet. Notez, que la fonction `__init__()` est **la seule** fonction à pouvoir déclarer des variables qui appartiennent à `self`.  
-Nous pouvons voir que le premier argument `self`, est **ignoré** lors de l'appel du constructeur; il représente l'objet que l'on est en train de construire, c'est pour cela que les variables définie appartiennent à `self`, c'est des variables inhérentes à l'objet.
+A partir de la ligne 5, on définit des variables comme `self.nb_pied`, ce sont des variables qui appartiennent à l'objet. Notez que la fonction `__init__()` est **la seule** fonction à pouvoir déclarer des variables qui appartiennent à `self`.  
+A la dernière ligne, `self` est **ignoré** lors de l'appel du constructeur. C'est parce qu'il représente l'objet que l'on est en train de construire et est automatiquement assigné. C'est aussi pour cela que les variables que l'on déclare appartiennent à `self`, c'est des variables inhérentes à l'objet.
 
-A la dernière ligne, la variable `ma_chaise` est définie, elle est de type `Chaise` et pour qu'elle soit une chaise, on appelle le constructeur qui est, pour l'instant, le seul moyen d'obtenir une chaise. De part les paramètre du constructeur, on en déduit que:
+A la dernière ligne, la variable `ma_chaise` est définie, elle est de type `Chaise` car on lui assigne le résulat du constructeur constructeur qui est, pour l'instant, le seul moyen d'obtenir une chaise.  
+En regardant les arguments du constructeur, on conclue les égalités suivantes.
 ```Python
-ma_chaise.nb_pied	== 4
+ma_chaise.nb_pied		== 4
 ma_chaise.a_des_roues	== False
-ma_chaise.dim		== (.5, .5, 1)
+ma_chaise.dim			== (.5, .5, 1)
 ```
 
 Pour résumer, les constructeurs sont les moyens principaux de créer des objets, définissent les variables des instances et peuvent être appelés avec le nom de la classe qu'ils contruisent.
-
 ### Parenthèse vocabulaire
-Petit point lexique:
-
+Petit point lexique:  
 Les variables appartenants aux objets sont appelés _variables membre_ ou alors _attributs_.  
-Les fonctions définies dans une classe sont des _fonctions membre_ ou _méthodes_.
+Les fonctions définies dans une classe sont des _fonctions membre_ ou _méthodes_.  
+Si l'on ne précise pas la nature d'un _membre_, l'on parle à la fois d'un attribut et d'une méthode.
 
-_Instance d'une classe_ désigne la même chose qu'un objet.
+Une _instance_ (de la classe X) désigne la même chose qu'un objet.
 
 ### Créer des méthodes
-Créer une méthode, c'est créer une fonction normale mais on indente pour qu'elle appartienne à la classe, toute méthode prend comme premier paramètre `self`, qui représente l'objet qui fait l'appel de la méthode. Pour les utiliser, c'est comme les méthodes des listes (`.append()`, `.pop()`, ...).
+Créer une méthode, c'est comme créer une fonction normale mais on indente pour qu'elle appartienne à la classe. Toute méthode prend comme premier paramètre `self`, qui représente l'objet qui fait l'appel de la méthode. Pour les utiliser, c'est comme les méthodes des listes (`.append()`, `.pop()`, ...).
 
-Dans notre scénarion, nous pourrions avoir des méthodes qui gère la fabrication de la chaise:
+Dans notre scénario, nous pourrions avoir des méthodes qui gère la fabrication de la chaise:
 ```Python
 class Chaise:
 	# On définit le constructeur de Chaise
 	def __init__(self, nb_pied : int, a_roullettes : bool, dimensions : tuple[float, float, float]):
-		self.nb_pied : int = nb_pied
-		self.a_des_roues : int = a_roullettes
+		self.nb_pied	 : int	= nb_pied
+		self.a_des_roues : int	= a_roullettes
 		self.dim : tuple[float, float, float] = dimensions
 	
 	def placer_pieds(self) -> None:
@@ -381,33 +383,33 @@ class Chaise:
 	def placer_assise(self) -> None:
 		pass
 
-	def construire(self, combien : int) -> None:
-		for _ in range(combien):	# fait combien itérations (aucune variable)
+	def fabriquer(self, combien : int) -> None:
+		for _ in range(combien):	# fait `combien` itérations (aucune variable)
 			self.placer_pieds()
 			self.placer_assise()
 			self.placer_dossier()
 			...
 
 ma_chaise : Chaise = Chaise(4, False, (.5, .5, 1))
-ma_chaise.construire(5)		# Construit 5 chaise avec les propriétés de ma_chaise
+ma_chaise.fabriquer(5)		# Fabrique 5 chaises avec les propriétés de ma_chaise
 ```
 
-Certaines méthodes ont des noms qui commencent et terminent par deux underscores `__`, ce sont les _méthodes magiques_, il y en a pas mal et elles ne sont pas utiles pour ce projet du coup, je ne les détaillerais pas mais vous pouvez allez les voir vous même à [la documentation](https://docs.python.org/3.13/reference/datamodel.html#special-method-names).
+Certaines méthodes ont des noms qui commencent et terminent par deux underscores `__`, ce sont les _méthodes magiques_, il y en a pas mal mais elles ne sont pas utiles pour ce projet, du coup je ne les détaillerais pas mais vous pouvez allez les voir vous même dans [la documentation](https://docs.python.org/3.13/reference/datamodel.html#special-method-names).
 
 ### L'encapsulation
-L'encapsulation est un concept similaire à celui de la [boite noire](https://fr.wikipedia.org/wiki/Bo%C3%AEte_noire_(syst%C3%A8me)). Le principe est de considérer un objet comme une capsule opaque, creuse et avec des bouttons dessus qui représentent les méthodes, à l'intérieur il y a des données (attributs) qui sont innacessibles à l'utilisateur de la classe qui ne peut qu'appuyer sur les boutons à la surface.  
-En somme, la seule façon de modifier et lire les attributs d'un objet doit être par ses méthodes; malheureusement, en Python il n'existe pas de moyen de s'assurer que c'est respecté mais il y a des conventions, on verra plus tard.
+L'encapsulation est un concept similaire à celui de la [boite noire](https://fr.wikipedia.org/wiki/Bo%C3%AEte_noire_(syst%C3%A8me)). Le principe est de considérer un objet comme une capsule opaque, creuse et avec des bouttons dessus, à l'intérieur il y a des données (attributs) qui sont innacessibles à l'utilisateur de la classe qui ne peut qu'appuyer sur les boutons à la surface en appelant des méthodes.  
+En somme, la seule façon de modifier et lire les attributs d'un objet doit être par ses méthodes; malheureusement, en Python il n'existe pas de moyen de s'assurer que ce soit respecté mais il y a des conventions pour montrer que faire aux développeurs, nous les verrons plus tard.
 
-Je me souviens que quand j'ai appris ce concept pour la première fois, je n'y croyais pas beaucoup non plus alors pourquoi devrait-on respecter l'encapsulation en premier lieu? La réponse que j'ai reçu, c'est qu'il ne faut pas submerger l'utilisateur de choix; cependant je ne suis pas convaincu par cette explication, surtout en Python où les variables ne sont pas protègées; ma réponse est qu'avec cette approche, on peut forcer l'utilisateur à utiliser d'une certaine façon.  
-Par exemple, il est possible pour la fabrication de chaises de ne vouloir que de l'extérieur, on ne sache que le type de chaise construite.
+Je me souviens que quand j'ai vu ce concept pour la première fois, je n'y croyais pas beaucoup non plus alors pourquoi devrait-on respecter l'encapsulation en premier lieu? La réponse que j'ai reçu, c'est qu'il ne faut pas submerger l'utilisateur de la classe de choix avec trop de façon de faire la même chose; cependant je ne suis pas convaincu par cette explication, surtout en Python où les variables ne sont pas protègées; ma réponse est qu'avec cette approche, on peut forcer l'utilisateur à utiliser la classe d'une certaine façon.  
+Par exemple, il est possible pour la fabrication de chaises de ne vouloir, que de l'extérieur, on ne puisse savoir seulement le type de chaise construite sans de caractéristiques précises.
 
-Comme on ne peut pas directement prendre une variable, il existe des méthodes conçues uniquement pour récupérer la valeur d'un attribut, on les appelle les fonctions _getters_, de même une fonction conçue uniquement pour changer la valeur d'un attribut s'appelle une fonction _setter_.
+Avec ce design on ne peut pas directement lire une variable, il faut définir des méthodes conçues uniquement pour récupérer la valeur d'un attribut, on les appelle les fonctions _getters_. De même pour une fonction conçue uniquement pour changer la valeur d'un attribut s'appelle une fonction _setter_.
 
-Tous ceci est bien mais il nous manque un élément crucial pour pouvoir mettre en place l'encapsulation: un moyen de dire à l'utilisateur de ne pas accéder à un membre d'une classe / d'un objet.  
-Dans un langage de programation orienté objet standard, on trouve deux types de membres: les membres _privés_ et _publics_; les premiers ne peuvent être accédés seulement par une méthode membre de la même classe dont ils sont, les seconds peuvent être accédés depuis n'importe où.  
+Tous ceci est bien mais il nous manque un élément crucial pour pouvoir mettre en place l'encapsulation: un moyen de dire à l'utilisateur de ne pas accéder à un membre d'une classe ou d'un objet.  
+Dans un langage de programation orienté objet standard, on trouve deux types de membres: les membres _privés_ et les membres _publics_; les premiers ne peuvent être accédés seulement par une méthode membre de la même classe, les seconds peuvent être accédés depuis n'importe où.  
 Comme je l'ai écrit plus haut, il est impossible en Python de s'assurer qu'un membre soit privé, il existe cependant une convention installée par la [PEP 8](https://peps.python.org/pep-0008/#method-names-and-instance-variables): les attributs non publics commencent par un seul underscore `_`. Comme Python n'a pas d'attribut privés à proprement parler, la [PEP 8](https://peps.python.org/pep-0008/#designing-for-inheritance) indique qu'il ne faudrait pas parler d'attribut "privés" mais "non publics".
 
-Voici une veresion de `Chaise` respectant l'encapsulation:
+Voici une version de `Chaise` respectant l'encapsulation:
 ```Python
 class Chaise:
 	# On définit le constructeur de Chaise
@@ -420,13 +422,16 @@ class Chaise:
 	def get_nb_pied(self) -> int:
 		return self._nb_pied
 	
-	# getter pour _dim
-	def get_nb_pied(self) -> int:
-		return self._dim
 	
-	# Pas de getter pour _a_des_roues, peut-être que ce n'est pas pertinent
+	# Pas de getter pour _a_des_roues et nb_pieds
 
-	# Pas de setter du tout, une chaise doit rester constante
+	# setter pour _dim
+	# on aurait pu l'appeler autrement mais
+	# la convention veut indiquer les setters par le préfixe `set_`
+	def set_nb_pied(self, nouvelle_valeur : tuple[float, float, float]) -> int:
+		self._dim = nouvelle_valeur
+	
+	# Pas de setter pour les autres attributs
 
 	# Les méthodes non publiques existent aussis
 	def _est_chaise_gamer(self) -> bool:
@@ -439,3 +444,7 @@ ma_chaise : Chaise = Chaise(4, False, (.5, .5, 1))
 print(ma_chaise.est_comfortable())		# pas d'erreur et autorisé
 print(ma_chaise._est_chaise_gamer())	# pas d'erreur mais va à l'encontre des développeurs de la classe
 ```
+
+### Les membres statiques
+### La déscendance (inhéritance)
+### Préférez la composition à la déscendance
