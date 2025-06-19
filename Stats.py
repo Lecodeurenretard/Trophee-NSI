@@ -1,12 +1,6 @@
 from enum import Enum, auto
 import random
 
-class TypeAttaque(Enum):
-    """Tous les types d'attaques disponibles."""
-    PHYSIQUE = auto(),
-    MAGIQUE  = auto(),
-    SOIN     = auto(),
-
 class Stat:
     """
     Représente les stats de quelque chose.
@@ -74,13 +68,13 @@ class Stat:
         # Défini ce que l'objet doit retourner pour une string "jolie"
         return (
             "Stat{"
-            + f"vie: {self.vie}"
-            + f"force: {self.force}"
-            + f"defense: {self.defense}"
-            + f"magie: {self.magie}"
-            + f"defense_magique: {self.defense_magique}"
-            + f"vie: {self.vie}"
-            + f"vitesse: {self.vitesse}"
+            + f"vie: {self.vie}; "
+            + f"force: {self.force}; "
+            + f"defense: {self.defense}; "
+            + f"magie: {self.magie}; "
+            + f"defense_magique: {self.defense_magique}; "
+            + f"vie: {self.vie}; "
+            + f"vitesse: {self.vitesse}; "
             + f"est_initialise: {self.est_initialise}"
             +"}"
         )
@@ -96,32 +90,6 @@ class Stat:
             self.vitesse,
             not self.est_initialise,
         )
-    @staticmethod
-    def calculer_degats(force_attaque : float, type_degat : TypeAttaque, stats_attaquant : 'Stat', stats_victime : 'Stat', defense_min = 10) -> int:
-        assert(stats_attaquant.est_initialise), "stat_attaquant n'est pas initialisé dans Stat.calculer_degats()"
-        assert(stats_victime.est_initialise), "stat_victime n'est pas initialisé dans Stat.calculer_degats()"
-        
-        degats : float = random.uniform(0.85, 1.0)
-        match type_degat:
-            case TypeAttaque.PHYSIQUE:
-                attaque = force_attaque * stats_attaquant.force
-                defense = max(defense_min, stats_victime.defense)
-                
-                degats *= attaque / defense
-            
-            case TypeAttaque.MAGIQUE:
-                attaque = force_attaque * stats_attaquant.magie
-                defense = max(defense_min, stats_victime.defense_magique)
-                
-                degats *= attaque / defense
-            
-            case TypeAttaque.SOIN:
-                attaque = force_attaque * stats_attaquant.magie
-                degats *= -attaque
-            
-            case _:
-                raise ValueError("type_degat n'est pas un membre de TypeAttaque dans Stat.calculer_degats.")
-        return round(degats)
     
     def set(
         self,

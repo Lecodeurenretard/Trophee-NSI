@@ -36,9 +36,6 @@ POLICE_PETIT : pygame.font.Font = pygame.font.Font(None, 25)
 
 TEXTE_VICTOIRE      : pygame.Surface = POLICE_GRAND.render("Vous avez gagné !", True, NOIR)
 TEXTE_DEFAITE       : pygame.Surface = POLICE_GRAND.render("Vous avez perdu !", True, NOIR)
-TEXTE_ATT_TORGNOLE  : pygame.Surface = POLICE_GRAND.render("Torgnole"         , True, ROUGE)
-TEXTE_ATT_SOIN      : pygame.Surface = POLICE_GRAND.render("Soin"             , True, VERT)
-TEXTE_ATT_MAGIQUE   : pygame.Surface = POLICE_GRAND.render("Att. magique"     , True, BLEU)
 TEXTE_INFO_UTILISER : pygame.Surface = POLICE_PETIT.render("SPACE : utiliser", True, BLANC)
 TEXTE_INFO_INFO     : pygame.Surface = POLICE_PETIT.render("I : info"        , True, BLANC)
 
@@ -57,11 +54,7 @@ fenetre.fill(BLANC)
 police : pygame.font.Font = pygame.font.SysFont(None, 50)
 
 nbr_combat : int = 1
-
 tour_joueur : bool = True
-att_charge_puissance  : int = 20
-att_magique_puissance : int = 45
-att_soin_puissance    : float = 1.5
 
 barre_vie_remplie_monstre : int = UI_LONGUEUR_BARRE_DE_VIE
 barre_vie_remplie_joueur  : int = UI_LONGUEUR_BARRE_DE_VIE
@@ -77,4 +70,3 @@ menu_running : bool = True
 couleur_monstre : color = NOIR
 
 nom_adversaire : str = ""
-pseudo_joueur  : str = ""

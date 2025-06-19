@@ -1,7 +1,7 @@
 from fonctions_vrac import *
 from Joueur import *
 
-def demander_pseudo() -> str:
+def demander_pseudo() -> None:
     pseudo : str  = ""
     saisie : bool = True
     texte : pygame.Surface = variables_globales.POLICE_GRAND.render("Entrez votre pseudo :", True, NOIR)
@@ -17,54 +17,61 @@ def demander_pseudo() -> str:
         fenetre.blit(pseudo_affiche, (LARGEUR // 2 - 100, HAUTEUR // 2))
         
         pygame.display.flip()
-    return pseudo
+    
+    joueur.set_pseudo(pseudo)
 
 def texte_entree_event(texte : str) -> tuple[str, bool]:
     continuer : bool = True
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             quit()
+        
         if event.type != pygame.KEYDOWN:
             continue
         
         if event.key == pygame.K_RETURN and len(texte) > 0:
             continuer = False
             continue
+        
         if event.key == pygame.K_BACKSPACE:
             texte = texte[:-1]
             continue
+        
         if len(texte) < 12 and event.unicode.isprintable():
             texte += event.unicode
             continue
+        
     return (texte, continuer)
 
-
-def afficher_info() -> None:
+def trouve_attaque_a_partir_du_curseur() -> Attaque:
     curseur_empl : tuple[int|NaN, int|NaN]= get_curseur_emplacement()
-    texte_info1 : pygame.Surface
-    texte_info2 : pygame.Surface
-    
     if math.isnan(curseur_empl[0]) or math.isnan(curseur_empl[1]):
         print(f"Position du curseur: {(variables_globales.curseur_x, variables_globales.curseur_y)}")
         raise ValueError("Le curseur n'est pas à un emplacement autorisé.")
     
     if curseur_empl == (0, 0):
-        texte_info1 = variables_globales.POLICE_GRAND.render(f"Puissance: {variables_globales.att_soin_puissance}", True, NOIR)
-        texte_info2 = variables_globales.POLICE_GRAND.render("Soigner-vous de quelque pv", True, NOIR)
+        return ATTAQUES_DISPONIBLES['heal']
     
     if curseur_empl == (1, 0):
-        texte_info1 = variables_globales.POLICE_GRAND.render(f"Puissance: {variables_globales.att_magique_puissance}", True, NOIR)
-        texte_info2 = variables_globales.POLICE_GRAND.render("Infligez des dégâts magique à l'adversaire", True, NOIR)
+        return ATTAQUES_DISPONIBLES['magie']
     
     if curseur_empl == (0, 1):
-        texte_info1 = variables_globales.POLICE_GRAND.render(f"Puissance: {variables_globales.att_charge_puissance}", True, NOIR)
-        texte_info2 = variables_globales.POLICE_GRAND.render("Infligez des dégâts physiques à l'adversaire", True, NOIR)
+        return ATTAQUES_DISPONIBLES['physique']
     
     if curseur_empl == (1, 1):
-        texte_info1 = variables_globales.POLICE_GRAND.render("Puissance: 0", True, NOIR)
-        texte_info2 = variables_globales.POLICE_GRAND.render("Passez votre tour.", True, NOIR)
+        return ATTAQUES_DISPONIBLES['skip']
+    
+    raise NotImplementedError("Il y a au moins un cas non pris en charge dans trouve_attaque_a_partir_du_curseur().")
+
+def afficher_info() -> None:
+    texte_info1 : pygame.Surface
+    texte_info2 : pygame.Surface
     
     fenetre.fill(BLANC)
+    
+    attaque : Attaque = trouve_attaque_a_partir_du_curseur()
+    texte_info1 = variables_globales.POLICE_GRAND.render(f"Puissance: {attaque.get_puissance()}", True, NOIR)
+    texte_info2 = variables_globales.POLICE_GRAND.render(attaque.get_desc(), True, NOIR)
     
     fenetre.blit(texte_info1, (3 * LARGEUR // 10      , HAUTEUR // 2))
     fenetre.blit(texte_info2, (3 * LARGEUR // 10 - 100, HAUTEUR // 2 + 30))
@@ -119,7 +126,7 @@ def rafraichir_ecran() -> None:
     joueur.dessiner_barre_de_vie(500, 400)
     
     dessiner_nom(variables_globales.nom_adversaire, (49, 20))
-    dessiner_nom(variables_globales.pseudo_joueur, (499, 370))
+    dessiner_nom(joueur.get_pseudo(), (499, 370))
     
     # Dessiner le cercle à la nouvelle position
     pygame.draw.circle(fenetre, VERT, (variables_globales.curseur_x, variables_globales.curseur_y), 10, 0)

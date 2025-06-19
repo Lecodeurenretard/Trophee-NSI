@@ -62,9 +62,6 @@ from variables_globales import (
     
     TEXTE_VICTOIRE,
     TEXTE_DEFAITE,
-    TEXTE_ATT_TORGNOLE,
-    TEXTE_ATT_MAGIQUE,
-    TEXTE_ATT_SOIN,
     TEXTE_INFO_UTILISER,
     TEXTE_INFO_INFO,
     NAN,

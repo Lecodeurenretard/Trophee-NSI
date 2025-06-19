@@ -1,8 +1,8 @@
 from monstre import *
 from UI import *
 
-def joueur_dessine_attaque(couleur : color) -> None:
-    pygame.draw.rect(fenetre, couleur, (400, 300 , 200, 50), 5)
+def joueur_dessine_attaque(attaque : Attaque) -> None:
+    attaque.dessiner(fenetre, 400, 300)
     pygame.display.flip()
     time.sleep(1)
     
@@ -13,20 +13,16 @@ def joueur_dessine_attaque(couleur : color) -> None:
 
 def joueur_attaque_soin() -> None:
     joueur.attaque_heal()
-    joueur_dessine_attaque(VERT)
+    joueur_dessine_attaque(ATTAQUES_DISPONIBLES["heal"])
 
-def joueur_attaque_magique() -> None:
-    joueur.attaquer(variables_globales.monstre_stat, "magique")
-    joueur_dessine_attaque(BLEU)
+def joueur_attaque(clef_attaque : str) -> None:
+    attaque : Attaque = ATTAQUES_DISPONIBLES[clef_attaque]
+    
+    joueur.attaquer(variables_globales.monstre_stat, attaque)
+    joueur_dessine_attaque(attaque)
 
-def joueur_attaque_physique() -> None:
-    joueur.attaquer(variables_globales.monstre_stat, "physique")
-    joueur_dessine_attaque(ROUGE)
 
-def joueur_skip_tour() -> None:
-    joueur_dessine_attaque(NOIR)
-
-def joueur_sectionne_attaque():
+def joueur_selectionne_attaque():
     curseur_empl : tuple[int|NaN, int|NaN] = get_curseur_emplacement()
 
     if curseur_empl == (0, 0):
@@ -34,15 +30,15 @@ def joueur_sectionne_attaque():
         return
     
     if curseur_empl == (1, 0):
-        joueur_attaque_magique()
+        joueur_attaque("magie")
         return
     
     if curseur_empl == (0, 1):
-        joueur_attaque_physique()
+        joueur_attaque("physique")
         return
     
     if curseur_empl == (1, 1):
-        joueur_skip_tour()
+        joueur_attaque("skip")
         return
     
     print(f"Verbose: le curseur est à l'emplacement {curseur_empl} (position {(variables_globales.curseur_x, variables_globales.curseur_y)}).")

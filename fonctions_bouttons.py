@@ -3,9 +3,8 @@ from UI import *
 def jouer() -> None:
     variables_globales.menu_running = False
     chargement()
-    variables_globales.pseudo_joueur = demander_pseudo()
+    demander_pseudo()
     afficher_nombre_combat(variables_globales.nbr_combat)
-    
 
 def ouvrir_parametres() -> None:
     print("→ Ouverture des paramètres...")

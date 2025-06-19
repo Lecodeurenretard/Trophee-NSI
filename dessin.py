@@ -1,4 +1,4 @@
-from import_var import *
+from Attaque import *
 
 def dessiner_barre_de_vie(pos_x : int, pos_y : int, ratio_vie : float, longueur_remplissage : int) -> None:
     couleur_remplissage : color = VERT
@@ -23,6 +23,6 @@ def dessiner_bouttons_attaques() -> None:
     pygame.draw.rect(fenetre, BLANC, (375, (13 * HAUTEUR // 16) + 45, 200, 50), 5)
     
     # Dessiner les noms
-    fenetre.blit(TEXTE_ATT_SOIN    , (140, (13 * HAUTEUR // 16) - 12))
-    fenetre.blit(TEXTE_ATT_TORGNOLE, (120, (13 * HAUTEUR // 16) + 60))
-    fenetre.blit(TEXTE_ATT_MAGIQUE , (400, (13 * HAUTEUR // 16) - 12))
+    fenetre.blit(ATTAQUES_DISPONIBLES["heal"].get_nom_surface()    , (140, (13 * HAUTEUR // 16) - 12))
+    fenetre.blit(ATTAQUES_DISPONIBLES["physique"].get_nom_surface(), (120, (13 * HAUTEUR // 16) + 60))
+    fenetre.blit(ATTAQUES_DISPONIBLES["magie"].get_nom_surface()   , (400, (13 * HAUTEUR // 16) - 12))

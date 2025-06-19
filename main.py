@@ -69,7 +69,7 @@ while True:
             continue        # Un event ne peut être qu'une seule touche à la fois
         
         if event.key == pygame.K_SPACE:
-            joueur_sectionne_attaque()
+            joueur_selectionne_attaque()
             variables_globales.tour_joueur = False
             continue
         
