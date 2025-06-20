@@ -9,17 +9,29 @@ class TypeAttaque(Enum):
     DIVERS   = auto(),
 
 class Effet:
-    # Sera un bitmask si plusieurs effets peuvent être appliqués en même temps
-    # sinon une enum
     pass        # TODO: définir les effets des attaques (poison, confus, ...) (un jour)
 
 class Attaque:
-    def __init__(self, nom, desc, puissance, type_attaque):
+    def __init__(
+            self,
+            nom : str,
+            desc : str,
+            puissance : float,
+            type_attaque : TypeAttaque,
+            peut_toucher_amis    : bool = False,
+            peut_toucher_ennemis : bool = True,
+        ):
         self._nom    : str = nom
         self._desc   : str = desc
         self._puissance : float = puissance
         self._type_attaque : TypeAttaque = type_attaque
+        
+        # Sera un bitmask si plusieurs effets peuvent être appliqués en même temps
+        # sinon une enum
         self._effet : Effet
+        
+        self._friendly_fire = peut_toucher_amis
+        self._ennemy_fire = peut_toucher_ennemis
         
         self._nom_surf : pygame.Surface = POLICE_GRAND.render(nom, True, BLANC)  # Le nom de l'attaque rendered
         
@@ -59,6 +71,10 @@ class Attaque:
         return self._desc
     def get_nom_surface(self) -> pygame.Surface:
         return self._nom_surf
+    def get_friendly_fire(self) -> bool:
+        return self._friendly_fire
+    def get_ennemy_fire(self) -> bool:
+        return self._ennemy_fire
     
     def calculer_degats(self, stats_attaquant : 'Stat', stats_victime : 'Stat', defense_min = 10) -> int:
         assert(stats_attaquant.est_initialise), "stat_attaquant n'est pas initialisé dans Stat.calculer_degats()"
@@ -94,8 +110,8 @@ class Attaque:
         surface.blit(self._nom_surf, (pos_x + 10, pos_y + 10))
 
 ATTAQUES_DISPONIBLES : dict[str, Attaque] = {
-    "heal":     Attaque("Soin", "Soignez-vous de quelques PV", 1.5, TypeAttaque.SOIN),
-    "magie":    Attaque("Att. magique", "Infligez des dégâts magique à l'adversaire", 45, TypeAttaque.MAGIQUE),
+    "heal":     Attaque("Soin", "Soignez-vous de quelques PV", 1.5, TypeAttaque.SOIN, peut_toucher_amis=True),
+    "magie":    Attaque("Att. magique", "Infligez des dégâts magique à l'adversaire", 45-10, TypeAttaque.MAGIQUE),
     "physique": Attaque("Torgnole", "Infligez des dégâts physiques à l'adversaire", 20, TypeAttaque.PHYSIQUE),
-    "skip":     Attaque("Passer", "Passez votre tour.", 0, TypeAttaque.DIVERS)
+    "skip":     Attaque("Passer", "Passez votre tour.", 0, TypeAttaque.DIVERS, peut_toucher_amis=False, peut_toucher_ennemis=False)
 }

@@ -1,5 +1,6 @@
 from fonctions_vrac import *
 from Joueur import *
+from Monstre import *
 
 def demander_pseudo() -> None:
     pseudo : str  = ""
@@ -81,6 +82,18 @@ def afficher_info() -> None:
 
 
 
+def dessiner_bouttons_attaques() -> None:
+    # Dessiner les boites
+    pygame.draw.rect(fenetre, BLANC, (70 , (13 * HAUTEUR // 16) - 25, 200, 50), 5) # soin
+    pygame.draw.rect(fenetre, BLANC, (70 , (13 * HAUTEUR // 16) + 45, 200, 50), 5) # torgnole
+    pygame.draw.rect(fenetre, BLANC, (375, (13 * HAUTEUR // 16) - 25, 200, 50), 5) #...
+    pygame.draw.rect(fenetre, BLANC, (375, (13 * HAUTEUR // 16) + 45, 200, 50), 5)
+    
+    # Dessiner les noms
+    fenetre.blit(joueur.get_attaque_surface("heal")    , (140, (13 * HAUTEUR // 16) - 12))
+    fenetre.blit(joueur.get_attaque_surface("physique"), (120, (13 * HAUTEUR // 16) + 60))
+    fenetre.blit(joueur.get_attaque_surface("magie")   , (400, (13 * HAUTEUR // 16) - 12))
+    fenetre.blit(joueur.get_attaque_surface("skip")    , (400, (13 * HAUTEUR // 16) + 60))
 
 
 def chargement(duree : float = 7.0) -> None:
@@ -101,10 +114,10 @@ def chargement(duree : float = 7.0) -> None:
 
 def afficher_nombre_combat(nbr_combat : int) -> None:
     texte_combat : pygame.Surface = variables_globales.POLICE_GRAND.render(f"Combat n°{nbr_combat}", True, NOIR)
-
+    
     fenetre.fill(BLANC)
     fenetre.blit(texte_combat, (LARGEUR // 2 - 100, HAUTEUR // 2 - 20))
-
+    
     pygame.display.flip()
     time.sleep(2)
 
@@ -116,17 +129,17 @@ def rafraichir_ecran() -> None:
     # Dessiner le fond de l'interface
     pygame.draw.rect(fenetre, NOIR, (0, 3 * HAUTEUR // 4, 800, 600), 0)
     
-    # Dessiner les personnages (joueur + monstre)
-    pygame.draw.rect(fenetre, BLEU                              , (    LARGEUR // 4 , 3 * HAUTEUR // 4 - 100, 100, 100), 0)
-    pygame.draw.rect(fenetre, variables_globales.couleur_monstre, (6 * LARGEUR // 10,     HAUTEUR // 4 - 100, 100, 100), 0)
-    
-    if variables_globales.monstre_stat.est_initialise:
-        dessiner_barre_de_vie(50, 50, variables_globales.monstre_stat.vie / variables_globales.monstre_stat.vie_max, variables_globales.barre_vie_remplie_monstre)
-
-    joueur.dessiner_barre_de_vie(500, 400)
-    
-    dessiner_nom(variables_globales.nom_adversaire, (49, 20))
+    # Dessiner le joueur
+    joueur.dessiner(fenetre)
+    joueur.dessine_barre_de_vie(500, 400)
     dessiner_nom(joueur.get_pseudo(), (499, 370))
+    
+    # Dessiner les monstres
+    if len(Monstre.monstres_en_vie) != 0:
+        monstre_a_dessiner : Monstre = Monstre.monstres_en_vie[0]
+        monstre_a_dessiner.dessiner(fenetre, 6 * LARGEUR // 10, HAUTEUR // 4 - 100)
+        monstre_a_dessiner.dessine_barre_de_vie(50, 50)
+        dessiner_nom(monstre_a_dessiner.get_nom(), (49, 20))
     
     # Dessiner le cercle à la nouvelle position
     pygame.draw.circle(fenetre, VERT, (variables_globales.curseur_x, variables_globales.curseur_y), 10, 0)

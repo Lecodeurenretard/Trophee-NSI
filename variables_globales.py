@@ -26,7 +26,6 @@ JAUNE   : color = (255, 255, 0)
 
 MAX_COMBAT : int = 5	# combat maximum (nbr_combat <= MAX_COMBAT)
 
-INVICIBLE_JOUEUR : bool = False    # [titlecard]
 INVICIBLE_ENNEMI : bool = False
 
 UI_LONGUEUR_BARRE_DE_VIE : int = 200
@@ -56,9 +55,6 @@ police : pygame.font.Font = pygame.font.SysFont(None, 50)
 nbr_combat : int = 1
 tour_joueur : bool = True
 
-barre_vie_remplie_monstre : int = UI_LONGUEUR_BARRE_DE_VIE
-barre_vie_remplie_joueur  : int = UI_LONGUEUR_BARRE_DE_VIE
-
 pos : TypeAlias = tuple[int, int]
 curseur_pos_attendue_x : pos= (50, 350)
 curseur_pos_attendue_y : pos= (13 * HAUTEUR // 16, 13 * HAUTEUR // 16 + 70)
@@ -67,6 +63,7 @@ curseur_x, curseur_y = curseur_pos_attendue_x[0], curseur_pos_attendue_y[0]
 assert(len(curseur_pos_attendue_x) == len(curseur_pos_attendue_y))	# filet de sécurité
 
 menu_running : bool = True
-couleur_monstre : color = NOIR
 
-nom_adversaire : str = ""
+# Toutes les entitées (joueurs, monstres ou None) vont dans cette liste
+# leurs ID sera leur index dans cette liste
+entitees_vivantes : list = []

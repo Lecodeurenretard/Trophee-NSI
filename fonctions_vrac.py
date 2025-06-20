@@ -16,3 +16,12 @@ assert(find([1, 2, 3, 4], 3) == 2)  # Quelques tests
 assert(find([1, 2, 3, 4], 1) == 0)
 assert(find([1, 2, 3, 4], 5) == -1)
 assert(find([1, 2, 3, 4], 5, 42) == 42)
+
+
+
+def premier_indice_libre_de_entitees_vivantes() -> int:
+    """Retourne le premier indice disponible dans entitees_vivantes[] ou -1 s'il n'y en a pas."""
+    for i in range(len(entitees_vivantes)):
+        if entitees_vivantes[i] is None:
+            return i
+    return -1

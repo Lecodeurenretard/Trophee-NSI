@@ -1,6 +1,6 @@
-from monstre import *
+from Monstre import *
 from Boutton import *
-from player import *
+from fonction_combat import *
 
 def quit(exit_code : int = 0) -> NoReturn:
     pygame.quit()
@@ -20,7 +20,7 @@ def menu_frame() -> None:
 def change_cursor_pos(evt : pygame.event.Event) -> None:
     if event.type != pygame.KEYDOWN or not variables_globales.tour_joueur:
         return
-
+    
     if evt.key == pygame.K_UP:
         variables_globales.curseur_y = variables_globales.curseur_pos_attendue_y[0]
     if evt.key == pygame.K_DOWN:
@@ -40,12 +40,16 @@ def partie_fin(gagne : bool) -> NoReturn:
         fenetre.blit(TEXTE_DEFAITE, (LARGEUR // 2 - 120, HAUTEUR // 2 - 20))
         print("Vous avez perdu...")
     pygame.display.flip()
-
+    
     time.sleep(2)
     quit()
 
-nouveau_monstre()
-joueur.reset_vie()
+def reset_monstre() -> None:
+    Monstre.nouveau_monstre(
+        random.choice(list(TypeMonstre))
+    )
+
+reset_monstre()
 while True:
     rafraichir_ecran()
     clock.tick(60)
@@ -76,7 +80,7 @@ while True:
         change_cursor_pos(event)
     
     
-    if variables_globales.monstre_stat.vie <= 0:
+    if len(Monstre.monstres_en_vie) == 0:
         # on laisse le joueur avec la vie qu'il avait au combat précédent
         
         variables_globales.nbr_combat += 1
@@ -88,7 +92,8 @@ while True:
         
         # else implicite
         afficher_nombre_combat(variables_globales.nbr_combat)
-        nouveau_monstre()
+        
+        reset_monstre()
     
     if not variables_globales.tour_joueur:
         monstre_attaque()

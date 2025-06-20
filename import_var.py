@@ -37,6 +37,7 @@ from variables_globales import (
     # on peut donc se permettre le raccourcit
     fenetre,
     clock,
+    entitees_vivantes,
     
     # ces variables sont, certes, immuables mais elles ne doivent pas être changées
     # on peut donc les importer librement
@@ -53,8 +54,6 @@ from variables_globales import (
     HAUTEUR,
     
     MAX_COMBAT,
-    INVICIBLE_JOUEUR,
-    INVICIBLE_ENNEMI,
     UI_LONGUEUR_BARRE_DE_VIE,
     
     POLICE_GRAND,

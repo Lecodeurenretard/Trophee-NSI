@@ -115,7 +115,3 @@ class Stat:
     
     def est_mort(self) -> bool:
         return self.vie <= 0
-
-blob_stat    : Stat = Stat(40, 30, 45, 0 , 25, 30)
-sorcier_stat : Stat = Stat(30, 10, 30, 15, 80, 60)
-monstre_stat : Stat = Stat(0, 0, 0, 0, 0, 0, unset=True)
