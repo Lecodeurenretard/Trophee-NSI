@@ -39,8 +39,8 @@ class Monstre:
     sont_invincibles : bool = False
     
     _STATS_DE_BASE : dict[TypeMonstre, Stat] = {
-        TypeMonstre.Blob	: Stat(40+5, 30, 45, 0 , 25+5, 30),
-        TypeMonstre.Sorcier	: Stat(30+5, 10, 30, 15, 80+5, 60),
+        TypeMonstre.Blob	: Stat(40+5, 30-7, 45, 0 , 25+5, 30, 2.0, 1.3),
+        TypeMonstre.Sorcier	: Stat(30+5, 10  , 30, 15, 80+5, 60, 1.3, 1.8),
     }
     
     # La liste de tous les monstres en vie
@@ -124,9 +124,10 @@ class Monstre:
         return False
     
     def subir_attaque(self, attaque : Attaque, stats_attaquant : Stat) -> bool:
-        return self.recoit_dommages(
-            attaque.calculer_degats(stats_attaquant, self._stats)
-        )
+        degats, crit = attaque.calculer_degats(stats_attaquant, self._stats)
+        
+        self.recoit_dommages(degats)
+        return crit
     
     def recoit_dommages(self, dommages : int) -> bool:
         if Monstre.sont_invincibles and dommages >= 0:
@@ -146,8 +147,8 @@ class Monstre:
     def dessiner_barre_de_vie(self, surface : pygame.Surface, pos_x : int, pos_y : int):
         dessine_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
     
-    def dessiner_attaque(self, surface : pygame.Surface, attaque : Attaque) -> None:
-        attaque.dessiner(surface, 400, 300)
+    def dessiner_attaque(self, surface : pygame.Surface, attaque : Attaque, crit : bool) -> None:
+        attaque.dessiner(surface, 400, 300, crit)
         
         pygame.display.flip()
         time.sleep(1)

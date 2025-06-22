@@ -115,6 +115,8 @@ Pour le moment il y a sept stats:
 - `magie`: La puissance d'attaque magiques.
 - `defense_magique`: La défense pour les attaques magiques.
 - `vitesse`: influera sur l'ordre des attaques (non implémenté).
+- `crit_puissance`: Une valeur ajoutée au coups critiques.
+- `crit_resistance`: Une résitance aux dégats critiques.
 
 Chaque objets à en plus un attribut:
 - `est_initialise`: Si l'objet à des valeurs pouvant être lues. Si `False` il faut considérer les valeurs des autres attributs comme incorrectes.
@@ -135,10 +137,16 @@ Une attaque constituée des variables membres:
 + `_puissance`: La puissance de l'attaque, sera utilisé pour calculer les dégats causés par l'attaque avec les stats du lanceur et de la victime.
 + `_type_attaque`: Le type de dommages causés par l'attaque (sera détaillé plus en bas.)
 + `_effet`: Le ou les effet.s causé.s de l'attaque (sera détaillé plus tard) (non utilisé).
++ `_crit_prob`: La chance de faire un coup critique, doit être sur $[0; 1]$.
 + `_friendly_fire`: Si l'attaque peut toucher le lanceur ou ses alliés.
 + `_ennemy_fire`: Si l'attaque peut toucher l'adversaire au lanceur ou ses alliés.
 + `_nom_surf`: Une surface contenantle nom de l'attaque rendered pour être dessiné à l'écran.
 + `_couleur`: La couleur dans laquelle l'attaque sera déssinée une fois lancée, changera sûrement en `Sprite` dans le futur.
+
+Il y a aussi les attributs statiques:
++ `toujours_crits`: Outil de déboggage, permet de garantir un crit à chaque attaque.
++ `_PUISSANCE_CRIT`: Comment un crit devrait monter les dégats.
++ `_CRIT_IMG`: Une surface avec l'icône de crit déjà chargée.
 
 Les objets `Attaque` ont un comportement personnalisé pour les opérateurs:
 + `==`: Compare les noms des attaques.

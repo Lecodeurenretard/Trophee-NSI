@@ -355,7 +355,7 @@ ma_chaise.dim			== (.5, .5, 1)
 Pour résumer, les constructeurs sont les moyens principaux de créer des objets, définissent les variables des instances et peuvent être appelés avec le nom de la classe qu'ils contruisent.
 ### Parenthèse vocabulaire
 Petit point lexique:  
-Les variables appartenants aux objets sont appelés _variables membre_ ou alors _attributs_.  
+Les variables appartenants aux objets sont appelés _variables membre_ ou alors _attributs_. Dans les sphères anglophones, on peut aussi trouver _properties_ mais je n'ai jamais vu quelq'un utiliser ce terme en français.  
 Les fonctions définies dans une classe sont des _fonctions membre_ ou _méthodes_.  
 Si l'on ne précise pas la nature d'un _membre_, l'on parle à la fois d'un attribut et d'une méthode.
 

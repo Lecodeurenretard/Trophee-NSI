@@ -3,7 +3,7 @@ from fonctions_vrac import *
 from Attaque import *
 
 class Joueur:
-    _STATS_DE_BASE : Stat = Stat(50-5, 35, 40-8, 20, 30, 50)
+    _STATS_DE_BASE : Stat = Stat(50-5, 35, 40-5, 20, 30, 50, 1.2, 1)
     est_invincible : bool = False
     
     def __init__(self, moveset : dict[str, Attaque]) -> None:
@@ -71,11 +71,14 @@ class Joueur:
         return self.est_mort()
 
     def subir_attaque(self, attaque : Attaque, stats_attaquant : Stat) -> bool:
-        """Prend en charge l'attaque prise et retourne si le joueur est mort."""
+        """
+        Prend en charge l'attaque prise et retourne une tuple contenant s'il y a eu un crit..
+        """
         assert(stats_attaquant.est_initialise), "stats_monstre pas initialisé dans Joueur.essuyer_attaque()."
-        return self.recoit_degats(
-            attaque.calculer_degats(stats_attaquant, self._stats)
-        )
+        
+        degats, crit = attaque.calculer_degats(stats_attaquant, self._stats)
+        self.recoit_degats(degats)
+        return crit
     
     def attaquer(self, id_cible : int, clef_attaque : str) -> bool:
         assert(entitees_vivantes[id_cible] is not None), "La cible est None dans Joueur.attaquer()."
@@ -97,10 +100,10 @@ class Joueur:
     def dessine_barre_de_vie(self, surface : pygame.Surface, pos_x : int, pos_y : int) -> None:
         dessine_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
     
-    def dessiner_attaque(self, surface : pygame.Surface, clef_attaque : str) -> None:
+    def dessiner_attaque(self, surface : pygame.Surface, clef_attaque : str, crit : bool) -> None:
         assert(clef_attaque in self.get_moveset_clefs())
         
-        self._moveset[clef_attaque].dessiner(surface, 400, 300)
+        self._moveset[clef_attaque].dessiner(surface, 400, 300, crit)
         pygame.display.flip()
         time.sleep(1)
     

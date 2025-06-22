@@ -6,10 +6,9 @@ def joueur_attaque(clef_attaque : str) -> None:
     if len(Monstre.monstres_en_vie) == 0:
         return
     
-    if joueur.attaquer(Monstre.monstres_en_vie[0].get_id(), clef_attaque):   # attaque le premier monstre
-        del(Monstre.monstres_en_vie[0])     # Si considéré comme mort, le détruit
+    crit = joueur.attaquer(Monstre.monstres_en_vie[0].get_id(), clef_attaque)   # attaque le premier monstre
+    joueur.dessiner_attaque(fenetre, clef_attaque, crit)
     
-    joueur.dessiner_attaque(fenetre, clef_attaque)
     rafraichir_ecran()
     time.sleep(1)
 
@@ -39,5 +38,5 @@ def joueur_selectionne_attaque():
 
 def monstre_attaque() -> None:
     attaque_choisie : Attaque = Monstre.monstres_en_vie[0].choisir_attaque()
-    Monstre.monstres_en_vie[0].attaquer(joueur.get_id(), attaque_choisie)
-    Monstre.monstres_en_vie[0].dessiner_attaque(fenetre, attaque_choisie)
+    crit = Monstre.monstres_en_vie[0].attaquer(joueur.get_id(), attaque_choisie)
+    Monstre.monstres_en_vie[0].dessiner_attaque(fenetre, attaque_choisie, crit)

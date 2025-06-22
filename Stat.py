@@ -28,6 +28,8 @@ class Stat:
             magie   : int,
             defense_m : int,
             vitesse : int,
+            crit_puissance  : float,
+            crit_resistance : float,
             unset   : bool = False,
             vie_initiale : int = -1
         ) -> None:
@@ -41,12 +43,14 @@ class Stat:
         else:
             self.vie : int = vie_max
         
-        self.vie_max    : int = vie_max
-        self.force      : int = force
-        self.defense    : int = defense
-        self.magie      : int = magie
+        self.vie_max         : int = vie_max
+        self.force           : int = force
+        self.defense         : int = defense
+        self.magie           : int = magie
         self.defense_magique : int = defense_m
-        self.vitesse    : int = vitesse
+        self.vitesse         : int = vitesse
+        self.crit_puissance  : float = crit_puissance
+        self.crit_resitance  : float = crit_resistance
         self.est_initialise = True
 
     def __eq__(self, stats: 'Stat') -> bool:
@@ -54,12 +58,14 @@ class Stat:
         return (
             (not self.est_initialise and not stats.est_initialise)
             or (
-                self.vie            == stats.vie
-                and self.force      == stats.force
-                and self.defense    == stats.defense
-                and self.magie      == stats.magie
+                self.vie                 == stats.vie
+                and self.force           == stats.force
+                and self.defense         == stats.defense
+                and self.magie           == stats.magie
                 and self.defense_magique == stats.defense_magique
-                and self.vitesse    == stats.vitesse
+                and self.vitesse         == stats.vitesse
+                and self.crit_puissance  == stats.crit_puissance
+                and self.crit_resitance  == stats.crit_resitance
             )
         )
     
@@ -73,12 +79,13 @@ class Stat:
             "Stat{"
             + f"vie: {self.vie}; "
             + f"force: {self.force}; "
-            + f"defense: {self.defense}; "
+            + f"défense: {self.defense}; "
             + f"magie: {self.magie}; "
-            + f"defense_magique: {self.defense_magique}; "
-            + f"vie: {self.vie}; "
+            + f"défense magique: {self.defense_magique}; "
             + f"vitesse: {self.vitesse}; "
-            + f"est_initialise: {self.est_initialise}"
+            + f"puissance des crits: {self.vitesse}; "
+            + f"résistance aux crits: {self.vitesse}; "
+            + f"est initialisé: {self.est_initialise}"
             +"}"
         )
     
@@ -91,6 +98,8 @@ class Stat:
             self.magie,
             self.defense_magique,
             self.vitesse,
+            self.crit_puissance,
+            self.crit_resitance,
             not self.est_initialise,
         )
     
@@ -102,6 +111,8 @@ class Stat:
         magie   : int,
         defense_m : int,
         vitesse : int,
+        crit_puissance  : int,
+        crit_resistance : int,
     ) -> None:
         self.vie        = vie
         self.force      = force
@@ -109,7 +120,9 @@ class Stat:
         self.magie      = magie
         self.defense_magique = defense_m
         self.vitesse    = vitesse
-        self.est_initialise  = True
+        self.crit_puissance = crit_puissance
+        self.crit_resitance = crit_resistance
+        self.est_initialise = True
     
     def baisser_vie(self, combien : int) -> None:
         assert(self.est_initialise), "Objet Stat non initatialisé éssaye de baisser sa vie."

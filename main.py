@@ -20,25 +20,38 @@ def menu_frame() -> None:
 def change_cursor_pos(evt : pygame.event.Event) -> None:
     if event.type != pygame.KEYDOWN or not variables_globales.tour_joueur:
         return
-    
+     
     if evt.key == pygame.K_UP:
         variables_globales.curseur_y = variables_globales.curseur_pos_attendue_y[0]
+        return
+    
     if evt.key == pygame.K_DOWN:
         variables_globales.curseur_y = variables_globales.curseur_pos_attendue_y[1]
+        return
+    
     if evt.key == pygame.K_LEFT:
         variables_globales.curseur_x = variables_globales.curseur_pos_attendue_x[0]
+        return
+    
     if evt.key == pygame.K_RIGHT:
         variables_globales.curseur_x = variables_globales.curseur_pos_attendue_x[1]
+        return
+    # sinon, ne fait rien
 
 def partie_fin(gagne : bool) -> NoReturn:
+    couleur_fond : color
+    texte_fin : pygame.Surface
     if gagne:
-        fenetre.fill(VERT)
-        fenetre.blit(TEXTE_VICTOIRE, (LARGEUR // 2 - 120, HAUTEUR // 2 - 20))
+        couleur_fond = VERT
+        texte_fin = TEXTE_VICTOIRE
         print("Vous avez gagné !")
     else:
-        fenetre.fill(BLEU_CLAIR)
-        fenetre.blit(TEXTE_DEFAITE, (LARGEUR // 2 - 120, HAUTEUR // 2 - 20))
+        couleur_fond = BLEU_CLAIR
+        texte_fin = TEXTE_DEFAITE
         print("Vous avez perdu...")
+    
+    fenetre.fill(couleur_fond)
+    fenetre.blit(texte_fin, (LARGEUR // 2 - 120, HAUTEUR // 2 - 20))
     pygame.display.flip()
     
     time.sleep(2)
@@ -46,7 +59,7 @@ def partie_fin(gagne : bool) -> NoReturn:
 
 def reset_monstre() -> None:
     Monstre.nouveau_monstre(
-        random.choice(list(TypeMonstre))
+        random.choice(list(TypeMonstre))    # choisit au hasard un type de monstre
     )
 
 reset_monstre()
@@ -79,7 +92,9 @@ while True:
         
         change_cursor_pos(event)
     
-    
+    for monstre in Monstre.monstres_en_vie:
+        if monstre.est_mort():
+            monstre.meurt()
     if len(Monstre.monstres_en_vie) == 0:
         # on laisse le joueur avec la vie qu'il avait au combat précédent
         

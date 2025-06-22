@@ -12,12 +12,19 @@ class EffetAttaque:
     pass        # TODO: définir les effets des attaques (poison, confus, ...) (un jour)
 
 class Attaque:
+    toujours_crits : bool = False   # il y aura toujours des crits
+    _PUISSANCE_CRIT : float = 1.5   # de combien doit le crit influencer l'attaque
+    _CRIT_IMG : pygame.Surface = pygame.transform.scale(    # rétrécit l'image pour être en 20x20
+        pygame.image.load("img/crit.png"),
+        (40, 40)
+    )
     def __init__(
             self,
             nom : str,
             desc : str,
             puissance : float,
             type_attaque : TypeAttaque,
+            crit_proba : float = .1,
             peut_toucher_amis    : bool = False,
             peut_toucher_ennemis : bool = True,
         ):
@@ -25,6 +32,9 @@ class Attaque:
         self._desc   : str = desc
         self._puissance : float = puissance
         self._type_attaque : TypeAttaque = type_attaque
+
+        assert(0 <= crit_proba <= 1), "Les probabilités se calculent sur [0; 1]."
+        self._prob_crit  : float = crit_proba
         
         # Sera un bitmask si plusieurs effets peuvent être appliqués en même temps
         # sinon une enum
@@ -76,7 +86,11 @@ class Attaque:
     def get_ennemy_fire(self) -> bool:
         return self._ennemy_fire
     
-    def calculer_degats(self, stats_attaquant : 'Stat', stats_victime : 'Stat', defense_min = 10) -> int:
+    def calculer_degats(self, stats_attaquant : 'Stat', stats_victime : 'Stat', defense_min = 10) -> tuple[int, bool]:
+        """
+        Calcule les dégats qu'aurait causé l'attaque pour les paramètres donnés.  
+        Renvoie une tuple contenant les dégats infligés et si un crit s'est passé.
+        """
         assert(stats_attaquant.est_initialise), "stat_attaquant n'est pas initialisé dans Stat.calculer_degats()"
         assert(stats_victime.est_initialise), "stat_victime n'est pas initialisé dans Stat.calculer_degats()"
         
@@ -103,15 +117,33 @@ class Attaque:
             
             case _:
                 raise ValueError("type_degat n'est pas un membre de TypeAttaque dans Attaque.calculer_degats.")
-        return round(degats)
+        
+        crit : bool = (random.random() < self._prob_crit) or Attaque.toujours_crits
+        if crit:
+            crit_facteur : float = stats_attaquant.crit_puissance / stats_victime.crit_resitance
+            degats += degats * Attaque._PUISSANCE_CRIT * crit_facteur
+            # Cette méthode de calcul garantie que degats_avant_crits <= degats (si degats >= 0)
+        return (round(degats), crit)
 
-    def dessiner(self, surface : pygame.Surface, pos_x: int, pos_y: int) -> None:
-        pygame.draw.rect(fenetre, self._couleur, (pos_x, pos_y , 200, 50), 5)
+    def dessiner(self, surface : pygame.Surface, pos_x: int, pos_y: int, crit : bool = False) -> None:
+        RECT_LARGEUR = 200
+        RECT_HAUTEUR = 50
+        
+        pygame.draw.rect(fenetre, self._couleur, (pos_x, pos_y , RECT_LARGEUR, RECT_HAUTEUR), 5)
         surface.blit(self._nom_surf, (pos_x + 10, pos_y + 10))
+        
+        if crit:
+            # Dessine l'image de crit
+            surface.blit(Attaque._CRIT_IMG,
+                (
+                    pos_x + RECT_LARGEUR/2 - Attaque._CRIT_IMG.get_width()/2, # on centre l'étoile
+                    pos_y + RECT_HAUTEUR/2 - Attaque._CRIT_IMG.get_height()/2,
+                )
+            )
 
 ATTAQUES_DISPONIBLES : dict[str, Attaque] = {
-    "heal":     Attaque("Soin", "Soignez-vous de quelques PV", 1.5, TypeAttaque.SOIN, peut_toucher_amis=True),
+    "heal":     Attaque("Soin", "Soignez-vous de quelques PV", 1.5, TypeAttaque.SOIN, crit_proba=.2, peut_toucher_amis=True),
     "magie":    Attaque("Att. magique", "Infligez des dégâts magique à l'adversaire", 45-10, TypeAttaque.MAGIQUE),
     "physique": Attaque("Torgnole", "Infligez des dégâts physiques à l'adversaire", 20, TypeAttaque.PHYSIQUE),
-    "skip":     Attaque("Passer", "Passez votre tour.", 0, TypeAttaque.DIVERS, peut_toucher_amis=False, peut_toucher_ennemis=False)
+    "skip":     Attaque("Passer", "Passez votre tour.", 0, TypeAttaque.DIVERS, crit_proba=.3,peut_toucher_amis=False, peut_toucher_ennemis=False)   # ça sert à rien d'augmenter la chance de crit mais ¯\_(ツ)_/¯ funny
 }
