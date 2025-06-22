@@ -46,7 +46,7 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
 
 def trouve_attaque_a_partir_du_curseur() -> Attaque:
     curseur_empl : tuple[int|NaN, int|NaN]= get_curseur_emplacement()
-    if math.isnan(curseur_empl[0]) or math.isnan(curseur_empl[1]):
+    if isnan(curseur_empl[0]) or isnan(curseur_empl[1]):
         print(f"Position du curseur: {(variables_globales.curseur_x, variables_globales.curseur_y)}")
         raise ValueError("Le curseur n'est pas à un emplacement autorisé.")
     
@@ -82,7 +82,7 @@ def afficher_info() -> None:
 
 
 
-def dessiner_bouttons_attaques() -> None:
+def dessiner_boutons_attaques() -> None:
     # Dessiner les boites
     pygame.draw.rect(fenetre, BLANC, (70 , (13 * HAUTEUR // 16) - 25, 200, 50), 5) # soin
     pygame.draw.rect(fenetre, BLANC, (70 , (13 * HAUTEUR // 16) + 45, 200, 50), 5) # torgnole
@@ -131,14 +131,14 @@ def rafraichir_ecran() -> None:
     
     # Dessiner le joueur
     joueur.dessiner(fenetre)
-    joueur.dessine_barre_de_vie(500, 400)
+    joueur.dessine_barre_de_vie(fenetre, 500, 400)
     dessiner_nom(joueur.get_pseudo(), (499, 370))
     
     # Dessiner les monstres
     if len(Monstre.monstres_en_vie) != 0:
         monstre_a_dessiner : Monstre = Monstre.monstres_en_vie[0]
         monstre_a_dessiner.dessiner(fenetre, 6 * LARGEUR // 10, HAUTEUR // 4 - 100)
-        monstre_a_dessiner.dessine_barre_de_vie(50, 50)
+        monstre_a_dessiner.dessiner_barre_de_vie(fenetre, 50, 50)
         dessiner_nom(monstre_a_dessiner.get_nom(), (49, 20))
     
     # Dessiner le cercle à la nouvelle position
@@ -148,7 +148,7 @@ def rafraichir_ecran() -> None:
     fenetre.blit(TEXTE_INFO_UTILISER    , (620, (13 * HAUTEUR // 16) - 12))
     fenetre.blit(TEXTE_INFO_INFO        , (620, (13 * HAUTEUR // 16) + 20))
     
-    dessiner_bouttons_attaques()
+    dessiner_boutons_attaques()
     
     # Mettre à jour l'affichage
     pygame.display.flip()

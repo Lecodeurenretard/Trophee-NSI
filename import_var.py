@@ -17,7 +17,7 @@ from variables_globales import (
     sys,
     time,
     random,
-    math,
+    isnan,
     
     # types
     color,

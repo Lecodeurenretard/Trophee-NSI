@@ -1,5 +1,5 @@
 from Monstre import *
-from Boutton import *
+from Bouton import *
 from fonction_combat import *
 
 def quit(exit_code : int = 0) -> NoReturn:
@@ -8,7 +8,7 @@ def quit(exit_code : int = 0) -> NoReturn:
 
 def menu_frame() -> None:
     fenetre.fill(BLEU_CLAIR)
-    for bouton in bouttons:
+    for bouton in boutons:
         bouton.draw(fenetre)
     pygame.display.flip()
     for event in pygame.event.get():

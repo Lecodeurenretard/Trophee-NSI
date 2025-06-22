@@ -1,6 +1,6 @@
-from fonctions_bouttons import *
+from fonctions_boutons import *
 
-class Boutton:
+class Bouton:
     def __init__(self, text : str, x : int, y : int, w : int, h : int, action : Callable[[], None] | None = None):
         self.rect : pygame.Rect = pygame.Rect(x, y, w, h)
         self.text : str = text
@@ -19,12 +19,12 @@ class Boutton:
         if self.rect.collidepoint(pos_click) and self.action:
             self.action()
 
-bouttons : list[Boutton] = [
-    Boutton("Jouer"     , 300, 200, 200, 60, jouer),
-    Boutton("Paramètres", 300, 300, 200, 60, ouvrir_parametres),
-    Boutton("Crédits"   , 300, 400, 200, 60, afficher_credits),
+boutons : list[Bouton] = [
+    Bouton("Jouer"     , 300, 200, 200, 60, jouer),
+    Bouton("Paramètres", 300, 300, 200, 60, ouvrir_parametres),
+    Bouton("Crédits"   , 300, 400, 200, 60, afficher_credits),
 ]
 
 def check_all_clicks(pos_click : pos):
-    for butt in bouttons:
+    for butt in boutons:
         butt.check_click(pos_click)

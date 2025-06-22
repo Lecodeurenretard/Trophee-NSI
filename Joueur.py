@@ -1,13 +1,14 @@
 from dessin import *
 from fonctions_vrac import *
+from Attaque import *
 
 class Joueur:
-    base_stats : Stat = Stat(50-5, 35, 40-8, 20, 30, 50)
+    _STATS_DE_BASE : Stat = Stat(50-5, 35, 40-8, 20, 30, 50)
     est_invincible : bool = False
     
     def __init__(self, moveset : dict[str, Attaque]) -> None:
-        # on assumera que _stats et base_stats sont initialisés
-        self._stats : Stat = Joueur.base_stats
+        # on assumera que _stats et _base_stats sont initialisés
+        self._stats : Stat = Joueur._STATS_DE_BASE
         self._pseudo : str = ""
         self._moveset = moveset
         
@@ -93,13 +94,13 @@ class Joueur:
         pygame.draw.rect(surface, BLEU, boite_de_contours, 0)
 
 
-    def dessine_barre_de_vie(self, pos_x, pos_y) -> None:
-        dessine_barre_de_vie(pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
+    def dessine_barre_de_vie(self, surface : pygame.Surface, pos_x : int, pos_y : int) -> None:
+        dessine_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
     
-    def dessiner_attaque(self, clef_attaque : str) -> None:
+    def dessiner_attaque(self, surface : pygame.Surface, clef_attaque : str) -> None:
         assert(clef_attaque in self.get_moveset_clefs())
         
-        self._moveset[clef_attaque].dessiner(fenetre, 400, 300)
+        self._moveset[clef_attaque].dessiner(surface, 400, 300)
         pygame.display.flip()
         time.sleep(1)
     

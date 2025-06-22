@@ -1,5 +1,4 @@
 from enum import Enum, auto
-import random
 
 class Stat:
     """
@@ -7,6 +6,7 @@ class Stat:
 
     Attributs:
     - vie
+    - vie_max
     - force
     - defense
     - magie
@@ -37,9 +37,9 @@ class Stat:
         
         
         if vie_initiale >= 0:
-            self.vie        : int = vie_initiale
+            self.vie : int = vie_initiale
         else:
-            self.vie        : int = vie_max
+            self.vie : int = vie_max
         
         self.vie_max    : int = vie_max
         self.force      : int = force
@@ -52,12 +52,15 @@ class Stat:
     def __eq__(self, stats: 'Stat') -> bool:
         # Défini le comportement de l'opérateur `==` si comparé à un autre objet
         return (
-            self.vie            == stats.vie
-            and self.force      == stats.force
-            and self.defense    == stats.defense
-            and self.magie      == stats.magie
-            and self.defense_magique == stats.defense_magique
-            and self.vitesse    == stats.vitesse
+            (not self.est_initialise and not stats.est_initialise)
+            or (
+                self.vie            == stats.vie
+                and self.force      == stats.force
+                and self.defense    == stats.defense
+                and self.magie      == stats.magie
+                and self.defense_magique == stats.defense_magique
+                and self.vitesse    == stats.vitesse
+            )
         )
     
     def __ne__(self, stats: 'Stat') -> bool:
@@ -106,7 +109,7 @@ class Stat:
         self.magie      = magie
         self.defense_magique = defense_m
         self.vitesse    = vitesse
-        self.est_initialise = True
+        self.est_initialise  = True
     
     def baisser_vie(self, combien : int) -> None:
         assert(self.est_initialise), "Objet Stat non initatialisé éssaye de baisser sa vie."

@@ -1,5 +1,7 @@
 from dessin import *
 from fonctions_vrac import *
+from Attaque import *
+from Joueur import joueur
 
 class TypeMonstre(Enum):
     Blob    = auto()
@@ -36,7 +38,7 @@ class TypeMonstre(Enum):
 class Monstre:
     sont_invincibles : bool = False
     
-    _stats_base : dict[TypeMonstre, Stat] = {
+    _STATS_DE_BASE : dict[TypeMonstre, Stat] = {
         TypeMonstre.Blob	: Stat(40+5, 30, 45, 0 , 25+5, 30),
         TypeMonstre.Sorcier	: Stat(30+5, 10, 30, 15, 80+5, 60),
     }
@@ -71,14 +73,14 @@ class Monstre:
             and entitees_vivantes is not None
             and Monstre.monstres_en_vie is not None
         ):
-                self.meurt()
+            self.meurt()
     
     @staticmethod
     def nouveau_monstre(type : TypeMonstre) -> 'Monstre':
         """Crée un nouveau monstre suivant son type"""
         return Monstre(
             type.name,
-            copy(Monstre._stats_base[type]),
+            copy(Monstre._STATS_DE_BASE[type]),    # Si pas de copie, tous les monstres suivants auront leurs vie à 0
             type.couleur(),
             type.attaques_du_type()
         )
@@ -141,10 +143,10 @@ class Monstre:
         boite_de_contours = (pos_x, pos_y, 100, 100)
         pygame.draw.rect(surface, self._couleur, boite_de_contours, 0)
     
-    def dessine_barre_de_vie(self, pos_x, pos_y):
-        dessine_barre_de_vie(pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
+    def dessiner_barre_de_vie(self, surface : pygame.Surface, pos_x : int, pos_y : int):
+        dessine_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
     
-    def dessine_attaque(self, surface : pygame.Surface, attaque : Attaque) -> None:
+    def dessiner_attaque(self, surface : pygame.Surface, attaque : Attaque) -> None:
         attaque.dessiner(surface, 400, 300)
         
         pygame.display.flip()

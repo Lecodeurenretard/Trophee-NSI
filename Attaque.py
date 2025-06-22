@@ -1,4 +1,4 @@
-from Stats import *
+from Stat import *
 from import_var import *
 
 class TypeAttaque(Enum):
@@ -8,7 +8,7 @@ class TypeAttaque(Enum):
     SOIN     = auto(),
     DIVERS   = auto(),
 
-class Effet:
+class EffetAttaque:
     pass        # TODO: définir les effets des attaques (poison, confus, ...) (un jour)
 
 class Attaque:
@@ -28,7 +28,7 @@ class Attaque:
         
         # Sera un bitmask si plusieurs effets peuvent être appliqués en même temps
         # sinon une enum
-        self._effet : Effet
+        self._effet : EffetAttaque
         
         self._friendly_fire = peut_toucher_amis
         self._ennemy_fire = peut_toucher_ennemis
@@ -54,8 +54,8 @@ class Attaque:
     def __str__(self):
         return (
             "Attaque{"
-            + f"nom: {self._nom};"
-            + f"dégâts: {self._puissance};"
+            + f"nom: {self._nom}; "
+            + f"puissance: {self._puissance}; "
             + f"type: {self._type_attaque}"
             + "}"
         )
@@ -99,7 +99,7 @@ class Attaque:
                 degats *= -attaque
             
             case TypeAttaque.DIVERS:
-                pass
+                degats = 0
             
             case _:
                 raise ValueError("type_degat n'est pas un membre de TypeAttaque dans Attaque.calculer_degats.")

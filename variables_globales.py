@@ -2,11 +2,11 @@ import pygame
 import sys
 import time
 import random
-import math
+from math import isnan
 from typing import TypeAlias, Callable, TypeVar, NoReturn, Any
 from copy import copy, deepcopy
 
-from Stats import *
+from Stat import *
 
 pygame.init()
 pygame.display.set_caption("Menu Principal")
