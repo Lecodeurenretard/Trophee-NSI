@@ -12,10 +12,10 @@ class EffetAttaque:
     pass        # TODO: définir les effets des attaques (poison, confus, ...) (un jour)
 
 class Attaque:
-    toujours_crits : bool = False   # il y aura toujours des crits
+    toujours_crits : bool = True   # il y aura toujours des crits
     _PUISSANCE_CRIT : float = 1.5   # de combien doit le crit influencer l'attaque
     _CRIT_IMG : pygame.Surface = pygame.transform.scale(    # rétrécit l'image pour être en 20x20
-        pygame.image.load("img/crit.png"),
+        pygame.image.load(f"{chemin_img}crit.png"),
         (40, 40)
     )
     def __init__(

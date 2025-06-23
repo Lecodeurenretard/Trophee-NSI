@@ -38,6 +38,10 @@ from variables_globales import (
     fenetre,
     clock,
     entitees_vivantes,
+    chemin_racine,
+    chemin_img,
+    chemin_save,
+    chemin_etc,
     
     # ces variables sont, certes, immuables mais elles ne doivent pas être changées
     # on peut donc les importer librement

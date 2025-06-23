@@ -2,6 +2,7 @@ import pygame
 import sys
 import time
 import random
+from os import getcwd
 from math import isnan
 from typing import TypeAlias, Callable, TypeVar, NoReturn, Any
 from copy import copy, deepcopy
@@ -67,3 +68,14 @@ menu_running : bool = True
 # Toutes les entitées (joueurs, monstres ou None) vont dans cette liste
 # leurs ID sera leur index dans cette liste
 entitees_vivantes : list = []
+
+# Le chemin du fichier vers le dossier racine
+# Quand on lance de VSCode lance le projet à la racine
+# Quand on le lance du terminal, on le lance du dossier "combats"
+chemin_racine : str = ''
+if getcwd().endswith("combats"):
+	chemin_racine = "../../"
+
+chemin_img  : str = f"{chemin_racine}data/img/"
+chemin_save : str = f"{chemin_racine}data/save/"
+chemin_etc  : str = f"{chemin_racine}data/etc/"
