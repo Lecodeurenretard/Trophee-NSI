@@ -11,6 +11,6 @@ def dessine_barre_de_vie(surface : pygame.Surface, pos_x : int, pos_y : int, rat
     pygame.draw.rect(surface, couleur_remplissage   , (pos_x  , pos_y  , longueur_remplissage      , 10), 0)
     pygame.draw.rect(surface, NOIR                  , (pos_x-1, pos_y-1, UI_LONGUEUR_BARRE_DE_VIE+2, 11), 2)
 
-def dessiner_nom(nom : str, position : pos) -> None:
+def dessiner_nom(nom : str, position : Pos) -> None:
     # c'est plus clair de mettre cette ligne en procédure
-    fenetre.blit(variables_globales.POLICE_GRAND.render(nom, True, NOIR), position)
+    fenetre.blit(variables_globales.POLICE_GRAND.render(nom, True, NOIR), tuple(position))

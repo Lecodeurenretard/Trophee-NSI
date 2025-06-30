@@ -12,10 +12,10 @@ class EffetAttaque:
     pass        # TODO: définir les effets des attaques (poison, confus, ...) (un jour)
 
 class Attaque:
-    toujours_crits : bool = True   # il y aura toujours des crits
+    toujours_crits : bool = False   # il y aura toujours des crits
     _PUISSANCE_CRIT : float = 1.5   # de combien doit le crit influencer l'attaque
     _CRIT_IMG : pygame.Surface = pygame.transform.scale(    # rétrécit l'image pour être en 20x20
-        pygame.image.load(f"{chemin_img}crit.png"),
+        pygame.image.load(f"{chemin_dossier_img}crit.png"),
         (40, 40)
     )
     def __init__(
@@ -121,8 +121,7 @@ class Attaque:
         crit : bool = (random.random() < self._prob_crit) or Attaque.toujours_crits
         if crit:
             crit_facteur : float = stats_attaquant.crit_puissance / stats_victime.crit_resitance
-            degats += degats * Attaque._PUISSANCE_CRIT * crit_facteur
-            # Cette méthode de calcul garantie que degats_avant_crits <= degats (si degats >= 0)
+            degats *= Attaque._PUISSANCE_CRIT * crit_facteur
         return (round(degats), crit)
 
     def dessiner(self, surface : pygame.Surface, pos_x: int, pos_y: int, crit : bool = False) -> None:

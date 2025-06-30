@@ -15,8 +15,8 @@ class Bouton:
         
         surface.blit(text_surf, text_rect)
 
-    def check_click(self, pos_click : pos):
-        if self.rect.collidepoint(pos_click) and self.action:
+    def check_click(self, pos_click : Pos):
+        if self.rect.collidepoint(tuple(pos_click)) and self.action:
             self.action()
 
 boutons : list[Bouton] = [
@@ -25,6 +25,6 @@ boutons : list[Bouton] = [
     Bouton("Crédits"   , 300, 400, 200, 60, afficher_credits),
 ]
 
-def check_all_clicks(pos_click : pos):
+def check_all_clicks(pos_click : Pos):
     for butt in boutons:
         butt.check_click(pos_click)

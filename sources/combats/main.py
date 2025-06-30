@@ -22,19 +22,19 @@ def change_cursor_pos(evt : pygame.event.Event) -> None:
         return
      
     if evt.key == pygame.K_UP:
-        variables_globales.curseur_y = variables_globales.curseur_pos_attendue_y[0]
+        curseur_menu.monter()
         return
     
     if evt.key == pygame.K_DOWN:
-        variables_globales.curseur_y = variables_globales.curseur_pos_attendue_y[1]
+        curseur_menu.descendre()
         return
     
     if evt.key == pygame.K_LEFT:
-        variables_globales.curseur_x = variables_globales.curseur_pos_attendue_x[0]
+        curseur_menu.aller_gauche()
         return
     
     if evt.key == pygame.K_RIGHT:
-        variables_globales.curseur_x = variables_globales.curseur_pos_attendue_x[1]
+        curseur_menu.aller_droite()
         return
     # sinon, ne fait rien
 

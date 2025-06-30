@@ -1,6 +1,12 @@
 from fonctions_vrac import *
 from Joueur import *
 from Monstre import *
+from Curseur import *
+
+curseur_menu : Curseur = Curseur(
+    (50, 350),
+    (13 * HAUTEUR // 16, 13 * HAUTEUR // 16 + 70)
+)
 
 def demander_pseudo() -> None:
     pseudo : str  = ""
@@ -45,10 +51,7 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
     return (texte, continuer)
 
 def trouve_attaque_a_partir_du_curseur() -> Attaque:
-    curseur_empl : tuple[int|NaN, int|NaN]= get_curseur_emplacement()
-    if isnan(curseur_empl[0]) or isnan(curseur_empl[1]):
-        print(f"Position du curseur: {(variables_globales.curseur_x, variables_globales.curseur_y)}")
-        raise ValueError("Le curseur n'est pas à un emplacement autorisé.")
+    curseur_empl : tuple[int, int]= curseur_menu.get_position_dans_position()
     
     if curseur_empl == (0, 0):
         return ATTAQUES_DISPONIBLES['heal']
@@ -132,17 +135,17 @@ def rafraichir_ecran() -> None:
     # Dessiner le joueur
     joueur.dessiner(fenetre)
     joueur.dessine_barre_de_vie(fenetre, 500, 400)
-    dessiner_nom(joueur.get_pseudo(), (499, 370))
+    dessiner_nom(joueur.get_pseudo(), Pos(499, 370))
     
     # Dessiner les monstres
-    if len(Monstre.monstres_en_vie) != 0:
+    if len(Monstre.monstres_en_vie) != 0:   # TODO: S'il y en a plusieur, les décaler
         monstre_a_dessiner : Monstre = Monstre.monstres_en_vie[0]
         monstre_a_dessiner.dessiner(fenetre, 6 * LARGEUR // 10, HAUTEUR // 4 - 100)
         monstre_a_dessiner.dessiner_barre_de_vie(fenetre, 50, 50)
-        dessiner_nom(monstre_a_dessiner.get_nom(), (49, 20))
+        dessiner_nom(monstre_a_dessiner.get_nom(), Pos(49, 20))
     
-    # Dessiner le cercle à la nouvelle position
-    pygame.draw.circle(fenetre, VERT, (variables_globales.curseur_x, variables_globales.curseur_y), 10, 0)
+    # Dessiner le curseur du menu de combat
+    curseur_menu.dessiner(fenetre, VERT, 10)
     
     # Dessiner le texte
     fenetre.blit(TEXTE_INFO_UTILISER    , (620, (13 * HAUTEUR // 16) - 12))
@@ -152,30 +155,3 @@ def rafraichir_ecran() -> None:
     
     # Mettre à jour l'affichage
     pygame.display.flip()
-
-def get_curseur_emplacement() -> tuple[int| NaN, int| NaN]:
-    """
-    Retourne une tuple caractérisant la position du curseur si le curseur n'est à aucune position connue, met un NaN sur la coordonée correspondante.
-
-    Exemples:
-    prenons
-        curseur_pos_attendue_x = (60, 80)
-        curseur_pos_attendue_y = (70, 90)
-    et
-        variables_globales.curseur_x = 60
-        variables_globales.curseur_y = 90
-    
-    alors quelle_position_curseur() retournera (0, 1)
-    
-
-    Si cette fois
-        variables_globales.curseur_x = 61
-        variables_globales.curseur_y = 70
-    
-    alors quelle_position_curseur() retournera (NAN, 0)
-    """
-
-    return (
-        find(variables_globales.curseur_pos_attendue_x, variables_globales.curseur_x, NAN),
-        find(variables_globales.curseur_pos_attendue_y, variables_globales.curseur_y, NAN)
-    )

@@ -13,28 +13,25 @@ def joueur_attaque(clef_attaque : str) -> None:
     time.sleep(1)
 
 def joueur_selectionne_attaque():
-    curseur_empl : tuple[int|NaN, int|NaN] = get_curseur_emplacement()
+    curseur_menu_empl : tuple[int, int] = curseur_menu.get_position_dans_position()
     
-    if curseur_empl == (0, 0):
+    if curseur_menu_empl == (0, 0):
         joueur_attaque("heal")
         return
     
-    if curseur_empl == (1, 0):
+    if curseur_menu_empl == (1, 0):
         joueur_attaque("magie")
         return
     
-    if curseur_empl == (0, 1):
+    if curseur_menu_empl == (0, 1):
         joueur_attaque("physique")
         return
     
-    if curseur_empl == (1, 1):
+    if curseur_menu_empl == (1, 1):
         joueur_attaque("skip")
         return
     
-    print(f"Verbose: le curseur est à l'emplacement {curseur_empl} (position {(variables_globales.curseur_x, variables_globales.curseur_y)}).")
-    print(f"Verbose: positions x attendues: {variables_globales.curseur_pos_attendue_x[0]} ou {variables_globales.curseur_pos_attendue_x[1]}.")
-    print(f"Verbose: positions y attendues: {variables_globales.curseur_pos_attendue_y[0]} ou {variables_globales.curseur_pos_attendue_y[1]}.")
-    raise ValueError("Le curseur n'est pas à la bonne position!")
+    raise ValueError(f"Le curseur du menu est à une position imprévue ({curseur_menu_empl} dans ses positions possibles)!")
 
 def monstre_attaque() -> None:
     attaque_choisie : Attaque = Monstre.monstres_en_vie[0].choisir_attaque()
