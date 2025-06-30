@@ -6,6 +6,36 @@ def quit(exit_code : int = 0) -> NoReturn:
     pygame.quit()
     sys.exit(exit_code)
 
+def si_choix_utilisateur_executer(ev : pygame.event.Event, position_curseur : tuple[int, int]) -> None:
+    if ev.type != pygame.KEYDOWN or ev.key not in UI_TOUCHES_VALIDER:
+        return
+    
+    match position_curseur[1]:      # Ce menu n'est que sur une ligne
+        case 0:
+            jouer()
+            return
+        
+        case 1:
+            ouvrir_parametres()
+            return
+        
+        case 2:
+            afficher_credits()
+            return
+        
+        case _:
+            raise NotImplementedError("Bouton non implémenté.")
+
+def menu_check_events(curseur : Curseur) -> None:
+    for event in pygame.event.get():
+        quitter_si_necessaire(event)
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            check_all_clicks(event.pos)
+            continue
+        
+        curseur.changer_pos_curseur(event)
+        si_choix_utilisateur_executer(event, curseur.get_position_dans_position())
+
 def menu() -> None:
     curseur_menu : Curseur = Curseur(
         (270,),
@@ -19,32 +49,11 @@ def menu() -> None:
         curseur_menu.dessiner(fenetre, VERT, 20)
         pygame.display.flip()
         
-        for event in pygame.event.get():
-            quitter_si_necessaire(event)
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                check_all_clicks(event.pos)
-                continue
-            
-            if event.type == pygame.KEYDOWN and event.key in UI_TOUCHES_VALIDER:
-                position_curseur : int = curseur_menu.get_position_dans_position()[1]   # Ce menu n'est que sur une ligne
-                match position_curseur:
-                    case 0:
-                        jouer()
-                        return
-                    case 1:
-                        ouvrir_parametres()
-                        break
-                    case 2:
-                        afficher_credits()
-                        break
-                    case _:
-                        raise NotImplementedError("Boutton non implémenté.")
-
-            curseur_menu.changer_pos_curseur(event)
+        menu_check_events(curseur_menu)
 
 def partie_fin(gagne : bool) -> NoReturn:
     couleur_fond : color
-    texte_fin : pygame.Surface
+    texte_fin : Surface
     if gagne:
         couleur_fond = VERT
         texte_fin = TEXTE_VICTOIRE
@@ -58,7 +67,7 @@ def partie_fin(gagne : bool) -> NoReturn:
     fenetre.blit(texte_fin, (LARGEUR // 2 - 120, HAUTEUR // 2 - 20))
     pygame.display.flip()
     
-    time.sleep(2)
+    attendre(2)
     quit()
 
 def reset_monstre() -> None:
@@ -85,7 +94,7 @@ def __main__() -> None:
                 afficher_info()
                 continue        # Un event ne peut être qu'une seule touche à la fois
             
-            if event.key == pygame.K_SPACE:
+            if variables_globales.tour_joueur and event.key in UI_TOUCHES_VALIDER:
                 joueur_selectionne_attaque()
                 variables_globales.tour_joueur = False
                 continue

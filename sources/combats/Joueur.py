@@ -5,8 +5,9 @@ from Attaque import *
 class Joueur:
     _STATS_DE_BASE : Stat = Stat(50-5, 35, 40-5, 20, 30, 50, 1.2, 1)
     est_invincible : bool = False
+    dimensions_sprite : tuple[int, int] = (160, 160)
     
-    def __init__(self, moveset : dict[str, Attaque]) -> None:
+    def __init__(self, moveset : dict[str, Attaque], chemin_vers_sprite : str|None = None) -> None:
         # on assumera que _stats et _base_stats sont initialisés
         self._stats : Stat = Joueur._STATS_DE_BASE
         self._pseudo : str = ""
@@ -16,6 +17,11 @@ class Joueur:
         if self._id >= 0:
             entitees_vivantes[self._id] = self
             return
+        
+        if chemin_vers_sprite is not None:
+            self._sprite  : Surface|None = pygame.transform.scale(pygame.image.load(chemin_vers_sprite), Joueur.dimensions_sprite)
+        else:
+            self._sprite : Surface|None = None
         
         self._id = len(entitees_vivantes)
         entitees_vivantes.append(self)
@@ -41,7 +47,7 @@ class Joueur:
     def get_moveset_clefs(self) -> tuple[str, ...]:
         return tuple(self._moveset.keys())
     
-    def get_attaque_surface(self, clef_attaque : str) -> pygame.Surface:
+    def get_attaque_surface(self, clef_attaque : str) -> Surface:
         assert(clef_attaque in self.get_moveset_clefs())
         return self._moveset[clef_attaque].get_nom_surface()
     
@@ -87,25 +93,29 @@ class Joueur:
         attaque : Attaque = self._moveset[clef_attaque]
         
         if attaque.get_friendly_fire():                                         # si friendly fire, se tape lui même
-            return self.subir_attaque(attaque, self._stats)                     # il faudrat ajouter un curseur si jamais 
+            return self.subir_attaque(attaque, self._stats)                     # il faudra ajouter un curseur si jamais 
         if attaque.get_ennemy_fire():                                           # l'attaque peut friendly fire et ennemy fire
             return entitees_vivantes[id_cible].subir_attaque(attaque, self._stats) # TODO:
         return False
     
-    def dessiner(self, surface : pygame.Surface) -> None:
-        boite_de_contours = (LARGEUR // 4 , 3 * HAUTEUR // 4 - 100, 100, 100)
-        pygame.draw.rect(surface, BLEU, boite_de_contours, 0)
+    def dessiner(self, surface : Surface) -> None:
+        if VUE_DEBUG:
+            boite_de_contours = (LARGEUR // 4, 3 * HAUTEUR // 4 - 100, 100, 100)
+            pygame.draw.rect(surface, BLEU, boite_de_contours, 0)
+        
+        if self._sprite is not None:
+            surface.blit(self._sprite, (LARGEUR // 4, 3 * HAUTEUR // 4 - 150))
 
 
-    def dessine_barre_de_vie(self, surface : pygame.Surface, pos_x : int, pos_y : int) -> None:
+    def dessine_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int) -> None:
         dessine_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
     
-    def dessiner_attaque(self, surface : pygame.Surface, clef_attaque : str, crit : bool) -> None:
+    def dessiner_attaque(self, surface : Surface, clef_attaque : str, crit : bool) -> None:
         assert(clef_attaque in self.get_moveset_clefs())
         
         self._moveset[clef_attaque].dessiner(surface, 400, 300, crit)
         pygame.display.flip()
-        time.sleep(1)
+        attendre(1)
     
     def est_mort(self) -> bool:
         return self._stats.est_mort()
@@ -116,4 +126,4 @@ joueur : Joueur = Joueur({
     "physique": ATTAQUES_DISPONIBLES["physique"],
     "magie":    ATTAQUES_DISPONIBLES["magie"],
     "skip":     ATTAQUES_DISPONIBLES["skip"],
-})
+}, chemin_vers_sprite=f"{CHEMIN_DOSSIER_IMG}/joueur_placeholder.png")

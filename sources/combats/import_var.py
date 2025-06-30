@@ -37,10 +37,10 @@ from variables_globales import (
     fenetre,
     clock,
     entitees_vivantes,
-    chemin_racine,
-    chemin_dossier_img,
-    chemin_dossier_save,
-    chemin_dossier_etc,
+    CHEMIN_VERS_RACINE,
+    CHEMIN_DOSSIER_IMG,
+    CHEMIN_DOSSIER_SAVE,
+    CHEMIN_DOSSIER_ETC,
     
     # ces variables sont, certes, immuables mais elles ne doivent pas être changées
     # on peut donc les importer librement
@@ -68,4 +68,13 @@ from variables_globales import (
     TEXTE_INFO_INFO,
     NAN,
     UI_TOUCHES_VALIDER,
+    VUE_DEBUG,
+)
+
+from pygame.surface import (
+    Surface,
+)
+
+from pygame.rect import (
+    Rect,
 )

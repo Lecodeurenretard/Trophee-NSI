@@ -18,6 +18,17 @@ class TypeMonstre(Enum):
             case _:
                 raise NotImplementedError("Type de monstre non implémenté dans Monstre.Type.couleur().")
     
+    def sprite(self) -> str:
+        """Renvoie le chemin vers le sprite du type de monstre correspondant."""
+        match self:
+            case TypeMonstre.Blob:
+                return f"{CHEMIN_DOSSIER_IMG}/blob_placeholder.webp"
+            case TypeMonstre.Sorcier:
+                return f"{CHEMIN_DOSSIER_IMG}/sorcier_placeholder.png"
+            
+            case _:
+                raise NotImplementedError("Type de monstre non implémenté dans Monstre.Type.sprite().")
+    
     def attaques_du_type(self) -> tuple[Attaque]:
         match self:
             case TypeMonstre.Blob:
@@ -42,19 +53,28 @@ class Monstre:
         TypeMonstre.Blob	: Stat(40+5, 30-7, 45, 0 , 25+5, 30, 2.0, 1.3),
         TypeMonstre.Sorcier	: Stat(30+5, 10  , 30, 15, 80+5, 60, 1.3, 1.8),
     }
+
+    dimensions_sprites : tuple[int, int] = (150, 150)
     
     # La liste de tous les monstres en vie
     # Peut-être des combats vs plusieurs monstres?
     monstres_en_vie : list['Monstre'] = []
     
     # devrait être utilisé le moins possible, préférer nouveau_monstre()
-    def __init__(self, nom : str, stats : Stat, couleur : color, attaques : tuple[Attaque]):
+    def __init__(self, nom : str, stats : Stat, attaques : tuple[Attaque], couleur : color|None = None, chemin_sprite : str|None = None):
         assert(stats.est_initialise), "stats n'est pas initialisé dans le constructeur de Monstre."
 
         self._nom = nom
         self._stats = stats
-        self._couleur = couleur
         self._attaques_disponibles = attaques
+        
+        assert(couleur is not None or chemin_sprite is not None), "A la fois couleur et chemin_sprite sont None"
+        self._couleur : color|None = couleur
+        
+        if chemin_sprite is not None:
+            self._sprite  : Surface|None = pygame.transform.scale(pygame.image.load(chemin_sprite), Monstre.dimensions_sprites)
+        else:
+            self._sprite : Surface|None = None
         
         Monstre._ajouter_monstre_a_liste(self)
         
@@ -81,8 +101,9 @@ class Monstre:
         return Monstre(
             type.name,
             copy(Monstre._STATS_DE_BASE[type]),    # Si pas de copie, tous les monstres suivants auront leurs vie à 0
-            type.couleur(),
-            type.attaques_du_type()
+            type.attaques_du_type(),
+            couleur=type.couleur(),
+            chemin_sprite=type.sprite()
         )
     
     @staticmethod
@@ -145,18 +166,23 @@ class Monstre:
         ratio = max(0, self._stats.vie / self._stats.vie_max)
         return round(ratio * UI_LONGUEUR_BARRE_DE_VIE)
     
-    def dessiner(self, surface : pygame.Surface, pos_x : int, pos_y : int) -> None:
-        boite_de_contours = (pos_x, pos_y, 100, 100)
-        pygame.draw.rect(surface, self._couleur, boite_de_contours, 0)
+    def dessiner(self, surface : Surface, pos_x : int, pos_y : int) -> None:
+        if VUE_DEBUG and self._couleur is not None:
+            boite_de_contours = (pos_x, pos_y, 100, 100)
+            pygame.draw.rect(surface, self._couleur, boite_de_contours, 0)
+            return
+        
+        if not VUE_DEBUG and self._sprite is not None:
+            surface.blit(self._sprite, (pos_x, pos_y))
     
-    def dessiner_barre_de_vie(self, surface : pygame.Surface, pos_x : int, pos_y : int):
+    def dessiner_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int):
         dessine_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
     
-    def dessiner_attaque(self, surface : pygame.Surface, attaque : Attaque, crit : bool) -> None:
+    def dessiner_attaque(self, surface : Surface, attaque : Attaque, crit : bool) -> None:
         attaque.dessiner(surface, 400, 300, crit)
         
         pygame.display.flip()
-        time.sleep(1)
+        attendre(1)
         
     def est_mort(self) -> bool:
         return self._stats.est_mort()

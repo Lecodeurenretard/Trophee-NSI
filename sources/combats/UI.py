@@ -11,7 +11,7 @@ curseur_menu_combat : Curseur = Curseur(
 def demander_pseudo() -> None:
     pseudo : str  = ""
     saisie : bool = True
-    texte : pygame.Surface = variables_globales.POLICE_GRAND.render("Entrez votre pseudo :", True, NOIR)
+    texte : Surface = variables_globales.POLICE_GRAND.render("Entrez votre pseudo :", True, NOIR)
     while saisie:
         pseudo, continuer = texte_entree_event(pseudo)
         if not continuer:
@@ -20,7 +20,7 @@ def demander_pseudo() -> None:
         fenetre.fill(BLANC)
         fenetre.blit(texte, (LARGEUR // 2 - 180, HAUTEUR // 2 - 60))
         
-        pseudo_affiche : pygame.Surface = variables_globales.POLICE_GRAND.render(pseudo, True, BLEU)
+        pseudo_affiche : Surface = variables_globales.POLICE_GRAND.render(pseudo, True, BLEU)
         fenetre.blit(pseudo_affiche, (LARGEUR // 2 - 100, HAUTEUR // 2))
         
         pygame.display.flip()
@@ -68,8 +68,8 @@ def trouve_attaque_a_partir_du_curseur() -> Attaque:
     raise NotImplementedError("Il y a au moins un cas non pris en charge dans trouve_attaque_a_partir_du_curseur().")
 
 def afficher_info() -> None:
-    texte_info1 : pygame.Surface
-    texte_info2 : pygame.Surface
+    texte_info1 : Surface
+    texte_info2 : Surface
     
     fenetre.fill(BLANC)
     
@@ -81,7 +81,7 @@ def afficher_info() -> None:
     fenetre.blit(texte_info2, (3 * LARGEUR // 10 - 100, HAUTEUR // 2 + 30))
     
     pygame.display.flip()
-    time.sleep(2)
+    attendre(2)
 
 
 
@@ -107,30 +107,26 @@ def chargement(duree : float = 7.0) -> None:
         
         pygame.draw.rect(fenetre, NOIR, (50, 300, barre, 50), 0)
         
-        texte_chargement : pygame.Surface = variables_globales.POLICE_GRAND.render("Chargement...", True, NOIR)
+        texte_chargement : Surface = variables_globales.POLICE_GRAND.render("Chargement...", True, NOIR)
         fenetre.blit(texte_chargement, (300, 350))
-        
         pygame.display.flip()
         
         barre += 2
-        time.sleep(duree / NB_ITERATION)    # On assume que toutes les actions de la boucle sont instantanées
+        attendre(duree / NB_ITERATION)    # On assume que toutes les actions de la boucle sont instantanées
 
 def afficher_nombre_combat(nbr_combat : int) -> None:
-    texte_combat : pygame.Surface = variables_globales.POLICE_GRAND.render(f"Combat n°{nbr_combat}", True, NOIR)
+    texte_combat : Surface = variables_globales.POLICE_GRAND.render(f"Combat n°{nbr_combat}", True, NOIR)
     
     fenetre.fill(BLANC)
     fenetre.blit(texte_combat, (LARGEUR // 2 - 100, HAUTEUR // 2 - 20))
     
     pygame.display.flip()
-    time.sleep(2)
+    attendre(2)
 
 
 def rafraichir_ecran() -> None:
     # Effacer l'écran en redessinant l'arrière-plan
     fenetre.fill(BLANC)
-    
-    # Dessiner le fond de l'interface
-    pygame.draw.rect(fenetre, NOIR, (0, 3 * HAUTEUR // 4, 800, 600), 0)
     
     # Dessiner le joueur
     joueur.dessiner(fenetre)
@@ -143,6 +139,9 @@ def rafraichir_ecran() -> None:
         monstre_a_dessiner.dessiner(fenetre, 6 * LARGEUR // 10, HAUTEUR // 4 - 100)
         monstre_a_dessiner.dessiner_barre_de_vie(fenetre, 50, 50)
         dessiner_nom(monstre_a_dessiner.get_nom(), Pos(49, 20))
+    
+    # Dessiner le fond de l'interface
+    pygame.draw.rect(fenetre, NOIR, (0, 3 * HAUTEUR // 4, 800, 600), 0)
     
     # Dessiner le curseur du menu de combat
     curseur_menu_combat.dessiner(fenetre, VERT, 10)

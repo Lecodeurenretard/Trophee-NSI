@@ -29,3 +29,14 @@ def premier_indice_libre_de_entitees_vivantes() -> int:
 def quitter_si_necessaire(ev : pygame.event.Event) -> None:
     if ev.type == pygame.QUIT or (ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE):
         quit()
+
+def verifier_pour_quitter() -> None:
+    for ev in pygame.event.get():
+        quitter_si_necessaire(ev)
+
+def attendre(secondes : float) -> None:
+    intervalle = .01    # check toutes les centièmes de secondes
+    for _ in range(int(secondes//intervalle)):  # arrondi au plus bas
+        verifier_pour_quitter()
+        time.sleep(intervalle)
+    time.sleep(secondes % intervalle)   # attend le temps restant

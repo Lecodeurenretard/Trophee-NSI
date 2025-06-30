@@ -1,6 +1,6 @@
 from import_var import *
 
-def dessine_barre_de_vie(surface : pygame.Surface, pos_x : int, pos_y : int, ratio_vie : float, longueur_remplissage : int) -> None:
+def dessine_barre_de_vie(surface : Surface, pos_x : int, pos_y : int, ratio_vie : float, longueur_remplissage : int) -> None:
     couleur_remplissage : color = VERT
 
     if ratio_vie <= .2:

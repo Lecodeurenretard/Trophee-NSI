@@ -48,9 +48,11 @@ NAN : NaN = float("nan")
 
 UI_TOUCHES_VALIDER : tuple[int, ...] = (
     pygame.K_SPACE,
-    pygame.K_KP_ENTER,
+    pygame.K_RETURN,    # entrée (v. https://stackoverflow.com/questions/27664957/pygame-catching-enter-button)
+    pygame.K_KP_ENTER,  # entrée du pavé numérique
 )
 
+VUE_DEBUG : bool = False
 
 clock : pygame.time.Clock = pygame.time.Clock()
 
@@ -70,10 +72,10 @@ entitees_vivantes : list = []
 # Le chemin du fichier vers le dossier racine
 # Quand on lance de VSCode lance le projet à la racine
 # Quand on le lance du terminal, on le lance du dossier "combats"
-chemin_racine : str = ''
+CHEMIN_VERS_RACINE : str = ''
 if getcwd().endswith("combats"):
-	chemin_racine = "../../"
+	CHEMIN_VERS_RACINE = "../../"
 
-chemin_dossier_img  : str = f"{chemin_racine}data/img/"
-chemin_dossier_save : str = f"{chemin_racine}data/save/"
-chemin_dossier_etc  : str = f"{chemin_racine}data/etc/"
+CHEMIN_DOSSIER_IMG  : str = f"{CHEMIN_VERS_RACINE}data/img"
+CHEMIN_DOSSIER_SAVE : str = f"{CHEMIN_VERS_RACINE}data/save"
+CHEMIN_DOSSIER_ETC  : str = f"{CHEMIN_VERS_RACINE}data/etc"

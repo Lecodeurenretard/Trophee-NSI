@@ -14,8 +14,8 @@ class EffetAttaque:
 class Attaque:
     toujours_crits : bool = False   # il y aura toujours des crits
     _PUISSANCE_CRIT : float = 1.5   # de combien doit le crit influencer l'attaque
-    _CRIT_IMG : pygame.Surface = pygame.transform.scale(    # rétrécit l'image pour être en 20x20
-        pygame.image.load(f"{chemin_dossier_img}crit.png"),
+    _CRIT_IMG : Surface = pygame.transform.scale(    # rétrécit l'image pour être en 20x20
+        pygame.image.load(f"{CHEMIN_DOSSIER_IMG}/crit.png"),
         (40, 40)
     )
     def __init__(
@@ -43,7 +43,7 @@ class Attaque:
         self._friendly_fire = peut_toucher_amis
         self._ennemy_fire = peut_toucher_ennemis
         
-        self._nom_surf : pygame.Surface = POLICE_GRAND.render(nom, True, BLANC)  # Le nom de l'attaque rendered
+        self._nom_surf : Surface = POLICE_GRAND.render(nom, True, BLANC)  # Le nom de l'attaque rendered
         
         match self._type_attaque:
             case TypeAttaque.PHYSIQUE:
@@ -79,7 +79,7 @@ class Attaque:
         return self._puissance
     def get_desc(self) -> str:
         return self._desc
-    def get_nom_surface(self) -> pygame.Surface:
+    def get_nom_surface(self) -> Surface:
         return self._nom_surf
     def get_friendly_fire(self) -> bool:
         return self._friendly_fire
@@ -124,7 +124,7 @@ class Attaque:
             degats *= Attaque._PUISSANCE_CRIT * crit_facteur
         return (round(degats), crit)
 
-    def dessiner(self, surface : pygame.Surface, pos_x: int, pos_y: int, crit : bool = False) -> None:
+    def dessiner(self, surface : Surface, pos_x: int, pos_y: int, crit : bool = False) -> None:
         RECT_LARGEUR = 200
         RECT_HAUTEUR = 50
         

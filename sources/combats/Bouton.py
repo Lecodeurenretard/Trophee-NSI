@@ -2,16 +2,16 @@ from fonctions_boutons import *
 
 class Bouton:
     def __init__(self, text : str, x : int, y : int, w : int, h : int, action : Callable[[], None] | None = None):
-        self.rect : pygame.Rect = pygame.Rect(x, y, w, h)
+        self.rect : Rect = Rect(x, y, w, h)
         self.text : str = text
         self.color : color = GRIS
         self.action : Callable[[], None] | None = action
 
-    def draw(self, surface : pygame.Surface) -> None:
+    def draw(self, surface : Surface) -> None:
         pygame.draw.rect(surface, self.color, self.rect)
         
-        text_surf : pygame.Surface = variables_globales.police.render(self.text, True, BLANC)
-        text_rect : pygame.Rect = text_surf.get_rect(center=self.rect.center)
+        text_surf : Surface = variables_globales.police.render(self.text, True, BLANC)
+        text_rect : Rect = text_surf.get_rect(center=self.rect.center)
         
         surface.blit(text_surf, text_rect)
 

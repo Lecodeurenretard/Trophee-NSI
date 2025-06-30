@@ -10,7 +10,7 @@ def joueur_attaque(clef_attaque : str) -> None:
     joueur.dessiner_attaque(fenetre, clef_attaque, crit)
     
     rafraichir_ecran()
-    time.sleep(1)
+    attendre(1)
 
 def joueur_selectionne_attaque():
     curseur_menu_empl : tuple[int, int] = curseur_menu_combat.get_position_dans_position()

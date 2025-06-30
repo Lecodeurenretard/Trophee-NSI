@@ -11,7 +11,7 @@ def ouvrir_parametres() -> None:
 
 def afficher_credits() -> None:
     print("→ Affichage des crédits...")
-    texte_credits : pygame.Surface = variables_globales.police.render("Développé par Jules et Lucas", True, BLANC)
+    texte_credits : Surface = variables_globales.police.render("Développé par Jules et Lucas", True, BLANC)
     credit_y : int = HAUTEUR
     
     while credit_y > 0:

@@ -26,7 +26,7 @@ class Curseur:
     def _est_emplacement_valide(self, p : Pos) -> bool:
         return self._est_colonne_valide(p.x) and self._est_ligne_valide(p.y)
     
-    def dessiner(self, surface : pygame.Surface, couleur : color, rayon : int = 10) -> None:
+    def dessiner(self, surface : Surface, couleur : color, rayon : int = 10) -> None:
         pygame.draw.circle(surface, couleur, tuple(self._pos), rayon)
     
     
