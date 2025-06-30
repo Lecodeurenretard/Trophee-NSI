@@ -38,20 +38,20 @@ class Curseur:
         return self._pos
     def descendre(self) -> Pos:
         self._position_dans_positions.y += 1
-        self._position_dans_positions.y = self._position_dans_positions.y % len(self._col_dispo)
+        self._position_dans_positions.y = self._position_dans_positions.y % len(self._ligne_dispo)
 
         self._update_pos()
         return self._pos
     
     def aller_gauche(self) -> Pos:
         self._position_dans_positions.x -= 1
-        self._position_dans_positions.x = self._position_dans_positions.x % len(self._ligne_dispo)
+        self._position_dans_positions.x = self._position_dans_positions.x % len(self._col_dispo)
         
         self._update_pos()
         return self._pos
     def aller_droite(self) -> Pos:
         self._position_dans_positions.x += 1
-        self._position_dans_positions.x = self._position_dans_positions.x % len(self._ligne_dispo)
+        self._position_dans_positions.x = self._position_dans_positions.x % len(self._col_dispo)
         
         self._update_pos()
         return self._pos
@@ -79,3 +79,24 @@ class Curseur:
         """
         
         return tuple(self._position_dans_positions) # type: ignore  # Une tuple de Pos à toujours une longueur de deux
+    
+    def changer_pos_curseur(self, ev : pygame.event.Event) -> None:
+        if ev.type != pygame.KEYDOWN:
+            return
+        
+        if ev.key == pygame.K_UP:
+            self.monter()
+            return
+        
+        if ev.key == pygame.K_DOWN:
+            self.descendre()
+            return
+        
+        if ev.key == pygame.K_LEFT:
+            self.aller_gauche()
+            return
+        
+        if ev.key == pygame.K_RIGHT:
+            self.aller_droite()
+            return
+        # sinon, ne fait rien

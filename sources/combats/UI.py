@@ -3,7 +3,7 @@ from Joueur import *
 from Monstre import *
 from Curseur import *
 
-curseur_menu : Curseur = Curseur(
+curseur_menu_combat : Curseur = Curseur(
     (50, 350),
     (13 * HAUTEUR // 16, 13 * HAUTEUR // 16 + 70)
 )
@@ -51,7 +51,7 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
     return (texte, continuer)
 
 def trouve_attaque_a_partir_du_curseur() -> Attaque:
-    curseur_empl : tuple[int, int]= curseur_menu.get_position_dans_position()
+    curseur_empl : tuple[int, int]= curseur_menu_combat.get_position_dans_position()
     
     if curseur_empl == (0, 0):
         return ATTAQUES_DISPONIBLES['heal']
@@ -145,7 +145,7 @@ def rafraichir_ecran() -> None:
         dessiner_nom(monstre_a_dessiner.get_nom(), Pos(49, 20))
     
     # Dessiner le curseur du menu de combat
-    curseur_menu.dessiner(fenetre, VERT, 10)
+    curseur_menu_combat.dessiner(fenetre, VERT, 10)
     
     # Dessiner le texte
     fenetre.blit(TEXTE_INFO_UTILISER    , (620, (13 * HAUTEUR // 16) - 12))

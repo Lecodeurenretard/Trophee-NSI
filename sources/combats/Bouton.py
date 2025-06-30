@@ -19,12 +19,12 @@ class Bouton:
         if self.rect.collidepoint(tuple(pos_click)) and self.action:
             self.action()
 
-boutons : list[Bouton] = [
+boutons_menu : list[Bouton] = [
     Bouton("Jouer"     , 300, 200, 200, 60, jouer),
     Bouton("Paramètres", 300, 300, 200, 60, ouvrir_parametres),
     Bouton("Crédits"   , 300, 400, 200, 60, afficher_credits),
 ]
 
 def check_all_clicks(pos_click : Pos):
-    for butt in boutons:
+    for butt in boutons_menu:
         butt.check_click(pos_click)

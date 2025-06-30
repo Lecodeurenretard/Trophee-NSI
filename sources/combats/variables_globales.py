@@ -46,6 +46,11 @@ TEXTE_INFO_INFO     : pygame.Surface = POLICE_PETIT.render("I : info"        , T
 NaN : TypeAlias = float
 NAN : NaN = float("nan")
 
+UI_TOUCHES_VALIDER : tuple[int, ...] = (
+    pygame.K_SPACE,
+    pygame.K_KP_ENTER,
+)
+
 
 clock : pygame.time.Clock = pygame.time.Clock()
 

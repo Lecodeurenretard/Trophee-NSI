@@ -67,4 +67,5 @@ from variables_globales import (
     TEXTE_INFO_UTILISER,
     TEXTE_INFO_INFO,
     NAN,
+    UI_TOUCHES_VALIDER,
 )

@@ -97,7 +97,12 @@ class Monstre:
                 Monstre.monstres_en_vie.pop(i)
                 return
         print("Warning: La fonction Monstre._enlever_monstre_a_liste() à été appellée sur un monstre pas dans la liste dans Monstre.monstres_en_vie[].")
-
+    
+    @staticmethod
+    def tuer_les_monstres_morts() -> None:
+        for monstre in Monstre.monstres_en_vie:
+            if monstre.est_mort():
+                monstre.meurt()
     
     def get_id(self) -> int:
         return self._id

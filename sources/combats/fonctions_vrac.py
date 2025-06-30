@@ -25,3 +25,7 @@ def premier_indice_libre_de_entitees_vivantes() -> int:
         if entitees_vivantes[i] is None:
             return i
     return -1
+
+def quitter_si_necessaire(ev : pygame.event.Event) -> None:
+    if ev.type == pygame.QUIT or (ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE):
+        quit()

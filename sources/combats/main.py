@@ -6,37 +6,41 @@ def quit(exit_code : int = 0) -> NoReturn:
     pygame.quit()
     sys.exit(exit_code)
 
-def menu_frame() -> None:
-    fenetre.fill(BLEU_CLAIR)
-    for bouton in boutons:
-        bouton.draw(fenetre)
-    pygame.display.flip()
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            quit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            check_all_clicks(event.pos)
+def menu() -> None:
+    curseur_menu : Curseur = Curseur(
+        (270,),
+        (230, 330, 430)
+    )
+    while variables_globales.menu_running:
+        fenetre.fill(BLEU_CLAIR)
+        for bouton in boutons_menu:
+            bouton.draw(fenetre)
+        
+        curseur_menu.dessiner(fenetre, VERT, 20)
+        pygame.display.flip()
+        
+        for event in pygame.event.get():
+            quitter_si_necessaire(event)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                check_all_clicks(event.pos)
+                continue
+            
+            if event.type == pygame.KEYDOWN and event.key in UI_TOUCHES_VALIDER:
+                position_curseur : int = curseur_menu.get_position_dans_position()[1]   # Ce menu n'est que sur une ligne
+                match position_curseur:
+                    case 0:
+                        jouer()
+                        return
+                    case 1:
+                        ouvrir_parametres()
+                        break
+                    case 2:
+                        afficher_credits()
+                        break
+                    case _:
+                        raise NotImplementedError("Boutton non implémenté.")
 
-def change_cursor_pos(evt : pygame.event.Event) -> None:
-    if evt.type != pygame.KEYDOWN or not variables_globales.tour_joueur:
-        return
-     
-    if evt.key == pygame.K_UP:
-        curseur_menu.monter()
-        return
-    
-    if evt.key == pygame.K_DOWN:
-        curseur_menu.descendre()
-        return
-    
-    if evt.key == pygame.K_LEFT:
-        curseur_menu.aller_gauche()
-        return
-    
-    if evt.key == pygame.K_RIGHT:
-        curseur_menu.aller_droite()
-        return
-    # sinon, ne fait rien
+            curseur_menu.changer_pos_curseur(event)
 
 def partie_fin(gagne : bool) -> NoReturn:
     couleur_fond : color
@@ -69,19 +73,14 @@ def __main__() -> None:
         clock.tick(60)
         
         # Le menu qu'il y a avant le jeu
-        while variables_globales.menu_running:
-            menu_frame()
+        menu()
         
         rafraichir_ecran()
-        
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                quit()
+            quitter_si_necessaire(event)
             if event.type != pygame.KEYDOWN or not variables_globales.tour_joueur:
                 continue
-        
-            if event.key == pygame.K_ESCAPE:
-                quit()
+            
             if event.key == pygame.K_i:
                 afficher_info()
                 continue        # Un event ne peut être qu'une seule touche à la fois
@@ -91,13 +90,12 @@ def __main__() -> None:
                 variables_globales.tour_joueur = False
                 continue
             
-            change_cursor_pos(event)
+            if variables_globales.tour_joueur:
+                curseur_menu_combat.changer_pos_curseur(event)
         
-        for monstre in Monstre.monstres_en_vie:
-            if monstre.est_mort():
-                monstre.meurt()
+        Monstre.tuer_les_monstres_morts()
         if len(Monstre.monstres_en_vie) == 0:
-            # on laisse le joueur avec la vie qu'il avait au combat précédent
+            # La vie du joueur est délibérément pas reset.
             
             variables_globales.nbr_combat += 1
             

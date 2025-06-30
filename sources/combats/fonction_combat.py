@@ -13,7 +13,7 @@ def joueur_attaque(clef_attaque : str) -> None:
     time.sleep(1)
 
 def joueur_selectionne_attaque():
-    curseur_menu_empl : tuple[int, int] = curseur_menu.get_position_dans_position()
+    curseur_menu_empl : tuple[int, int] = curseur_menu_combat.get_position_dans_position()
     
     if curseur_menu_empl == (0, 0):
         joueur_attaque("heal")
