@@ -2,8 +2,11 @@ from UI import *
 
 def jouer() -> None:
     variables_globales.menu_running = False
-    chargement()
-    demander_pseudo()
+    if MODE_DEBUG:
+        joueur.set_pseudo("Testeur")
+    else:
+        chargement()
+        demander_pseudo()
     afficher_nombre_combat(variables_globales.nbr_combat)
 
 def ouvrir_parametres() -> None:

@@ -13,7 +13,7 @@ class Pos:
 		return f"({self.x}; {self.y})"
 	def __iter__(self):
 		# v. Réponse StackOverflow https://stackoverflow.com/questions/37639363/how-to-convert-an-custom-class-object-to-a-tuple-in-python
-		# La réponse an court est que cette fonction permet de convertir en tuple et en liste les objets
+		# La réponse en court est que cette fonction permet de convertir les objets en tuple et en liste.
 		yield self.x	# return mais en bizarre
 		yield self.y
 	

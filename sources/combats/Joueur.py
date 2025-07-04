@@ -99,9 +99,10 @@ class Joueur:
         return False
     
     def dessiner(self, surface : Surface) -> None:
-        if VUE_DEBUG:
+        if MODE_DEBUG:
             boite_de_contours = (LARGEUR // 4, 3 * HAUTEUR // 4 - 100, 100, 100)
             pygame.draw.rect(surface, BLEU, boite_de_contours, 0)
+            return
         
         if self._sprite is not None:
             surface.blit(self._sprite, (LARGEUR // 4, 3 * HAUTEUR // 4 - 150))

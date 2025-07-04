@@ -135,10 +135,10 @@ def rafraichir_ecran() -> None:
     
     # Dessiner les monstres
     if len(Monstre.monstres_en_vie) != 0:   # TODO: S'il y en a plusieur, les décaler
-        monstre_a_dessiner : Monstre = Monstre.monstres_en_vie[0]
-        monstre_a_dessiner.dessiner(fenetre, 6 * LARGEUR // 10, HAUTEUR // 4 - 100)
-        monstre_a_dessiner.dessiner_barre_de_vie(fenetre, 50, 50)
-        dessiner_nom(monstre_a_dessiner.get_nom(), Pos(49, 20))
+        for monstre in Monstre.monstres_en_vie:
+            monstre.dessiner(fenetre, 6 * LARGEUR // 10, HAUTEUR // 4 - 100)
+            monstre.dessiner_barre_de_vie(fenetre, 50, 50)
+            dessiner_nom(monstre.get_nom(), Pos(49, 20))
     
     # Dessiner le fond de l'interface
     pygame.draw.rect(fenetre, NOIR, (0, 3 * HAUTEUR // 4, 800, 600), 0)

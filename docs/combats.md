@@ -149,3 +149,13 @@ Toutes les attaques prédéfinies sont dans le dictionnaire `ATTAQUES_DISPONIBLE
 Les attaques ont des types et des effets.  
 les types sont membres de l'énumeration `TypeAttaque` (définie dans [Attaque.py](Attaque.py)) et dirigent la façon dont les dégats seront calculés et comment doit être traité.  
 Les effets seront les modifications de statut appliqués au destinataire, ils ne sont pas encore implémentés.
+
+## Modes de jeux
+Il y a deux modes de jeu:
+
+|               |                          Débug                               |        Normal         |
+|:--------------|:------------------------------------------------------------:|:---------------------:|
+| **Affichage** |          Simple (pas de sprites, moins de couleurs)          | Détaillé, Animations* |
+|  **Actions**  |        Attaquer, choisir le combat*, choisir le monstre*     |       Attaquer        |
+
+\*à faire

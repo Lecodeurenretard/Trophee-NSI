@@ -58,6 +58,7 @@ from variables_globales import (
     
     MAX_COMBAT,
     UI_LONGUEUR_BARRE_DE_VIE,
+    UI_HAUTEUR_BARRE_DE_VIE,
     
     POLICE_GRAND,
     POLICE_PETIT,
@@ -68,7 +69,7 @@ from variables_globales import (
     TEXTE_INFO_INFO,
     NAN,
     UI_TOUCHES_VALIDER,
-    VUE_DEBUG,
+    MODE_DEBUG,
 )
 
 from pygame.surface import (

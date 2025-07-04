@@ -33,7 +33,7 @@ def menu_check_events(curseur : Curseur) -> None:
             check_all_clicks(event.pos)
             continue
         
-        curseur.changer_pos_curseur(event)
+        curseur.deplacement_utilisateur(event)
         si_choix_utilisateur_executer(event, curseur.get_position_dans_position())
 
 def menu() -> None:
@@ -100,7 +100,7 @@ def __main__() -> None:
                 continue
             
             if variables_globales.tour_joueur:
-                curseur_menu_combat.changer_pos_curseur(event)
+                curseur_menu_combat.deplacement_utilisateur(event)
         
         Monstre.tuer_les_monstres_morts()
         if len(Monstre.monstres_en_vie) == 0:
@@ -119,7 +119,7 @@ def __main__() -> None:
             reset_monstre()
         
         if not variables_globales.tour_joueur:
-            monstre_attaque()
+            monstres_attaquent()
             variables_globales.tour_joueur = True
         
         if joueur.est_mort():

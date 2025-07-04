@@ -31,6 +31,7 @@ MAX_COMBAT : int = 5	# combat maximum (nbr_combat <= MAX_COMBAT)
 INVICIBLE_ENNEMI : bool = False
 
 UI_LONGUEUR_BARRE_DE_VIE : int = 200
+UI_HAUTEUR_BARRE_DE_VIE : int = 10
 
 POLICE_GRAND : pygame.font.Font = pygame.font.Font(None, 36)
 POLICE_PETIT : pygame.font.Font = pygame.font.Font(None, 25)
@@ -52,7 +53,7 @@ UI_TOUCHES_VALIDER : tuple[int, ...] = (
     pygame.K_KP_ENTER,  # entrée du pavé numérique
 )
 
-VUE_DEBUG : bool = False
+MODE_DEBUG : bool = False
 
 clock : pygame.time.Clock = pygame.time.Clock()
 

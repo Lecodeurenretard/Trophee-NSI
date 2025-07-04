@@ -167,12 +167,12 @@ class Monstre:
         return round(ratio * UI_LONGUEUR_BARRE_DE_VIE)
     
     def dessiner(self, surface : Surface, pos_x : int, pos_y : int) -> None:
-        if VUE_DEBUG and self._couleur is not None:
+        if MODE_DEBUG and self._couleur is not None:
             boite_de_contours = (pos_x, pos_y, 100, 100)
             pygame.draw.rect(surface, self._couleur, boite_de_contours, 0)
             return
         
-        if not VUE_DEBUG and self._sprite is not None:
+        if not MODE_DEBUG and self._sprite is not None:
             surface.blit(self._sprite, (pos_x, pos_y))
     
     def dessiner_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int):
