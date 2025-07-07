@@ -40,3 +40,14 @@ def attendre(secondes : float) -> None:
         verifier_pour_quitter()
         time.sleep(intervalle)
     time.sleep(secondes % intervalle)   # attend le temps restant
+
+def utilisateur_valide_menu(ev : pygame.event.Event) -> bool:
+    return ev.type == pygame.KEYDOWN and ev.key in UI_TOUCHES_VALIDER
+
+def pourcentage_hauteur(pourcents : int) -> int:
+    """Renvoie pourcent% de la hauteur de l'écran en pixels"""
+    return round(HAUTEUR * pourcents/100)
+
+def pourcentage_largeur(pourcents : int) -> int:
+    """Renvoie pourcent% de la largeur de l'écran en pixels"""
+    return round(LARGEUR * pourcents/100)

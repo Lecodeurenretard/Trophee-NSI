@@ -1,11 +1,12 @@
 from import_var import *
+from bisect import insort
 
 class Curseur:
-    def __init__(self, col_dispo : tuple[int, ...], lne_dispo : tuple[int, ...], pos_interdites : tuple[Pos, ...] = ()) -> None:
+    def __init__(self, col_dispo : list[int], lne_dispo : list[int], pos_interdites : list[Pos] = []) -> None:
         # ordonne de gauche à droite et de haut en bas
-        self._col_dispo   : tuple[int, ...] = tuple(sorted(col_dispo))
-        self._ligne_dispo : tuple[int, ...] = tuple(sorted(lne_dispo))
-        self._interdit     : tuple[Pos, ...] = pos_interdites
+        self._col_dispo   : list[int] = list(sorted(col_dispo))
+        self._ligne_dispo : list[int] = list(sorted(lne_dispo))
+        self._interdit    : list[Pos] = pos_interdites
         
         self._pos_dans_toutes_pos = Pos(0, 0)	# v. doc
         self._pos = Pos(0, 0)
@@ -20,41 +21,69 @@ class Curseur:
         if update_col:
             self._pos.x = self._col_dispo[self._pos_dans_toutes_pos.x]
         
-        if not self._est_emplacement_valide(self._pos):
+        if not self.est_emplacement_valide(self._pos):
             self._pos = ancienne_pos
             return False
         return True
     
-    def _est_ligne_valide(self, lne : int) -> bool:
+    def _interdir_col_sauf(self, colonne : int, exception_ligne : int) -> None:
+        assert(colonne in self._col_dispo), "La colonne n'a pas été ajoutée auparavant dans Curseur.interdir_col_sauf()."
+        assert(exception_ligne in self._ligne_dispo), "La ligne à éviter n'a pas été ajoutée auparavant dans Curseur.interdir_col_sauf()."
+        for lne in self._ligne_dispo:
+            if lne != exception_ligne:
+                self.ajouter_interdit(Pos(colonne, lne))
+    def _interdir_ligne_sauf(self, ligne : int, exception_colonne : int) -> None:
+        assert(ligne in self._ligne_dispo), "La colonne n'a pas été ajoutée auparavant dans Curseur.interdir_ligne_sauf()."
+        assert(exception_colonne in self._col_dispo), "La ligne à éviter n'a pas été ajoutée auparavant dans Curseur.interdir_ligne_sauf()."
+        for col in self._col_dispo:
+            if col != exception_colonne:
+                self.ajouter_interdit(Pos(col, ligne))
+    
+    def _lever_interdiction(self, pos_interdite : Pos) -> None:
+        self._interdit.remove(pos_interdite)    # lève une ValueError si ne trouve pas
+    
+    def _ajouter_a_pdtp_x(self, combien : int):
+        self._pos_dans_toutes_pos.x += combien
+        self._pos_dans_toutes_pos.x %= len(self._col_dispo)
+    def _ajouter_a_pdp_y(self, combien : int):
+        self._pos_dans_toutes_pos.y += combien
+        self._pos_dans_toutes_pos.y %= len(self._ligne_dispo)
+    
+    def coordonee_globale_vers_coordonee_curseur(self, coord_globales : Pos) -> Pos:
+        res : Pos = Pos(-1, -1)
+        res.x = self._col_dispo.index(coord_globales.x)
+        res.y = self._ligne_dispo.index(coord_globales.y)
+        
+        return res
+    
+    def verifie_ligne_existe(self, lne : int) -> bool:
         return lne in self._ligne_dispo
-    def _est_colonne_valide(self, col : int) -> bool:
+    def verifie_colonne_existe(self, col : int) -> bool:
         return col in self._col_dispo
-    def _est_emplacement_valide(self, p : Pos) -> bool:
+    
+    def verifie_emplacement_existe(self, p : Pos) -> bool:
         return (
-            self._est_colonne_valide(p.x)
-            and self._est_ligne_valide(p.y)
+            self.verifie_colonne_existe(p.x)
+            and self.verifie_ligne_existe(p.y)
+        )
+    def est_emplacement_valide(self, p : Pos) -> bool:
+        return (
+            self.verifie_emplacement_existe(p)
             and p not in self._interdit
         )
     
     def dessiner(self, surface : Surface, couleur : color, rayon : int = 10) -> None:
         pygame.draw.circle(surface, couleur, tuple(self._pos), rayon)
     
-    def _ajouter_a_pdtp_x(self, combien : int):
-        self._pos_dans_toutes_pos.x += combien
-        self._pos_dans_toutes_pos.x %= len(self._col_dispo)
-    def _ajouter_a_pdtp_y(self, combien : int):
-        self._pos_dans_toutes_pos.y += combien
-        self._pos_dans_toutes_pos.y %= len(self._ligne_dispo)
-    
     def monter(self) -> None:
-        self._ajouter_a_pdtp_y(-1)
+        self._ajouter_a_pdp_y(-1)
         while not self._update_pos():     # skip les positions interdites
-            self._ajouter_a_pdtp_y(-1)
+            self._ajouter_a_pdp_y(-1)
         
     def descendre(self) -> None:
-        self._ajouter_a_pdtp_y(1)
+        self._ajouter_a_pdp_y(1)
         while not self._update_pos():     # skip les positions interdites
-            self._ajouter_a_pdtp_y(1)
+            self._ajouter_a_pdp_y(1)
         
     def aller_gauche(self) -> None:
         self._ajouter_a_pdtp_x(-1)
@@ -67,8 +96,8 @@ class Curseur:
             self._ajouter_a_pdtp_x(1)
         
 
-    def get_position_dans_position(self) -> tuple[int, int]:
-        return tuple(self._pos_dans_toutes_pos) # type: ignore  # Une tuple de Pos à toujours une longueur de deux
+    def get_position_dans_position(self) -> Pos:
+        return self._pos_dans_toutes_pos
     
     def deplacement_utilisateur(self, ev : pygame.event.Event) -> None:
         if ev.type != pygame.KEYDOWN:
@@ -90,3 +119,31 @@ class Curseur:
             self.aller_droite()
             return
         # sinon, ne fait rien
+    
+    def ajouter_colonne(self, x_coord : int) -> None:
+        if x_coord not in self._col_dispo:
+            insort(self._col_dispo, x_coord)    # Garde _col_dispo triée
+    def ajouter_ligne(self, y_coord : int) -> None:
+        if y_coord not in self._ligne_dispo:
+            insort(self._ligne_dispo, y_coord)
+    def ajouter_interdit(self, a_interdir : Pos) -> None:
+        if a_interdir not in self._interdit:
+            self._interdit.append(a_interdir)
+    
+    def ajouter_pos(self, position : Pos) -> None:
+        assert(not self.est_emplacement_valide(position)), f"Une position est déjà active à {position} dans Curseur.ajouter_pos()."
+        
+        if self.verifie_emplacement_existe(position):
+            self._lever_interdiction(position)
+            return
+        
+        if self.verifie_colonne_existe(position.x):
+            self.ajouter_ligne(position.y)
+            self._interdir_ligne_sauf(position.y, position.x)
+            return
+        
+        if self.verifie_ligne_existe(position.y):
+            self.ajouter_colonne(position.x)
+            self._interdir_col_sauf(position.x, position.y)
+            return
+        raise(RuntimeError("La logique de Curseur.ajouter_pos() est mauvaise."))

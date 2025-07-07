@@ -27,6 +27,7 @@ from variables_globales import (
     Any,
     Stat,
     Pos,
+    partial,
     
     # Fonctions
     copy,

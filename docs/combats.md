@@ -156,6 +156,6 @@ Il y a deux modes de jeu:
 |               |                          Débug                               |        Normal         |
 |:--------------|:------------------------------------------------------------:|:---------------------:|
 | **Affichage** |          Simple (pas de sprites, moins de couleurs)          | Détaillé, Animations* |
-|  **Actions**  |        Attaquer, choisir le combat*, choisir le monstre*     |       Attaquer        |
+|  **Actions**  |        Attaquer, choisir si le coup est crit*, choisir le monstre*, pouvoir skip des combats*     |       Attaquer        |
 
 \*à faire

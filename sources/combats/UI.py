@@ -1,12 +1,5 @@
-from fonctions_vrac import *
-from Joueur import *
+from liste_boutons import boutons_attaques, ButtonCursor
 from Monstre import *
-from Curseur import *
-
-curseur_menu_combat : Curseur = Curseur(
-    (50, 350),
-    (13 * HAUTEUR // 16, 13 * HAUTEUR // 16 + 70)
-)
 
 def demander_pseudo() -> None:
     pseudo : str  = ""
@@ -51,21 +44,21 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
     return (texte, continuer)
 
 def trouve_attaque_a_partir_du_curseur() -> Attaque:
-    curseur_empl : tuple[int, int]= curseur_menu_combat.get_position_dans_position()
+    curseur_pos : Pos = boutons_attaques[0].get_cursor_group_pos_in_pos()   # Ce qui est important, c'est que le bouton soit dans le groupe Attaques
     
-    if curseur_empl == (0, 0):
+    if curseur_pos == Pos(0, 0):
         return ATTAQUES_DISPONIBLES['heal']
     
-    if curseur_empl == (1, 0):
+    if curseur_pos == Pos(1, 0):
         return ATTAQUES_DISPONIBLES['magie']
     
-    if curseur_empl == (0, 1):
+    if curseur_pos == Pos(0, 1):
         return ATTAQUES_DISPONIBLES['physique']
     
-    if curseur_empl == (1, 1):
+    if curseur_pos == Pos(1, 1):
         return ATTAQUES_DISPONIBLES['skip']
     
-    raise NotImplementedError("Il y a au moins un cas non pris en charge dans trouve_attaque_a_partir_du_curseur().")
+    raise ValueError("Il y a au moins un cas non pris en charge dans trouve_attaque_a_partir_du_curseur().")
 
 def afficher_info() -> None:
     texte_info1 : Surface
@@ -84,20 +77,10 @@ def afficher_info() -> None:
     attendre(2)
 
 
-
 def dessiner_boutons_attaques() -> None:
-    # Dessiner les boites
-    pygame.draw.rect(fenetre, BLANC, (70 , (13 * HAUTEUR // 16) - 25, 200, 50), 5) # soin
-    pygame.draw.rect(fenetre, BLANC, (70 , (13 * HAUTEUR // 16) + 45, 200, 50), 5) # torgnole
-    pygame.draw.rect(fenetre, BLANC, (375, (13 * HAUTEUR // 16) - 25, 200, 50), 5) #...
-    pygame.draw.rect(fenetre, BLANC, (375, (13 * HAUTEUR // 16) + 45, 200, 50), 5)
-    
-    # Dessiner les noms
-    fenetre.blit(joueur.get_attaque_surface("heal")    , (140, (13 * HAUTEUR // 16) - 12))
-    fenetre.blit(joueur.get_attaque_surface("physique"), (120, (13 * HAUTEUR // 16) + 60))
-    fenetre.blit(joueur.get_attaque_surface("magie")   , (400, (13 * HAUTEUR // 16) - 12))
-    fenetre.blit(joueur.get_attaque_surface("skip")    , (400, (13 * HAUTEUR // 16) + 60))
-
+    for butt in boutons_attaques:
+        butt.draw(fenetre)
+    ButtonCursor.draw_cursors(fenetre)
 
 def chargement(duree : float = 7.0) -> None:
     barre : int = 0
@@ -144,12 +127,13 @@ def rafraichir_ecran() -> None:
     pygame.draw.rect(fenetre, NOIR, (0, 3 * HAUTEUR // 4, 800, 600), 0)
     
     # Dessiner le curseur du menu de combat
-    curseur_menu_combat.dessiner(fenetre, VERT, 10)
+    ButtonCursor.draw_cursors(fenetre)
     
     # Dessiner le texte
     fenetre.blit(TEXTE_INFO_UTILISER    , (620, (13 * HAUTEUR // 16) - 12))
     fenetre.blit(TEXTE_INFO_INFO        , (620, (13 * HAUTEUR // 16) + 20))
     
+    # ...
     dessiner_boutons_attaques()
     
     # Mettre à jour l'affichage

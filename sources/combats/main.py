@@ -1,55 +1,28 @@
 from Monstre import *
-from Bouton import *
+from fonctions_boutons import *
 from fonction_combat import *
 
 def quit(exit_code : int = 0) -> NoReturn:
     pygame.quit()
     sys.exit(exit_code)
 
-def si_choix_utilisateur_executer(ev : pygame.event.Event, position_curseur : tuple[int, int]) -> None:
-    if ev.type != pygame.KEYDOWN or ev.key not in UI_TOUCHES_VALIDER:
-        return
-    
-    match position_curseur[1]:      # Ce menu n'est que sur une ligne
-        case 0:
-            jouer()
-            return
-        
-        case 1:
-            ouvrir_parametres()
-            return
-        
-        case 2:
-            afficher_credits()
-            return
-        
-        case _:
-            raise NotImplementedError("Bouton non implémenté.")
-
-def menu_check_events(curseur : Curseur) -> None:
-    for event in pygame.event.get():
-        quitter_si_necessaire(event)
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            check_all_clicks(event.pos)
-            continue
-        
-        curseur.deplacement_utilisateur(event)
-        si_choix_utilisateur_executer(event, curseur.get_position_dans_position())
-
 def menu() -> None:
-    curseur_menu : Curseur = Curseur(
-        (270,),
-        (230, 330, 430)
+    boutons_menu : tuple[ButtonCursor, ...] = (
+        ButtonCursor("Jouer"     , (300, 200, 200, 60), line_thickness=0, group_name="Ecran titre", group_color=VERT, callback=jouer),
+        ButtonCursor("Paramètres", (300, 300, 200, 60), line_thickness=0, group_name="Ecran titre",                   callback=ouvrir_parametres),
+        ButtonCursor("Crédits"   , (300, 400, 200, 60), line_thickness=0, group_name="Ecran titre",                   callback=afficher_credits),
     )
     while variables_globales.menu_running:
         fenetre.fill(BLEU_CLAIR)
         for bouton in boutons_menu:
             bouton.draw(fenetre)
+        ButtonCursor.draw_cursors(fenetre)
         
-        curseur_menu.dessiner(fenetre, VERT, 20)
         pygame.display.flip()
         
-        menu_check_events(curseur_menu)
+        for event in pygame.event.get():
+            quitter_si_necessaire(event)
+            ButtonCursor.check_inputs(boutons_menu, event)
 
 def partie_fin(gagne : bool) -> NoReturn:
     couleur_fond : color
@@ -77,30 +50,26 @@ def reset_monstre() -> None:
 
 def __main__() -> None:
     reset_monstre()
+    menu()
+    
     while True:
         rafraichir_ecran()
         clock.tick(60)
         
-        # Le menu qu'il y a avant le jeu
-        menu()
-        
-        rafraichir_ecran()
         for event in pygame.event.get():
             quitter_si_necessaire(event)
-            if event.type != pygame.KEYDOWN or not variables_globales.tour_joueur:
+            if (event.type != pygame.KEYDOWN and event.type != pygame.MOUSEBUTTONDOWN) or not variables_globales.tour_joueur:
                 continue
             
-            if event.key == pygame.K_i:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_i:
                 afficher_info()
                 continue        # Un event ne peut être qu'une seule touche à la fois
             
-            if variables_globales.tour_joueur and event.key in UI_TOUCHES_VALIDER:
-                joueur_selectionne_attaque()
+            if ButtonCursor.check_inputs(boutons_attaques, event):
                 variables_globales.tour_joueur = False
+                rafraichir_ecran()
+                attendre(1)
                 continue
-            
-            if variables_globales.tour_joueur:
-                curseur_menu_combat.deplacement_utilisateur(event)
         
         Monstre.tuer_les_monstres_morts()
         if len(Monstre.monstres_en_vie) == 0:
@@ -125,6 +94,6 @@ def __main__() -> None:
         if joueur.est_mort():
             partie_fin(gagne=False)
 
-# N'éxecute le programme que si on le lance de ce fichier
+# N'éxecute le programme que si on le lance depuis ce fichier
 if __name__ == "__main__":
     __main__()

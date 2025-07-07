@@ -2,10 +2,13 @@ import pygame
 import sys
 import time
 import random
+
 from os import getcwd
 from math import isnan
 from typing import TypeAlias, Callable, TypeVar, NoReturn, Any
 from copy import copy, deepcopy
+from functools import partial
+
 
 from Stat import *
 from Pos import *
