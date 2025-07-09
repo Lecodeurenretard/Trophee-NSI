@@ -6,8 +6,6 @@ class Pos:
 	
 	def __eq__(self, autre_pos : 'Pos'):
 		return self.x == autre_pos.x and self.y == autre_pos.y
-	def __ne__(self, autre_pos : 'Pos'):
-		return not self == autre_pos
 	
 	def __str__(self):
 		return f"({self.x}; {self.y})"

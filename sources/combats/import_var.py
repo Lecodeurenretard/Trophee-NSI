@@ -16,6 +16,7 @@ from variables_globales import (
     sys,
     time,
     random,
+    logging,
     isnan,
     
     # types

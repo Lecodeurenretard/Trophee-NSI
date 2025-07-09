@@ -138,7 +138,7 @@ class Monstre:
             if monstre._id == m._id:
                 Monstre.monstres_en_vie.pop(i)
                 return
-        print("Warning: La fonction Monstre._enlever_monstre_a_liste() à été appellée sur un monstre pas dans la liste dans Monstre.monstres_en_vie[].")
+        logging.warning("La fonction Monstre._enlever_monstre_a_liste() à été appellée sur un monstre pas dans la liste dans Monstre.monstres_en_vie[].")
     
     @staticmethod
     def tuer_les_monstres_morts() -> None:

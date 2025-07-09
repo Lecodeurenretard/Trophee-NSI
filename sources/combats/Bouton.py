@@ -123,9 +123,9 @@ class ButtonCursor(Button):
                 callback_execute |= butt.check_click(ev.pos)
         
         if useless_butt_count == 1:
-            print(f"Warning: Un bouton n'a aucune fonction à éxécuter.")
+            logging.warning(f"Un bouton n'a aucune fonction à éxécuter.")
         elif useless_butt_count > 0:
-            print(f"Warning: {useless_butt_count} boutons n'ont aucune fonction à éxécuter.")
+            logging.warning(f"{useless_butt_count} boutons n'ont aucune fonction à éxécuter.")
         return callback_execute
     
     def _get_cursor(self) -> Curseur:

@@ -69,10 +69,6 @@ class Stat:
             )
         )
     
-    def __ne__(self, stats: 'Stat') -> bool:
-        # Défini le comportement de l'opérateur `!=` si comparé à un autre objet
-        return not self == stats
-    
     def __str__(self) -> str:
         # Défini ce que l'objet doit retourner pour une string "jolie"
         return (

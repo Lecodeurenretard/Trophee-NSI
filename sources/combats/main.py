@@ -30,11 +30,11 @@ def partie_fin(gagne : bool) -> NoReturn:
     if gagne:
         couleur_fond = VERT
         texte_fin = POLICE_TITRE.render("Vous avez gagné !", True, NOIR)
-        print("Vous avez gagné !")
+        logging.info("Vous avez gagné !")
     else:
         couleur_fond = BLEU_CLAIR
         texte_fin = POLICE_TITRE.render("Vous avez perdu !", True, NOIR)
-        print("Vous avez perdu...")
+        logging.info("Vous avez perdu...")
     
     fenetre.fill(couleur_fond)
     fenetre.blit(texte_fin, (LARGEUR // 2 - 120, HAUTEUR // 2 - 20))
@@ -105,12 +105,12 @@ def __main__() -> None:
                 
                 case globales.DBG_TOUCHE_PREDECENT_MONSTRE:
                     if not Monstre.monstres_en_vie[0].vers_type_precedent():
-                        print("Warning: Le monstre n'a pas de type!")
+                        logging.warning("Le monstre n'a pas de type!")
                     continue
                
                 case globales.DBG_TOUCHE_PROCHAIN_MONSTRE:
                     if not Monstre.monstres_en_vie[0].vers_type_suivant():
-                        print("Warning: Le monstre n'a pas de type!")
+                        logging.warning("Le monstre n'a pas de type!")
                     continue
                 
                 case globales.DBG_TOUCHE_PRECEDENT_COMBAT:

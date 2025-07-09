@@ -11,10 +11,10 @@ def jouer() -> None:
     joueur.set_pseudo("Testeur")
 
 def ouvrir_parametres() -> None:
-    print("→ Ouverture des paramètres...")
+    logging.info("→ Ouverture des paramètres...")
 
 def afficher_credits() -> None:
-    print("→ Affichage des crédits...")
+    logging.info("→ Affichage des crédits...")
     texte_credits : Surface = globales.POLICE_FOURRE_TOUT.render("Développé par Jules et Lucas", True, BLANC)
     credit_y : int = HAUTEUR
     

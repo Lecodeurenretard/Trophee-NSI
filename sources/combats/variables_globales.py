@@ -2,6 +2,8 @@ import pygame
 import sys
 import time
 import random
+import logging
+logging.basicConfig(level=logging.DEBUG)    # Actove tous les log
 
 from os import getcwd
 from math import isnan

@@ -74,9 +74,8 @@ class Attaque:
     
     def __eq__(self, attaque: 'Attaque') -> bool:
         return self._nom == attaque._nom
-    def __ne__(self, attaque: 'Attaque') -> bool:
-        return not self == attaque
-    
+    # l'opérateur != (méthode .__ne__()), est par défaut défini comme l'inverse de ==
+
     def get_puissance(self) -> float:
         return self._puissance
     def get_desc(self) -> str:
