@@ -12,7 +12,7 @@ def menu() -> None:
         ButtonCursor("Paramètres", (300, 300, 200, 60), line_thickness=0, group_name="Ecran titre",                   callback=ouvrir_parametres),
         ButtonCursor("Crédits"   , (300, 400, 200, 60), line_thickness=0, group_name="Ecran titre",                   callback=afficher_credits),
     )
-    while variables_globales.menu_running:
+    while globales.menu_running:
         fenetre.fill(BLEU_CLAIR)
         for bouton in boutons_menu:
             bouton.draw(fenetre)
@@ -29,11 +29,11 @@ def partie_fin(gagne : bool) -> NoReturn:
     texte_fin : Surface
     if gagne:
         couleur_fond = VERT
-        texte_fin = TEXTE_VICTOIRE
+        texte_fin = POLICE_TITRE.render("Vous avez gagné !", True, NOIR)
         print("Vous avez gagné !")
     else:
         couleur_fond = BLEU_CLAIR
-        texte_fin = TEXTE_DEFAITE
+        texte_fin = POLICE_TITRE.render("Vous avez perdu !", True, NOIR)
         print("Vous avez perdu...")
     
     fenetre.fill(couleur_fond)
@@ -44,9 +44,29 @@ def partie_fin(gagne : bool) -> NoReturn:
     quit()
 
 def reset_monstre() -> None:
+    for monstre in Monstre.monstres_en_vie:
+        monstre.meurt()
+        # monstre sera détruit par le garbage collector
     Monstre.nouveau_monstre(
         random.choice(list(TypeMonstre))    # choisit au hasard un type de monstre
     )
+
+def fin_combat() -> None:
+    if globales.nbr_combat >= MAX_COMBAT:
+        partie_fin(gagne=True)
+    
+    nouveau_combat(globales.nbr_combat + 1)
+
+def nouveau_combat(numero_combat : int) -> None:
+    globales.nbr_combat = numero_combat % MAX_COMBAT # combat maximum == MAX_COMBAT
+    if globales.nbr_combat <= 0:
+        globales.nbr_combat += MAX_COMBAT   # On les ramène sur ]0; 5]
+    assert(globales.nbr_combat > 0), "Réviser le calcul du numéro de combat dans `nouveau_combat()`."
+
+    globales.tour_joueur = True
+    
+    reset_monstre()
+    afficher_nombre_combat(globales.nbr_combat)
 
 def __main__() -> None:
     reset_monstre()
@@ -54,42 +74,63 @@ def __main__() -> None:
     
     while True:
         rafraichir_ecran()
-        clock.tick(60)
+        globales.delta = clock.tick(60) / 1000      # convertion en secondes
         
         for event in pygame.event.get():
             quitter_si_necessaire(event)
-            if (event.type != pygame.KEYDOWN and event.type != pygame.MOUSEBUTTONDOWN) or not variables_globales.tour_joueur:
+            if (event.type != pygame.KEYDOWN and event.type != pygame.MOUSEBUTTONDOWN) or not globales.tour_joueur:
                 continue
             
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_i:
-                afficher_info()
-                continue        # Un event ne peut être qu'une seule touche à la fois
-            
-            if ButtonCursor.check_inputs(boutons_attaques, event):
-                variables_globales.tour_joueur = False
+            if ButtonCursor.check_inputs(boutons_attaques, event):  # Si true, le joueur à attaqué
+                globales.tour_joueur = False
+                
                 rafraichir_ecran()
                 attendre(1)
                 continue
+            
+            if event.type != pygame.KEYDOWN:
+                continue
+            match event.key:        # Un event ne peut être qu'une seule touche à la fois
+                case pygame.K_i:
+                    afficher_info()
+                    continue
+                
+                case globales.UI_TOUCHE_AFFICHAGE_FPS:
+                    globales.UI_autoriser_affichage_fps = not globales.UI_autoriser_affichage_fps       # v. pavé dans import_var
+                    continue
+                
+                case globales.DBG_TOUCHE_CRIT:    # encore un moment où python ne fait sens: https://stackoverflow.com/questions/77164443/why-does-my-match-case-statement-not-work-for-class-members
+                    Attaque.toujours_crits = not Attaque.toujours_crits
+                    continue
+                
+                case globales.DBG_TOUCHE_PREDECENT_MONSTRE:
+                    if not Monstre.monstres_en_vie[0].vers_type_precedent():
+                        print("Warning: Le monstre n'a pas de type!")
+                    continue
+               
+                case globales.DBG_TOUCHE_PROCHAIN_MONSTRE:
+                    if not Monstre.monstres_en_vie[0].vers_type_suivant():
+                        print("Warning: Le monstre n'a pas de type!")
+                    continue
+                
+                case globales.DBG_TOUCHE_PRECEDENT_COMBAT:
+                        nouveau_combat(globales.nbr_combat-1)
+                        continue
+                
+                case globales.DBG_TOUCHE_PROCHAIN_COMBAT:
+                        nouveau_combat(globales.nbr_combat+1)
+                        continue
+                
+                case _:
+                    ...
         
         Monstre.tuer_les_monstres_morts()
         if len(Monstre.monstres_en_vie) == 0:
-            # La vie du joueur est délibérément pas reset.
-            
-            variables_globales.nbr_combat += 1
-            
-            variables_globales.tour_joueur = True
-            
-            if variables_globales.nbr_combat > MAX_COMBAT:
-                partie_fin(gagne=True)
-            
-            # else implicite
-            afficher_nombre_combat(variables_globales.nbr_combat)
-            
-            reset_monstre()
+            fin_combat()
         
-        if not variables_globales.tour_joueur:
+        if not globales.tour_joueur:
             monstres_attaquent()
-            variables_globales.tour_joueur = True
+            globales.tour_joueur = True
         
         if joueur.est_mort():
             partie_fin(gagne=False)

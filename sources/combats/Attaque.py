@@ -12,9 +12,10 @@ class EffetAttaque:
     pass        # TODO: définir les effets des attaques (poison, confus, ...) (un jour)
 
 class Attaque:
-    toujours_crits : bool = False   # il y aura toujours des crits
     _PUISSANCE_CRIT : float = 1.5   # de combien doit le crit influencer l'attaque
-    _CRIT_IMG : Surface = pygame.transform.scale(    # rétrécit l'image pour être en 20x20
+    
+    toujours_crits : bool = False   # ne pas activer ici, utiliser les touches du mode debug plutôt
+    CRIT_IMG : Surface = pygame.transform.scale(    # rétrécit l'image pour être en 20x20
         pygame.image.load(f"{CHEMIN_DOSSIER_IMG}/crit.png"),
         (40, 40)
     )
@@ -36,14 +37,14 @@ class Attaque:
         assert(0 <= crit_proba <= 1), "Les probabilités se calculent sur [0; 1]."
         self._prob_crit  : float = crit_proba
         
-        # Sera un bitmask si plusieurs effets peuvent être appliqués en même temps
-        # sinon une enum
+        # Sera un bitmask (flags) si plusieurs effets peuvent être appliqués en même temps
+        # sinon une enum normale
         self._effet : EffetAttaque
         
         self._friendly_fire = peut_toucher_amis
         self._ennemy_fire = peut_toucher_ennemis
         
-        self._nom_surf : Surface = POLICE_GRAND.render(nom, True, BLANC)  # Le nom de l'attaque rendered
+        self._nom_surf : Surface = POLICE_TITRE.render(nom, True, BLANC)  # Le nom de l'attaque rendered
         
         match self._type_attaque:
             case TypeAttaque.PHYSIQUE:
@@ -65,6 +66,7 @@ class Attaque:
         return (
             "Attaque{"
             + f"nom: {self._nom}; "
+            + f"desc: {self._desc}; "
             + f"puissance: {self._puissance}; "
             + f"type: {self._type_attaque}"
             + "}"
@@ -118,7 +120,7 @@ class Attaque:
             case _:
                 raise ValueError("type_degat n'est pas un membre de TypeAttaque dans Attaque.calculer_degats.")
         
-        crit : bool = (random.random() < self._prob_crit) or Attaque.toujours_crits
+        crit : bool = Attaque.toujours_crits or (random.random() < self._prob_crit)
         if crit:
             crit_facteur : float = stats_attaquant.crit_puissance / stats_victime.crit_resitance
             degats *= Attaque._PUISSANCE_CRIT * crit_facteur
@@ -133,10 +135,10 @@ class Attaque:
         
         if crit:
             # Dessine l'image de crit
-            surface.blit(Attaque._CRIT_IMG,
+            surface.blit(Attaque.CRIT_IMG,
                 (
-                    pos_x + RECT_LARGEUR/2 - Attaque._CRIT_IMG.get_width()/2, # on centre l'étoile
-                    pos_y + RECT_HAUTEUR/2 - Attaque._CRIT_IMG.get_height()/2,
+                    pos_x + RECT_LARGEUR/2 - Attaque.CRIT_IMG.get_width()/2, # on centre l'étoile
+                    pos_y + RECT_HAUTEUR/2 - Attaque.CRIT_IMG.get_height()/2,
                 )
             )
 

@@ -38,4 +38,4 @@ def dessine_barre_de_vie(surface : Surface, pos_x : int, pos_y : int, ratio_vie 
 
 def dessiner_nom(nom : str, position : Pos) -> None:
     # c'est plus clair de mettre cette ligne en procédure
-    fenetre.blit(variables_globales.POLICE_GRAND.render(nom, True, NOIR), tuple(position))
+    fenetre.blit(globales.POLICE_TITRE.render(nom, True, NOIR), tuple(position))

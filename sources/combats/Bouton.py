@@ -22,7 +22,7 @@ class Button:
         if self._line_size > 0:
             pygame.draw.rect(surface, self._line_color, self._rect, width=self._line_size)
         
-        text_surf : Surface = variables_globales.police.render(self._text, True, BLANC)
+        text_surf : Surface = globales.POLICE_FOURRE_TOUT.render(self._text, True, BLANC)
         text_rect : Rect = text_surf.get_rect(center=self._rect.center)
         
         surface.blit(text_surf, text_rect)

@@ -29,41 +29,53 @@ BLEU    : color = (0, 0, 255)
 BLEU_CLAIR : color = (50, 50, 255)
 JAUNE   : color = (255, 255, 0)
 
-MAX_COMBAT : int = 5	# combat maximum (nbr_combat <= MAX_COMBAT)
+MAX_COMBAT : int = 5
 
 INVICIBLE_ENNEMI : bool = False
 
 UI_LONGUEUR_BARRE_DE_VIE : int = 200
 UI_HAUTEUR_BARRE_DE_VIE : int = 10
 
-POLICE_GRAND : pygame.font.Font = pygame.font.Font(None, 36)
-POLICE_PETIT : pygame.font.Font = pygame.font.Font(None, 25)
+POLICE_TITRE : pygame.font.Font = pygame.font.Font(None, 36)    # police par défaut de pygame
+POLICE_TEXTE : pygame.font.Font = pygame.font.Font(None, 25)
+POLICE_FOURRE_TOUT : pygame.font.Font = pygame.font.SysFont(None, 50)
 
-TEXTE_VICTOIRE      : pygame.Surface = POLICE_GRAND.render("Vous avez gagné !", True, NOIR)
-TEXTE_DEFAITE       : pygame.Surface = POLICE_GRAND.render("Vous avez perdu !", True, NOIR)
-TEXTE_INFO_UTILISER : pygame.Surface = POLICE_PETIT.render("SPACE : utiliser", True, BLANC)
-TEXTE_INFO_INFO     : pygame.Surface = POLICE_PETIT.render("I : info"        , True, BLANC)
+TEXTE_INFO_UTILISER : pygame.Surface = POLICE_TEXTE.render("SPACE : utiliser", True, BLANC)
+TEXTE_INFO_INFO     : pygame.Surface = POLICE_TEXTE.render("I : info"        , True, BLANC)
 
-# Un nombre indéterminé, comme None mais exclusivement pour les nombres
-# N'est égal à aucun nombre, même lui-même (NAN != NAN)
-# Pour vérifier si un nombre est nan, utiliser `math.isnan(x)`
+# v. doc pour son usage
 NaN : TypeAlias = float
 NAN : NaN = float("nan")
 
 UI_TOUCHES_VALIDER : tuple[int, ...] = (
     pygame.K_SPACE,
-    pygame.K_RETURN,    # entrée (v. https://stackoverflow.com/questions/27664957/pygame-catching-enter-button)
+    pygame.K_RETURN,    # entrée (return pour carriage return ou retour chariot sur les machines à écrire)
     pygame.K_KP_ENTER,  # entrée du pavé numérique
 )
 
+UI_autoriser_affichage_fps : bool = False
+UI_TOUCHE_AFFICHAGE_FPS : int = pygame.K_LSHIFT
+
 MODE_DEBUG : bool = False
+DBG_TOUCHES_SKIP : tuple[int, ...] = (
+    pygame.K_SPACE,
+    pygame.K_TAB,
+)
+
+DBG_TOUCHE_CRIT     : int = pygame.K_c
+
+DBG_TOUCHE_PRECEDENT_COMBAT : int = pygame.K_s
+DBG_TOUCHE_PROCHAIN_COMBAT  : int = pygame.K_z
+
+DBG_TOUCHE_PREDECENT_MONSTRE: int = pygame.K_q
+DBG_TOUCHE_PROCHAIN_MONSTRE : int = pygame.K_d
+
 
 clock : pygame.time.Clock = pygame.time.Clock()
 
 fenetre : pygame.Surface = pygame.display.set_mode((LARGEUR, HAUTEUR))
 fenetre.fill(BLANC)
 
-police : pygame.font.Font = pygame.font.SysFont(None, 50)
 
 nbr_combat : int = 1
 tour_joueur  : bool = True
@@ -71,15 +83,20 @@ menu_running : bool = True
 
 # Toutes les entitées (joueurs, monstres ou None) vont dans cette liste
 # leurs ID sera leur index dans cette liste
+# de type list[Monstre|Joueur|None], le type n'est pas mis car les classes ne sont pas encore définies
 entitees_vivantes : list = []
 
-# Le chemin du fichier vers le dossier racine
-# Quand on lance de VSCode lance le projet à la racine
-# Quand on le lance du terminal, on le lance du dossier "combats"
-CHEMIN_VERS_RACINE : str = ''
-if getcwd().endswith("combats"):
-	CHEMIN_VERS_RACINE = "../../"
+delta : int = 0
 
-CHEMIN_DOSSIER_IMG  : str = f"{CHEMIN_VERS_RACINE}data/img"
-CHEMIN_DOSSIER_SAVE : str = f"{CHEMIN_VERS_RACINE}data/save"
-CHEMIN_DOSSIER_ETC  : str = f"{CHEMIN_VERS_RACINE}data/etc"
+# Le chemin du fichier vers le dossier racine
+# Quand on lance de VSCode, on lance le projet à la racine
+# Quand on lance du terminal, on le lance du dossier "combats"
+CHEMIN_RACINE : str = ''
+if getcwd().endswith("combats"):
+	CHEMIN_RACINE = "../../"
+elif getcwd().endswith("sources"):
+	CHEMIN_RACINE = "../"
+
+CHEMIN_DOSSIER_IMG  : str = f"{CHEMIN_RACINE}data/img"
+CHEMIN_DOSSIER_SAVE : str = f"{CHEMIN_RACINE}data/save"
+CHEMIN_DOSSIER_ETC  : str = f"{CHEMIN_RACINE}data/etc"

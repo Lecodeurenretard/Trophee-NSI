@@ -9,7 +9,7 @@
 # Le deuxième import donne une liste de variables que l'on peut utiliser sans la notation variables_globales.var (la _dot notation_).
 # On pourrait y mettre les variables muables mais le risque est de les remplacer, ce qui ne serait pas prit en compte dans tous les fichiers.
 
-import variables_globales
+import variables_globales as globales
 from variables_globales import (
 	# Différentes librairies
     pygame,
@@ -28,17 +28,20 @@ from variables_globales import (
     Stat,
     Pos,
     partial,
+    Enum,
+    IntEnum,
     
     # Fonctions
     copy,
     deepcopy,
+    auto,
     
     # ça ne fait pas sens de remplacer ces variables pendant le programme
     # on peut donc se permettre le raccourcit
     fenetre,
     clock,
     entitees_vivantes,
-    CHEMIN_VERS_RACINE,
+    CHEMIN_RACINE,
     CHEMIN_DOSSIER_IMG,
     CHEMIN_DOSSIER_SAVE,
     CHEMIN_DOSSIER_ETC,
@@ -61,16 +64,22 @@ from variables_globales import (
     UI_LONGUEUR_BARRE_DE_VIE,
     UI_HAUTEUR_BARRE_DE_VIE,
     
-    POLICE_GRAND,
-    POLICE_PETIT,
+    POLICE_TITRE,
+    POLICE_TEXTE,
     
-    TEXTE_VICTOIRE,
-    TEXTE_DEFAITE,
     TEXTE_INFO_UTILISER,
     TEXTE_INFO_INFO,
     NAN,
     UI_TOUCHES_VALIDER,
+    
     MODE_DEBUG,
+    DBG_TOUCHES_SKIP,
+    
+    DBG_TOUCHE_CRIT,
+    DBG_TOUCHE_PRECEDENT_COMBAT,
+    DBG_TOUCHE_PROCHAIN_COMBAT,
+    DBG_TOUCHE_PREDECENT_MONSTRE,
+    DBG_TOUCHE_PROCHAIN_MONSTRE,
 )
 
 from pygame.surface import (

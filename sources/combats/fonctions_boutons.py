@@ -1,12 +1,13 @@
 from UI import *
 
 def jouer() -> None:
-    variables_globales.menu_running = False
+    globales.menu_running = False
     if not MODE_DEBUG:
-        chargement()
         demander_pseudo()
-        afficher_nombre_combat(variables_globales.nbr_combat)
+        chargement()
+        afficher_nombre_combat(globales.nbr_combat)
         return
+    afficher_nombre_combat(globales.nbr_combat)
     joueur.set_pseudo("Testeur")
 
 def ouvrir_parametres() -> None:
@@ -14,7 +15,7 @@ def ouvrir_parametres() -> None:
 
 def afficher_credits() -> None:
     print("→ Affichage des crédits...")
-    texte_credits : Surface = variables_globales.police.render("Développé par Jules et Lucas", True, BLANC)
+    texte_credits : Surface = globales.POLICE_FOURRE_TOUT.render("Développé par Jules et Lucas", True, BLANC)
     credit_y : int = HAUTEUR
     
     while credit_y > 0:

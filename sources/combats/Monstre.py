@@ -3,11 +3,11 @@ from fonctions_vrac import *
 from Attaque import *
 from Joueur import joueur
 
-class TypeMonstre(Enum):
+class TypeMonstre(IntEnum):
     Blob    = auto()
     Sorcier = auto()
     
-    def couleur(self) -> color:
+    def get_couleur(self) -> color:
         """Renvoie la couleur du type de monstre correspondant."""
         match self:
             case TypeMonstre.Blob:
@@ -18,7 +18,7 @@ class TypeMonstre(Enum):
             case _:
                 raise NotImplementedError("Type de monstre non implémenté dans Monstre.Type.couleur().")
     
-    def sprite(self) -> str:
+    def get_chemin_sprite(self) -> str:
         """Renvoie le chemin vers le sprite du type de monstre correspondant."""
         match self:
             case TypeMonstre.Blob:
@@ -29,7 +29,7 @@ class TypeMonstre(Enum):
             case _:
                 raise NotImplementedError("Type de monstre non implémenté dans Monstre.Type.sprite().")
     
-    def attaques_du_type(self) -> tuple[Attaque]:
+    def get_moveset(self) -> tuple[Attaque]:
         match self:
             case TypeMonstre.Blob:
                 return (
@@ -45,6 +45,17 @@ class TypeMonstre(Enum):
             
             case _:
                 raise NotImplementedError("Type de monstre non implémenté dans Monstre.Type.attaques_du_type().")
+    
+    def type_precedent(self) -> 'TypeMonstre':
+        if self.value == 1:     # minimum value
+            return TypeMonstre(len(TypeMonstre))
+        return TypeMonstre(self.value - 1)
+    
+    def type_suivant(self) -> 'TypeMonstre':
+        if self.value == TypeMonstre(len(TypeMonstre)):
+            return TypeMonstre(1)
+        return TypeMonstre(self.value + 1)
+
 
 class Monstre:
     sont_invincibles : bool = False
@@ -61,12 +72,21 @@ class Monstre:
     monstres_en_vie : list['Monstre'] = []
     
     # devrait être utilisé le moins possible, préférer nouveau_monstre()
-    def __init__(self, nom : str, stats : Stat, attaques : tuple[Attaque], couleur : color|None = None, chemin_sprite : str|None = None):
+    def __init__(
+            self,
+            nom : str,
+            stats : Stat,
+            attaques : tuple[Attaque],
+            couleur : color|None = None,
+            chemin_sprite : str|None = None,
+            type_calque : TypeMonstre|None = None
+        ):
         assert(stats.est_initialise), "stats n'est pas initialisé dans le constructeur de Monstre."
-
+        
         self._nom = nom
         self._stats = stats
         self._attaques_disponibles = attaques
+        self._type = type_calque
         
         assert(couleur is not None or chemin_sprite is not None), "A la fois couleur et chemin_sprite sont None"
         self._couleur : color|None = couleur
@@ -101,9 +121,10 @@ class Monstre:
         return Monstre(
             type.name,
             copy(Monstre._STATS_DE_BASE[type]),    # Si pas de copie, tous les monstres suivants auront leurs vie à 0
-            type.attaques_du_type(),
-            couleur=type.couleur(),
-            chemin_sprite=type.sprite()
+            type.get_moveset(),
+            couleur=type.get_couleur(),
+            chemin_sprite=type.get_chemin_sprite(),
+            type_calque=type
         )
     
     @staticmethod
@@ -186,3 +207,33 @@ class Monstre:
         
     def est_mort(self) -> bool:
         return self._stats.est_mort()
+    
+    def _vers_type(self, nouveau_type : TypeMonstre) -> None:
+        self._nom = nouveau_type.name
+        
+        ratio_vie = self._stats.vie / self._stats.vie_max
+       
+        self._stats = copy(Monstre._STATS_DE_BASE[nouveau_type])
+        self._stats.vie = round(self._stats.vie_max * ratio_vie)    # Conserve les proportions
+        
+        self._attaques_disponibles = nouveau_type.get_moveset()
+        self._couleur = nouveau_type.get_couleur()
+        
+        self._sprite = pygame.transform.scale(pygame.image.load(nouveau_type.get_chemin_sprite()), Monstre.dimensions_sprites)
+        self._type = nouveau_type
+    
+    def vers_type_precedent(self) -> bool:
+        """Si le monstre à un type, change le type du monstre vers le précédent et renvoie True, sinon renvoie False et ne fait rien."""
+        if self._type is None:
+            return False
+        
+        self._vers_type(self._type.type_precedent())
+        return True
+    
+    def vers_type_suivant(self) -> bool:
+        """Si le monstre à un type, change le type du monstre vers le suivant et renvoie True, sinon renvoie False et ne fait rien."""
+        if self._type is None:
+            return False
+        
+        self._vers_type(self._type.type_suivant())
+        return True

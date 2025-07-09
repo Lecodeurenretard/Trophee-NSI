@@ -44,17 +44,17 @@ Le jeu utilise la POO pour fonctionner, les classes principales sont:
 	- Tous les imports externes (sauf les imports du module `enum`).
 
 ## Les entitées
-Une entitée est un personnage indépendant (avec ses stats, attaques, ...) pouvant intervenir pendant le combat.  
+Une entitée est un personnage indépendant en stats, attaques, ... pouvant intervenir pendant les combat.  
 Toutes les entitées sont enregistrées dans la liste globale `entitees_vivantes[]` (leurs IDs étant leurs index dans celle-ci).
 
 Les entitées ont un comportement personnalisé pour l'opérateur:
-+ `del()`: Enlève l'entitée de `entitees_vivantes[]`.
++ `del()`: Enlève l'entitée de `entitees_vivantes[]`. <!--Pas vraiment un opérateur mais restons simple.-->
 
-Chaque entitée est attendue d'avoir des méthodes avec ces signatures:
+Chaque entitée est attendue d'avoir des méthodes avec ces signatures et respectant les descriptions:
 >```Python
 > def attaquer(self, id_cible : int, attaque : Attaque) -> bool
 >```
-Attaque l'entitée avec l'ID `id_cible` avec `attaque`, renvoie si l'attaque à tué l'entitée.
+Attaque l'entitée avec l'ID `id_cible` avec `attaque`, renvoie `True` si l'attaque est un coup critique.
 
 >```Python
 > def subir_attaque(self, attaque : Attaque, stats_attaquant : Stat) -> bool
@@ -113,7 +113,7 @@ Chaque objets à en plus un attribut:
 
 Les objets `Stat` ont un comportement personnalisé pour les opérateurs:
 + `==`: Renvoie `True` si les deux objets ne sont **pas** initialisés ou si leurs autres variables membres sont les mêmes.
-+ `!=`: Négationne (porte `not`) l'opérateur `==`.
++ `!=`: Renvoie l'opposé de l'opérateur `==`.
 + `str()`: Renvoie une string de débogage informant sur les attributs de l'objet.
 + `copy()` (du module `copy`): Copie tous les attributs de l'objet.
 
@@ -140,7 +140,7 @@ Il y a aussi les attributs statiques:
 
 Les objets `Attaque` ont un comportement personnalisé pour les opérateurs:
 + `==`: Compare les noms des attaques.
-+ `!=`: Négationne (porte `not`) l'opérateur `==`.
++ `!=`: Renvoie l'inverse de l'opérateur `==`.
 + `str()`: Renvoie une string de débogage informant sur les attributs de l'objet.
 
 Les attaques ne se chargent pas d'infliger les dégats, elles sont chargées de seulement calculer les dégats infligés avec `Attaque.calculer_degats()`.  
@@ -149,13 +149,3 @@ Toutes les attaques prédéfinies sont dans le dictionnaire `ATTAQUES_DISPONIBLE
 Les attaques ont des types et des effets.  
 les types sont membres de l'énumeration `TypeAttaque` (définie dans [Attaque.py](Attaque.py)) et dirigent la façon dont les dégats seront calculés et comment doit être traité.  
 Les effets seront les modifications de statut appliqués au destinataire, ils ne sont pas encore implémentés.
-
-## Modes de jeux
-Il y a deux modes de jeu:
-
-|               |                          Débug                               |        Normal         |
-|:--------------|:------------------------------------------------------------:|:---------------------:|
-| **Affichage** |          Simple (pas de sprites, moins de couleurs)          | Détaillé, Animations* |
-|  **Actions**  |        Attaquer, choisir si le coup est crit*, choisir le monstre*, pouvoir skip des combats*     |       Attaquer        |
-
-\*à faire
