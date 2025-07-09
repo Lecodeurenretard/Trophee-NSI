@@ -18,7 +18,7 @@ def demander_pseudo() -> None:
         
         pygame.display.flip()
     
-    joueur.set_pseudo(pseudo)
+    joueur.pseudo = pseudo
 
 def texte_entree_event(texte : str) -> tuple[str, bool]:
     continuer : bool = True
@@ -44,7 +44,7 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
     return (texte, continuer)
 
 def trouve_attaque_a_partir_du_curseur() -> Attaque:
-    curseur_pos : Pos = boutons_attaques[0].get_cursor_group_pos_in_pos()   # Ce qui est important, c'est que le bouton soit dans le groupe Attaques
+    curseur_pos : Pos = boutons_attaques[0].cursor.position_dans_position   # Ce qui est important, c'est que le bouton soit dans le groupe Attaques
     
     if curseur_pos == Pos(0, 0):
         return ATTAQUES_DISPONIBLES['heal']
@@ -67,8 +67,8 @@ def afficher_info() -> None:
     fenetre.fill(BLANC)
     
     attaque : Attaque = trouve_attaque_a_partir_du_curseur()
-    texte_info1 = globales.POLICE_TITRE.render(f"Puissance: {attaque.get_puissance()}", True, NOIR)
-    texte_info2 = globales.POLICE_TITRE.render(attaque.get_desc(), True, NOIR)
+    texte_info1 = globales.POLICE_TITRE.render(f"Puissance: {attaque.puissance}", True, NOIR)
+    texte_info2 = globales.POLICE_TITRE.render(attaque.desc, True, NOIR)
     
     fenetre.blit(texte_info1, (3 * LARGEUR // 10      , HAUTEUR // 2))
     fenetre.blit(texte_info2, (3 * LARGEUR // 10 - 100, HAUTEUR // 2 + 30))
@@ -115,14 +115,14 @@ def rafraichir_ecran() -> None:
     # Dessiner le joueur
     joueur.dessiner(fenetre)
     joueur.dessine_barre_de_vie(fenetre, 500, 400)
-    dessiner_nom(joueur.get_pseudo(), Pos(499, 370))
+    dessiner_nom(joueur.pseudo, Pos(499, 370))
     
     # Dessiner les monstres
     if len(Monstre.monstres_en_vie) != 0:   # TODO: S'il y en a plusieur, les décaler
         for monstre in Monstre.monstres_en_vie:
             monstre.dessiner(fenetre, 6 * LARGEUR // 10, HAUTEUR // 4 - 100)
             monstre.dessiner_barre_de_vie(fenetre, 50, 50)
-            dessiner_nom(monstre.get_nom(), Pos(49, 20))
+            dessiner_nom(monstre.nom, Pos(49, 20))
     
     # Dessiner l'icône dutoujours_crit
     if Attaque.toujours_crits:

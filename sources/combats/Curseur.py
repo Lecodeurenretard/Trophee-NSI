@@ -96,7 +96,8 @@ class Curseur:
             self._ajouter_a_pdtp_x(1)
         
 
-    def get_position_dans_position(self) -> Pos:
+    @property
+    def position_dans_position(self) -> Pos:
         return self._pos_dans_toutes_pos
     
     def deplacement_utilisateur(self, ev : pygame.event.Event) -> None:

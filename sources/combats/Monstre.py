@@ -7,7 +7,8 @@ class TypeMonstre(IntEnum):
     Blob    = auto()
     Sorcier = auto()
     
-    def get_couleur(self) -> color:
+    @property
+    def couleur(self) -> color:
         """Renvoie la couleur du type de monstre correspondant."""
         match self:
             case TypeMonstre.Blob:
@@ -18,7 +19,8 @@ class TypeMonstre(IntEnum):
             case _:
                 raise NotImplementedError("Type de monstre non implémenté dans Monstre.Type.couleur().")
     
-    def get_chemin_sprite(self) -> str:
+    @property
+    def chemin_sprite(self) -> str:
         """Renvoie le chemin vers le sprite du type de monstre correspondant."""
         match self:
             case TypeMonstre.Blob:
@@ -29,7 +31,8 @@ class TypeMonstre(IntEnum):
             case _:
                 raise NotImplementedError("Type de monstre non implémenté dans Monstre.Type.sprite().")
     
-    def get_moveset(self) -> tuple[Attaque]:
+    @property
+    def moveset(self) -> tuple[Attaque]:
         match self:
             case TypeMonstre.Blob:
                 return (
@@ -121,9 +124,9 @@ class Monstre:
         return Monstre(
             type.name,
             copy(Monstre._STATS_DE_BASE[type]),    # Si pas de copie, tous les monstres suivants auront leurs vie à 0
-            type.get_moveset(),
-            couleur=type.get_couleur(),
-            chemin_sprite=type.get_chemin_sprite(),
+            type.moveset,
+            couleur=type.couleur,
+            chemin_sprite=type.chemin_sprite,
             type_calque=type
         )
     
@@ -146,9 +149,13 @@ class Monstre:
             if monstre.est_mort():
                 monstre.meurt()
     
-    def get_id(self) -> int:
+    
+    @property
+    def id(self) -> int:
         return self._id
-    def get_nom(self) -> str:
+    
+    @property
+    def nom(self) -> str:
         return self._nom
     
     def meurt(self) -> None:
@@ -164,9 +171,9 @@ class Monstre:
         assert(entitees_vivantes[id_cible] is not None), "La cible est une case vide de entitees_vivantes[] dans Monstre.attaquer()."
         assert(attaque in self._attaques_disponibles), "L'attaque demandée dans Monstre.attaquer() n'est pas dans le moveset du monstre."
         
-        if attaque.get_friendly_fire():
+        if attaque.friendly_fire:
             return self.subir_attaque(attaque, self._stats)
-        if attaque.get_ennemy_fire():
+        if attaque.ennemy_fire:
             return entitees_vivantes[id_cible].subir_attaque(attaque, self._stats)
         return False
     
@@ -216,10 +223,10 @@ class Monstre:
         self._stats = copy(Monstre._STATS_DE_BASE[nouveau_type])
         self._stats.vie = round(self._stats.vie_max * ratio_vie)    # Conserve les proportions
         
-        self._attaques_disponibles = nouveau_type.get_moveset()
-        self._couleur = nouveau_type.get_couleur()
+        self._attaques_disponibles = nouveau_type.moveset
+        self._couleur = nouveau_type.couleur
         
-        self._sprite = pygame.transform.scale(pygame.image.load(nouveau_type.get_chemin_sprite()), Monstre.dimensions_sprites)
+        self._sprite = pygame.transform.scale(pygame.image.load(nouveau_type.chemin_sprite), Monstre.dimensions_sprites)
         self._type = nouveau_type
     
     def vers_type_precedent(self) -> bool:

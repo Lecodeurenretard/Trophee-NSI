@@ -64,8 +64,8 @@ class ButtonCursor(Button):
         )
         
         if ButtonCursor._group_exists(group_name):
-            self._get_cursor().ajouter_pos(cursor_pos)
-            self._cursor_pos : Pos = self._get_cursor().coordonee_globale_vers_coordonee_curseur(cursor_pos)
+            self.cursor.ajouter_pos(cursor_pos)
+            self._cursor_pos : Pos = self.cursor.coordonee_globale_vers_coordonee_curseur(cursor_pos)
             ButtonCursor._group_count[self._group_name] += 1
             return
         
@@ -77,7 +77,7 @@ class ButtonCursor(Button):
         ButtonCursor._group_cursors[group_name] = cursor
         ButtonCursor._group_colors[group_name] = group_color
         
-        self._cursor_pos : Pos = self._get_cursor().coordonee_globale_vers_coordonee_curseur(cursor_pos)
+        self._cursor_pos : Pos = self.cursor.coordonee_globale_vers_coordonee_curseur(cursor_pos)
     
     def __del__(self):
         ButtonCursor._group_count[self._group_name] -= 1
@@ -106,7 +106,7 @@ class ButtonCursor(Button):
         
         callback_execute : bool = False
         for butt in check_for:
-            cursor_butt : Curseur = butt._get_cursor()
+            cursor_butt : Curseur = butt.cursor
             if butt._group_name not in group_checked:
                 cursor_butt.deplacement_utilisateur(ev)
                 group_checked.append(butt._group_name)
@@ -114,7 +114,7 @@ class ButtonCursor(Button):
             if butt._action is None:
                 useless_butt_count += 1
                 continue
-            if utilisateur_valide_menu(ev) and cursor_butt.get_position_dans_position() == butt._cursor_pos:
+            if utilisateur_valide_menu(ev) and cursor_butt.position_dans_position == butt._cursor_pos:
                 butt._action()
                 callback_execute = True
                 continue
@@ -128,10 +128,10 @@ class ButtonCursor(Button):
             logging.warning(f"{useless_butt_count} boutons n'ont aucune fonction à éxécuter.")
         return callback_execute
     
-    def _get_cursor(self) -> Curseur:
+    @property
+    def cursor(self) -> Curseur:
         return ButtonCursor._group_cursors[self._group_name]
-    def _get_cursor_color(self) -> color:
-        return ButtonCursor._group_colors[self._group_name]
     
-    def get_cursor_group_pos_in_pos(self) -> Pos:
-        return self._get_cursor().get_position_dans_position()
+    @property
+    def cursor_color(self) -> color:
+        return ButtonCursor._group_colors[self._group_name]

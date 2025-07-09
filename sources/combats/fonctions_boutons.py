@@ -8,7 +8,7 @@ def jouer() -> None:
         afficher_nombre_combat(globales.nbr_combat)
         return
     afficher_nombre_combat(globales.nbr_combat)
-    joueur.set_pseudo("Testeur")
+    joueur.pseudo = "Testeur"
 
 def ouvrir_parametres() -> None:
     logging.info("→ Ouverture des paramètres...")

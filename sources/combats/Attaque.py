@@ -76,15 +76,24 @@ class Attaque:
         return self._nom == attaque._nom
     # l'opérateur != (méthode .__ne__()), est par défaut défini comme l'inverse de ==
 
-    def get_puissance(self) -> float:
+    @property
+    def puissance(self) -> float:
         return self._puissance
-    def get_desc(self) -> str:
+    
+    @property
+    def desc(self) -> str:
         return self._desc
-    def get_nom_surface(self) -> Surface:
+    
+    @property
+    def nom_surface(self) -> Surface:
         return self._nom_surf
-    def get_friendly_fire(self) -> bool:
+    
+    @property
+    def friendly_fire(self) -> bool:
         return self._friendly_fire
-    def get_ennemy_fire(self) -> bool:
+    
+    @property
+    def ennemy_fire(self) -> bool:
         return self._ennemy_fire
     
     def calculer_degats(self, stats_attaquant : 'Stat', stats_victime : 'Stat', defense_min = 10) -> tuple[int, bool]:

@@ -35,31 +35,36 @@ class Joueur:
         entitees_vivantes[self._id] = None
         self._id = -1
     
-    def set_pseudo(self, value : str) -> None:
+    
+    @property
+    def pseudo(self) -> str:
+        return self._pseudo
+
+    @pseudo.setter
+    def pseudo(self, value : str) -> None:
         self._pseudo = value
     
-    def get_pseudo(self) -> str:
-        return self._pseudo
-    
-    def get_id(self) -> int:
+    @property
+    def id(self) -> int:
         return self._id
     
-    def get_moveset_clefs(self) -> tuple[str, ...]:
+    @property
+    def moveset_clefs(self) -> tuple[str, ...]:
         return tuple(self._moveset.keys())
     
     def get_attaque_surface(self, clef_attaque : str) -> Surface:
-        assert(clef_attaque in self.get_moveset_clefs())
-        return self._moveset[clef_attaque].get_nom_surface()
+        assert(clef_attaque in self.moveset_clefs)
+        return self._moveset[clef_attaque].nom_surface
     
     def attaque_peut_toucher_allies(self, attaque_clef : str) -> bool:
-        assert(attaque_clef in self.get_moveset_clefs()), "Attaque pas inclue dans moveset dans attaque_peut_toucher_allies()."
+        assert(attaque_clef in self.moveset_clefs), "Attaque pas inclue dans moveset dans attaque_peut_toucher_allies()."
         
-        return self._moveset[attaque_clef].get_friendly_fire()
+        return self._moveset[attaque_clef].friendly_fire
     
     def attaque_peut_toucher_ennemis(self, attaque_clef : str) -> bool:
-        assert(attaque_clef in self.get_moveset_clefs()), "Attaque pas inclue dans moveset dans attaque_peut_toucher_ennemis()."
+        assert(attaque_clef in self.moveset_clefs), "Attaque pas inclue dans moveset dans attaque_peut_toucher_ennemis()."
         
-        return self._moveset[attaque_clef].get_ennemy_fire()
+        return self._moveset[attaque_clef].ennemy_fire
     
     def longueur_barre_de_vie(self) -> int:
         ratio = max(0, self._stats.vie / self._stats.vie_max)
@@ -88,13 +93,13 @@ class Joueur:
     
     def attaquer(self, id_cible : int, clef_attaque : str) -> bool:
         assert(entitees_vivantes[id_cible] is not None), "La cible est None dans Joueur.attaquer()."
-        assert(clef_attaque in self.get_moveset_clefs())
+        assert(clef_attaque in self.moveset_clefs)
         
         attaque : Attaque = self._moveset[clef_attaque]
         
-        if attaque.get_friendly_fire():                                         # si friendly fire, se tape lui même
+        if attaque.friendly_fire:                                         # si friendly fire, se tape lui même
             return self.subir_attaque(attaque, self._stats)                     # il faudra ajouter un curseur si jamais 
-        if attaque.get_ennemy_fire():                                           # l'attaque peut friendly fire et ennemy fire
+        if attaque.ennemy_fire:                                           # l'attaque peut friendly fire et ennemy fire
             return entitees_vivantes[id_cible].subir_attaque(attaque, self._stats) # TODO:
         return False
     
@@ -112,7 +117,7 @@ class Joueur:
         dessine_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
     
     def dessiner_attaque(self, surface : Surface, clef_attaque : str, crit : bool) -> None:
-        assert(clef_attaque in self.get_moveset_clefs())
+        assert(clef_attaque in self.moveset_clefs)
         
         self._moveset[clef_attaque].dessiner(surface, 400, 300, crit)
         pygame.display.flip()
