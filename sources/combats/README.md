@@ -11,6 +11,7 @@ Touches qui marchent dans tous les modes:
 	+ les flèches du clavier
 - Afficher le compteur de FPS: maj gauche
 
+___
 Touches qui marchent seulement en mode débug:
 - Crits garantis: c
 - Skip les temps d'attente:

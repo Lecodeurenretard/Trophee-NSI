@@ -1,16 +1,4 @@
-import pygame
-import sys
-import time
-import random
-import logging
-logging.basicConfig(level=logging.DEBUG)    # Actove tous les log
-
-from os import getcwd
-from math import isnan
-from typing import TypeAlias, Callable, TypeVar, NoReturn, Any
-from copy import copy, deepcopy
-from functools import partial
-
+from imports import *
 
 from Stat import *
 from Pos import *
@@ -58,7 +46,6 @@ UI_TOUCHES_VALIDER : tuple[int, ...] = (
 UI_autoriser_affichage_fps : bool = False
 UI_TOUCHE_AFFICHAGE_FPS : int = pygame.K_LSHIFT
 
-MODE_DEBUG : bool = False
 DBG_TOUCHES_SKIP : tuple[int, ...] = (
     pygame.K_SPACE,
     pygame.K_TAB,

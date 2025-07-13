@@ -103,3 +103,22 @@ Se remettre à jour sur github:
 ```bash
 git pull
 ```
+
+
+# Utiliser Github
+## Vue d'ensemble
+Pour être honnête, je ne sait pas grand chose sur Github et je découvre aussi mais j'en connais les bases.
+
+Le repo [du projet](https://github.com/Lecodeurenretard/Trophee-NSI) a ces tabs en haut:
+![barre](barre%20github.png)
+
++ **Code**: Tous les fichiers soumis par les devs.
+	- Dans le bandeau de droite, on y trouve un onglet _[Releases](https://github.com/Lecodeurenretard/Trophee-NSI/releases)_. Les releases sont des moyens d'officialiser les versions du code (v1.0, 2.1, ...).
++ **Issues**: Tous les bugs et objectifs à court-terme.
++ **Pull requests**: Permet à des gens externes de proposer des améliorations dans le code, ne sera utilisé ici.
++ **Discussions**: Un espace pour discuter d'idées. La différence avec les _issues_ est que les discutions sont plus tournées vers la place de la fonctionnalité dans le jeu plus que comment l'implémenter.
++ **Actions**: Des scripts qui sont lancés à chaque commits, je ne compte pas en faire usage.
++ **Projects**: Les projets Githubs, ils permettent de voir qui fait quoi et ce qu'il y a à faire.
++ **Wikis**: La documentation du projet.
++ **Insights**: Des stats
++ **Security** et **Settings**: Des paramètres concernant le repository, je ne suis pas sûr qu'elles s'affichent pour vous vu que êtes collaborateurs.

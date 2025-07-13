@@ -9,28 +9,15 @@
 # Le deuxième import donne une liste de variables que l'on peut utiliser sans la notation variables_globales.var (la _dot notation_).
 # On pourrait y mettre les variables muables mais le risque est de les remplacer, ce qui ne serait pas prit en compte dans tous les fichiers.
 
+from imports import *
+
 import variables_globales as globales
 from variables_globales import (
-	# Différentes librairies
-    pygame,
-    sys,
-    time,
-    random,
-    logging,
-    isnan,
-    
     # types
     color,
     NaN,
-    Callable,
-    TypeVar,
-    NoReturn,
-    Any,
     Stat,
     Pos,
-    partial,
-    Enum,
-    IntEnum,
     
     # Fonctions
     copy,
@@ -42,10 +29,6 @@ from variables_globales import (
     fenetre,
     clock,
     entitees_vivantes,
-    CHEMIN_RACINE,
-    CHEMIN_DOSSIER_IMG,
-    CHEMIN_DOSSIER_SAVE,
-    CHEMIN_DOSSIER_ETC,
     
     # ces variables sont, certes, immuables mais elles ne doivent pas être changées
     # on peut donc les importer librement
@@ -81,12 +64,9 @@ from variables_globales import (
     DBG_TOUCHE_PROCHAIN_COMBAT,
     DBG_TOUCHE_PREDECENT_MONSTRE,
     DBG_TOUCHE_PROCHAIN_MONSTRE,
-)
-
-from pygame.surface import (
-    Surface,
-)
-
-from pygame.rect import (
-    Rect,
+    
+    CHEMIN_RACINE,
+    CHEMIN_DOSSIER_IMG,
+    CHEMIN_DOSSIER_SAVE,
+    CHEMIN_DOSSIER_ETC,
 )

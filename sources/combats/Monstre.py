@@ -64,8 +64,8 @@ class Monstre:
     sont_invincibles : bool = False
     
     _STATS_DE_BASE : dict[TypeMonstre, Stat] = {
-        TypeMonstre.Blob	: Stat(40+5, 30-7, 45, 0 , 25+5, 30, 2.0, 1.3),
-        TypeMonstre.Sorcier	: Stat(30+5, 10  , 30, 15, 80+5, 60, 1.3, 1.8),
+        TypeMonstre.Blob	: Stat(35, 23, 50, 0 , 17, 30, 2.0, 1.3),
+        TypeMonstre.Sorcier	: Stat(40, 10, 30, 15, 40, 60, 1.3, 1.8),
     }
 
     dimensions_sprites : tuple[int, int] = (150, 150)

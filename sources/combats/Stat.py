@@ -1,5 +1,4 @@
-from enum import Enum, IntEnum, auto
-
+from imports import *
 class Stat:
     """
     Représente les stats de quelque chose.

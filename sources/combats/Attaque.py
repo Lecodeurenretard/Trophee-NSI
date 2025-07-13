@@ -6,10 +6,21 @@ class TypeAttaque(Enum):
     PHYSIQUE = auto(),
     MAGIQUE  = auto(),
     SOIN     = auto(),
+    CHARGE   = auto(),
     DIVERS   = auto(),
 
 class EffetAttaque:
     pass        # TODO: définir les effets des attaques (poison, confus, ...) (un jour)
+
+class AttaqueFlags(IntFlag):
+    """Des particularités que pourraient avoir les attaques"""
+    AUCUN               = 0
+    IGNORE_STATS        = auto()    # Ignore l'attaque et la défense
+    
+    ATTAQUE_LANCEUR     = auto()    # Peut attaquer le lanceur
+    ATTAQUE_ALLIES      = auto()    # Peut attaquer les alliés du lanceur
+    ATTAQUE_ENNEMIS     = auto()    # Peut attaquer les adversaires du lanceur
+    ATTAQUE_EQUIPE = ATTAQUE_LANCEUR | ATTAQUE_ALLIES # Si le joueur peut attaquer son équipe ou lui même.
 
 class Attaque:
     _PUISSANCE_CRIT : float = 1.5   # de combien doit le crit influencer l'attaque
@@ -26,8 +37,7 @@ class Attaque:
             puissance : float,
             type_attaque : TypeAttaque,
             crit_proba : float = .1,
-            peut_toucher_amis    : bool = False,
-            peut_toucher_ennemis : bool = True,
+            flags : AttaqueFlags = AttaqueFlags.ATTAQUE_ENNEMIS
         ):
         self._nom    : str = nom
         self._desc   : str = desc
@@ -41,8 +51,7 @@ class Attaque:
         # sinon une enum normale
         self._effet : EffetAttaque
         
-        self._friendly_fire = peut_toucher_amis
-        self._ennemy_fire = peut_toucher_ennemis
+        self._drapeaux = flags
         
         self._nom_surf : Surface = POLICE_TITRE.render(nom, True, BLANC)  # Le nom de l'attaque rendered
         
@@ -90,12 +99,20 @@ class Attaque:
     
     @property
     def friendly_fire(self) -> bool:
-        return self._friendly_fire
+        return  AttaqueFlags.ATTAQUE_EQUIPE in self._drapeaux
     
     @property
     def ennemy_fire(self) -> bool:
-        return self._ennemy_fire
+        return AttaqueFlags.ATTAQUE_ENNEMIS in self._drapeaux
     
+    def _calcul_attaque_defense(self, puissance_attaquant : int, vie_cible : int, defense_cible : int, def_min : float) -> tuple[float, float]:
+        if AttaqueFlags.IGNORE_STATS in self._drapeaux:
+            return (self._puissance, 1)
+        
+        attaque : float = self._puissance * puissance_attaquant
+        defense : float = max(def_min, defense_cible)
+        return (attaque, defense)
+
     def calculer_degats(self, stats_attaquant : 'Stat', stats_victime : 'Stat', defense_min = 10) -> tuple[int, bool]:
         """
         Calcule les dégats qu'aurait causé l'attaque pour les paramètres donnés.  
@@ -107,28 +124,34 @@ class Attaque:
         degats : float = random.uniform(0.85, 1.0)
         match self._type_attaque:
             case TypeAttaque.PHYSIQUE:
-                attaque = self._puissance * stats_attaquant.force
-                defense = max(defense_min, stats_victime.defense)
-                
+                attaque, defense = self._calcul_attaque_defense(
+                    stats_attaquant.force,
+                    stats_victime.vie,
+                    stats_victime.defense,
+                    defense_min
+                )
                 degats *= attaque / defense
-            
+
             case TypeAttaque.MAGIQUE:
-                attaque = self._puissance * stats_attaquant.magie
-                defense = max(defense_min, stats_victime.defense_magique)
-                
+                attaque, defense = self._calcul_attaque_defense(
+                    stats_attaquant.magie,
+                    stats_victime.vie,
+                    stats_victime.defense_magique,
+                    defense_min
+                )
                 degats *= attaque / defense
-            
+
             case TypeAttaque.SOIN:
-                attaque = self._puissance * stats_attaquant.magie
+                attaque : float = self._puissance * stats_attaquant.magie
                 degats *= -attaque
             
             case TypeAttaque.DIVERS:
-                degats = 0
+                ...
             
             case _:
                 raise ValueError("type_degat n'est pas un membre de TypeAttaque dans Attaque.calculer_degats.")
         
-        crit : bool = Attaque.toujours_crits or (random.random() < self._prob_crit)
+        crit : bool = Attaque.toujours_crits or random.random() < self._prob_crit
         if crit:
             crit_facteur : float = stats_attaquant.crit_puissance / stats_victime.crit_resitance
             degats *= Attaque._PUISSANCE_CRIT * crit_facteur
@@ -151,8 +174,8 @@ class Attaque:
             )
 
 ATTAQUES_DISPONIBLES : dict[str, Attaque] = {
-    "heal":     Attaque("Soin", "Soignez-vous de quelques PV", 1.5, TypeAttaque.SOIN, crit_proba=.2, peut_toucher_amis=True),
-    "magie":    Attaque("Att. magique", "Infligez des dégâts magique à l'adversaire", 45-10, TypeAttaque.MAGIQUE),
+    "heal":     Attaque("Soin", "Soignez-vous de quelques PV", 1.5, TypeAttaque.SOIN, crit_proba=.2, flags=AttaqueFlags.ATTAQUE_EQUIPE),
+    "magie":    Attaque("Att. magique", "Infligez des dégâts magique à l'adversaire", 20, TypeAttaque.MAGIQUE),
     "physique": Attaque("Torgnole", "Infligez des dégâts physiques à l'adversaire", 20, TypeAttaque.PHYSIQUE),
-    "skip":     Attaque("Passer", "Passez votre tour.", 0, TypeAttaque.DIVERS, crit_proba=.3,peut_toucher_amis=False, peut_toucher_ennemis=False)   # ça sert à rien d'augmenter la chance de crit mais ¯\_(ツ)_/¯ funny
+    "skip":     Attaque("Passer", "Passez votre tour.", 0, TypeAttaque.DIVERS, crit_proba=.5, flags=AttaqueFlags.AUCUN)   # ça sert à rien d'augmenter la chance de crit mais ¯\_(ツ)_/¯ funny
 }

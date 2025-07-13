@@ -5,19 +5,16 @@ Ce fichier est un [fichier markdown](https://www.markdownguide.org/basic-syntax/
 ## Rester ordonné
 L'architecture du projet suit celui qu'il faut faire pour les trophées de NSI ([page des trophées](https://trophees-nsi.fr/participation)):
 - [sources](sources/): Tout le code Python qui sera éxécuté.
-- [docs](docs/): Les documentations du projets.
+- [docs](docs/): Les documentations du projets (obsolète, allez voir les [wikis](https://github.com/Lecodeurenretard/Trophee-NSI/wiki)).
 - [data](data/): Toutes les données qui seront lues ou écrites par le projets.
 	+ [img](data/img/): Les images dans le jeu.
-	+ [save](data/save/): Les données de sauvegarde. Ce n'est pas forcément de la suvegarde classique, même les données temporaires y vont.
-	+ [etc](data/etc/): Les données temporaires qui ne rentre pas dans les catégories ci-dessus va dans ce fichier.
+	+ [save](data/save/): Les données de sauvegarde. Ce n'est pas forcément de la sauvegarde classique, toutes les données de jeu y vont (ex: transférer l'inventaire d'un ficher Python à un autre).
+	+ [etc](data/etc/): Les données temporaires qui ne rentrent pas dans les catégories ci-dessus va dans ce fichier.
 
 _note: Certains dossiers peuvent ne pas apparaitre sur Github, c'est parce que Git n'envoie que les dossiers contenant des fichiers. Les répertoires vides ne serons donc pas envoyés._
 
-## Utiliser Github
-J'ai rédigé [un fichier](Git.md) pour ça.
-
-## Des notions de Python
-Des notions Python que l'on a pas vu en NSI: [Python.md](Python.md)
+## Perdu?
+Si le certains éléments du code ou de Git vous pertubent, j'ai rédigé des fichiers pouvant vous aider dans [guides](guides/) et si vous ne comprenez toujours pas, n'oubliez pas que Google est votre meilleurs ami.
 
 ## Buts
 Le fichier est [requirements.txt](requirements.txt).
@@ -33,6 +30,6 @@ Il y a deux modes pour deux types d'utilisateurs:
 
 \*à faire
 
-Pour activer le mode débug, changez dans le code source la constante `MODE_DEBUG` dans [variables_globales](../combats/variables_globales.py). C'est comme ça car seul un développeur devrait pouvoir accéder au mode débug.
+Pour activer le mode débug, changez dans le code source la constante `MODE_DEBUG` dans [imports](sources/combats/imports.py). C'est comme ça car seul un développeur devrait pouvoir accéder au mode débug.
 
 Les touches sont dans le [README](sources/combats/README.md) du répertoire [combats](sources/combats/).
