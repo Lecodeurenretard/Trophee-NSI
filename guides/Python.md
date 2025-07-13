@@ -680,3 +680,123 @@ else:
 On peut aussi utiliser la fonction `auto()` du même module pour ne pas se préoccupper des valeurs de chaque cas.
 
 Il existe deux sous classes de `Enum` définie dans le même module: [`StrEnum`](https://docs.python.org/3/library/enum.html#enum.StrEnum) et [`IntEnum`](https://docs.python.org/3/library/enum.html#enum.IntEnum) qui ne peuvent contenir que des membres de types `str` et `int`.
+
+## 4. Autres concepts non spécifiques à Python
+### Les bitmasks
+Un bitmask c'est comme une liste de booléens qui décrivent chacuns des états indépendants les uns des autres, par exemple les livres peuvent à la fois être grands et contenir la couleur jaune mais le livre peut aussi être petit et quand même contenir la couleur jaune.  
+En Python on traduis cette situation avec un type dérivé de `Flag`:
+```Python
+from enum import Flag, auto
+
+class EtatsLivre(Flag):
+	GRAND = auto()
+	JAUNE = auto()
+
+un_livre = EtatLivre.GRAND			# Le livre est grand mais pas jaune
+un_autre_livre = EtatLivre.JAUNE	# l'opposé
+# on peut se représenter ces variables comme:
+# un_livre = [True, False]
+# un_autre_livre = [False, True]
+
+# Attention: même si c'est comme une liste de booléens,
+# on ne peut pas accéder aux éléments avec les crochets []
+```
+
+Quand on manipule un bitmask, on le fait avec des opérateurs dits _["bitwise"](https://fr.wikipedia.org/wiki/Op%C3%A9ration_bit_%C3%A0_bit)_:
+
+- `|` (OR/OU): Associe les booléens de manière à ce que tous les `True` présents dans les deux bitmasks soient présents dans le résultat.
+- `&` (AND/ET): Associe les booléens de manière à ce qu'il ne reste que les `True` présents dans les deux opérandes à la fois.
+- `~` (NOT/NON): Inverse tous les booléens du bitmask.
+- `^` (XOR): Teste si chaque booléen est différent de celui de l'autre opérande.
+
+ex:
+```Python
+from enum import Flag, auto
+
+class EtatLivre(Flag):
+	GRAND = auto()
+	JAUNE = auto()
+
+un_livre = EtatLivre.GRAND
+un_autre_livre = EtatLivre.JAUNE
+# un_livre = [True, False]
+# un_autre_livre = [False, True]
+
+grand_et_jaune = EtatLivre.GRAND | EtatLivre.JAUNE
+# grand_et_jaune = [True or False, False or True] -> [True, True]
+
+seulement_grand = grand_et_jaune & EtatLivre.GRAND
+# seulement_grand = [True and True, True and False] -> [True, False]
+
+rien_du_tout = ~grand_et_jaune
+# rien_du_tout = [not True, not True] -> [False, False]
+
+soit_grand_soit_jaune = EtatLivre.JAUNE ^ seulement_grand
+# soit_grand_soit_jaune = [False != True, False != False] -> [True, False]
+```
+
+Dans la pratique, on utilise l'opérateur `|` pour ajouter des bitmasks ensemble, l'opérateur `&` pour filtrer des valeurs.  
+Voici la syntaxe pour vérifier si un masque en contient un autre vérification:
+```Python
+# ...
+
+masque = EtatLivre.GRAND
+if masque & EtatLivre.GRAND:	# on isole la valeur EtatLivre.GRAND
+	print("masque contient GRAND")
+
+if masque & EtatLivre.JAUNE:
+	print("masque contient JAUNE")	# n'est pas affiché
+
+# masque & EtatLivre.GRAND = [True and True, False and False] -> [True, False]
+# masque & EtatLivre.JAUNE = [True and False, False and True] -> [False, False]
+```
+
+Et cette méthode marche même avec plusieurs valeurs
+```Python
+grand_et_jaune = EtatLivre.GRAND | EtatLivre.JAUNE
+masque = EtatLivre.GRAND
+
+if grand_et_jaune & masque :
+	print("grand_et_jaune contient masque")
+
+# grand_et_jaune & masque = [True, False]
+```
+
+Seulement vu que l'on est en Python, il est possible d'utiliser le mot-clef `in` qui à l'avantage de ne pas être commutatif.
+```Python
+grand_et_jaune = EtatLivre.GRAND | EtatLivre.JAUNE
+masque = EtatLivre.GRAND
+
+if grand_et_jaune in masque:		# Faux
+	print("masque contient grand_et_jaune")
+
+if masque in grand_et_jaune:		# Vrai
+	print("grand_et_jaune contient masque")
+```
+
+La documentation de [`Flag`](https://docs.python.org/3/library/enum.html#enum.Flag)
+_____
+
+Pour notre petit projet, il n'est pas très utile d'en connaitre plus mais savoir comment les choses fonctionnent est toujours interressant.  
+Si on cherche à revenir aux bases du concept, un bitmask n'est rien d'autres qu'un cas particulier d'`int` <!--On pourrait répondre que tous les autres types auusi mais c'est hors sujet-->. Alors pourquoi et comment, le "pourquoi" est simple: dans les premières versions de C (et dans les autres languages de l'époques) il n'y avait qu'un seul type: les `int` et le "type" était déterminé par la façon dont les valeurs étaient utilisées; et c'est resté de cette façon dans la majorité des languages modernes car il n'existe pas de raisons de changer.  
+Le "comment" est aussi simple une fois intégré. Vous savez que les ordinateurs représentent les nombres en binaires avec chaque chiffre représenté par un bit, les bitmasks vont juste associer arbitrairement chaque bit avec une signification.
+
+Voici une représentation plus rudimentaire de la classe d'avant:
+```Python
+ETAT_LIVRE_GRAND = 0b1		# binaire
+ETAT_LIVRE_JAUNE = 0b10
+# Si on peut ajouter d'autres états:
+# ETAT_LIVRE_DECHIRE = 0b100
+# ETAT_LIVRE_EN_FEU =  0b1000
+# ...
+```
+
+Les opérations _bitwise_ prennent plus de sens vu que c'est juste les portes logiques appliquées à chaque bit:
+```Python
+0b01 | 0b10 == 0b11
+0b11 & 0b00 == 0b00
+0b11 ^ 0b01 == 0b10
+~0b10       == 0b01
+```
+
+La [version plus rigoureuse](https://fr.wikipedia.org/wiki/Masquage) de mon explication.
