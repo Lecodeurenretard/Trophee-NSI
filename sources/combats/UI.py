@@ -44,7 +44,7 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
     return (texte, continuer)
 
 def trouve_attaque_a_partir_du_curseur() -> Attaque:
-    curseur_pos : Pos = boutons_attaques[0].cursor.position_dans_position   # Ce qui est important, c'est que le bouton soit dans le groupe Attaques
+    curseur_pos : Pos = boutons_attaques[0].cursor.position_dans_positions   # Ce qui est important, c'est que le bouton soit dans le groupe Attaques
     
     if curseur_pos == Pos(0, 0):
         return ATTAQUES_DISPONIBLES['heal']

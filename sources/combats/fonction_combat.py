@@ -5,7 +5,7 @@ def joueur_attaque(clef_attaque : str, monstre_cible : Monstre) -> None:
     if len(Monstre.monstres_en_vie) == 0:
         return
     
-    crit = joueur.attaquer(monstre_cible.id, clef_attaque)   # attaque le premier monstre
+    crit = joueur.attaquer(monstre_cible.id, clef_attaque)
     joueur.dessiner_attaque(fenetre, clef_attaque, crit)
 
 def monstres_attaquent() -> None:

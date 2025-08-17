@@ -9,6 +9,27 @@ class TypeAttaque(Enum):
     CHARGE   = auto(),
     DIVERS   = auto(),
 
+    @property
+    def couleur(self) -> color:
+        match self:
+            case TypeAttaque.PHYSIQUE:
+                return ROUGE
+            
+            case TypeAttaque.MAGIQUE:
+                return BLEU
+            
+            case TypeAttaque.SOIN:
+                return VERT
+            
+            case TypeAttaque.DIVERS:
+                return NOIR
+            
+            case _:
+                raise NotImplementedError("Type d'attaque non implémenté dans TypeAttaque.couleur().")
+
+
+# Sera un bitmask (flags) si plusieurs effets peuvent être appliqués en même temps
+# sinon une enum normale
 class EffetAttaque:
     pass        # TODO: définir les effets des attaques (poison, confus, ...) (un jour)
 
@@ -44,33 +65,14 @@ class Attaque:
         self._puissance : float = puissance
         self._type_attaque : TypeAttaque = type_attaque
 
-        assert(0 <= crit_proba <= 1), "Les probabilités se calculent sur [0; 1]."
+        assert(0 <= crit_proba <= 1), "Les probabilités se calculent sur [0; 1] (test du constructeur d'Attaque)."
         self._prob_crit  : float = crit_proba
-        
-        # Sera un bitmask (flags) si plusieurs effets peuvent être appliqués en même temps
-        # sinon une enum normale
         self._effet : EffetAttaque
         
         self._drapeaux = flags
         
         self._nom_surf : Surface = POLICE_TITRE.render(nom, True, BLANC)  # Le nom de l'attaque rendered
-        
-        match self._type_attaque:
-            case TypeAttaque.PHYSIQUE:
-                self._couleur = ROUGE
-            
-            case TypeAttaque.MAGIQUE:
-                self._couleur = BLEU
-            
-            case TypeAttaque.SOIN:
-                self._couleur = VERT
-            
-            case TypeAttaque.DIVERS:
-                self._couleur = NOIR
-            
-            case _:
-                raise ValueError("type_attaque n'est pas un membre de TypeAttaque dans Attaque.__init__().")
-
+    
     def __str__(self):
         return (
             "Attaque{"
@@ -84,7 +86,11 @@ class Attaque:
     def __eq__(self, attaque: 'Attaque') -> bool:
         return self._nom == attaque._nom
     # l'opérateur != (méthode .__ne__()), est par défaut défini comme l'inverse de ==
-
+    
+    @property
+    def _couleur(self) -> color:
+        return self._type_attaque.couleur
+    
     @property
     def puissance(self) -> float:
         return self._puissance
@@ -105,7 +111,7 @@ class Attaque:
     def ennemy_fire(self) -> bool:
         return AttaqueFlags.ATTAQUE_ENNEMIS in self._drapeaux
     
-    def _calcul_attaque_defense(self, puissance_attaquant : int, vie_cible : int, defense_cible : int, def_min : float) -> tuple[float, float]:
+    def _calcul_attaque_defense(self, puissance_attaquant : int, defense_cible : int, def_min : float) -> tuple[float, float]:
         if AttaqueFlags.IGNORE_STATS in self._drapeaux:
             return (self._puissance, 1)
         
@@ -126,7 +132,6 @@ class Attaque:
             case TypeAttaque.PHYSIQUE:
                 attaque, defense = self._calcul_attaque_defense(
                     stats_attaquant.force,
-                    stats_victime.vie,
                     stats_victime.defense,
                     defense_min
                 )
@@ -135,7 +140,6 @@ class Attaque:
             case TypeAttaque.MAGIQUE:
                 attaque, defense = self._calcul_attaque_defense(
                     stats_attaquant.magie,
-                    stats_victime.vie,
                     stats_victime.defense_magique,
                     defense_min
                 )
@@ -166,16 +170,35 @@ class Attaque:
         
         if crit:
             # Dessine l'image de crit
-            surface.blit(Attaque.CRIT_IMG,
+            surface.blit(
+                Attaque.CRIT_IMG,
                 (
-                    pos_x + RECT_LARGEUR/2 - Attaque.CRIT_IMG.get_width()/2, # on centre l'étoile
-                    pos_y + RECT_HAUTEUR/2 - Attaque.CRIT_IMG.get_height()/2,
+                    pos_x + RECT_LARGEUR / 2 - Attaque.CRIT_IMG.get_width() / 2, # on centre l'étoile
+                    pos_y + RECT_HAUTEUR / 2 - Attaque.CRIT_IMG.get_height() / 2,
                 )
             )
 
 ATTAQUES_DISPONIBLES : dict[str, Attaque] = {
-    "heal":     Attaque("Soin", "Soignez-vous de quelques PV", 1.5, TypeAttaque.SOIN, crit_proba=.2, flags=AttaqueFlags.ATTAQUE_EQUIPE),
-    "magie":    Attaque("Att. magique", "Infligez des dégâts magique à l'adversaire", 20, TypeAttaque.MAGIQUE),
-    "physique": Attaque("Torgnole", "Infligez des dégâts physiques à l'adversaire", 20, TypeAttaque.PHYSIQUE),
-    "skip":     Attaque("Passer", "Passez votre tour.", 0, TypeAttaque.DIVERS, crit_proba=.5, flags=AttaqueFlags.AUCUN)   # ça sert à rien d'augmenter la chance de crit mais ¯\_(ツ)_/¯ funny
+    "heal": Attaque(
+        "Soin", "Soignez-vous de quelques PV",
+        1.5,
+        TypeAttaque.SOIN,
+        crit_proba=.2, flags=AttaqueFlags.ATTAQUE_EQUIPE
+    ),
+    "magie": Attaque(
+        "Att. magique", "Infligez des dégâts magique à l'adversaire",
+        20,
+        TypeAttaque.MAGIQUE
+    ),
+    "physique": Attaque(
+        "Torgnole", "Infligez des dégâts physiques à l'adversaire",
+        20,
+        TypeAttaque.PHYSIQUE
+    ),
+    "skip": Attaque(
+        "Passer", "Passez votre tour.",
+        0,
+        TypeAttaque.DIVERS,
+        crit_proba=.5, flags=AttaqueFlags.AUCUN   # ça sert à rien d'augmenter la chance de crit mais ¯\_(ツ)_/¯ funny
+    ),
 }

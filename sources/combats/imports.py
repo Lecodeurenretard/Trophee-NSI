@@ -22,5 +22,4 @@ from pygame.surface import (
 from pygame.rect import (
     Rect,
 )
-
-MODE_DEBUG : bool = True
+pygame.init()

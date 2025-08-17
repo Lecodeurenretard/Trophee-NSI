@@ -1,6 +1,6 @@
 from UI import *
 
-def jouer() -> None:
+def lancer_jeu() -> None:
     globales.menu_running = False
     if not MODE_DEBUG:
         demander_pseudo()

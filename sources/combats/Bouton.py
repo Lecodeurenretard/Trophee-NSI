@@ -37,25 +37,25 @@ class ButtonCursor(Button):
     _cursor_radius : int = 12
     _cursor_offset : int = 10
     
-    _group_count   : dict[str, int]     = {}    # group's name -> # of buttons in the group
-    _group_cursors : dict[str, Curseur] = {}    # group's name -> group's cursor
-    _group_colors  : dict[str, color]   = {}    # group's name -> group's color
+    # Prefixed by static to avoid name conflict with propreties
+    _static_group_count   : dict[str, int]     = {}    # group's name -> # of buttons in the group
+    _static_group_cursors : dict[str, Curseur] = {}    # group's name -> group's cursor
+    _static_group_colors  : dict[str, color]   = {}    # group's name -> group's color
     
     def __init__(
             self,
             text: str, dim : tuple[int, int, int, int],
             group_name : str, group_color : color = NOIR,
             line_thickness : int = 1, bg_color : color = GRIS, line_color : color = NOIR,
-            callback: Callable[[], None] | None = None
+            action: Callable[[], None] | None = None
         ):
         """
         Ctor for CursorButton.  
         Takes same arguments as Button's ctor except for:
             - `group_name`: the group's name, if the group doesn't exists creates it
             - `group_color`: defines the color of the group's cursor (ignored if `group` already exists)
-            and some others taht will be used for drawing.
         """
-        super().__init__(text, dim, action=callback, line_thickness=line_thickness, line_color=line_color, bg_color=bg_color)
+        super().__init__(text, dim, action=action, line_thickness=line_thickness, line_color=line_color, bg_color=bg_color)
         self._group_name = group_name
         
         cursor_pos : Pos = Pos(
@@ -63,75 +63,96 @@ class ButtonCursor(Button):
             self._rect.y + self._rect.h // 2
         )
         
+        # The cursor position from where it's able to select this button
         if ButtonCursor._group_exists(group_name):
-            self.cursor.ajouter_pos(cursor_pos)
-            self._cursor_pos : Pos = self.cursor.coordonee_globale_vers_coordonee_curseur(cursor_pos)
-            ButtonCursor._group_count[self._group_name] += 1
-            return
+            ButtonCursor._add_to_group(self, cursor_pos)
+        else:
+            ButtonCursor._create_group(cursor_pos, self._group_name, group_color)
         
-        cursor = Curseur([cursor_pos.x], [cursor_pos.y])
-        cursor._interdir_col_sauf(cursor_pos.x, cursor_pos.y)
-        cursor._interdir_ligne_sauf(cursor_pos.y, cursor_pos.x)
-        
-        ButtonCursor._group_count[self._group_name] = 1
-        ButtonCursor._group_cursors[group_name] = cursor
-        ButtonCursor._group_colors[group_name] = group_color
-        
-        self._cursor_pos : Pos = self.cursor.coordonee_globale_vers_coordonee_curseur(cursor_pos)
+        self._cursor_pos : Pos = self.cursor.coordonees_globales_vers_coordonees_curseur(cursor_pos)
     
     def __del__(self):
-        ButtonCursor._group_count[self._group_name] -= 1
-        if ButtonCursor._group_count[self._group_name] <= 0:    # no more Button in the group
-            del ButtonCursor._group_count[self._group_name]
-            del ButtonCursor._group_cursors[self._group_name]
-            del ButtonCursor._group_colors[self._group_name]
+        ButtonCursor._static_group_count[self._group_name] -= 1
+        if ButtonCursor._static_group_count[self._group_name] <= 0:    # no more Button in the group
+            del ButtonCursor._static_group_count[self._group_name]
+            del ButtonCursor._static_group_cursors[self._group_name]
+            del ButtonCursor._static_group_colors[self._group_name]
     
     @staticmethod
+    def _create_group(cursor_position : Pos, group_name : str, group_color : color) -> None:
+        cursor = Curseur([cursor_position.x], [cursor_position.y])
+        cursor._interdir_col_sauf(cursor_position.x, cursor_position.y)    # Since it's new there's only one position available
+        cursor._interdir_lne_sauf(cursor_position.y, cursor_position.x)
+        
+        ButtonCursor._static_group_count[group_name] = 1
+        ButtonCursor._static_group_cursors[group_name] = cursor
+        ButtonCursor._static_group_colors[group_name] = group_color
+    
+    @staticmethod
+    def _add_to_group(curse_butt : 'ButtonCursor', cursor_pos : Pos) -> None:
+        curse_butt.cursor.ajouter_pos(cursor_pos)
+        
+        ButtonCursor._static_group_count[curse_butt._group_name] += 1
+
+    @staticmethod
     def _group_exists(group_to_test : str) -> bool:
-        return group_to_test in ButtonCursor._group_cursors.keys()
+        return group_to_test in ButtonCursor._static_group_cursors.keys()
     
     @staticmethod
     def draw_cursors(surface : Surface) -> None:
-        for group_name in ButtonCursor._group_cursors:
-            color_ = ButtonCursor._group_colors[group_name]
-            group = ButtonCursor._group_cursors[group_name]
+        for group_name in ButtonCursor._static_group_cursors:
+            color_ = ButtonCursor._static_group_colors[group_name]
+            group = ButtonCursor._static_group_cursors[group_name]
             
             group.dessiner(surface, color_, ButtonCursor._cursor_radius)
     
     @staticmethod
-    def check_inputs(check_for : 'list[ButtonCursor]|tuple[ButtonCursor, ...]', ev : pygame.event.Event) -> bool:
-        """Renvoie si `action()` à été éxecuté au moins une fois."""
-        group_checked : list[str] = []
+    def handle_inputs(butt_seq : 'list[ButtonCursor]|tuple[ButtonCursor, ...]', ev : pygame.event.Event) -> bool:
+        """
+        Gère les inputs des boutons dans `butt_seq` ainsi que leurs groupes respectifs.  
+        Renvoie True si `action()` à été éxecuté au moins une fois.
+        """
+        groups_having_moved_cursor : list[str] = []
         useless_butt_count : int = 0
         
-        callback_execute : bool = False
-        for butt in check_for:
+        callback_executed : bool = False
+        for butt in butt_seq:
             cursor_butt : Curseur = butt.cursor
-            if butt._group_name not in group_checked:
+            if butt._group_name not in groups_having_moved_cursor:
                 cursor_butt.deplacement_utilisateur(ev)
-                group_checked.append(butt._group_name)
-                
-            if butt._action is None:
-                useless_butt_count += 1
-                continue
-            if utilisateur_valide_menu(ev) and cursor_butt.position_dans_position == butt._cursor_pos:
+                groups_having_moved_cursor.append(butt._group_name)
+            
+            if utilisateur_valide_menu(ev) and butt._do_group_cursor_select_button():
+                if butt._action is None:
+                    useless_butt_count += 1
+                    continue
                 butt._action()
-                callback_execute = True
+                callback_executed = True
                 continue
             
             if ev.type == pygame.MOUSEBUTTONDOWN:
-                callback_execute |= butt.check_click(ev.pos)
+                callback_executed |= butt.check_click(ev.pos)
         
         if useless_butt_count == 1:
             logging.warning(f"Un bouton n'a aucune fonction à éxécuter.")
-        elif useless_butt_count > 0:
+        elif useless_butt_count > 1:
             logging.warning(f"{useless_butt_count} boutons n'ont aucune fonction à éxécuter.")
-        return callback_execute
+        return callback_executed
+    
+    @property
+    def _group_count(self) -> int:
+        return ButtonCursor._static_group_count[self._group_name]
+    @property
+    def _group_cursor(self) -> Curseur:
+        return ButtonCursor._static_group_cursors[self._group_name]
+    @property
+    def _group_color(self) -> color:
+        return ButtonCursor._static_group_colors[self._group_name]
+    # No setters nor deleters bc they should only be modified by __init__ and __del__
     
     @property
     def cursor(self) -> Curseur:
-        return ButtonCursor._group_cursors[self._group_name]
+        return self._group_cursor
     
-    @property
-    def cursor_color(self) -> color:
-        return ButtonCursor._group_colors[self._group_name]
+    def _do_group_cursor_select_button(self) -> bool:
+        return self.cursor.position_dans_positions == self._cursor_pos

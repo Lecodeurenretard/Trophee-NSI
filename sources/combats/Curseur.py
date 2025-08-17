@@ -5,7 +5,7 @@ class Curseur:
     def __init__(self, col_dispo : list[int], lne_dispo : list[int], pos_interdites : list[Pos] = []) -> None:
         # ordonne de gauche à droite et de haut en bas
         self._col_dispo   : list[int] = list(sorted(col_dispo))
-        self._ligne_dispo : list[int] = list(sorted(lne_dispo))
+        self._lne_dispo : list[int] = list(sorted(lne_dispo))
         self._interdit    : list[Pos] = pos_interdites
         
         self._pos_dans_toutes_pos = Pos(0, 0)	# v. doc
@@ -16,7 +16,7 @@ class Curseur:
         """Retourne si la position à été modifiée."""
         ancienne_pos : Pos = self._pos
         if update_lne:
-            self._pos.y = self._ligne_dispo[self._pos_dans_toutes_pos.y]
+            self._pos.y = self._lne_dispo[self._pos_dans_toutes_pos.y]
         
         if update_col:
             self._pos.x = self._col_dispo[self._pos_dans_toutes_pos.x]
@@ -27,14 +27,15 @@ class Curseur:
         return True
     
     def _interdir_col_sauf(self, colonne : int, exception_ligne : int) -> None:
-        assert(colonne in self._col_dispo), "La colonne n'a pas été ajoutée auparavant dans Curseur.interdir_col_sauf()."
-        assert(exception_ligne in self._ligne_dispo), "La ligne à éviter n'a pas été ajoutée auparavant dans Curseur.interdir_col_sauf()."
-        for lne in self._ligne_dispo:
+        assert(colonne in self._col_dispo), "La colonne n'a pas été ajoutée auparavant au curseur dans Curseur.interdir_col_sauf()."
+        assert(exception_ligne in self._lne_dispo), "La ligne à éviter n'a pas été ajoutée auparavant au curseur dans Curseur.interdir_col_sauf()."
+        for lne in self._lne_dispo:
             if lne != exception_ligne:
                 self.ajouter_interdit(Pos(colonne, lne))
-    def _interdir_ligne_sauf(self, ligne : int, exception_colonne : int) -> None:
-        assert(ligne in self._ligne_dispo), "La colonne n'a pas été ajoutée auparavant dans Curseur.interdir_ligne_sauf()."
-        assert(exception_colonne in self._col_dispo), "La ligne à éviter n'a pas été ajoutée auparavant dans Curseur.interdir_ligne_sauf()."
+    
+    def _interdir_lne_sauf(self, ligne : int, exception_colonne : int) -> None:
+        assert(ligne in self._lne_dispo), "La colonne n'a pas été ajoutée auparavant au curseur dans Curseur.interdir_ligne_sauf()."
+        assert(exception_colonne in self._col_dispo), "La ligne à éviter n'a pas été ajoutée auparavant au curseur dans Curseur.interdir_ligne_sauf()."
         for col in self._col_dispo:
             if col != exception_colonne:
                 self.ajouter_interdit(Pos(col, ligne))
@@ -44,20 +45,20 @@ class Curseur:
     
     def _ajouter_a_pdtp_x(self, combien : int):
         self._pos_dans_toutes_pos.x += combien
-        self._pos_dans_toutes_pos.x %= len(self._col_dispo)
+        self._pos_dans_toutes_pos.x %= len(self._col_dispo) # Empèche le curseur d'aller Out of Bound
     def _ajouter_a_pdp_y(self, combien : int):
         self._pos_dans_toutes_pos.y += combien
-        self._pos_dans_toutes_pos.y %= len(self._ligne_dispo)
+        self._pos_dans_toutes_pos.y %= len(self._lne_dispo)
     
-    def coordonee_globale_vers_coordonee_curseur(self, coord_globales : Pos) -> Pos:
+    def coordonees_globales_vers_coordonees_curseur(self, coord_globales : Pos) -> Pos:
         res : Pos = Pos(-1, -1)
         res.x = self._col_dispo.index(coord_globales.x)
-        res.y = self._ligne_dispo.index(coord_globales.y)
+        res.y = self._lne_dispo.index(coord_globales.y)
         
         return res
     
     def verifie_ligne_existe(self, lne : int) -> bool:
-        return lne in self._ligne_dispo
+        return lne in self._lne_dispo
     def verifie_colonne_existe(self, col : int) -> bool:
         return col in self._col_dispo
     
@@ -82,22 +83,22 @@ class Curseur:
         
     def descendre(self) -> None:
         self._ajouter_a_pdp_y(1)
-        while not self._update_pos():     # skip les positions interdites
+        while not self._update_pos():
             self._ajouter_a_pdp_y(1)
         
     def aller_gauche(self) -> None:
         self._ajouter_a_pdtp_x(-1)
-        while not self._update_pos():     # skip les positions interdites
+        while not self._update_pos():
             self._ajouter_a_pdtp_x(-1)
         
     def aller_droite(self) -> None:
         self._ajouter_a_pdtp_x(1)
-        while not self._update_pos():     # skip les positions interdites
+        while not self._update_pos():
             self._ajouter_a_pdtp_x(1)
         
 
     @property
-    def position_dans_position(self) -> Pos:
+    def position_dans_positions(self) -> Pos:
         return self._pos_dans_toutes_pos
     
     def deplacement_utilisateur(self, ev : pygame.event.Event) -> None:
@@ -121,12 +122,15 @@ class Curseur:
             return
         # sinon, ne fait rien
     
+    
     def ajouter_colonne(self, x_coord : int) -> None:
         if x_coord not in self._col_dispo:
             insort(self._col_dispo, x_coord)    # Garde _col_dispo triée
+    
     def ajouter_ligne(self, y_coord : int) -> None:
-        if y_coord not in self._ligne_dispo:
-            insort(self._ligne_dispo, y_coord)
+        if y_coord not in self._lne_dispo:
+            insort(self._lne_dispo, y_coord)
+    
     def ajouter_interdit(self, a_interdir : Pos) -> None:
         if a_interdir not in self._interdit:
             self._interdit.append(a_interdir)
@@ -140,7 +144,7 @@ class Curseur:
         
         if self.verifie_colonne_existe(position.x):
             self.ajouter_ligne(position.y)
-            self._interdir_ligne_sauf(position.y, position.x)
+            self._interdir_lne_sauf(position.y, position.x)
             return
         
         if self.verifie_ligne_existe(position.y):

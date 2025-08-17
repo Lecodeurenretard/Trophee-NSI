@@ -3,12 +3,12 @@ from fonctions_vrac import *
 from Attaque import *
 
 class Joueur:
-    _STATS_DE_BASE : Stat = Stat(50-5, 35, 40-5, 20, 30, 50, 1.2, 1)
+    _STATS_DE_BASE : Stat = Stat(45, 35, 40-5, 20, 30, 50, 1.2, 1)
     est_invincible : bool = False
-    dimensions_sprite : tuple[int, int] = (160, 160)
+    DIMENSIONS_SPRITE : tuple[int, int] = (160, 160)
     
     def __init__(self, moveset : dict[str, Attaque], chemin_vers_sprite : str|None = None) -> None:
-        # on assumera que _stats et _base_stats sont initialisés
+        # on assumera par la suite que _stats et _base_stats sont initialisés
         self._stats : Stat = Joueur._STATS_DE_BASE
         self._pseudo : str = ""
         self._moveset = moveset
@@ -19,7 +19,7 @@ class Joueur:
             return
         
         if chemin_vers_sprite is not None:
-            self._sprite  : Surface|None = pygame.transform.scale(pygame.image.load(chemin_vers_sprite), Joueur.dimensions_sprite)
+            self._sprite  : Surface|None = pygame.transform.scale(pygame.image.load(chemin_vers_sprite), Joueur.DIMENSIONS_SPRITE)
         else:
             self._sprite : Surface|None = None
         
@@ -39,10 +39,6 @@ class Joueur:
     @property
     def pseudo(self) -> str:
         return self._pseudo
-
-    @pseudo.setter
-    def pseudo(self, value : str) -> None:
-        self._pseudo = value
     
     @property
     def id(self) -> int:
@@ -52,23 +48,29 @@ class Joueur:
     def moveset_clefs(self) -> tuple[str, ...]:
         return tuple(self._moveset.keys())
     
+    @property
+    def longueur_barre_de_vie(self) -> int:
+        ratio = max(0, self._stats.vie / self._stats.vie_max)
+        return round(ratio * UI_LONGUEUR_BARRE_DE_VIE)
+    
+    @pseudo.setter
+    def pseudo(self, value : str) -> None:
+        self._pseudo = value
+    
+    
     def get_attaque_surface(self, clef_attaque : str) -> Surface:
         assert(clef_attaque in self.moveset_clefs)
         return self._moveset[clef_attaque].nom_surface
     
-    def attaque_peut_toucher_allies(self, attaque_clef : str) -> bool:
-        assert(attaque_clef in self.moveset_clefs), "Attaque pas inclue dans moveset dans attaque_peut_toucher_allies()."
+    def attaque_peut_toucher_allies(self, clef_attaque : str) -> bool:
+        assert(clef_attaque in self.moveset_clefs), "Attaque pas inclue dans moveset dans attaque_peut_toucher_allies()."
         
-        return self._moveset[attaque_clef].friendly_fire
+        return self._moveset[clef_attaque].friendly_fire
     
-    def attaque_peut_toucher_ennemis(self, attaque_clef : str) -> bool:
-        assert(attaque_clef in self.moveset_clefs), "Attaque pas inclue dans moveset dans attaque_peut_toucher_ennemis()."
+    def attaque_peut_toucher_ennemis(self, clef_attaque : str) -> bool:
+        assert(clef_attaque in self.moveset_clefs), "Attaque pas inclue dans moveset dans attaque_peut_toucher_ennemis()."
         
-        return self._moveset[attaque_clef].ennemy_fire
-    
-    def longueur_barre_de_vie(self) -> int:
-        ratio = max(0, self._stats.vie / self._stats.vie_max)
-        return round(ratio * UI_LONGUEUR_BARRE_DE_VIE)
+        return self._moveset[clef_attaque].ennemy_fire
     
     def reset_vie(self) -> None:
         self._stats.vie = self._stats.vie_max
@@ -80,7 +82,7 @@ class Joueur:
         
         self._stats.baisser_vie(degats_recu)
         return self.est_mort()
-
+    
     def subir_attaque(self, attaque : Attaque, stats_attaquant : Stat) -> bool:
         """
         Prend en charge l'attaque prise et retourne une tuple contenant s'il y a eu un crit..
@@ -97,24 +99,24 @@ class Joueur:
         
         attaque : Attaque = self._moveset[clef_attaque]
         
-        if attaque.friendly_fire:                                         # si friendly fire, se tape lui même
-            return self.subir_attaque(attaque, self._stats)                     # il faudra ajouter un curseur si jamais 
-        if attaque.ennemy_fire:                                           # l'attaque peut friendly fire et ennemy fire
-            return entitees_vivantes[id_cible].subir_attaque(attaque, self._stats) # TODO:
+        if attaque.friendly_fire:                            # si friendly fire, se tape lui même
+            return self.subir_attaque(attaque, self._stats)  # TODO: ajouter un curseur pour choisir la cible de l'attaque
+        if attaque.ennemy_fire:
+            return entitees_vivantes[id_cible].subir_attaque(attaque, self._stats) 
         return False
     
     def dessiner(self, surface : Surface) -> None:
         if MODE_DEBUG:
-            boite_de_contours = (LARGEUR // 4, 3 * HAUTEUR // 4 - 100, 100, 100)
+            boite_de_contours = (LARGEUR // 4, pourcentage_hauteur(75) - 100, 100, 100)
             pygame.draw.rect(surface, BLEU, boite_de_contours, 0)
             return
         
         if self._sprite is not None:
-            surface.blit(self._sprite, (LARGEUR // 4, 3 * HAUTEUR // 4 - 150))
-
-
+            surface.blit(self._sprite, (LARGEUR // 4, pourcentage_hauteur(75) - 150))
+    
+    
     def dessine_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int) -> None:
-        dessine_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
+        dessine_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie)
     
     def dessiner_attaque(self, surface : Surface, clef_attaque : str, crit : bool) -> None:
         assert(clef_attaque in self.moveset_clefs)

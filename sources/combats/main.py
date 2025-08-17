@@ -8,9 +8,9 @@ def quit(exit_code : int = 0) -> NoReturn:
 
 def menu() -> None:
     boutons_menu : tuple[ButtonCursor, ...] = (
-        ButtonCursor("Jouer"     , (300, 200, 200, 60), line_thickness=0, group_name="Ecran titre", group_color=VERT, callback=jouer),
-        ButtonCursor("Paramètres", (300, 300, 200, 60), line_thickness=0, group_name="Ecran titre",                   callback=ouvrir_parametres),
-        ButtonCursor("Crédits"   , (300, 400, 200, 60), line_thickness=0, group_name="Ecran titre",                   callback=afficher_credits),
+        ButtonCursor("Jouer"     , (300, 200, 200, 60), line_thickness=0, group_name="Ecran titre", group_color=VERT, action=lancer_jeu),
+        ButtonCursor("Paramètres", (300, 300, 200, 60), line_thickness=0, group_name="Ecran titre",                   action=ouvrir_parametres),
+        ButtonCursor("Crédits"   , (300, 400, 200, 60), line_thickness=0, group_name="Ecran titre",                   action=afficher_credits),
     )
     while globales.menu_running:
         fenetre.fill(BLEU_CLAIR)
@@ -22,7 +22,7 @@ def menu() -> None:
         
         for event in pygame.event.get():
             quitter_si_necessaire(event)
-            ButtonCursor.check_inputs(boutons_menu, event)
+            ButtonCursor.handle_inputs(boutons_menu, event)
 
 def partie_fin(gagne : bool) -> NoReturn:
     couleur_fond : color
@@ -81,7 +81,7 @@ def __main__() -> None:
             if (event.type != pygame.KEYDOWN and event.type != pygame.MOUSEBUTTONDOWN) or not globales.tour_joueur:
                 continue
             
-            if ButtonCursor.check_inputs(boutons_attaques, event):  # Si true, le joueur à attaqué
+            if ButtonCursor.handle_inputs(boutons_attaques, event):  # Si true, le joueur à attaqué
                 globales.tour_joueur = False
                 
                 rafraichir_ecran()

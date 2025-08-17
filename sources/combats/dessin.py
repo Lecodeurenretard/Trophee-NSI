@@ -1,6 +1,6 @@
 from import_var import *
     
-def _dessine_rect_barre_de_vie(surface: Surface, couleur_remplissage, pos_x : int, pos_y : int, longueur_remplissage : int, epaisseur_outline : int) -> None:
+def _dessine_rect_barre_de_vie(surface: Surface, couleur_remplissage, pos_x : int, pos_y : int, longueur_remplissage : int, epaisseur_trait : int) -> None:
     pygame.draw.rect(
         surface,
         couleur_remplissage,
@@ -15,12 +15,12 @@ def _dessine_rect_barre_de_vie(surface: Surface, couleur_remplissage, pos_x : in
         surface,
         NOIR,
         (
-            pos_x - epaisseur_outline // 2,
-            pos_y - epaisseur_outline // 2,
-            UI_LONGUEUR_BARRE_DE_VIE + epaisseur_outline,
-            UI_HAUTEUR_BARRE_DE_VIE + epaisseur_outline // 2
+            pos_x - epaisseur_trait // 2,
+            pos_y - epaisseur_trait // 2,
+            UI_LONGUEUR_BARRE_DE_VIE + epaisseur_trait,
+            UI_HAUTEUR_BARRE_DE_VIE + epaisseur_trait // 2
         ),
-        epaisseur_outline
+        epaisseur_trait
     )
 
 def dessine_barre_de_vie(surface : Surface, pos_x : int, pos_y : int, ratio_vie : float, longueur_remplissage : int) -> None:
