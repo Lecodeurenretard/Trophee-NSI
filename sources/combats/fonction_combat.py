@@ -1,16 +1,12 @@
 from Monstre import *
 from Joueur import *
 
-def joueur_attaque(clef_attaque : str, monstre_cible : Monstre) -> None:
+def joueur_attaque(clef_attaque : str, cible : Monstre|Joueur) -> None:
     if len(Monstre.monstres_en_vie) == 0:
         return
     
-    crit = joueur.attaquer(monstre_cible.id, clef_attaque)
-    joueur.dessiner_attaque(fenetre, clef_attaque, crit)
+    joueur.attaquer(cible.id, clef_attaque)
 
 def monstres_attaquent() -> None:
     for monstre in Monstre.monstres_en_vie:
-        attaque_choisie : Attaque = monstre.choisir_attaque()
-        
-        crit = monstre.attaquer(joueur.id, attaque_choisie)
-        monstre.dessiner_attaque(fenetre, attaque_choisie, crit)
+        monstre.attaquer(joueur.id, monstre.choisir_attaque())

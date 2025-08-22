@@ -13,9 +13,9 @@ class Joueur:
         self._pseudo : str = ""
         self._moveset = moveset
         
-        self._id = premier_indice_libre_de_entitees_vivantes()
+        self._id = premier_indice_libre_de_entites_vivantes()
         if self._id >= 0:
-            entitees_vivantes[self._id] = self
+            entites_vivantes[self._id] = self
             return
         
         if chemin_vers_sprite is not None:
@@ -23,26 +23,28 @@ class Joueur:
         else:
             self._sprite : Surface|None = None
         
-        self._id = len(entitees_vivantes)
-        entitees_vivantes.append(self)
+        self._id = len(entites_vivantes)
+        entites_vivantes.append(self)
     
     def __del__(self):
         # Appelé quand l'objet est détruit (plus utilisé ou détruit avec del())
-        if self._id > 0 and entitees_vivantes is not None:
+        if self._id > 0 and entites_vivantes is not None:
             self.meurt()
-    
-    def meurt(self) -> None:
-        entitees_vivantes[self._id] = None
-        self._id = -1
-    
     
     @property
     def pseudo(self) -> str:
         return self._pseudo
+    @property
+    def dbg_nom(self) -> str:
+        return self.pseudo
     
     @property
     def id(self) -> int:
         return self._id
+    
+    @property
+    def stats(self) -> Stat:
+        return self._stats
     
     @property
     def moveset_clefs(self) -> tuple[str, ...]:
@@ -53,10 +55,30 @@ class Joueur:
         ratio = max(0, self._stats.vie / self._stats.vie_max)
         return round(ratio * UI_LONGUEUR_BARRE_DE_VIE)
     
+    # propriété car la position pourrait changer
+    @property
+    def pos_attaque_x(self) -> int:
+        return 400
+    @property
+    def pos_attaque_y(self) -> int:
+        return 300
+    
     @pseudo.setter
     def pseudo(self, value : str) -> None:
         self._pseudo = value
     
+    
+    def recoit_degats(self, degats_recu : int) -> bool:
+        """Prend en charge les dégats prits et retourne si un crit est retourné."""
+        if Joueur.est_invincible and degats_recu >= 0:   # Joueur.invincible n'empèche pas les soins
+            return False
+        
+        self._stats.baisser_vie(degats_recu)
+        return self.est_mort()
+    
+    def meurt(self) -> None:
+        entites_vivantes[self._id] = None
+        self._id = -1
     
     def get_attaque_surface(self, clef_attaque : str) -> Surface:
         assert(clef_attaque in self.moveset_clefs)
@@ -75,35 +97,12 @@ class Joueur:
     def reset_vie(self) -> None:
         self._stats.vie = self._stats.vie_max
     
-    def recoit_degats(self, degats_recu : int) -> bool:
-        """Prend en charge les dégats prits et retourne si le monstre est mort."""
-        if Joueur.est_invincible and degats_recu >= 0:   # Joueur.invincible n'empèche pas les soins
-            return False
-        
-        self._stats.baisser_vie(degats_recu)
-        return self.est_mort()
-    
-    def subir_attaque(self, attaque : Attaque, stats_attaquant : Stat) -> bool:
-        """
-        Prend en charge l'attaque prise et retourne une tuple contenant s'il y a eu un crit..
-        """
-        assert(stats_attaquant.est_initialise), "stats_monstre pas initialisé dans Joueur.essuyer_attaque()."
-        
-        degats, crit = attaque.calculer_degats(stats_attaquant, self._stats)
-        self.recoit_degats(degats)
-        return crit
-    
-    def attaquer(self, id_cible : int, clef_attaque : str) -> bool:
-        assert(entitees_vivantes[id_cible] is not None), "La cible est None dans Joueur.attaquer()."
+    def attaquer(self, id_cible : int, clef_attaque : str) -> None:
         assert(clef_attaque in self.moveset_clefs)
         
-        attaque : Attaque = self._moveset[clef_attaque]
-        
-        if attaque.friendly_fire:                            # si friendly fire, se tape lui même
-            return self.subir_attaque(attaque, self._stats)  # TODO: ajouter un curseur pour choisir la cible de l'attaque
-        if attaque.ennemy_fire:
-            return entitees_vivantes[id_cible].subir_attaque(attaque, self._stats) 
-        return False
+        if self._moveset[clef_attaque].friendly_fire:
+            id_cible = self.id
+        self._moveset[clef_attaque].enregister_lancement(self._id, id_cible)
     
     def dessiner(self, surface : Surface) -> None:
         if MODE_DEBUG:
@@ -117,13 +116,6 @@ class Joueur:
     
     def dessine_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int) -> None:
         dessine_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie)
-    
-    def dessiner_attaque(self, surface : Surface, clef_attaque : str, crit : bool) -> None:
-        assert(clef_attaque in self.moveset_clefs)
-        
-        self._moveset[clef_attaque].dessiner(surface, 400, 300, crit)
-        pygame.display.flip()
-        attendre(1)
     
     def est_mort(self) -> bool:
         return self._stats.est_mort()

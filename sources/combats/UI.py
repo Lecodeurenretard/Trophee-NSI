@@ -103,6 +103,7 @@ def afficher_nombre_combat(nbr_combat : int) -> None:
     fenetre.fill(BLANC)
     fenetre.blit(texte_combat, (LARGEUR // 2 - 100, HAUTEUR // 2 - 20))
     
+    logging.info(f"")
     logging.info(f"Début combat numéro {nbr_combat}")
     pygame.display.flip()
     attendre(2)

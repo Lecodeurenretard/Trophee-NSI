@@ -67,7 +67,7 @@ class Monstre:
         TypeMonstre.Blob	: Stat(35, 23, 50, 0 , 17, 30, 2.0, 1.3),
         TypeMonstre.Sorcier	: Stat(40, 10, 30, 15, 40, 60, 1.3, 1.8),
     }
-
+    
     dimensions_sprites : tuple[int, int] = (150, 150)
     
     # La liste de tous les monstres en vie
@@ -101,19 +101,19 @@ class Monstre:
         
         Monstre._ajouter_monstre_a_liste(self)
         
-        self._id = premier_indice_libre_de_entitees_vivantes()
+        self._id = premier_indice_libre_de_entites_vivantes()
         if self._id >= 0:
-            entitees_vivantes[self._id] = self
+            entites_vivantes[self._id] = self
             return
         
-        self._id = len(entitees_vivantes)
-        entitees_vivantes.append(self)
+        self._id = len(entites_vivantes)
+        entites_vivantes.append(self)
     
     def __del__(self):
         # Appelé quand l'objet est détruit (plus utilisé ou détruit avec del())
         if (
             self._id > 0
-            and entitees_vivantes is not None
+            and entites_vivantes is not None
             and Monstre.monstres_en_vie is not None
         ):
             self.meurt()
@@ -157,33 +157,37 @@ class Monstre:
     @property
     def nom(self) -> str:
         return self._nom
+    @property
+    def dbg_nom(self) -> str:
+        return self.nom
+    
+    @property
+    def stats(self) -> Stat:
+        return self._stats
+    
+    @property
+    def pos_attaque_x(self) -> int:
+        return 400
+    @property
+    def pos_attaque_y(self) -> int:
+        return 300
     
     def meurt(self) -> None:
-        entitees_vivantes[self._id] = None
+        entites_vivantes[self._id] = None
         Monstre._enlever_monstre_a_liste(self)
         self._id = -1
     
     def choisir_attaque(self) -> Attaque:
         return random.choice(self._attaques_disponibles)
     
-    def attaquer(self, id_cible : int, attaque : Attaque) -> bool:
+    def attaquer(self, id_cible : int, attaque : Attaque) -> None:
         """Attaque la cible et retourne si elle a été tuée."""
-        assert(entitees_vivantes[id_cible] is not None), "La cible est une case vide de entitees_vivantes[] dans Monstre.attaquer()."
+        assert(entites_vivantes[id_cible] is not None), "La cible est une case vide de entites_vivantes[] dans Monstre.attaquer()."
         assert(attaque in self._attaques_disponibles), "L'attaque demandée dans Monstre.attaquer() n'est pas dans le moveset du monstre."
         
-        if attaque.friendly_fire:
-            return self.subir_attaque(attaque, self._stats)
-        if attaque.ennemy_fire:
-            return entitees_vivantes[id_cible].subir_attaque(attaque, self._stats)
-        return False
+        attaque.enregister_lancement(self._id, id_cible)
     
-    def subir_attaque(self, attaque : Attaque, stats_attaquant : Stat) -> bool:
-        degats, crit = attaque.calculer_degats(stats_attaquant, self._stats)
-        
-        self.recoit_dommages(degats)
-        return crit
-    
-    def recoit_dommages(self, dommages : int) -> bool:
+    def recoit_degats(self, dommages : int) -> bool:
         if Monstre.sont_invincibles and dommages >= 0:
             return False
         
@@ -205,12 +209,6 @@ class Monstre:
     
     def dessiner_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int):
         dessine_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
-    
-    def dessiner_attaque(self, surface : Surface, attaque : Attaque, crit : bool) -> None:
-        attaque.dessiner(surface, 400, 300, crit)
-        
-        pygame.display.flip()
-        attendre(1)
         
     def est_mort(self) -> bool:
         return self._stats.est_mort()

@@ -3,6 +3,10 @@ Un bon moyen de savoir si le changement devrait être écrit ici, c'est de se de
 
 <!--format:--
 > **[message du commit]**
++ Changements majeurs
+	- [Changements à la base du but du commit?]
++ Sur plusieurs fichiers:
+	- [Autres changements?]
 + Structure de fichier
 	- [changements sur la structure de ficher?]
 + READMEs et documentation
@@ -52,3 +56,47 @@ _____
 + `Joueur`
 	- L'attribut `dimensions_sprite` est maintenant une constante.
 		* Renommage en `DIMENSION_SPRITE`.
+
+
+> **Implémentation de la vitesse**
++ Changements majeurs
+	- Ajout de `Attaque.attaques_du_tour[]` regroupant toutes les attaques lancées.
+	- Modification de la pipeline des attaques pour la centraliser dans `Attaque.lancer_toutes_les_attaques()`.
++ Sur plusieurs fichiers
+	- Renommage de `entitees_vivantes` en `entites_vivantes`.
+	- Les logs débugs sont cachés si le mode débug est désactivés.
+	- Modification des attentes envers les entités:
+		+ Ajout de la propriété  `.dbg_nom` qui est le nom en contexte de débug.
+		+ Ajout des propriétés `.pos_attaque_x` et `.pos_attaque_y` qui controlent la position du dessin des attaques.
+		+ Déplacements des fonctionnalités de `.subir_attaque()` dans `.recoit_degats()` car c'est plus simple dans le nouveau système.
+		+ Modification du type de retour de `bool` à `None` pour `.attaquer()`.
+		+ `.attaquer()` ne fait plus qu'enregistrer l'attaque dans la file.
++ [Attaque](sources/combats/Attaque.py)
+	* Dans `Attaque`
+		- Ajout de l'attribut `._vitesse`.
+			+ Ajout de `vitesse` dans le constructeur
+			+ Ajout du getter `.vitesse`.
+		- Ajout de l'attribut `._ajustement_degats()`.
+			+ Ajout de `dernier_changements` dans le constructeur
+		- Ajout des attributs `._lanceur_id` et `._cible_id`.
+			+ Ajout des propriétés `._lanceur` et `._cible` pour accéder plus facilements aux objets.
+			+ Modification de `.calculer_degats()` et `.dessiner()` pour ne prendre qu'un seul argument.
+		- Ajout de l'attribut `._crit`.
+			+ Modification de la pipeline des attaques pour ne plus avoir à passer si l'aataque est un crit.
+		- Ajout de la méthode statique `lancer_toutes_les_attaques()` se chargeant d'appliquer les effets des attaques et de les dessiner.
+		- Ajout de la méthode `Attaque.appliquer()` qui applique les effets de l'attaque.
+		- Ajout de la méthode `.enregister_lancement()` qui insère l'attaque dans la file.
+		- Déplacement de la convertion en string dans la méthode `.dbg_str()`.
+	* Ajout de `AttaquePriorisee` faisant office d'enveloppe pour les attaques dans la file.
++ [constantes_globales](sources/combats/constantes_globales.py)
+	- Ajout de `VITESSE_MAXIMUM` et `MAXIMUM_ENTITES_SIMULTANEES`.
++ `Joueur`
+	- Ajout des propriétés `.dbg_nom`, `.stats`, `.pos_attaque_x` et `.pos_attaque_y`.
+	- Suppression de `.subir_attaque()` qui est devenu inutile.
+	- Suppression de `.dessiner_attaque()` vu qu'elle se fait dans `Attaque.lancer_toutes_les_attaques()`.
++ [fonction_vrac](sources/combats/fonctions_vrac.py)
+	- Rennommage de `premier_indice_libre_de_entitees_vivantes()` en `premier_indice_libre_de_entites_vivantes()`.
++ [main](sources/combats/main.py)
+	- Déplacement de l'écoute pour les touches spéciales dans `reagir_appui_touche()`.
++ `Stat`
+	- Suppression de la définition explicite de `.__copy__()` qui ne faisait que la même chose que la définition implicote mais moins bien.

@@ -29,5 +29,5 @@ from variables_globales import (
     # on peut donc se permettre le raccourcit
     fenetre,
     clock,
-    entitees_vivantes
+    entites_vivantes
 )

@@ -2,6 +2,9 @@ from imports import *
 
 MODE_DEBUG : bool = True
 
+if MODE_DEBUG:
+    logging.basicConfig(level=logging.DEBUG)    # Active tous les logs
+
 LARGEUR : int = 800 ;   HAUTEUR : int = 600
 
 color : TypeAlias = tuple[int, int, int]
@@ -18,6 +21,9 @@ JAUNE   : color = (255, 255, 0)
 MAX_COMBAT : int = 5
 
 INVICIBLE_ENNEMI : bool = False
+
+VITESSE_MAXIMUM : int = 10**9
+MAXIMUM_ENTITES_SIMULTANEES : int = 10
 
 UI_LONGUEUR_BARRE_DE_VIE : int = 200
 UI_HAUTEUR_BARRE_DE_VIE : int = 10
@@ -65,7 +71,7 @@ if getcwd().endswith("combats"):    # rudimentaire mais fonctionnel
 elif getcwd().endswith("sources"):
 	CHEMIN_RACINE = "../"
 else:
-	logging.error("On est où?")
+	logging.warning("Le dossier n'est pas reconnu, on suppose que l'on est à la racine.")
 
 CHEMIN_DOSSIER_IMG  : str = f"{CHEMIN_RACINE}data/img"
 CHEMIN_DOSSIER_SAVE : str = f"{CHEMIN_RACINE}data/save"

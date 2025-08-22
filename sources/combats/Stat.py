@@ -1,8 +1,10 @@
 from imports import *
+
+#TODO: Retravailler la classe (dataclass ?)
 class Stat:
     """
     Représente les stats de quelque chose.
-
+    
     Attributs:
     - vie
     - vie_max
@@ -11,12 +13,14 @@ class Stat:
     - magie
     - defense_magique
     - vitesse
+    - crit_puissance: Augmente les dommages fait quand crit.
+    - crit_resistance
     - est_initialise: Si l'objet est initialisé.
     
     Si l'objet n'est pas initialisé aucun de ces attributs autre que `est_initialise` est fiable à lire.
     """
-    # Cette classe n'en n'est pas une à proprement parler
-    # C'est un aggrégat de données (un dictionnaire à entrées limitées quoi)
+    # Cette classe ne respecte pas l'encapsulation car
+    # c'est un aggrégat de données (un dictionnaire mais avec un jeu garantit d'entrées)
     # L'encapsulation ne s'applique donc pas ici
     
     def __init__(
@@ -82,20 +86,6 @@ class Stat:
             + f"résistance aux crits: {self.vitesse}; "
             + f"est initialisé: {self.est_initialise}"
             +"}"
-        )
-    
-    def __copy__(self):
-        # définir __deepcopy__() est futile vu qu'aucun attribut n'est passé par référence
-        return Stat(
-            self.vie,
-            self.force,
-            self.defense,
-            self.magie,
-            self.defense_magique,
-            self.vitesse,
-            self.crit_puissance,
-            self.crit_resitance,
-            not self.est_initialise,
         )
     
     def set(

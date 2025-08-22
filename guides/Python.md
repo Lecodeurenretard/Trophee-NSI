@@ -590,62 +590,90 @@ class Chaise:
 -->
 
 ### Détails sur les objets
-#### Passage par référence
-A l'instar des tuples et des listes, les objets sont passés par références. Celà veut dire que les objets ne sont pas copiés quand passés d'une variable à une autre.  
-Pour régler le problème, il faut créer une méthode `__copy__()` ou `__deepcopy__()` qui puis appeler `copy()` ou `deepcopy()` du module `copy`. Pour d'autres questions allez voir [cette réponse stackOverflow](https://stackoverflow.com/questions/4794244/how-can-i-create-a-copy-of-an-object-in-python#answer-46939443).
+#### Copie et passage par référence
+A l'instar des tuples et des listes, les objets sont passés par références. Cela veut dire que les objets ne sont pas copiés quand passés d'une variable à une autre.  
+Pour remédier à ce problème, Python nous apporte la méthode `copy()` ou `deepcopy()` du module `copy`.
+```Python
+from copy import copy, deepcopy
+class MaClasse:
+	def __init__(self, leger, lourd):
+		self.petite_donnee = leger
+		self.grosse_donnee = lourd
+	def afficher(self):
+		print(f"petit: {self.petite_donnee}, gros: {self.grosse_donnee}")
+
+objet = MaClasse(4, [1, 2, 3, 4])
+
+reference = objet
+copie = copy(objet)
+copie_profonde = deepcopy(objet)
+
+objet.petite_donnee += 5
+objet.grosse_donnee.append(5)
+
+objet.afficher()		#-> petit: 9, gros: [1, 2, 3, 4, 5]
+reference.afficher()	#-> petit: 9, gros: [1, 2, 3, 4, 5]
+copie.afficher()		#-> petit: 4, gros: [1, 2, 3, 4, 5]
+copie_profonde.afficher()	# petit: 4, gros: [1, 2, 3, 4]
+```
+
+Dans l'exemple du dessus, nous voyons qu'après les modifications faites à `objet`, `reference` les reproduits toutes, `copie` ne reproduit que celles faites aux données légère et `copie_profonde` n'en subit aucune.<!--Je doute que la transition léger/mutable soit bonne-->
+
+Pour expliquer ces comportements, penchons nous sur la mutabilité des types. Une donnée mutable (comme les `dict`, `list`) est une donnée que l'on peut modifier, une donnée immuable (comme les `int`, `tuple` et `str`) est à l'inverse une donnée constante. Attention, donnée **$\not =$** variable, une variable n'est qu'un moyen d'accéder à une donnée.  
+Ces catégories existent pour classifier les données suivant leurs poids, les types mutables pouvant être les plus lourds; le type `str` fait exception (car il est souvent utilisé et c'est facile d'oublier qu'il faut les copier, car il doit être [hashable](https://stackoverflow.com/questions/14535730/what-does-hashable-mean-in-python) (ce qui permet d'en mettre en clef de dictionnaire), ...). Voici un [exemple sur pythontutor](https://pythontutor.com/visualize.html#code=int1%20%3D%201%0Aint2%20%3D%201%0A%0Aliste1%20%3D%20%5B1,%202,%203%5D%0AlisteRef%20%3D%20liste1%20%20%20%23%20m%C3%AAme%20liste%0A%0Aliste2%20%3D%20%5B1,%202,%203%5D%20%20%23%20une%20autre%20liste%20s%C3%A9par%C3%A9e%0A%0Aliste1.append%284%29%0A%23%20listeRef%3A%20%5B1,%202,%203,%204%5D%3B%20liste2%20%3D%20%5B1,%202,%203%5D%0A%0Aclass%20MonType%3A%0A%20%20%20%20def%20__init__%28self%29%3A%0A%20%20%20%20%20%20%20%20self.immutable%20%3D%20'a'%0A%20%20%20%20%20%20%20%20self.mutable%20%3D%20%5B'a'%5D%0A%23%20Les%20objets%20sont%20par%20d%C3%A9fauts%20mutables,%20%0A%23%20ils%20ont%20donc%20le%20m%C3%AAme%20comportement%20qu'avec%20les%20listes%0Ama_premiere_variable%20%3D%20MonType%28%29%0Ama_reference%20%3D%20ma_premiere_variable%0A%0Ama_seconde_variable%20%3D%20MonType%28%29%0A%0Ama_reference.immutable%20%2B%3D%20%22b%22%0A%23%20ma_premiere_variable.immutable%20est%20chang%C3%A9%20car%20les%20deux%20variables%0A%23%20pointent%20vers%20le%20m%C3%AAme%20objet&cumulative=false&heapPrimitives=nevernest&mode=edit&origin=opt-frontend.js&py=311&rawInputLstJSON=%5B%5D&textReferences=false). <!--Le permalink c'est juste le code url friendly.-->
+
+Dans certains cas, on peut vouloir customiser la copie d'un objet (car par défaut trop lente, car ça casse le code, ..), il alors faut créer une méthode `__copy__()` ou `__deepcopy__()`.
 
 Exemple:
 ```Python
-class ClasseSansCopie:
-	def __init__(self, attr1, attr2):
-		self.un = attr1
-		self.deux = attr2
-
-objet = ClasseSansCopie(3, [4])
-autre_objet = objet
-
-objet.un = 10
-print(autre_objet.un)	#-> 10
-
-
 from copy import copy, deepcopy
-class ClasseAvecCopie:
+class UneClasse:
 	def __init__(self, attr1, attr2):
 		self.un = attr1
 		self.deux = attr2
 	
 	def __copy__(self):
-		return ClasseAvecCopie(self.un, self.deux)
+		return UneClasse(self.un, self.deux)
 	
 	def __deepcopy__(self, memo):
-		# memo est un dictionnaire id -> None?
-		# pour être honnête même avec test je ne comprend pas
-		# son fonctionnement
+		# memo est un dictionnaire, je pense qu'il associe les ids avec None
+		# Mes tests n'ont rien donnés et la doc ne dit que
+		# c'est un dictionnaire et rien de plus
+
+		# cette ligne évite qu'e la fonction ne coipe un objet déjà copié
 		if memo.get(id(copy)) is not None:	# je recopie stackOverflow
 			return None
 		
-		return ClasseAvecCopie(
+		return UneClasse(
 			deepcopy(self.un),
 			deepcopy(self.deux),
 		)
 
 
-objet = ClasseSansCopie(3, [4])
-autre_objet = copy(objet)
+objet = UneClasse(3, [4])
+objet_ref = objet
 
-objet.un = 10
+objet.un = "réference"
+print(objet_ref.un)	#-> réference
+
+
+objet_copie = copy(objet)
+
+objet.un = "copie"
 objet.deux.append(5)
-print(autre_objet.un)	#-> 3
-print(autre_objet.deux)	#-> [4, 5], copy() n'a pas copié la liste
+print(objet_copie.un)	#-> copie
+print(objet_copie.deux)	#-> [4, 5], copy() n'a pas copié la liste
 
-objet = ClasseSansCopie(3, [4])
-autre_objet = deepcopy(objet)
+objet_copie_profonde = deepcopy(objet)
 
-objet.un = 10
+objet.un = "deep copy"
 objet.deux.append(5)
-print(autre_objet.un)	#-> 3
-print(autre_objet.deux)	#-> [4]
+print(objet_copie_profonde.un)	#-> deep copy
+print(objet_copie_profonde.deux)	#-> [4]
 ```
+[lien pythontutor](https://pythontutor.com/render.html#code=from%20copy%20import%20copy,%20deepcopy%0Aclass%20UneClasse%3A%0A%20%20%20%20def%20__init__%28self,%20attr1,%20attr2%29%3A%0A%20%20%20%20%20%20%20%20self.un%20%3D%20attr1%0A%20%20%20%20%20%20%20%20self.deux%20%3D%20attr2%0A%20%20%20%20%0A%20%20%20%20def%20__copy__%28self%29%3A%0A%20%20%20%20%20%20%20%20return%20UneClasse%28self.un,%20self.deux%29%0A%20%20%20%20%0A%20%20%20%20def%20__deepcopy__%28self,%20memo%29%3A%0A%20%20%20%20%20%20%20%20%23%20memo%20est%20un%20dictionnaire%20id%20-%3E%20None%3F%0A%20%20%20%20%20%20%20%20%23%20pour%20%C3%AAtre%20honn%C3%AAte%20m%C3%AAme%20avec%20test%20je%20ne%20comprend%20pas%0A%20%20%20%20%20%20%20%20%23%20son%20fonctionnement%0A%20%20%20%20%20%20%20%20if%20memo.get%28id%28copy%29%29%20is%20not%20None%3A%20%20%20%20%23%20je%20recopie%20stackOverflow%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20None%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20return%20UneClasse%28%0A%20%20%20%20%20%20%20%20%20%20%20%20deepcopy%28self.un%29,%0A%20%20%20%20%20%20%20%20%20%20%20%20deepcopy%28self.deux%29,%0A%20%20%20%20%20%20%20%20%29%0A%0A%0Aobjet%20%3D%20UneClasse%283,%20%5B4%5D%29%0Aobjet_ref%20%3D%20objet%0A%0Aobjet.un%20%3D%20%22r%C3%A9ference%22%0A%0A%0Aobjet_copie%20%3D%20copy%28objet%29%0A%0Aobjet.un%20%3D%20%22copie%22%0Aobjet.deux.append%285%29%0A%0Aobjet_copie_profonde%20%3D%20deepcopy%28objet%29%0A%0Aobjet.un%20%3D%20%22deep%20copy%22%0Aobjet.deux.append%285%29&cumulative=false&curInstr=33&heapPrimitives=nevernest&mode=display&origin=opt-frontend.js&py=311&rawInputLstJSON=%5B%5D&textReferences=false)
+
+Pour d'autres questions allez voir [cette réponse stackOverflow](https://stackoverflow.com/questions/4794244/how-can-i-create-a-copy-of-an-object-in-python#answer-46939443).
 
 ## 3. Les énumérations
 Une énumération est un type qui ne peut prendre que certaines valeurs. Par exemple, pour une application météo il ne peut faire que: soleil, pluie, nuages.
@@ -800,3 +828,22 @@ Les opérations _bitwise_ prennent plus de sens vu que c'est juste les portes lo
 ```
 
 La [version plus rigoureuse](https://fr.wikipedia.org/wiki/Masquage) de mon explication.
+
+### Files et piles
+On dit souvent qu'il faut penser aux files (ou queues) comme à des files (le sens qu'il a en français) et aux piles comme à des piles.  
+Une queue est une liste mais on ne peut qu'accéder au premier élément de celle-ci et les éléments s'ajoutent à la fin: premier dedans, premier dehors (principe FIFO: _First In, First Out_); pour les piles on ne peut qu'accéder à l'élément du dessus mais on ne peut ajouter des éléments qu'aux dessus: dernier dedans, premier dehors (principe LIFO: _Last In First Out_).  
+Ajouter un élément à une file/pile est un _push_, enlever un élément est un _pop_.
+
+![Diagrame File-Pile](imgs/diagram%20stack-queue.png)
+
+En Python, Il existe 2 types (+ `SimpleQueue`) de files et 1 type de pile, elles sont dans le module `queue` ([documentation](https://docs.python.org/3/library/queue.html)):
++ `Queue`: Une file comme décrite précédement.
++ `PriorityQueue`: Une file qui trie ses éléments, les plus petits (déterminés avec les opérateurs `<` et  `>`) sont les premiers à sortir.
++ `LifoQueue`: Une pile.
+
+Les méthodes les plus utilisées (disponibles sur les trois types précédents) sont:
+- `.put(item, block=True, timeout=None)`: Insère `item` dans la file/pile; si elle est pleine et que `block` est `True`, attend au plus `timeout` secondes qu'il y ait de la place pour l'insérer sinon élève une exception.
+- `.put_nowait(item)`: Même chose que `.put(item, block=False)`.
+- `.get(block=True, timeout=None)`: Pop un élément de la file ou pile, les paramètres sont les mêmes que pour `.put()`.
+- `.get_nowait()`: Même chose que `.get(item, block=False)`.
+- `.empty()` et `.full()`: Vérifient que la file/pile n'est pas vide ou pleine.

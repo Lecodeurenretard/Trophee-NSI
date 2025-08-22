@@ -1,10 +1,11 @@
 # Fonctions qui n'ont nulle part d'autre où aller
 from import_var import *
 
-def premier_indice_libre_de_entitees_vivantes() -> int:
-    """Retourne le premier indice disponible dans entitees_vivantes[] ou -1 s'il n'y en a pas."""
-    for i in range(len(entitees_vivantes)):
-        if entitees_vivantes[i] is None:
+def premier_indice_libre_de_entites_vivantes() -> int:
+    """Retourne le premier indice disponible dans entites_vivantes[] ou -1 s'il n'y en a pas."""
+    assert(len(entites_vivantes) <= MAXIMUM_ENTITES_SIMULTANEES), "Trop d'entitées sont dans le combat."
+    for i in range(len(entites_vivantes)):
+        if entites_vivantes[i] is None:
             return i
     return -1
 

@@ -68,6 +68,42 @@ def nouveau_combat(numero_combat : int) -> None:
     reset_monstre()
     afficher_nombre_combat(globales.nbr_combat)
 
+def reagir_appui_touche(ev):
+    assert(ev.type == pygame.KEYDOWN), "L'évènement passé à reagir_appui_touche() n'est pas un appui de bouton."
+    match ev.key:        # Un event ne peut être qu'une seule touche à la fois
+        case pygame.K_i:
+            afficher_info()
+            return
+        
+        case globales.UI_TOUCHE_AFFICHAGE_FPS:
+            globales.UI_autoriser_affichage_fps = not globales.UI_autoriser_affichage_fps       # v. pavé dans import_var
+            return
+        
+        case globales.DBG_TOUCHE_CRIT:    # encore un moment où python ne fait sens: https://stackoverflow.com/questions/77164443/why-does-my-match-case-statement-not-work-for-class-members
+            Attaque.toujours_crits = not Attaque.toujours_crits
+            return
+        
+        case globales.DBG_TOUCHE_PREDECENT_MONSTRE:
+            if not Monstre.monstres_en_vie[0].vers_type_precedent():
+                logging.warning("Le monstre n'a pas de type!")
+            return
+       
+        case globales.DBG_TOUCHE_PROCHAIN_MONSTRE:
+            if not Monstre.monstres_en_vie[0].vers_type_suivant():
+                logging.warning("Le monstre n'a pas de type!")
+            return
+        
+        case globales.DBG_TOUCHE_PRECEDENT_COMBAT:
+            nouveau_combat(globales.nbr_combat-1)
+            return
+        
+        case globales.DBG_TOUCHE_PROCHAIN_COMBAT:
+            nouveau_combat(globales.nbr_combat+1)
+            return
+        
+        case _:
+            ...
+
 def __main__() -> None:
     reset_monstre()
     menu()
@@ -81,48 +117,17 @@ def __main__() -> None:
             if (event.type != pygame.KEYDOWN and event.type != pygame.MOUSEBUTTONDOWN) or not globales.tour_joueur:
                 continue
             
-            if ButtonCursor.handle_inputs(boutons_attaques, event):  # Si true, le joueur à attaqué
+            # Si le joueur attaque...
+            if ButtonCursor.handle_inputs(boutons_attaques, event):
                 globales.tour_joueur = False
                 
                 rafraichir_ecran()
                 attendre(1)
                 continue
             
-            if event.type != pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN:
+                reagir_appui_touche(event)
                 continue
-            match event.key:        # Un event ne peut être qu'une seule touche à la fois
-                case pygame.K_i:
-                    afficher_info()
-                    continue
-                
-                case globales.UI_TOUCHE_AFFICHAGE_FPS:
-                    globales.UI_autoriser_affichage_fps = not globales.UI_autoriser_affichage_fps       # v. pavé dans import_var
-                    continue
-                
-                case globales.DBG_TOUCHE_CRIT:    # encore un moment où python ne fait sens: https://stackoverflow.com/questions/77164443/why-does-my-match-case-statement-not-work-for-class-members
-                    Attaque.toujours_crits = not Attaque.toujours_crits
-                    continue
-                
-                case globales.DBG_TOUCHE_PREDECENT_MONSTRE:
-                    if not Monstre.monstres_en_vie[0].vers_type_precedent():
-                        logging.warning("Le monstre n'a pas de type!")
-                    continue
-               
-                case globales.DBG_TOUCHE_PROCHAIN_MONSTRE:
-                    if not Monstre.monstres_en_vie[0].vers_type_suivant():
-                        logging.warning("Le monstre n'a pas de type!")
-                    continue
-                
-                case globales.DBG_TOUCHE_PRECEDENT_COMBAT:
-                        nouveau_combat(globales.nbr_combat-1)
-                        continue
-                
-                case globales.DBG_TOUCHE_PROCHAIN_COMBAT:
-                        nouveau_combat(globales.nbr_combat+1)
-                        continue
-                
-                case _:
-                    ...
         
         Monstre.tuer_les_monstres_morts()
         if len(Monstre.monstres_en_vie) == 0:
@@ -130,6 +135,8 @@ def __main__() -> None:
         
         if not globales.tour_joueur:
             monstres_attaquent()
+            Attaque.lancer_toutes_les_attaques(rafraichir_ecran)
+            
             globales.tour_joueur = True
         
         if joueur.est_mort():
