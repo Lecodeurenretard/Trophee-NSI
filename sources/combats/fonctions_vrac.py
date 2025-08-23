@@ -2,16 +2,20 @@
 from import_var import *
 
 def premier_indice_libre_de_entites_vivantes() -> int:
-    """Retourne le premier indice disponible dans entites_vivantes[] ou -1 s'il n'y en a pas."""
-    assert(len(entites_vivantes) <= MAXIMUM_ENTITES_SIMULTANEES), "Trop d'entitées sont dans le combat."
-    for i in range(len(entites_vivantes)):
-        if entites_vivantes[i] is None:
+    """Retourne le premier indice disponible dans globales.entites_vivantes[] ou -1 s'il n'y en a pas."""
+    assert(len(globales.entites_vivantes) <= MAXIMUM_ENTITES_SIMULTANEES), "Trop d'entitées sont dans le combat."
+    for i in range(len(globales.entites_vivantes)):
+        if globales.entites_vivantes[i] is None:
             return i
     return -1
 
 def quitter_si_necessaire(ev : pygame.event.Event) -> None:
     if ev.type == pygame.QUIT or (ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE):
         quit()
+
+def verifier_pour_quitter() -> None:
+    for ev in pygame.event.get():
+        quitter_si_necessaire(ev)
 
 def utilisateur_valide_menu(ev : pygame.event.Event) -> bool:
     return ev.type == pygame.KEYDOWN and ev.key in UI_TOUCHES_VALIDER

@@ -12,6 +12,7 @@ def lancer_jeu() -> None:
 
 def ouvrir_parametres() -> None:
     logging.info("→ Ouverture des paramètres...")
+    pass
 
 def afficher_credits() -> None:
     logging.info("→ Affichage des crédits...")
@@ -19,6 +20,7 @@ def afficher_credits() -> None:
     credit_y : int = HAUTEUR
     
     while credit_y > 0:
+        verifier_pour_quitter()
         fenetre.fill(NOIR)
         fenetre.blit(texte_credits, (150, credit_y))
         

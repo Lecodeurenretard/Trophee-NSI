@@ -64,8 +64,8 @@ class Monstre:
     sont_invincibles : bool = False
     
     _STATS_DE_BASE : dict[TypeMonstre, Stat] = {
-        TypeMonstre.Blob	: Stat(35, 23, 50, 0 , 17, 30, 2.0, 1.3),
-        TypeMonstre.Sorcier	: Stat(40, 10, 30, 15, 40, 60, 1.3, 1.8),
+        TypeMonstre.Blob    : Stat(35, 23, 50, 0 , 17, 30, 2.0, 1.3).reset_vie(),
+        TypeMonstre.Sorcier : Stat(40, 10, 30, 15, 40, 60, 1.3, 1.8).reset_vie(),
     }
     
     dimensions_sprites : tuple[int, int] = (150, 150)
@@ -84,7 +84,6 @@ class Monstre:
             chemin_sprite : str|None = None,
             type_calque : TypeMonstre|None = None
         ):
-        assert(stats.est_initialise), "stats n'est pas initialisé dans le constructeur de Monstre."
         
         self._nom = nom
         self._stats = stats
@@ -103,17 +102,17 @@ class Monstre:
         
         self._id = premier_indice_libre_de_entites_vivantes()
         if self._id >= 0:
-            entites_vivantes[self._id] = self
+            globales.entites_vivantes[self._id] = self
             return
         
-        self._id = len(entites_vivantes)
-        entites_vivantes.append(self)
+        self._id = len(globales.entites_vivantes)
+        globales.entites_vivantes.append(self)
     
     def __del__(self):
         # Appelé quand l'objet est détruit (plus utilisé ou détruit avec del())
         if (
             self._id > 0
-            and entites_vivantes is not None
+            and globales.entites_vivantes is not None
             and Monstre.monstres_en_vie is not None
         ):
             self.meurt()
@@ -149,6 +148,20 @@ class Monstre:
             if monstre.est_mort():
                 monstre.meurt()
     
+    @staticmethod
+    def spawn(proba : dict[TypeMonstre, float]|None = None, autoriser_spawn_erreur : bool = False) -> 'Monstre':
+        poids : list[float]|None = None
+        liste_de_types : list[TypeMonstre] = list(TypeMonstre)
+        if proba is not None:
+            poids = [-1.0] * len(liste_de_types)    # garantit de trouver une clef
+            
+            for i, type in enumerate(liste_de_types):
+                poids[i] = proba[type]
+        
+        return Monstre.nouveau_monstre(
+            random.choices(liste_de_types, weights=poids)[0] # type: ignore # la valeur par défaut de weights est None
+        )
+    
     
     @property
     def id(self) -> int:
@@ -173,7 +186,7 @@ class Monstre:
         return 300
     
     def meurt(self) -> None:
-        entites_vivantes[self._id] = None
+        globales.entites_vivantes[self._id] = None
         Monstre._enlever_monstre_a_liste(self)
         self._id = -1
     
@@ -182,7 +195,7 @@ class Monstre:
     
     def attaquer(self, id_cible : int, attaque : Attaque) -> None:
         """Attaque la cible et retourne si elle a été tuée."""
-        assert(entites_vivantes[id_cible] is not None), "La cible est une case vide de entites_vivantes[] dans Monstre.attaquer()."
+        assert(globales.entites_vivantes[id_cible] is not None), "La cible est une case vide de globales.entites_vivantes[] dans Monstre.attaquer()."
         assert(attaque in self._attaques_disponibles), "L'attaque demandée dans Monstre.attaquer() n'est pas dans le moveset du monstre."
         
         attaque.enregister_lancement(self._id, id_cible)

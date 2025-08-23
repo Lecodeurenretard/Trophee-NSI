@@ -1,4 +1,3 @@
-from Stat import *
 from import_var import *
 
 class TypeAttaque(Enum):
@@ -8,7 +7,7 @@ class TypeAttaque(Enum):
     SOIN     = auto(),
     CHARGE   = auto(),
     DIVERS   = auto(),
-
+    
     @property
     def couleur(self) -> color:
         match self:
@@ -183,9 +182,6 @@ class Attaque:
         stats_attaquant : Stat = self._lanceur.stats
         stats_victime : Stat = self._cible.stats
         
-        assert(stats_attaquant.est_initialise), "stat_attaquant n'est pas initialisé dans Stat.calculer_degats()"
-        assert(stats_victime.est_initialise), "stat_victime n'est pas initialisé dans Stat.calculer_degats()"
-        
         degats : float = random.uniform(0.85, 1.0)
         match self._type_attaque:
             case TypeAttaque.PHYSIQUE:
@@ -228,6 +224,8 @@ class Attaque:
         elif AttaqueFlags.ATTAQUE_ALLIES in self._drapeaux and type(self._lanceur) != type(self._cible) and self._lanceur_id != self._cible_id:
             return
         elif AttaqueFlags.ATTAQUE_ENNEMIS in self._drapeaux and type(self._lanceur) == type(self._cible):
+            return
+        elif AttaqueFlags.ATTAQUE_LANCEUR not in self._drapeaux and AttaqueFlags.ATTAQUE_ALLIES not in self._drapeaux and AttaqueFlags.ATTAQUE_ENNEMIS not in self._drapeaux:
             return
         self._cible.recoit_degats(self.calculer_degats())
     
@@ -305,7 +303,7 @@ ATTAQUES_DISPONIBLES : dict[str, Attaque] = {
     "skip": Attaque(
         "Passer", "Passez votre tour.",
         0,
-        -1,
+        0,
         TypeAttaque.DIVERS,
         crit_proba=.5, flags=AttaqueFlags.AUCUN   # ça sert à rien d'augmenter la chance de crit mais ¯\_(ツ)_/¯ funny
     ),

@@ -3,7 +3,7 @@ from imports import *
 MODE_DEBUG : bool = True
 
 if MODE_DEBUG:
-    logging.basicConfig(level=logging.DEBUG)    # Active tous les logs
+    logging.basicConfig(level=logging.DEBUG, force=True)    # Active tous les logs
 
 LARGEUR : int = 800 ;   HAUTEUR : int = 600
 

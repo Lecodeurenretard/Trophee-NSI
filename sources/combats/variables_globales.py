@@ -1,8 +1,5 @@
 from imports import *
-
 from constantes_globales import *
-from Stat import *
-from Pos import *
 
 pygame.display.set_caption("Menu Principal")
 

@@ -1,5 +1,4 @@
 from import_var import *
-from bisect import insort
 
 class Curseur:
     def __init__(self, col_dispo : list[int], lne_dispo : list[int], pos_interdites : list[Pos] = []) -> None:

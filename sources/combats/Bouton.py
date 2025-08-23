@@ -26,7 +26,7 @@ class Button:
         text_rect : Rect = text_surf.get_rect(center=self._rect.center)
         
         surface.blit(text_surf, text_rect)
-
+    
     def check_click(self, pos_click : Pos) -> bool:
         if self._rect.collidepoint(tuple(pos_click)) and self._action is not None:
             self._action()

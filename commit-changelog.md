@@ -63,14 +63,24 @@ _____
 	- Ajout de `Attaque.attaques_du_tour[]` regroupant toutes les attaques lancées.
 	- Modification de la pipeline des attaques pour la centraliser dans `Attaque.lancer_toutes_les_attaques()`.
 + Sur plusieurs fichiers
-	- Renommage de `entitees_vivantes` en `entites_vivantes`.
+	- Renommage de `entitees_vivantes` en `globales.entites_vivantes`.
 	- Les logs débugs sont cachés si le mode débug est désactivés.
 	- Modification des attentes envers les entités:
-		+ Ajout de la propriété  `.dbg_nom` qui est le nom en contexte de débug.
-		+ Ajout des propriétés `.pos_attaque_x` et `.pos_attaque_y` qui controlent la position du dessin des attaques.
-		+ Déplacements des fonctionnalités de `.subir_attaque()` dans `.recoit_degats()` car c'est plus simple dans le nouveau système.
-		+ Modification du type de retour de `bool` à `None` pour `.attaquer()`.
-		+ `.attaquer()` ne fait plus qu'enregistrer l'attaque dans la file.
+		* Ajout de la propriété  `.dbg_nom` qui est le nom en contexte de débug.
+		* Ajout des propriétés `.pos_attaque_x` et `.pos_attaque_y` qui controlent la position du dessin des attaques.
+		* Déplacements des fonctionnalités de `.subir_attaque()` dans `.recoit_degats()` car c'est plus simple dans le nouveau système.
+		* Modification du type de retour de `bool` à `None` pour `.attaquer()`.
+		* `.attaquer()` ne fait plus qu'enregistrer l'attaque dans la file.
+	- 
++ Structure de fichier
+	- [guide](guides/) à son propre dossier [img](guides/imgs/) maintenant.
++ READMEs et documentation
+	- Update des guides
+		* Correction d'erreur sur la copie d'objets, `copy()` n'a pas besoin de `.__copy__()`.
+		* Nouvel exemple.
+		* Ajout de la section sur les files et les piles.
++ ce fichier
+	- Ajout des sections sur plusieurs fichier et majeurs.
 + [Attaque](sources/combats/Attaque.py)
 	* Dans `Attaque`
 		- Ajout de l'attribut `._vitesse`.
@@ -95,8 +105,38 @@ _____
 	- Suppression de `.subir_attaque()` qui est devenu inutile.
 	- Suppression de `.dessiner_attaque()` vu qu'elle se fait dans `Attaque.lancer_toutes_les_attaques()`.
 + [fonction_vrac](sources/combats/fonctions_vrac.py)
-	- Rennommage de `premier_indice_libre_de_entitees_vivantes()` en `premier_indice_libre_de_entites_vivantes()`.
+	- Renommage de `premier_indice_libre_de_entitees_vivantes()` en `premier_indice_libre_de_entites_vivantes()`.
 + [main](sources/combats/main.py)
 	- Déplacement de l'écoute pour les touches spéciales dans `reagir_appui_touche()`.
 + `Stat`
 	- Suppression de la définition explicite de `.__copy__()` qui ne faisait que la même chose que la définition implicote mais moins bien.
+
+
+> **Les "structures" sont désormais des dataclasses.**
++ Structure de fichier
+	- Ajout de fichiers:
+		* [fonctions_main](sources/combats/fonctions_main.py) pour les fonctions seulement utilisées dans [main](sources/combats/main.py)
+		* [settings](sources/combats/settings.py) pour l'implémentation des settings.
+		* [settings](sources/combats/settings.py) pour l'implémentation des settings.
+	- Renommage de Stat.py en [Stats.py](sources/combats/Stats.py).
+	- Suppression du main.py de [source](sources/).
++ Sur plusieurs fichiers
++ `Attaque`
+	- Ajout de test dans `.appliquer()` pour voir si l'attaque peut attaquer sa cible.
++ [constantes_globales](sources/combats/constantes_globales.py)
+	- Le logging de débogage est maintenant bien affiché.
++ [fonctions_boutons](sources/combats/fonctions_boutons.py)
+	- Ajout d'une vérification de d'évènement pour pouvoir quitter dans les crédits.
++ [fonctions_vrac](sources/combats/fonctions_vrac.py)
+	- Réimplémentation de la fonction qui n'écoute les évènements seulement pour quitter le programme sous le nom `verifier_pour_quitter()`.
++ `Stats`
+	- Maintenant une dataclass.
+	- Suppression de `.est_initialise` car inutile.
+	- Suppression de `.__init__()`, `.__str__()`, `.__eq__()` car générées automatiquement (`__str__()` l'est par `__repr__()`).
+	- Suppression de la méthode `.set()` car inutile.
+	<!--On est passé de 118 à 24 ligne-->
++ `Pos`
+	- Maintenant une dataclass.
+	- Déplacement des fonctions de `.__str__()` dans `.__repr__()`.
+	- Suppression de `.__init__()`, `.__eq__()` car générées automatiquement.
+	- Suppression de la méthode `.set()` car inutile.

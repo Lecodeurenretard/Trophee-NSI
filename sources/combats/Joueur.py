@@ -3,7 +3,7 @@ from fonctions_vrac import *
 from Attaque import *
 
 class Joueur:
-    _STATS_DE_BASE : Stat = Stat(45, 35, 40-5, 20, 30, 50, 1.2, 1)
+    _STATS_DE_BASE : Stat = Stat(45, 35, 40-5, 20, 30, 50, 1.2, 1).reset_vie()
     est_invincible : bool = False
     DIMENSIONS_SPRITE : tuple[int, int] = (160, 160)
     
@@ -15,7 +15,7 @@ class Joueur:
         
         self._id = premier_indice_libre_de_entites_vivantes()
         if self._id >= 0:
-            entites_vivantes[self._id] = self
+            globales.entites_vivantes[self._id] = self
             return
         
         if chemin_vers_sprite is not None:
@@ -23,12 +23,12 @@ class Joueur:
         else:
             self._sprite : Surface|None = None
         
-        self._id = len(entites_vivantes)
-        entites_vivantes.append(self)
+        self._id = len(globales.entites_vivantes)
+        globales.entites_vivantes.append(self)
     
     def __del__(self):
         # Appelé quand l'objet est détruit (plus utilisé ou détruit avec del())
-        if self._id > 0 and entites_vivantes is not None:
+        if self._id > 0 and globales.entites_vivantes is not None:
             self.meurt()
     
     @property
@@ -77,7 +77,7 @@ class Joueur:
         return self.est_mort()
     
     def meurt(self) -> None:
-        entites_vivantes[self._id] = None
+        globales.entites_vivantes[self._id] = None
         self._id = -1
     
     def get_attaque_surface(self, clef_attaque : str) -> Surface:

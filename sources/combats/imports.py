@@ -8,13 +8,15 @@ import logging
 
 logging.basicConfig(level=logging.INFO)    # Active tous les logs
 
-from os import getcwd
-from math import isnan
-from typing import TypeAlias, Callable, TypeVar, NoReturn, Any
-from copy import copy, deepcopy
-from functools import partial
-from enum import Enum, IntEnum, IntFlag, auto
-from queue import PriorityQueue
+from typing      import TypeAlias, Callable, TypeVar, NoReturn, Any
+from enum        import Enum, IntEnum, IntFlag, auto
+from copy        import copy, deepcopy
+from queue       import PriorityQueue
+from dataclasses import dataclass
+from functools   import partial
+from os          import getcwd
+from bisect      import insort
+from math        import isnan
 
 
 from pygame.surface import (
