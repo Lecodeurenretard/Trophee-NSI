@@ -1,6 +1,5 @@
 # Combats
 Ce dossier inclue tous les fichiers relatifs aux combats.  
-La documentation peut être trouvée sur [le wiki](https://github.com/Lecodeurenretard/Trophee-NSI/wiki).
 
 ## Touches
 Touches qui marchent dans tous les modes:

@@ -148,7 +148,6 @@ class ButtonCursor(Button):
     @property
     def _group_color(self) -> color:
         return ButtonCursor._static_group_colors[self._group_name]
-    # No setters nor deleters bc they should only be modified by __init__ and __del__
     
     @property
     def cursor(self) -> Curseur:

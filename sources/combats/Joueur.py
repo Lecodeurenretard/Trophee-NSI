@@ -44,7 +44,7 @@ class Joueur:
     
     @property
     def stats(self) -> Stat:
-        return self._stats
+        return copy(self._stats)
     
     @property
     def moveset_clefs(self) -> tuple[str, ...]:

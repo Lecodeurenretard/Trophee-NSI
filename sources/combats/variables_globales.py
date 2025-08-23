@@ -13,6 +13,8 @@ nbr_combat : int = 1
 tour_joueur  : bool = True
 menu_running : bool = True
 
+UI_affichage_fps_autorise : bool = False
+
 # Toutes les entitées (joueurs, monstres ou None) vont dans cette liste
 # leurs ID sera leur index dans cette liste
 # de type list[Monstre|Joueur|None], le type n'est pas mis car les classes ne sont pas encore définies

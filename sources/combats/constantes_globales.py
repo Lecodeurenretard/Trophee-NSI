@@ -5,6 +5,19 @@ MODE_DEBUG : bool = True
 if MODE_DEBUG:
     logging.basicConfig(level=logging.DEBUG, force=True)    # Active tous les logs
 
+DBG_TOUCHES_SKIP : tuple[int, ...] = (
+    pygame.K_SPACE,
+    pygame.K_TAB,
+)
+
+DBG_TOUCHE_CRIT     : int = pygame.K_c
+
+DBG_TOUCHE_PRECEDENT_COMBAT : int = pygame.K_s
+DBG_TOUCHE_PROCHAIN_COMBAT  : int = pygame.K_z
+
+DBG_TOUCHE_PREDECENT_MONSTRE: int = pygame.K_q
+DBG_TOUCHE_PROCHAIN_MONSTRE : int = pygame.K_d
+
 LARGEUR : int = 800 ;   HAUTEUR : int = 600
 
 color : TypeAlias = tuple[int, int, int]
@@ -45,21 +58,7 @@ UI_TOUCHES_VALIDER : tuple[int, ...] = (
     pygame.K_KP_ENTER,  # entrée du pavé numérique
 )
 
-UI_autoriser_affichage_fps : bool = False
 UI_TOUCHE_AFFICHAGE_FPS : int = pygame.K_LSHIFT
-
-DBG_TOUCHES_SKIP : tuple[int, ...] = (
-    pygame.K_SPACE,
-    pygame.K_TAB,
-)
-
-DBG_TOUCHE_CRIT     : int = pygame.K_c
-
-DBG_TOUCHE_PRECEDENT_COMBAT : int = pygame.K_s
-DBG_TOUCHE_PROCHAIN_COMBAT  : int = pygame.K_z
-
-DBG_TOUCHE_PREDECENT_MONSTRE: int = pygame.K_q
-DBG_TOUCHE_PROCHAIN_MONSTRE : int = pygame.K_d
 
 
 # Le chemin du fichier vers le dossier racine

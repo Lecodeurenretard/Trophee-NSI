@@ -5,7 +5,7 @@ Ce fichier est un [fichier markdown](https://www.markdownguide.org/basic-syntax/
 ## Rester ordonné
 L'architecture du projet suit celui qu'il faut faire pour les trophées de NSI ([page des trophées](https://trophees-nsi.fr/participation)):
 - [sources](sources/): Tout le code Python qui sera éxécuté.
-- [docs](docs/): Les documentations du projets (obsolète, allez voir les [wikis](https://github.com/Lecodeurenretard/Trophee-NSI/wiki)).
+- [docs](docs/): Les documentations dans le dossier [doc](doc/).
 - [data](data/): Toutes les données qui seront lues ou écrites par le projets.
 	+ [img](data/img/): Les images dans le jeu.
 	+ [save](data/save/): Les données de sauvegarde. Ce n'est pas forcément de la sauvegarde classique, toutes les données de jeu y vont (ex: transférer l'inventaire d'un ficher Python à un autre).
@@ -14,7 +14,7 @@ L'architecture du projet suit celui qu'il faut faire pour les trophées de NSI (
 _note: Certains dossiers peuvent ne pas apparaitre sur Github, c'est parce que Git n'envoie que les dossiers contenant des fichiers. Les répertoires vides ne serons donc pas envoyés._
 
 ## Perdu?
-Si le certains éléments du code ou de Git vous pertubent, j'ai rédigé des fichiers pouvant vous aider dans [guides](guides/) et si vous ne comprenez toujours pas, n'oubliez pas que Google est votre meilleurs ami.
+Si le certains éléments du code ou de Git vous pertubent, j'ai rédigé des fichiers pouvant vous aider sur [le wiki](https://github.com/Lecodeurenretard/Trophee-NSI/wiki) et si vous ne comprenez toujours pas, n'oubliez pas que Google est votre meilleurs ami.
 
 ## Buts
 Le fichier est [requirements.txt](requirements.txt).

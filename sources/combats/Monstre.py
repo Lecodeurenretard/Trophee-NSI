@@ -176,7 +176,7 @@ class Monstre:
     
     @property
     def stats(self) -> Stat:
-        return self._stats
+        return copy(self._stats)
     
     @property
     def pos_attaque_x(self) -> int:
@@ -189,6 +189,20 @@ class Monstre:
         globales.entites_vivantes[self._id] = None
         Monstre._enlever_monstre_a_liste(self)
         self._id = -1
+    
+    def _vers_type(self, nouveau_type : TypeMonstre) -> None:
+        self._nom = nouveau_type.name
+        
+        ratio_vie = self._stats.vie / self._stats.vie_max
+       
+        self._stats = copy(Monstre._STATS_DE_BASE[nouveau_type])
+        self._stats.vie = round(self._stats.vie_max * ratio_vie)    # Conserve les proportions
+        
+        self._attaques_disponibles = nouveau_type.moveset
+        self._couleur = nouveau_type.couleur
+        
+        self._sprite = pygame.transform.scale(pygame.image.load(nouveau_type.chemin_sprite), Monstre.dimensions_sprites)
+        self._type = nouveau_type
     
     def choisir_attaque(self) -> Attaque:
         return random.choice(self._attaques_disponibles)
@@ -225,20 +239,6 @@ class Monstre:
         
     def est_mort(self) -> bool:
         return self._stats.est_mort()
-    
-    def _vers_type(self, nouveau_type : TypeMonstre) -> None:
-        self._nom = nouveau_type.name
-        
-        ratio_vie = self._stats.vie / self._stats.vie_max
-       
-        self._stats = copy(Monstre._STATS_DE_BASE[nouveau_type])
-        self._stats.vie = round(self._stats.vie_max * ratio_vie)    # Conserve les proportions
-        
-        self._attaques_disponibles = nouveau_type.moveset
-        self._couleur = nouveau_type.couleur
-        
-        self._sprite = pygame.transform.scale(pygame.image.load(nouveau_type.chemin_sprite), Monstre.dimensions_sprites)
-        self._type = nouveau_type
     
     def vers_type_precedent(self) -> bool:
         """Si le monstre à un type, change le type du monstre vers le précédent et renvoie True, sinon renvoie False et ne fait rien."""

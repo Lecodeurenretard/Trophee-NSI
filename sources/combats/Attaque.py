@@ -70,7 +70,7 @@ class Attaque:
         self._puissance : float = puissance
         self._vitesse : int = vitesse
         
-        self._type_attaque : TypeAttaque = type_attaque
+        self._type : TypeAttaque = type_attaque
         self._lanceur_id : int = -1
         self._cible_id : int = -1
         
@@ -81,26 +81,19 @@ class Attaque:
         self._effet : EffetAttaque = None   # type: ignore
         self._drapeaux = flags
         
-        self._nom_surf : Surface = POLICE_TITRE.render(nom, True, BLANC)  # Le nom de l'attaque rendered
-        
         self._ajustement_degats = dernier_changements
     
     def __eq__(self, attaque: 'Attaque') -> bool:
         return self._nom == attaque._nom
     # l'opérateur != (méthode .__ne__()), est par défaut défini comme l'inverse de ==
     
-    @property
-    def _couleur(self) -> color:
-        return self._type_attaque.couleur
-    
-    @property
-    def dbg_str(self) -> str:
+    def __repr__(self) -> str:
         return (
             "Attaque{"
             + f"nom: {self._nom}; "
             + f"desc: {self._desc}; "
             + f"puissance: {self._puissance}; "
-            + f"type: {self._type_attaque}"
+            + f"type: {self._type}"
             + f"lanceur: {self._lanceur_id}"
             + f"cible: {self._cible_id}"
             + f"somme des flags: {self._drapeaux.value}"
@@ -108,14 +101,18 @@ class Attaque:
         )
     
     @property
+    def _couleur(self) -> color:
+        return self._type.couleur
+    
+    @property
     def _lanceur(self): # -> Joueur|Monstre
-        assert(globales.entites_vivantes[self._lanceur_id] is not None), f"L'ID du lanceur est incorrecte dans la propriété ._lanceur de l'attaque {self.dbg_str}."
+        assert(globales.entites_vivantes[self._lanceur_id] is not None), f"L'ID du lanceur est incorrecte dans la propriété ._lanceur de l'attaque {self.__repr__}."
         
         return globales.entites_vivantes[self._lanceur_id]
     
     @property
     def _cible(self): # -> Joueur|Monstre
-        assert(globales.entites_vivantes[self._cible_id] is not None), f"L'ID de la cible est incorrecte dans la propriété ._lanceur de l'attaque {self.dbg_str}."
+        assert(globales.entites_vivantes[self._cible_id] is not None), f"L'ID de la cible est incorrecte dans la propriété ._lanceur de l'attaque {self.__repr__}."
         
         return globales.entites_vivantes[self._cible_id]
     
@@ -133,11 +130,11 @@ class Attaque:
     
     @property
     def nom_surface(self) -> Surface:
-        return self._nom_surf
+        return POLICE_TITRE.render(self._nom, True, BLANC)
     
     @property
     def friendly_fire(self) -> bool:
-        return  AttaqueFlags.ATTAQUE_EQUIPE in self._drapeaux
+        return AttaqueFlags.ATTAQUE_EQUIPE in self._drapeaux
     
     @property
     def ennemy_fire(self) -> bool:
@@ -183,7 +180,7 @@ class Attaque:
         stats_victime : Stat = self._cible.stats
         
         degats : float = random.uniform(0.85, 1.0)
-        match self._type_attaque:
+        match self._type:
             case TypeAttaque.PHYSIQUE:
                 attaque, defense = self._calcul_attaque_defense(
                     stats_attaquant.force,
@@ -237,7 +234,7 @@ class Attaque:
         pos_y : int = self._lanceur.pos_attaque_y
         
         pygame.draw.rect(fenetre, self._couleur, (pos_x, pos_y , RECT_LARGEUR, RECT_HAUTEUR), 5)
-        surface.blit(self._nom_surf, (pos_x + 10, pos_y + 10))
+        surface.blit(self.nom_surface, (pos_x + 10, pos_y + 10))
         
         if self._crit:
             # Dessine l'image de crit

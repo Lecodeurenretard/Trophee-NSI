@@ -49,6 +49,10 @@ class Curseur:
         self._pos_dans_toutes_pos.y += combien
         self._pos_dans_toutes_pos.y %= len(self._lne_dispo)
     
+    @property
+    def position_dans_positions(self) -> Pos:
+        return self._pos_dans_toutes_pos
+    
     def coordonees_globales_vers_coordonees_curseur(self, coord_globales : Pos) -> Pos:
         res : Pos = Pos(-1, -1)
         res.x = self._col_dispo.index(coord_globales.x)
@@ -95,10 +99,6 @@ class Curseur:
         while not self._update_pos():
             self._ajouter_a_pdtp_x(1)
         
-
-    @property
-    def position_dans_positions(self) -> Pos:
-        return self._pos_dans_toutes_pos
     
     def deplacement_utilisateur(self, ev : pygame.event.Event) -> None:
         if ev.type != pygame.KEYDOWN:

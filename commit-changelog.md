@@ -71,6 +71,7 @@ _____
 		* Déplacements des fonctionnalités de `.subir_attaque()` dans `.recoit_degats()` car c'est plus simple dans le nouveau système.
 		* Modification du type de retour de `bool` à `None` pour `.attaquer()`.
 		* `.attaquer()` ne fait plus qu'enregistrer l'attaque dans la file.
+		* Suppression de `.dessiner_attaque()` car la responsabilité du dessin revient à l'attaque elle-même.
 	- 
 + Structure de fichier
 	- [guide](guides/) à son propre dossier [img](guides/imgs/) maintenant.
@@ -140,3 +141,37 @@ _____
 	- Déplacement des fonctions de `.__str__()` dans `.__repr__()`.
 	- Suppression de `.__init__()`, `.__eq__()` car générées automatiquement.
 	- Suppression de la méthode `.set()` car inutile.
+
+> **Retour et update de la documentation dans le repo.**
++ Changements majeurs
+	- Déplacement des documentations dans le dossier [doc](doc/).
+		* Création de [global-vars](doc/global-vars.md) pour la liste des variables globales.
+		* Création de [fight-system](doc/fight-system.md) pour le système de combat (fichier principal).
+	- Déplacement des guides dans le wiki.
+		* Suppression de Git.md
+		* Suppression de Python.md
++ READMEs et documentation
+	- Ajout de [files.md](doc/files.md)
+		+ Correction des liens cassés.
+		+ Corrections des descriptions et ajouts de fichiers manquant.
+	- [fight-system](doc/fight-system.md)
+		+ Modification des liens pour pointer en local.
+		+ Correction des liens cassés.
+		+ Modification des dans la doc des suppositions faites aux entités.
+			* Modifications du commit _Implémentation de la vitesse_.
+			* Ajout de `.dbg_nom`, `.pos_attaque_*`.
+		+ Correction d'erreurs.
+		+ Ajout d'une section _"Un tour expliqué sous différents points de vue"_.
+	- [GUI](doc/GUI.md)
+		+ Réparation des liens.
+		+ Le /shrug est mort
+	- Les liens des READMEs ont étés corrigés.
++ Sur plusieurs fichiers
+	- Renommage de `UI_autoriser_affichage_fps` en `UI_affichage_fps_autorise`.
+	- Déplacement `UI_affichage_fps_autorise` de [constantes_globales](sources/combats/constantes_globales.py) vers [variables_globales](sources/combats/variables_globales.py).
++ `Attaque`
+	- `.dbg_str` devient `.__repr__()`
+	- Renommage de `.type_attaque` et `.type`.
+	- Suppression de `._nom_surf`, ses fonctions ont été déplacé dans `.nom_surface`.
++ `Joueur` et `Monstre`
+	- La propriété `.stats` renvoie maintenant une copie de `._stats` au lieu d'une reférence.

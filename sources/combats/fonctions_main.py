@@ -1,7 +1,7 @@
 """Fonctions seulements utilisées dans main.py."""
 from Monstre import *
+from Joueur import *
 from fonctions_boutons import *
-from fonction_combat import *
 
 def quit(exit_code : int = 0) -> NoReturn:
     pygame.quit()
@@ -59,7 +59,7 @@ def reagir_appui_touche(ev):
             return
         
         case globales.UI_TOUCHE_AFFICHAGE_FPS:
-            globales.UI_autoriser_affichage_fps = not globales.UI_autoriser_affichage_fps       # v. pavé dans import_var
+            globales.UI_affichage_fps_autorise = not globales.UI_affichage_fps_autorise       # v. pavé dans import_var
             return
         
         case globales.DBG_TOUCHE_CRIT:    # encore un moment où python ne fait sens: https://stackoverflow.com/questions/77164443/why-does-my-match-case-statement-not-work-for-class-members

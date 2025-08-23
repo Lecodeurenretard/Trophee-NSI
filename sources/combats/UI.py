@@ -143,7 +143,7 @@ def rafraichir_ecran() -> None:
     dessiner_boutons_attaques()
     
     # Calcul et affichage des FPS
-    if globales.UI_autoriser_affichage_fps:
+    if globales.UI_affichage_fps_autorise:
         framerate : str = "inf"
         if globales.delta != 0:
             framerate = str(round(1 / globales.delta))
