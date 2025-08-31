@@ -11,8 +11,9 @@ class Button:
         self._rect : Rect = Rect(*dim)
         self._text : str = text
         
-        self._line_color : color = line_color
-        self._bg_color : color = bg_color
+        self._line_color : rgba = color_to_rgba(line_color)
+        self._bg_color   : rgba = color_to_rgba(bg_color)
+        
         self._line_size : int = line_thickness
         
         self._action : Callable[[], None] | None = action
@@ -32,6 +33,9 @@ class Button:
             self._action()
             return True
         return False
+    
+    def in_butt_hit(self, pos_mouse : Pos) -> bool: # peak naming
+        return self._rect.collidepoint(tuple(pos_mouse))
 
 class ButtonCursor(Button):
     _cursor_radius : int = 12
@@ -40,7 +44,7 @@ class ButtonCursor(Button):
     # Prefixed by static to avoid name conflict with propreties
     _static_group_count   : dict[str, int]     = {}    # group's name -> # of buttons in the group
     _static_group_cursors : dict[str, Curseur] = {}    # group's name -> group's cursor
-    _static_group_colors  : dict[str, color]   = {}    # group's name -> group's color
+    _static_group_colors  : dict[str, rgba]   = {}    # group's name -> group's color
     
     def __init__(
             self,
@@ -81,12 +85,12 @@ class ButtonCursor(Button):
     @staticmethod
     def _create_group(cursor_position : Pos, group_name : str, group_color : color) -> None:
         cursor = Curseur([cursor_position.x], [cursor_position.y])
-        cursor._interdir_col_sauf(cursor_position.x, cursor_position.y)    # Since it's new there's only one position available
-        cursor._interdir_lne_sauf(cursor_position.y, cursor_position.x)
+        cursor.interdir_col_sauf(cursor_position.x, cursor_position.y)    # Since it's new there's only one position available
+        cursor.interdir_lne_sauf(cursor_position.y, cursor_position.x)
         
         ButtonCursor._static_group_count[group_name] = 1
         ButtonCursor._static_group_cursors[group_name] = cursor
-        ButtonCursor._static_group_colors[group_name] = group_color
+        ButtonCursor._static_group_colors[group_name] = color_to_rgba(group_color)
     
     @staticmethod
     def _add_to_group(curse_butt : 'ButtonCursor', cursor_pos : Pos) -> None:
@@ -101,10 +105,10 @@ class ButtonCursor(Button):
     @staticmethod
     def draw_cursors(surface : Surface) -> None:
         for group_name in ButtonCursor._static_group_cursors:
-            color_ = ButtonCursor._static_group_colors[group_name]
+            color = ButtonCursor._static_group_colors[group_name]
             group = ButtonCursor._static_group_cursors[group_name]
             
-            group.dessiner(surface, color_, ButtonCursor._cursor_radius)
+            group.dessiner(surface, color, ButtonCursor._cursor_radius)
     
     @staticmethod
     def handle_inputs(butt_seq : 'list[ButtonCursor]|tuple[ButtonCursor, ...]', ev : pygame.event.Event) -> bool:
@@ -146,7 +150,7 @@ class ButtonCursor(Button):
     def _group_cursor(self) -> Curseur:
         return ButtonCursor._static_group_cursors[self._group_name]
     @property
-    def _group_color(self) -> color:
+    def _group_color(self) -> rgba:
         return ButtonCursor._static_group_colors[self._group_name]
     
     @property

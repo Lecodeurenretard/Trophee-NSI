@@ -1,40 +1,59 @@
 from import_var import *
-    
-def _dessine_rect_barre_de_vie(surface: Surface, couleur_remplissage, pos_x : int, pos_y : int, longueur_remplissage : int, epaisseur_trait : int) -> None:
-    pygame.draw.rect(
-        surface,
-        couleur_remplissage,
-        (
-            pos_x,
-            pos_y,
-            longueur_remplissage,
-            UI_HAUTEUR_BARRE_DE_VIE
-        )
-    )
-    pygame.draw.rect(
-        surface,
-        NOIR,
-        (
-            pos_x - epaisseur_trait // 2,
-            pos_y - epaisseur_trait // 2,
-            UI_LONGUEUR_BARRE_DE_VIE + epaisseur_trait,
-            UI_HAUTEUR_BARRE_DE_VIE + epaisseur_trait // 2
-        ),
-        epaisseur_trait
-    )
+from Pos import Pos
 
-def dessine_barre_de_vie(surface : Surface, pos_x : int, pos_y : int, ratio_vie : float, longueur_remplissage : int) -> None:
-    if MODE_DEBUG:
-        _dessine_rect_barre_de_vie(surface, GRIS, pos_x, pos_y, longueur_remplissage, 2)
+def dessiner_rect(
+        surface : Surface,
+        position : tuple[int, int]|Pos, dimensions : tuple[int, int]|list[int], # pyright: ignore[reportRedeclaration]
+        couleur_remplissage : color = ROUGE, couleur_bords : color = NOIR,
+        epaisseur_trait : int = 1, dessiner_interieur : bool = True,
+        centre_x : bool = False, centre_y : bool = False,
+    ) -> None:
+    if type(position) is tuple:
+        position = Pos.a_partir_de_collection(position)
+    assert(type(position) is Pos)   # c'est censé être sûr mais Pylance ne le pense pas
+    
+    if centre_x:
+        position.x -= dimensions[0] // 2
+    if centre_y:
+        position.y -= dimensions[1] // 2
+    
+    if dessiner_interieur:
+        pygame.draw.rect(
+            surface,
+            couleur_remplissage,
+            (
+                position.x, position.y,
+                dimensions[0], dimensions[1]
+            )
+        )
+    
+    if epaisseur_trait > 0:
+        pygame.draw.rect(
+            surface,
+            couleur_bords,
+            (
+                position.x, position.y,
+                dimensions[0], dimensions[1]
+            ),
+            width=epaisseur_trait
+        )
+
+def dessiner_barre_de_vie(surface : Surface, pos_x : int, pos_y : int, ratio_vie : float, longueur_remplissage : int) -> None:
+    from settings_vars import mode_debug
+    
+    if mode_debug.case_cochee:
+        dessiner_rect(surface, (pos_x, pos_y), (longueur_remplissage, UI_HAUTEUR_BARRE_DE_VIE), GRIS, epaisseur_trait=0)
+        dessiner_rect(surface, (pos_x, pos_y), (UI_LONGUEUR_BARRE_DE_VIE, UI_HAUTEUR_BARRE_DE_VIE), couleur_bords=NOIR, epaisseur_trait=2, dessiner_interieur=False)
         return
     
-    couleur_remplissage : color = VERT
-
+    couleur_remplissage : rgb = VERT
     if ratio_vie <= .2:
         couleur_remplissage = ROUGE
     elif ratio_vie <= .5:
         couleur_remplissage = JAUNE
-    _dessine_rect_barre_de_vie(surface, couleur_remplissage, pos_x, pos_y, longueur_remplissage, 2)
+    
+    dessiner_rect(surface, (pos_x, pos_y), (longueur_remplissage, UI_HAUTEUR_BARRE_DE_VIE), couleur_remplissage=couleur_remplissage, epaisseur_trait=0)
+    dessiner_rect(surface, (pos_x, pos_y), (UI_LONGUEUR_BARRE_DE_VIE, UI_HAUTEUR_BARRE_DE_VIE), couleur_bords=NOIR, epaisseur_trait=2, dessiner_interieur=False)
 
 def dessiner_nom(nom : str, position : Pos) -> None:
     # c'est plus clair de mettre cette ligne en procédure

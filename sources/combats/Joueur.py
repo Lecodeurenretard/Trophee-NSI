@@ -4,7 +4,6 @@ from Attaque import *
 
 class Joueur:
     _STATS_DE_BASE : Stat = Stat(45, 35, 40-5, 20, 30, 50, 1.2, 1).reset_vie()
-    est_invincible : bool = False
     DIMENSIONS_SPRITE : tuple[int, int] = (160, 160)
     
     def __init__(self, moveset : dict[str, Attaque], chemin_vers_sprite : str|None = None) -> None:
@@ -70,7 +69,7 @@ class Joueur:
     
     def recoit_degats(self, degats_recu : int) -> bool:
         """Prend en charge les dégats prits et retourne si un crit est retourné."""
-        if Joueur.est_invincible and degats_recu >= 0:   # Joueur.invincible n'empèche pas les soins
+        if bool(param.joueur_invincible) and degats_recu >= 0:   # joueur_invincible n'empèche pas les soins
             return False
         
         self._stats.baisser_vie(degats_recu)
@@ -105,17 +104,17 @@ class Joueur:
         self._moveset[clef_attaque].enregister_lancement(self._id, id_cible)
     
     def dessiner(self, surface : Surface) -> None:
-        if MODE_DEBUG:
+        if param.mode_debug.case_cochee:
             boite_de_contours = (LARGEUR // 4, pourcentage_hauteur(75) - 100, 100, 100)
             pygame.draw.rect(surface, BLEU, boite_de_contours, 0)
             return
         
         if self._sprite is not None:
-            surface.blit(self._sprite, (LARGEUR // 4, pourcentage_hauteur(75) - 150))
+            blit_centre(surface, self._sprite, (LARGEUR // 4, pourcentage_hauteur(60)))
     
     
     def dessine_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int) -> None:
-        dessine_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie)
+        dessiner_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie)
     
     def est_mort(self) -> bool:
         return self._stats.est_mort()

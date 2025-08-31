@@ -1,10 +1,5 @@
 from imports import *
 
-MODE_DEBUG : bool = True
-
-if MODE_DEBUG:
-    logging.basicConfig(level=logging.DEBUG, force=True)    # Active tous les logs
-
 DBG_TOUCHES_SKIP : tuple[int, ...] = (
     pygame.K_SPACE,
     pygame.K_TAB,
@@ -19,17 +14,24 @@ DBG_TOUCHE_PREDECENT_MONSTRE: int = pygame.K_q
 DBG_TOUCHE_PROCHAIN_MONSTRE : int = pygame.K_d
 
 LARGEUR : int = 800 ;   HAUTEUR : int = 600
+CENTRE_FENETRE : tuple[int, int] = (LARGEUR // 2, HAUTEUR // 2)
 
-color : TypeAlias = tuple[int, int, int]
-NOIR    : color = (0, 0, 0)
-BLANC   : color = (255, 255, 255)
-GRIS    : color = (100, 100, 100)
+rgb : TypeAlias = tuple[int, int, int]
+NOIR    : rgb = (0, 0, 0)
+BLANC   : rgb = (255, 255, 255)
+GRIS    : rgb = (100, 100, 100)
+GRIS_CLAIR : rgb = (145, 145, 145)
 
-ROUGE   : color = (255, 0, 0)
-VERT    : color = (0, 255, 0)
-BLEU    : color = (0, 0, 255)
-BLEU_CLAIR : color = (50, 50, 255)
-JAUNE   : color = (255, 255, 0)
+ROUGE   : rgb = (255, 0, 0)
+VERT    : rgb = (0, 255, 0)
+BLEU    : rgb = (0, 0, 255)
+BLEU_CLAIR : rgb = (50, 50, 255)
+JAUNE   : rgb = (255, 255, 0)
+
+rgba : TypeAlias = tuple[int, int, int, int]
+TRANSPARENT : rgba = (0, 0, 0, 0)
+
+color : TypeAlias = rgb|rgba
 
 MAX_COMBAT : int = 5
 
@@ -45,6 +47,8 @@ POLICE_TITRE : pygame.font.Font = pygame.font.Font(None, 36)    # police par dé
 POLICE_TEXTE : pygame.font.Font = pygame.font.Font(None, 25)
 POLICE_FOURRE_TOUT : pygame.font.Font = pygame.font.SysFont(None, 50)
 
+POLICE_TITRE.set_underline(True)
+
 TEXTE_INFO_UTILISER : pygame.Surface = POLICE_TEXTE.render("SPACE : utiliser", True, BLANC)
 TEXTE_INFO_INFO     : pygame.Surface = POLICE_TEXTE.render("I : info"        , True, BLANC)
 
@@ -58,7 +62,9 @@ UI_TOUCHES_VALIDER : tuple[int, ...] = (
     pygame.K_KP_ENTER,  # entrée du pavé numérique
 )
 
+UI_TOUCHES_INFOS        : int = pygame.K_i
 UI_TOUCHE_AFFICHAGE_FPS : int = pygame.K_LSHIFT
+UI_TOUCHE_SETTINGS      : int = pygame.K_TAB
 
 
 # Le chemin du fichier vers le dossier racine
@@ -66,11 +72,11 @@ UI_TOUCHE_AFFICHAGE_FPS : int = pygame.K_LSHIFT
 # Quand on lance du terminal, on le lance du dossier "combats"
 CHEMIN_RACINE : str = ''
 if getcwd().endswith("combats"):    # rudimentaire mais fonctionnel
-	CHEMIN_RACINE = "../../"
+    CHEMIN_RACINE = "../../"
 elif getcwd().endswith("sources"):
-	CHEMIN_RACINE = "../"
+    CHEMIN_RACINE = "../"
 else:
-	logging.warning("Le dossier n'est pas reconnu, on suppose que l'on est à la racine.")
+    logging.warning("Le dossier n'est pas reconnu, on suppose que l'on est à la racine.")
 
 CHEMIN_DOSSIER_IMG  : str = f"{CHEMIN_RACINE}data/img"
 CHEMIN_DOSSIER_SAVE : str = f"{CHEMIN_RACINE}data/save"

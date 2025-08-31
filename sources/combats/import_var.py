@@ -11,18 +11,9 @@
 
 from imports import *
 from constantes_globales import *
-from Stats import *
-from Pos import *
-
-from settings import *
-import settings_vars as setting
 
 import variables_globales as globales
 from variables_globales import (
-    # types
-    color,
-    NaN,
-    
     # ça ne fait pas sens de remplacer ces variables pendant le programme
     # on peut donc se permettre le raccourcit
     fenetre,

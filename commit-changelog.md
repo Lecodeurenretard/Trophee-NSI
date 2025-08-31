@@ -175,3 +175,73 @@ _____
 	- Suppression de `._nom_surf`, ses fonctions ont été déplacé dans `.nom_surface`.
 + `Joueur` et `Monstre`
 	- La propriété `.stats` renvoie maintenant une copie de `._stats` au lieu d'une reférence.
+
+> **Ajout des settings de catégorie "case à cocher".**
++ Changements majeurs
+	- Grand développemment la classe `Setting`.
+	- Ajout de paramètres
+	- Implémentation de la fonction `ouvrir_parametres()`.
++ Sur plusieurs fichiers:
+	- `MODE_DEBUG` est maintenant un `Parametre` (non accéssible à l'utilisateur).
+		* Renommage en `mode_debug`.
++ Structure de fichier
+	- Ajout de [import_local](sources/combats/import_local.py) pour les imports des classes de ce projet.
+	- Renommage de settings.py en [Settings.py](sources/combats/Settings.py).
++ READMEs et documentation
+	- La documentation sera ajoutée dans le prochain commit.
++ `Attaque`
+	- Ajout de la vitesse dans `.__repr__()`.
+	- Remplacement des `time.sleep()` par `attendre()` dans `lancer_toutes_les_attaques()`.
++ `Button`
+	- Ajout de la méthode `.in_butt_hit()`.
++ [constantes_globales](sources/combats/constantes_globales.py)
+	- Ajout de `CENTRE_FENETRE`.
+	- Ajout des alias `rgb` et `rgba`
+		* Ajout de fonctions de convertions dans [fonction_vrac](sources/combats/fonctions_vrac.py): `rgb_to_rgba()`, `rgba_to_rgb()`, `color_to_rgba()` et `color_to_rgb()`.
+		* `color` n'est plus que l'union des deux.
+	- Ajout des couleurs `GRIS_CLAIR` et `TRANSPARENT`.
+	- Ajout de `UI_TOUCHES_INFOS` et de `UI_TOUCHE_SETTINGS`.
+	- `POLICE_TITRE` est maintenant souslignée.
++ `Curseur`
+	- Mise en public de `._interdir_col_sauf()` et de `._interdir_lne_sauf()`
+		- Renommés en `.interdir_col_sauf()` et `.interdir_lne_sauf()`
++ [dessin.py](sources/combats/dessin.py)
+	- Ajout de `dessiner_rect()` qui permet de centrer des rectangles.
++ [fonctions_boutons](sources/combats/fonctions_boutons.py)
+	- Renommage de `ouvrir_parametres()` en `menu_parametres()`.
++ [fonctions_main](sources/combats/fonctions_main.py)
+	- Ajout d'une touche pour des settings dans `reagir_appui_touche()`.
+	- Ajout d'une séparation débug/non débug dans `reagir_appui_touche()`.
+	- Modification valeur de retour de `fin_combat()`. `None` -> S'il faut retournen au menu.
+	- Modification de `nouveau_combat()`.
+		* Nouveau paramètre: `reset_joueur` permet de reset la vie du joueur.
+		* Le paramètre `numero_combat` n'est plus automatiquement encadré entre $[1; \text{MAX\_COMBAT}]$, si sa valeur est en dehors de ces limites, la fonction élèvera une `ValueError`. Si jamais le testeur essaye d'aller en dehors de ses limites avec Z et S, l'exception est attrapée et le jeu ne réagit.
++ [fonction_vrac](sources/combats/fonctions_vrac.py)
+	- Ajout de `blit_centre()` qui reproduit `Surface.blit()` mais la position indiquée sera le milieu de la surface.
++ `Pos`
+	- Ajout d'opérateurs `+` et `-` pour les `Pos`s et `Vecteur`s (`pygame.math.Vector2`).
+	- Renommage de `a_partir_de_liste()` en `a_partir_de_collection()`.
++ [settings_var](sources/combats/settings_vars.py):
+	- ReCreéation du fichier. (c'est comme si le fichier avait été créé dans ce commit).
+	- Ajout d'un générateur pour décider des positions des fichiers.
+	- Ajout et implémentation des paramètres
+		* `fermer_a_la_fin`,
+		* `joueur_invincible`,
+		* `monstre_invicible`,
+	- Ajout des listes `PARAMETRES_NORMAUX[]` et `PARAMETRES_TRICHE[]` pour pouvoir classer les paramètres à afficher.
++ [Settings.py](sources/combats/Settings.py)
+	- `TypeParametre`
+		* Ajout propriétés `.hauteur`, `.largeur` et `.dimensions`.
+		* Ajout de `.type_correspondant` pour pouvoir facilement vérifier si `Parametre._valeur` est correct.
+		* Ajout de la méthode statique `dessiner()` (statique pour faciliter la récursivité).
+		* Renommage de `CHOIX_UN_SEUL` en `RADIO` (comme en HTML).
+		* Renommage de `CHOIX_PLUSIEURS` en `CHECKBOXES` (aussi comme en HTML).
+		* Séparation de `SLIDER` en `SLIDERI` et `SLIDERF`.
+	- `Parametre`
+		* Ajout attributs statiques `_ECART_NOM_VALEUR` et `_POLICE`.
+		* Ajout de convertions vers `bool`, `int`, `float` et `str` pour récupérer la valeur plus facilement.
+		* Ajout des propriétés `._possibilites_finies`, `._hitbox`, `._hitbox_globale`, `.valeurs_autorisees` (getter + setter) ainsi que `.case_cochee`.
+		* Ajout de `dessiner_groupe()` et `.dessiner()`.
+		* Ajout des méthodes `._convertion_vers_type()`, `.reset_val()` et `.prendre_input()`.
+		* Suppression du status de dataclass.
+			+ Ajout d'un constructeur.

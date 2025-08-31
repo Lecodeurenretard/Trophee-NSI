@@ -1,6 +1,6 @@
 from imports import *
 
-@dataclass()
+@dataclass
 class Stat:
     vie_max         : int
     force           : int

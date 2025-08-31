@@ -8,7 +8,7 @@ class TypeMonstre(IntEnum):
     Sorcier = auto()
     
     @property
-    def couleur(self) -> color:
+    def couleur(self) -> rgb:
         """Renvoie la couleur du type de monstre correspondant."""
         match self:
             case TypeMonstre.Blob:
@@ -61,8 +61,6 @@ class TypeMonstre(IntEnum):
 
 
 class Monstre:
-    sont_invincibles : bool = False
-    
     _STATS_DE_BASE : dict[TypeMonstre, Stat] = {
         TypeMonstre.Blob    : Stat(35, 23, 50, 0 , 17, 30, 2.0, 1.3).reset_vie(),
         TypeMonstre.Sorcier : Stat(40, 10, 30, 15, 40, 60, 1.3, 1.8).reset_vie(),
@@ -80,7 +78,7 @@ class Monstre:
             nom : str,
             stats : Stat,
             attaques : tuple[Attaque],
-            couleur : color|None = None,
+            couleur : rgb|None = None,
             chemin_sprite : str|None = None,
             type_calque : TypeMonstre|None = None
         ):
@@ -91,7 +89,7 @@ class Monstre:
         self._type = type_calque
         
         assert(couleur is not None or chemin_sprite is not None), "A la fois couleur et chemin_sprite sont None"
-        self._couleur : color|None = couleur
+        self._couleur : rgb|None = couleur
         
         if chemin_sprite is not None:
             self._sprite  : Surface|None = pygame.transform.scale(pygame.image.load(chemin_sprite), Monstre.dimensions_sprites)
@@ -215,7 +213,7 @@ class Monstre:
         attaque.enregister_lancement(self._id, id_cible)
     
     def recoit_degats(self, dommages : int) -> bool:
-        if Monstre.sont_invincibles and dommages >= 0:
+        if bool(param.monstre_invincible) and dommages >= 0:
             return False
         
         self._stats.baisser_vie(dommages)
@@ -226,16 +224,16 @@ class Monstre:
         return round(ratio * UI_LONGUEUR_BARRE_DE_VIE)
     
     def dessiner(self, surface : Surface, pos_x : int, pos_y : int) -> None:
-        if MODE_DEBUG and self._couleur is not None:
+        if param.mode_debug.case_cochee and self._couleur is not None:
             boite_de_contours = (pos_x, pos_y, 100, 100)
             pygame.draw.rect(surface, self._couleur, boite_de_contours, 0)
             return
         
-        if not MODE_DEBUG and self._sprite is not None:
-            surface.blit(self._sprite, (pos_x, pos_y))
+        if not param.mode_debug.case_cochee and self._sprite is not None:
+            blit_centre(surface, self._sprite, (pos_x, pos_y))
     
     def dessiner_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int):
-        dessine_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
+        dessiner_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
         
     def est_mort(self) -> bool:
         return self._stats.est_mort()

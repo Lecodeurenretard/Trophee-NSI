@@ -1,4 +1,5 @@
-from import_var import *
+from import_local import *
+from Stats import Stat
 
 class TypeAttaque(Enum):
     """Tous les types d'attaques disponibles."""
@@ -9,7 +10,7 @@ class TypeAttaque(Enum):
     DIVERS   = auto(),
     
     @property
-    def couleur(self) -> color:
+    def couleur(self) -> rgb:
         match self:
             case TypeAttaque.PHYSIQUE:
                 return ROUGE
@@ -93,6 +94,7 @@ class Attaque:
             + f"nom: {self._nom}; "
             + f"desc: {self._desc}; "
             + f"puissance: {self._puissance}; "
+            + f"vitesse: {self._vitesse}; "
             + f"type: {self._type}"
             + f"lanceur: {self._lanceur_id}"
             + f"cible: {self._cible_id}"
@@ -101,7 +103,7 @@ class Attaque:
         )
     
     @property
-    def _couleur(self) -> color:
+    def _couleur(self) -> rgb:
         return self._type.couleur
     
     @property
@@ -142,25 +144,26 @@ class Attaque:
     
     @staticmethod
     def lancer_toutes_les_attaques(reset_ecran : Callable[[], None]) -> None:
-        if MODE_DEBUG:
+        if param.mode_debug.case_cochee:
             logging.debug("Début du lancement des attaques.")
         while not Attaque.attaques_du_tour.empty():
             attaque : Attaque = Attaque.attaques_du_tour.get_nowait().attaque
             if attaque._lanceur.est_mort():
                 return
             
-            if MODE_DEBUG:
-                logging.debug(f"{attaque._lanceur.dbg_nom} (id: {attaque._lanceur.id}) utilise {attaque._nom} sur {attaque._cible.dbg_nom}")
+            if param.mode_debug.case_cochee:
+                logging.debug(f"{attaque._lanceur.dbg_nom} (id: {attaque._lanceur.id}) utilise {attaque._nom} sur {attaque._cible.dbg_nom}.")
             
             attaque.appliquer()
             
             reset_ecran()
-            time.sleep(.2)
+            attendre(.2)
             
             attaque.dessiner(fenetre)
             pygame.display.flip()
-            time.sleep(1)
-        if MODE_DEBUG:
+            attendre(1)
+    
+        if param.mode_debug.case_cochee:
             logging.debug("Fin du lancement des attaques.")
     
     def _calcul_attaque_defense(self, puissance_attaquant : int, defense_cible : int, def_min : float) -> tuple[float, float]:
@@ -234,15 +237,15 @@ class Attaque:
         pos_y : int = self._lanceur.pos_attaque_y
         
         pygame.draw.rect(fenetre, self._couleur, (pos_x, pos_y , RECT_LARGEUR, RECT_HAUTEUR), 5)
-        surface.blit(self.nom_surface, (pos_x + 10, pos_y + 10))
         
         if self._crit:
             # Dessine l'image de crit
-            surface.blit(
+            blit_centre(
+                surface,
                 Attaque.CRIT_IMG,
                 (
-                    pos_x + RECT_LARGEUR / 2 - Attaque.CRIT_IMG.get_width() / 2, # on centre l'étoile
-                    pos_y + RECT_HAUTEUR / 2 - Attaque.CRIT_IMG.get_height() / 2,
+                    pos_x + RECT_LARGEUR // 2, # on centre l'étoile
+                    pos_y + RECT_HAUTEUR // 2,
                 )
             )
     

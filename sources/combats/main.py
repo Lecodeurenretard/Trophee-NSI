@@ -1,17 +1,17 @@
-from fonctions_main import *
+from fonctions_boutons import *
 
 def menu() -> None:
     boutons_menu : tuple[ButtonCursor, ...] = (
         ButtonCursor("Jouer"     , (300, 200, 200, 60), line_thickness=0, group_name="Ecran titre", group_color=VERT, action=lancer_jeu),
-        ButtonCursor("Paramètres", (300, 300, 200, 60), line_thickness=0, group_name="Ecran titre",                   action=ouvrir_parametres),
+        ButtonCursor("Paramètres", (300, 300, 200, 60), line_thickness=0, group_name="Ecran titre",                   action=menu_parametres),
         ButtonCursor("Crédits"   , (300, 400, 200, 60), line_thickness=0, group_name="Ecran titre",                   action=afficher_credits),
     )
     while globales.menu_running:
         fenetre.fill(BLEU_CLAIR)
         for bouton in boutons_menu:
             bouton.draw(fenetre)
-        ButtonCursor.draw_cursors(fenetre)
         
+        ButtonCursor.draw_cursors(fenetre)
         pygame.display.flip()
         
         for event in pygame.event.get():
@@ -19,6 +19,9 @@ def menu() -> None:
             ButtonCursor.handle_inputs(boutons_menu, event)
 
 def jeu() -> None:
+    joueur.reset_vie()
+    reset_monstre()
+    
     while True:
         rafraichir_ecran()
         globales.delta = clock.tick(60) / 1000      # convertion en secondes
@@ -39,8 +42,9 @@ def jeu() -> None:
         
         Monstre.tuer_les_monstres_morts()
         if len(Monstre.monstres_en_vie) == 0:
-            fin_combat()
-            return
+            if fin_combat():
+                return
+            continue
         
         if not globales.tour_joueur:
             monstres_attaquent()

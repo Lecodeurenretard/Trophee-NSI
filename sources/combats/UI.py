@@ -1,4 +1,4 @@
-from liste_boutons import boutons_attaques, ButtonCursor
+from liste_boutons import *
 from Monstre import *
 
 def demander_pseudo() -> None:
@@ -9,12 +9,12 @@ def demander_pseudo() -> None:
         pseudo, continuer = texte_entree_event(pseudo)
         if not continuer:
             break
-
-        fenetre.fill(BLANC)
-        fenetre.blit(texte, (LARGEUR // 2 - 180, HAUTEUR // 2 - 60))
         
-        pseudo_affiche : Surface = globales.POLICE_TITRE.render(pseudo, True, BLEU)
-        fenetre.blit(pseudo_affiche, (LARGEUR // 2 - 100, HAUTEUR // 2))
+        fenetre.fill(BLANC)
+        blit_centre(fenetre, texte, (CENTRE_FENETRE[0], pourcentage_hauteur(45)))
+        
+        pseudo_affiche : Surface = globales.POLICE_FOURRE_TOUT.render(pseudo, True, BLEU)
+        blit_centre(fenetre, pseudo_affiche, (CENTRE_FENETRE[0], pourcentage_hauteur(50)))
         
         pygame.display.flip()
     
@@ -61,17 +61,20 @@ def trouve_attaque_a_partir_du_curseur() -> Attaque:
     raise ValueError("Il y a au moins un cas non pris en charge dans trouve_attaque_a_partir_du_curseur().")
 
 def afficher_info() -> None:
-    texte_info1 : Surface
-    texte_info2 : Surface
+    texte_puissance : Surface
+    texte_vitesse   : Surface
+    texte_description : Surface
     
     fenetre.fill(BLANC)
     
     attaque : Attaque = trouve_attaque_a_partir_du_curseur()
-    texte_info1 = globales.POLICE_TITRE.render(f"Puissance: {attaque.puissance}", True, NOIR)
-    texte_info2 = globales.POLICE_TITRE.render(attaque.desc, True, NOIR)
+    texte_puissance = globales.POLICE_TITRE.render(f"Puissance: {attaque.puissance}", True, NOIR)
+    texte_vitesse   = globales.POLICE_TITRE.render(f"Vitesse: {attaque.vitesse}", True, NOIR)
+    texte_description = globales.POLICE_TITRE.render(attaque.desc, True, NOIR)
     
-    fenetre.blit(texte_info1, (3 * LARGEUR // 10      , HAUTEUR // 2))
-    fenetre.blit(texte_info2, (3 * LARGEUR // 10 - 100, HAUTEUR // 2 + 30))
+    fenetre.blit(texte_puissance,   (pourcentage_largeur(30), HAUTEUR // 2))
+    fenetre.blit(texte_vitesse,     (pourcentage_largeur(52), HAUTEUR // 2))
+    fenetre.blit(texte_description, (pourcentage_largeur(30), HAUTEUR // 2 + 30))
     
     pygame.display.flip()
     attendre(2)
@@ -88,23 +91,24 @@ def chargement(duree : float = 7.0) -> None:
     while barre < NB_ITERATION:
         fenetre.fill(BLANC)
         
-        pygame.draw.rect(fenetre, NOIR, (50, 300, barre, 50), 0)
+        pygame.draw.rect(fenetre, NOIR, (pourcentage_largeur(6.25), CENTRE_FENETRE[1], barre, 50), 0)
         
         texte_chargement : Surface = globales.POLICE_TITRE.render("Chargement...", True, NOIR)
-        fenetre.blit(texte_chargement, (300, 350))
+        blit_centre(fenetre, texte_chargement, (CENTRE_FENETRE[0], pourcentage_hauteur(45)))
+        
         pygame.display.flip()
         
         barre += 2
         attendre(duree / NB_ITERATION)    # On assume que toutes les actions de la boucle sont instantanées
 
-def afficher_nombre_combat(nbr_combat : int) -> None:
-    texte_combat : Surface = globales.POLICE_TITRE.render(f"Combat n°{nbr_combat}", True, NOIR)
+def afficher_nombre_combat() -> None:
+    texte_combat : Surface = globales.POLICE_TITRE.render(f"Combat n°{globales.nbr_combat}", True, NOIR)
     
     fenetre.fill(BLANC)
-    fenetre.blit(texte_combat, (LARGEUR // 2 - 100, HAUTEUR // 2 - 20))
+    blit_centre(fenetre, texte_combat, CENTRE_FENETRE)
     
-    logging.info(f"")
-    logging.info(f"Début combat numéro {nbr_combat}")
+    logging.info("")
+    logging.info(f"Début combat numéro {globales.nbr_combat}")
     pygame.display.flip()
     attendre(2)
 
@@ -121,13 +125,13 @@ def rafraichir_ecran() -> None:
     # Dessiner les monstres
     if len(Monstre.monstres_en_vie) != 0:   # TODO: S'il y en a plusieur, les décaler
         for monstre in Monstre.monstres_en_vie:
-            monstre.dessiner(fenetre, 6 * LARGEUR // 10, HAUTEUR // 4 - 100)
+            monstre.dessiner(fenetre, pourcentage_largeur(70), pourcentage_hauteur(15))  # ils sont tous à la même position pour l'instant
             monstre.dessiner_barre_de_vie(fenetre, 50, 50)
             dessiner_nom(monstre.nom, Pos(49, 20))
     
-    # Dessiner l'icône dutoujours_crit
+    # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:
-        fenetre.blit(Attaque.CRIT_IMG, (pourcentage_largeur(80), pourcentage_hauteur(60)))
+        blit_centre(fenetre, Attaque.CRIT_IMG, (pourcentage_largeur(80), pourcentage_hauteur(60)))
     
     # Dessiner le fond de l'interface
     pygame.draw.rect(fenetre, NOIR, (0, 3 * HAUTEUR // 4, 800, 600), 0)
@@ -136,8 +140,8 @@ def rafraichir_ecran() -> None:
     ButtonCursor.draw_cursors(fenetre)
     
     # Dessiner le texte
-    fenetre.blit(TEXTE_INFO_UTILISER, (620, (13 * HAUTEUR // 16) - 12))
-    fenetre.blit(TEXTE_INFO_INFO    , (620, (13 * HAUTEUR // 16) + 20))
+    fenetre.blit(TEXTE_INFO_UTILISER, (620, pourcentage_hauteur(81) - 12))
+    fenetre.blit(TEXTE_INFO_INFO    , (620, pourcentage_hauteur(81) + 20))
     
     # ...
     dessiner_boutons_attaques()

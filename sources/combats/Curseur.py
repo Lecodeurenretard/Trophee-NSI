@@ -1,4 +1,4 @@
-from import_var import *
+from import_local import *
 
 class Curseur:
     def __init__(self, col_dispo : list[int], lne_dispo : list[int], pos_interdites : list[Pos] = []) -> None:
@@ -7,7 +7,7 @@ class Curseur:
         self._lne_dispo : list[int] = list(sorted(lne_dispo))
         self._interdit    : list[Pos] = pos_interdites
         
-        self._pos_dans_toutes_pos = Pos(0, 0)	# v. doc
+        self._pos_dans_toutes_pos = Pos(0, 0)    # v. doc
         self._pos = Pos(0, 0)
         self._update_pos()
     
@@ -25,20 +25,6 @@ class Curseur:
             return False
         return True
     
-    def _interdir_col_sauf(self, colonne : int, exception_ligne : int) -> None:
-        assert(colonne in self._col_dispo), "La colonne n'a pas été ajoutée auparavant au curseur dans Curseur.interdir_col_sauf()."
-        assert(exception_ligne in self._lne_dispo), "La ligne à éviter n'a pas été ajoutée auparavant au curseur dans Curseur.interdir_col_sauf()."
-        for lne in self._lne_dispo:
-            if lne != exception_ligne:
-                self.ajouter_interdit(Pos(colonne, lne))
-    
-    def _interdir_lne_sauf(self, ligne : int, exception_colonne : int) -> None:
-        assert(ligne in self._lne_dispo), "La colonne n'a pas été ajoutée auparavant au curseur dans Curseur.interdir_ligne_sauf()."
-        assert(exception_colonne in self._col_dispo), "La ligne à éviter n'a pas été ajoutée auparavant au curseur dans Curseur.interdir_ligne_sauf()."
-        for col in self._col_dispo:
-            if col != exception_colonne:
-                self.ajouter_interdit(Pos(col, ligne))
-    
     def _lever_interdiction(self, pos_interdite : Pos) -> None:
         self._interdit.remove(pos_interdite)    # lève une ValueError si ne trouve pas
     
@@ -52,6 +38,20 @@ class Curseur:
     @property
     def position_dans_positions(self) -> Pos:
         return self._pos_dans_toutes_pos
+    
+    def interdir_col_sauf(self, colonne : int, exception_ligne : int) -> None:
+        assert(colonne in self._col_dispo), "La colonne n'a pas été ajoutée auparavant au curseur dans Curseur.interdir_col_sauf()."
+        assert(exception_ligne in self._lne_dispo), "La ligne à éviter n'a pas été ajoutée auparavant au curseur dans Curseur.interdir_col_sauf()."
+        for lne in self._lne_dispo:
+            if lne != exception_ligne:
+                self.ajouter_interdit(Pos(colonne, lne))
+    
+    def interdir_lne_sauf(self, ligne : int, exception_colonne : int) -> None:
+        assert(ligne in self._lne_dispo), "La colonne n'a pas été ajoutée auparavant au curseur dans Curseur.interdir_ligne_sauf()."
+        assert(exception_colonne in self._col_dispo), "La ligne à éviter n'a pas été ajoutée auparavant au curseur dans Curseur.interdir_ligne_sauf()."
+        for col in self._col_dispo:
+            if col != exception_colonne:
+                self.ajouter_interdit(Pos(col, ligne))
     
     def coordonees_globales_vers_coordonees_curseur(self, coord_globales : Pos) -> Pos:
         res : Pos = Pos(-1, -1)
@@ -143,11 +143,11 @@ class Curseur:
         
         if self.verifie_colonne_existe(position.x):
             self.ajouter_ligne(position.y)
-            self._interdir_lne_sauf(position.y, position.x)
+            self.interdir_lne_sauf(position.y, position.x)
             return
         
         if self.verifie_ligne_existe(position.y):
             self.ajouter_colonne(position.x)
-            self._interdir_col_sauf(position.x, position.y)
+            self.interdir_col_sauf(position.x, position.y)
             return
         raise(RuntimeError("La logique de Curseur.ajouter_pos() est mauvaise."))
