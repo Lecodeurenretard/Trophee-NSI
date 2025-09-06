@@ -1,0 +1,1 @@
+Ce dossier contient les images utilisées par les guides sur [le wiki](https://github.com/Lecodeurenretard/Trophee-NSI/wiki). Il ne sert à rien d'autre.

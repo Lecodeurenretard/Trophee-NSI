@@ -15,7 +15,7 @@ def menu() -> None:
         pygame.display.flip()
         
         for event in pygame.event.get():
-            quitter_si_necessaire(event)
+            verifier_pour_quitter(event)
             ButtonCursor.handle_inputs(boutons_menu, event)
 
 def jeu() -> None:
@@ -27,7 +27,7 @@ def jeu() -> None:
         globales.delta = clock.tick(60) / 1000      # convertion en secondes
         
         for event in pygame.event.get():
-            quitter_si_necessaire(event)
+            verifier_pour_quitter(event)
             if (event.type != pygame.KEYDOWN and event.type != pygame.MOUSEBUTTONDOWN) or not globales.tour_joueur:
                 continue
             

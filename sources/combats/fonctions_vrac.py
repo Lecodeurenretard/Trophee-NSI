@@ -10,16 +10,15 @@ def premier_indice_libre_de_entites_vivantes() -> int:
     return -1
 
 
-
-def quitter_si_necessaire(ev : pygame.event.Event) -> None:
-    """Si ev est le bon évènement, quitte."""
-    if ev.type == pygame.QUIT or (ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE):
-        quit()
-
-def verifier_pour_quitter() -> None:
-    """Pop toutes les valeurs de la file d'évènements et suivant les conditions de quitter_si_necessaire()."""
-    for ev in pygame.event.get():
-        quitter_si_necessaire(ev)
+def verifier_pour_quitter(ev : pygame.event.Event|None = None) -> None:
+    """Si ev n'est pas None, pop toutes les évènements de la file d'évènements sinon vérifie si l'utilisateur veut quitter."""
+    if ev is not None:
+        if ev.type == pygame.QUIT or (ev.type == pygame.KEYDOWN and ev.key == TOUCHE_QUITTER):
+            quit()
+        return
+    
+    for event in pygame.event.get():
+        verifier_pour_quitter(event)
 
 
 
@@ -74,7 +73,7 @@ def attendre(secondes : float, intervalle : float = .01) -> None:
     
     for _ in range(int(secondes//intervalle)):  # arrondi au plus bas
         for ev in pygame.event.get():
-            quitter_si_necessaire(ev)
+            verifier_pour_quitter(ev)
             if mode_debug.case_cochee and testeur_skip(ev):
                 return
         

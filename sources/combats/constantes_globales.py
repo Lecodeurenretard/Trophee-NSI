@@ -2,7 +2,6 @@ from imports import *
 
 DBG_TOUCHES_SKIP : tuple[int, ...] = (
     pygame.K_SPACE,
-    pygame.K_TAB,
 )
 
 DBG_TOUCHE_CRIT     : int = pygame.K_c
@@ -65,6 +64,8 @@ UI_TOUCHES_VALIDER : tuple[int, ...] = (
 UI_TOUCHES_INFOS        : int = pygame.K_i
 UI_TOUCHE_AFFICHAGE_FPS : int = pygame.K_LSHIFT
 UI_TOUCHE_SETTINGS      : int = pygame.K_TAB
+
+TOUCHE_QUITTER          : int = pygame.K_ESCAPE
 
 
 # Le chemin du fichier vers le dossier racine

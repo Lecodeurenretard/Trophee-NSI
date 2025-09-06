@@ -3,13 +3,17 @@ from import_local import *
 class Curseur:
     def __init__(self, col_dispo : list[int], lne_dispo : list[int], pos_interdites : list[Pos] = []) -> None:
         # ordonne de gauche à droite et de haut en bas
-        self._col_dispo   : list[int] = list(sorted(col_dispo))
+        self._col_dispo : list[int] = list(sorted(col_dispo))
         self._lne_dispo : list[int] = list(sorted(lne_dispo))
-        self._interdit    : list[Pos] = pos_interdites
+        self._interdit  : list[Pos] = pos_interdites
         
         self._pos_dans_toutes_pos = Pos(0, 0)    # v. doc
         self._pos = Pos(0, 0)
         self._update_pos()
+    
+    @property
+    def position_dans_positions(self) -> Pos:
+        return self._pos_dans_toutes_pos
     
     def _update_pos(self, update_col : bool = True, update_lne : bool = True) -> bool:
         """Retourne si la position à été modifiée."""
@@ -34,10 +38,6 @@ class Curseur:
     def _ajouter_a_pdp_y(self, combien : int):
         self._pos_dans_toutes_pos.y += combien
         self._pos_dans_toutes_pos.y %= len(self._lne_dispo)
-    
-    @property
-    def position_dans_positions(self) -> Pos:
-        return self._pos_dans_toutes_pos
     
     def interdir_col_sauf(self, colonne : int, exception_ligne : int) -> None:
         assert(colonne in self._col_dispo), "La colonne n'a pas été ajoutée auparavant au curseur dans Curseur.interdir_col_sauf()."
@@ -83,22 +83,22 @@ class Curseur:
         self._ajouter_a_pdp_y(-1)
         while not self._update_pos():     # skip les positions interdites
             self._ajouter_a_pdp_y(-1)
-        
+    
     def descendre(self) -> None:
         self._ajouter_a_pdp_y(1)
         while not self._update_pos():
             self._ajouter_a_pdp_y(1)
-        
+    
     def aller_gauche(self) -> None:
         self._ajouter_a_pdtp_x(-1)
         while not self._update_pos():
             self._ajouter_a_pdtp_x(-1)
-        
+    
     def aller_droite(self) -> None:
         self._ajouter_a_pdtp_x(1)
         while not self._update_pos():
             self._ajouter_a_pdtp_x(1)
-        
+    
     
     def deplacement_utilisateur(self, ev : pygame.event.Event) -> None:
         if ev.type != pygame.KEYDOWN:

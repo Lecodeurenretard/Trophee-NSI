@@ -28,7 +28,7 @@ class TypeAttaque(Enum):
                 raise NotImplementedError("Type d'attaque non implémenté dans TypeAttaque.couleur().")
 
 
-# Sera un bitmask (flags) si plusieurs effets peuvent être appliqués en même temps
+# Sera un bitmask si plusieurs effets peuvent être appliqués en même temps
 # sinon une enum normale
 class EffetAttaque:
     pass        # TODO: définir les effets des attaques (poison, confus, ...) (un jour)
@@ -36,17 +36,17 @@ class EffetAttaque:
 class AttaqueFlags(IntFlag):
     """Des particularités que pourraient avoir les attaques"""
     AUCUN               = 0
-    IGNORE_STATS        = auto()    # Ignore l'attaque et la défense
+    IGNORE_STATS        = auto()
     
-    ATTAQUE_LANCEUR     = auto()    # Peut attaquer le lanceur
-    ATTAQUE_ALLIES      = auto()    # Peut attaquer les alliés du lanceur
-    ATTAQUE_ENNEMIS     = auto()    # Peut attaquer les adversaires du lanceur
-    ATTAQUE_EQUIPE = ATTAQUE_LANCEUR | ATTAQUE_ALLIES # Si le joueur peut attaquer son équipe ou lui même.
+    ATTAQUE_LANCEUR     = auto()
+    ATTAQUE_ALLIES      = auto()
+    ATTAQUE_ENNEMIS     = auto()
+    ATTAQUE_EQUIPE = ATTAQUE_LANCEUR | ATTAQUE_ALLIES
 
 class Attaque:
-    _PUISSANCE_CRIT : float = 1.5   # de combien doit le crit influencer l'attaque
+    _PUISSANCE_CRIT : float = 1.5
     
-    CRIT_IMG : Surface = pygame.transform.scale(    # rétrécit l'image pour être en 20x20
+    CRIT_IMG : Surface = pygame.transform.scale(
         pygame.image.load(f"{CHEMIN_DOSSIER_IMG}/crit.png"),
         (40, 40)
     )
@@ -79,7 +79,7 @@ class Attaque:
         self._prob_crit : float = crit_proba
         self._crit      : bool = False
         
-        self._effet : EffetAttaque = None   # type: ignore
+        self._effet : EffetAttaque = None   # type: ignore  # Si on veut lui assigner
         self._drapeaux = flags
         
         self._ajustement_degats = dernier_changements
@@ -101,6 +101,30 @@ class Attaque:
             + f"somme des flags: {self._drapeaux.value}"
             + "}"
         )
+    
+    @staticmethod
+    def lancer_toutes_les_attaques(reset_ecran : Callable[[], None]) -> None:
+        if param.mode_debug.case_cochee:
+            logging.debug("Début du lancement des attaques.")
+        while not Attaque.attaques_du_tour.empty():
+            attaque : Attaque = Attaque.attaques_du_tour.get_nowait().attaque
+            if attaque._lanceur.est_mort():
+                return
+            
+            if param.mode_debug.case_cochee:
+                logging.debug(f"{attaque._lanceur.dbg_nom} (id: {attaque._lanceur.id}) utilise {attaque._nom} sur {attaque._cible.dbg_nom}.")
+            
+            attaque.appliquer()
+            
+            reset_ecran()
+            attendre(.2)
+            
+            attaque.dessiner(fenetre)
+            pygame.display.flip()
+            attendre(1)
+    
+        if param.mode_debug.case_cochee:
+            logging.debug("Fin du lancement des attaques.")
     
     @property
     def _couleur(self) -> rgb:
@@ -141,30 +165,6 @@ class Attaque:
     @property
     def ennemy_fire(self) -> bool:
         return AttaqueFlags.ATTAQUE_ENNEMIS in self._drapeaux
-    
-    @staticmethod
-    def lancer_toutes_les_attaques(reset_ecran : Callable[[], None]) -> None:
-        if param.mode_debug.case_cochee:
-            logging.debug("Début du lancement des attaques.")
-        while not Attaque.attaques_du_tour.empty():
-            attaque : Attaque = Attaque.attaques_du_tour.get_nowait().attaque
-            if attaque._lanceur.est_mort():
-                return
-            
-            if param.mode_debug.case_cochee:
-                logging.debug(f"{attaque._lanceur.dbg_nom} (id: {attaque._lanceur.id}) utilise {attaque._nom} sur {attaque._cible.dbg_nom}.")
-            
-            attaque.appliquer()
-            
-            reset_ecran()
-            attendre(.2)
-            
-            attaque.dessiner(fenetre)
-            pygame.display.flip()
-            attendre(1)
-    
-        if param.mode_debug.case_cochee:
-            logging.debug("Fin du lancement des attaques.")
     
     def _calcul_attaque_defense(self, puissance_attaquant : int, defense_cible : int, def_min : float) -> tuple[float, float]:
         if AttaqueFlags.IGNORE_STATS in self._drapeaux:
@@ -239,7 +239,6 @@ class Attaque:
         pygame.draw.rect(fenetre, self._couleur, (pos_x, pos_y , RECT_LARGEUR, RECT_HAUTEUR), 5)
         
         if self._crit:
-            # Dessine l'image de crit
             blit_centre(
                 surface,
                 Attaque.CRIT_IMG,
@@ -263,6 +262,13 @@ class AttaquePriorisee:
         self.attaque = attaque
         self._score = AttaquePriorisee._calcul_score(attaque.vitesse, vitesse_lanceur)
     
+    # les opérateurs strictement inférieur et strictement supérieur à
+    # Ils sont surchargés pour que l'objet soit classé dans PriorityQueue
+    def __lt__(self, other : 'AttaquePriorisee') -> bool:
+        return self._score < other._score
+    def __gt__(self, other : 'AttaquePriorisee') -> bool:
+        return self._score > other._score
+    
     @staticmethod
     def _calcul_score(vitesse_attaque : float, vitesse_lanceur : float) -> float:
         if vitesse_attaque < 0 or vitesse_lanceur < 0:
@@ -271,13 +277,6 @@ class AttaquePriorisee:
         # Visualisez et essayez les modification de la formule ici: https://www.desmos.com/3D/332drqdeup
         # Les seules restrictions sont que la fonction doit être strictement décroissante pour vitesse_attaque et vitesse_joueur.
         return -max(0, min(VITESSE_MAXIMUM, 1.2 * vitesse_attaque + 1.0 * vitesse_lanceur))
-    
-    # les opérateurs strictement inférieur et strictement supérieur à
-    # Ils sont surchargés pour que l'objet soit classé dans PriorityQueue
-    def __lt__(self, other : 'AttaquePriorisee') -> bool:
-        return self._score < other._score
-    def __gt__(self, other : 'AttaquePriorisee') -> bool:
-        return self._score > other._score
 
 
 ATTAQUES_DISPONIBLES : dict[str, Attaque] = {

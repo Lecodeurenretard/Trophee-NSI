@@ -18,6 +18,34 @@ class TypeParametre(Enum):
     INT              = auto()
     FLOAT            = auto()
     
+    @staticmethod
+    def dessiner(surface : Surface, categ : 'TypeParametre', position : Pos, dimensions : tuple[int, int]|list[int], valeur : categorie_valeur_parametre) -> None:
+        match(categ):
+            case TypeParametre.CASE_A_COCHER:
+                dessiner_rect(
+                    surface,
+                    position, dimensions,
+                    BLEU if valeur else BLANC,
+                    epaisseur_trait=2, couleur_bords=GRIS
+                )
+            case TypeParametre.RADIO:
+                pass
+            case TypeParametre.CHECKBOXES:
+                pass
+            case TypeParametre.SLIDERF:
+                pass
+            case TypeParametre.SLIDERI:
+                pass
+            case TypeParametre.TEXTE:
+                pass
+            case TypeParametre.INT:
+                pass
+            case TypeParametre.FLOAT:
+                pass
+            
+            case _:
+                raise NotImplementedError(f"Catégorie '{categ.name}' non implémenté dans `ParametreCategorie.dessiner()`.")
+    
     @property
     def hauteur(self) -> int:
         return 20
@@ -78,34 +106,6 @@ class TypeParametre(Enum):
             
             case _:
                 raise NotImplementedError(f"Catégorie '{self.name}' non implémenté dans `ParametreCategorie.categorie_correspondante`.")
-    
-    @staticmethod
-    def dessiner(surface : Surface, categ : 'TypeParametre', position : Pos, dimensions : tuple[int, int]|list[int], valeur : categorie_valeur_parametre) -> None:
-        match(categ):
-            case TypeParametre.CASE_A_COCHER:
-                dessiner_rect(
-                    surface,
-                    position, dimensions,
-                    BLEU if valeur else BLANC,
-                    epaisseur_trait=2, couleur_bords=GRIS
-                )
-            case TypeParametre.RADIO:
-                pass
-            case TypeParametre.CHECKBOXES:
-                pass
-            case TypeParametre.SLIDERF:
-                pass
-            case TypeParametre.SLIDERI:
-                pass
-            case TypeParametre.TEXTE:
-                pass
-            case TypeParametre.INT:
-                pass
-            case TypeParametre.FLOAT:
-                pass
-            
-            case _:
-                raise NotImplementedError(f"Catégorie '{categ.name}' non implémenté dans `ParametreCategorie.dessiner()`.")
 
 
 
@@ -146,6 +146,18 @@ class Parametre:
     #        return (val for val in self._valeur)
     #    
     #    raise TypeError(f"On ne peut itérer à travers un paramètre de catégorie {self._categorie}.")
+    
+    @staticmethod
+    def dessiner_groupe(surface : Surface, groupe_a_dessiner : 'list[Parametre]|tuple[Parametre]') -> int:
+        y_maximum : int = -1
+        
+        for param in groupe_a_dessiner:
+            param.dessiner(surface)
+            
+            if param._hitbox_globale.bottom > y_maximum:
+                y_maximum = param._hitbox_globale.bottom
+        
+        return y_maximum
     
     @property
     def _possibilites_finies(self) -> bool:
@@ -227,18 +239,6 @@ class Parametre:
         assert(self._possibilites_finies), f"Le paramètre de catégorie {self._categorie} peut prendre un nombre trop grand de valeurs pour les avoir stockées dans une liste."
         
         self._valeurs_autorisees = val
-    
-    @staticmethod
-    def dessiner_groupe(surface : Surface, groupe_a_dessiner : 'list[Parametre]|tuple[Parametre]') -> int:
-        y_maximum : int = -1
-        
-        for param in groupe_a_dessiner:
-            param.dessiner(surface)
-            
-            if param._hitbox_globale.bottom > y_maximum:
-                y_maximum = param._hitbox_globale.bottom
-        
-        return y_maximum
     
     def _convertion_vers_type(self, type_cible : type): # -> type_cible
         if self._categorie.type_correspondant is type_cible:

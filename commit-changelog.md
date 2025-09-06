@@ -2,22 +2,29 @@ Ce fichier contient tous les changements faits dans les commits.
 Un bon moyen de savoir si le changement devrait être écrit ici, c'est de se demander si il changera la façcon d'interagir sur la fonction/classe.
 
 <!--format:--
-> **[message du commit]**
+## [message du commit]
 + Changements majeurs
 	- [Changements à la base du but du commit?]
-+ Sur plusieurs fichiers:
++ Sur plusieurs fichiers
 	- [Autres changements?]
 + Structure de fichier
 	- [changements sur la structure de ficher?]
 + READMEs et documentation
 	- [changements dans la doc?]
++ Interaction joueur/testeur
+	- [Changement touches/dialogue/...]
 + [fichier/classe]
 	- [changements...]
 + [...]
 
 
 --template:--
-> **[]**
+# 
++ Changements majeurs
++ Sur plusieurs fichiers:
++ Structure de fichier
++ READMEs et documentation
++ Interaction utilisateur
 + 
 	- 
 -->
@@ -25,7 +32,7 @@ Un bon moyen de savoir si le changement devrait être écrit ici, c'est de se de
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-> **Ajout de changelog et petits Changements**
+## Ajout de changelog et petits Changements
 + Structure de fichier
 	- Création de ce fichier.
 	- Déplacement des constantes de [variables_globales.py](sources/combats/variables_globales.py) dans [variables_globales.py](sources/combats/variables_globales.py)
@@ -58,7 +65,7 @@ _____
 		* Renommage en `DIMENSION_SPRITE`.
 
 
-> **Implémentation de la vitesse**
+## Implémentation de la vitesse
 + Changements majeurs
 	- Ajout de `Attaque.attaques_du_tour[]` regroupant toutes les attaques lancées.
 	- Modification de la pipeline des attaques pour la centraliser dans `Attaque.lancer_toutes_les_attaques()`.
@@ -113,7 +120,7 @@ _____
 	- Suppression de la définition explicite de `.__copy__()` qui ne faisait que la même chose que la définition implicote mais moins bien.
 
 
-> **Les "structures" sont désormais des dataclasses.**
+## Les "structures" sont désormais des dataclasses.
 + Structure de fichier
 	- Ajout de fichiers:
 		* [fonctions_main](sources/combats/fonctions_main.py) pour les fonctions seulement utilisées dans [main](sources/combats/main.py)
@@ -142,7 +149,7 @@ _____
 	- Suppression de `.__init__()`, `.__eq__()` car générées automatiquement.
 	- Suppression de la méthode `.set()` car inutile.
 
-> **Retour et update de la documentation dans le repo.**
+## Retour et update de la documentation dans le repo.
 + Changements majeurs
 	- Déplacement des documentations dans le dossier [doc](doc/).
 		* Création de [global-vars](doc/global-vars.md) pour la liste des variables globales.
@@ -176,7 +183,7 @@ _____
 + `Joueur` et `Monstre`
 	- La propriété `.stats` renvoie maintenant une copie de `._stats` au lieu d'une reférence.
 
-> **Ajout des settings de catégorie "case à cocher".**
+## Ajout des settings de catégorie "case à cocher".
 + Changements majeurs
 	- Grand développemment la classe `Setting`.
 	- Ajout de paramètres
@@ -245,3 +252,32 @@ _____
 		* Ajout des méthodes `._convertion_vers_type()`, `.reset_val()` et `.prendre_input()`.
 		* Suppression du status de dataclass.
 			+ Ajout d'un constructeur.
+
+## Actualisation de la documentation pour les checkbox
++ Changements majeurs
+	- Ajout d'une documentation pour les parametres.
++ Sur plusieurs fichiers
+	- Ajout d'un en-tête listant les classes qui serons abordées dans le fichier dans [fight-system.md](doc/fight-system.md) et [GUI.md](doc/GUI.md).
+	- Les membres des classes sont tous ordonnés d'après l'ordre du [wiki](https://github.com/Lecodeurenretard/Trophee-NSI/wiki/Les-bonnes-pratiques#la-poo).
+	- Le système d'import des [exemples](exemples/) à été révisé.
+		* Suppression de imports.py dans [exemples/](exemples/).
++ Structure de fichier
+	- Ajout d'un [README](guides/imgs/README.md) dans [guides/imgs/](guides/imgs/).
+	- Ajout d'un [README](doc/) dans [doc/](doc/).
+	- Ajout d'un [exemple pour les paramètres](exemples/ex_param.py).
++ READMEs et documentation
+	- Ajout d'une section `Télécharger la dernière version du jeu` dans le [README](README.md) de la [racine](.).
+	- Actualisation du tableau du [README précédent](README.md).
+	- Actualisation des touches dans le [README](sources/combats/README.md) de [combats/](sources/combats/).
++ Ce fichier
+	- Ajout de la section `Interaction joueur/testeur`.
+	- Modification du format des messages de commit: citations en gras (`> **message**`) -> deuxièmes titres (`## message`).
+	- Modification de la template.
++ Interaction joueur/testeur
+	- Le testeur ne peut plus skip avec tab.
++ `ButtonCursor`
+	- `_cursor_offset` est maintenant une constante.
+		* Renommage en `_CURSOR_OFFSET`.
+	- `handle_inputs()` ne print plus le nombre de boutons sans action.
++ [fonctions_vrac](sources/combats/fonctions_vrac.py)
+	- Fusion de `quitter_si_necessaire()` et de `verifier_pour_quitter()` en `verifier_pour_quitter()`. Pour obtenir le comportement de `quitter_si_necessaire()`, l'utilisateur devra appeler le nouveau `verifier_pour_quitter()` sans argument.

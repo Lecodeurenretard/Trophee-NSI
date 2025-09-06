@@ -1,8 +1,8 @@
 # Comment marche le système de combat
 
-Le jeu est codé suivant la POO, les classes principales sont:
+Les classes décrites dans ce fichier sont:
 + [`Stat`](../sources/combats/Stats.py): Représente les statistiques d'une entité.
-+ [`Attaque`](../sources/combats/Attaque.py): Toute action qui puisse influer sur cette ou une autre entité.
++ [`Attaque`](../sources/combats/Attaque.py) (ainsi que les enums/_wrappers_ en lien): Toute action qui puisse influer sur cette ou une autre entité.
 + [`Joueur`](../sources/combats/Joueur.py): 1<sup>er</sup> type d'entité, le personnage que contrôle le joueur.
 + [`Monstre`](../sources/combats/Monstre.py): 2<sup>nd</sup> type d'entité, tout ennemi au joueur.
 

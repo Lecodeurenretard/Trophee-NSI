@@ -38,8 +38,8 @@ class Button:
         return self._rect.collidepoint(tuple(pos_mouse))
 
 class ButtonCursor(Button):
+    _CURSOR_OFFSET : int = 10
     _cursor_radius : int = 12
-    _cursor_offset : int = 10
     
     # Prefixed by static to avoid name conflict with propreties
     _static_group_count   : dict[str, int]     = {}    # group's name -> # of buttons in the group
@@ -63,7 +63,7 @@ class ButtonCursor(Button):
         self._group_name = group_name
         
         cursor_pos : Pos = Pos(
-            self._rect.x - ButtonCursor._cursor_radius - ButtonCursor._cursor_offset,
+            self._rect.x - ButtonCursor._cursor_radius - ButtonCursor._CURSOR_OFFSET,
             self._rect.y + self._rect.h // 2
         )
         
@@ -117,31 +117,26 @@ class ButtonCursor(Button):
         Renvoie True si `action()` à été éxecuté au moins une fois.
         """
         groups_having_moved_cursor : list[str] = []
-        useless_butt_count : int = 0
         
-        callback_executed : bool = False
+        action_executed : bool = False
         for butt in butt_seq:
             cursor_butt : Curseur = butt.cursor
             if butt._group_name not in groups_having_moved_cursor:
                 cursor_butt.deplacement_utilisateur(ev)
                 groups_having_moved_cursor.append(butt._group_name)
             
-            if utilisateur_valide_menu(ev) and butt._do_group_cursor_select_button():
+            if utilisateur_valide_menu(ev) and butt._do_group_cursor_select_button:
                 if butt._action is None:
-                    useless_butt_count += 1
                     continue
+                
                 butt._action()
-                callback_executed = True
+                action_executed = True
                 continue
             
             if ev.type == pygame.MOUSEBUTTONDOWN:
-                callback_executed |= butt.check_click(ev.pos)
+                action_executed |= butt.check_click(ev.pos)
         
-        if useless_butt_count == 1:
-            logging.warning(f"Un bouton n'a aucune fonction à éxécuter.")
-        elif useless_butt_count > 1:
-            logging.warning(f"{useless_butt_count} boutons n'ont aucune fonction à éxécuter.")
-        return callback_executed
+        return action_executed
     
     @property
     def _group_count(self) -> int:

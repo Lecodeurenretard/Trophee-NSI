@@ -1,5 +1,10 @@
 # L'interface utilisateur
-Toutes les classes décrites dans ce fichier sont attendues d'avoir une méthode `.dessiner()` avec la surface surlaquelle dessiner en premier paramètre.
+Ce fichier décrit les classes:
+- `Curseur`
+- `Button`
+- `ButtonCursor`
+
+Ces classes doivent avoir une méthode `.dessiner()` avec la surface sur laquelle dessiner en premier paramètre.
 
 ## Les curseurs
 Exemple d'utilisation dans [ex_curseur](../exemples/ex_curseur.py).

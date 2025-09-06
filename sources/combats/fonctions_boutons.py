@@ -23,7 +23,7 @@ def menu_parametres() -> None:
     
     while True:
         for ev in pygame.event.get():
-            quitter_si_necessaire(ev)
+            verifier_pour_quitter(ev)
             
             for parametre in PARAMETRES_NORMAUX:
                 parametre.prendre_input(ev)
