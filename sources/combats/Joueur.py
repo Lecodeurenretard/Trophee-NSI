@@ -54,13 +54,20 @@ class Joueur:
         ratio = max(0, self._stats.vie / self._stats.vie_max)
         return round(ratio * UI_LONGUEUR_BARRE_DE_VIE)
     
-    # propriété car la position pourrait changer
+    # propriété car la position pourrait changer suivant la position du ou des joueurs
     @property
     def pos_attaque_x(self) -> int:
         return 400
     @property
     def pos_attaque_y(self) -> int:
         return 300
+    
+    @property
+    def pos_curseur_x(self) -> int:
+        return 0
+    @property
+    def pos_curseur_y(self) -> int:
+        return 0
     
     @pseudo.setter
     def pseudo(self, value : str) -> None:

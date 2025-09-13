@@ -9,7 +9,8 @@ class Curseur:
         
         self._pos_dans_toutes_pos = Pos(0, 0)    # v. doc
         self._pos = Pos(0, 0)
-        self._update_pos()
+        
+        self._aller_premier_emplacement_autorise()
     
     @property
     def position_dans_positions(self) -> Pos:
@@ -29,15 +30,41 @@ class Curseur:
             return False
         return True
     
+    def _aller_premier_emplacement_autorise(self):
+        for i, lne in enumerate(self._lne_dispo):
+            for j, col in enumerate(self._col_dispo):
+                if not self.est_emplacement_valide(Pos(col, lne)):
+                    continue
+                
+                self._pos_dans_toutes_pos = Pos(j, i)
+                self._update_pos()
+                return
+    
     def _lever_interdiction(self, pos_interdite : Pos) -> None:
         self._interdit.remove(pos_interdite)    # lève une ValueError si ne trouve pas
     
-    def _ajouter_a_pdtp_x(self, combien : int):
+    def _ajouter_a_pdtp_x(self, combien : int) -> None:
         self._pos_dans_toutes_pos.x += combien
         self._pos_dans_toutes_pos.x %= len(self._col_dispo) # Empèche le curseur d'aller Out of Bound
-    def _ajouter_a_pdp_y(self, combien : int):
+    def _ajouter_a_pdtp_y(self, combien : int) -> None:
         self._pos_dans_toutes_pos.y += combien
         self._pos_dans_toutes_pos.y %= len(self._lne_dispo)
+    def _ajouter_a_pdtp(self, combien : int, dir_horizontal : bool) -> None:
+        if dir_horizontal:
+            self._ajouter_a_pdtp_x(combien)
+        else:
+            self._ajouter_a_pdtp_y(combien)
+    
+    def _bouger(self, horizontal : bool, sens : bool = True) -> None:
+        """
+        [[PAS FINI!]]
+        Bouge le curseur dans une des deux directions selon `horizontal`.
+        Si sens est True, bouge en bas ou à droite selon la direction, sinon en haut ou à gauche.
+        """
+        combien   : int       = -1 if sens else 1
+        positions_disponibles : list[int] = self._col_dispo if horizontal else self._lne_dispo  # si on change de colonne, on se déplace horizontalement
+        
+        self._ajouter_a_pdtp(combien, sens)
     
     def interdir_col_sauf(self, colonne : int, exception_ligne : int) -> None:
         assert(colonne in self._col_dispo), "La colonne n'a pas été ajoutée auparavant au curseur dans Curseur.interdir_col_sauf()."
@@ -55,8 +82,12 @@ class Curseur:
     
     def coordonees_globales_vers_coordonees_curseur(self, coord_globales : Pos) -> Pos:
         res : Pos = Pos(-1, -1)
-        res.x = self._col_dispo.index(coord_globales.x)
-        res.y = self._lne_dispo.index(coord_globales.y)
+        
+        try:
+            res.x = self._col_dispo.index(coord_globales.x)
+            res.y = self._lne_dispo.index(coord_globales.y)
+        except ValueError:
+            raise ValueError(f"Argument coord_globales: {coord_globales} introuvable dans les emplacements disponibles des curseurs.")
         
         return res
     
@@ -80,14 +111,14 @@ class Curseur:
         pygame.draw.circle(surface, couleur, tuple(self._pos), rayon)
     
     def monter(self) -> None:
-        self._ajouter_a_pdp_y(-1)
-        while not self._update_pos():     # skip les positions interdites
-            self._ajouter_a_pdp_y(-1)
+        self._ajouter_a_pdtp_y(-1)
+        while not self._update_pos():
+            self._ajouter_a_pdtp_y(-1)
     
     def descendre(self) -> None:
-        self._ajouter_a_pdp_y(1)
+        self._ajouter_a_pdtp_y(1)
         while not self._update_pos():
-            self._ajouter_a_pdp_y(1)
+            self._ajouter_a_pdtp_y(1)
     
     def aller_gauche(self) -> None:
         self._ajouter_a_pdtp_x(-1)

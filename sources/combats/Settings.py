@@ -118,7 +118,7 @@ class Parametre:
             nom_affichage : str,
             hauteur : int,
             categ : TypeParametre, valeur_par_defaut : categorie_valeur_parametre,
-            on_change : Callable[[categorie_valeur_parametre], None]|None = None
+            on_change : Callable[[categorie_valeur_parametre], None]|None = None,
         ):
         self._nom_affichage = nom_affichage
         self._position : Pos = Pos(pourcentage_largeur(50) + Parametre._ECART_NOM_VALEUR // 2, hauteur)

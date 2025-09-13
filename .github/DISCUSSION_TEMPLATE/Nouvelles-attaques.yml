@@ -6,7 +6,7 @@ body:
     options: ["Par puissance", "Par dégats directs"]
     required: false
     description: |
-    "Tout dépend du type de l'attaque:
+    "Tout dépend du type de l'attaque
     
     CHARGE: qu'en pourcentage.
         appliqué à une entité: La puissance de sa prochaine attaque (excepté une autre charge) est multipliée par la puissance de la charge.

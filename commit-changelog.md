@@ -33,14 +33,22 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Ajout de template pour les discussions sur les idées d'attaques.
+## Changements mineurs en vue d'un changement de comportement des curseurs
 + Changements majeurs
-	- Ajout d'un repertoire [.github/](.github) et de template pour les discussions.
 + Sur plusieurs fichiers
+	- Suppression de la fonctionnalité du compteur FPS car impréci et inutile
+		* Enlèvement de la constante `UI_TOUCHE_AFFICHAGE_FPS`.
+		* Suppression des variables globales `UI_affichage_fps_autorise` et `delta`.
+		* Ajustement des documentations.
 + Structure de fichier
 + READMEs et documentation
-	- Ajout README à [.github/](.github) et [DISCUSSION_TEMPLATE/](.github/DISCUSSION_TEMPLATE/)
 + Interaction utilisateur
-+ Ce fichier
-	- Doit être maintenant rafraichit à chaque rafraichissement.
-	- Les messages de commit sont des titres deuxièmes au lieu de premiers.
++ `ButtonCursor`
+	- Renommage et changement en propriété: `._do_group_cursor_select_button()` -> `._do_cursor_select_button`.
++ `Curseur`
+	- Ajout de `._aller_premier_emplacement_autorise()` pour éviter que le curseur spawn à une position interdite.
+	- Ajout de la méthode (non finie) `._bouger()` qui généralisera le rôle de `.monter()`, `.aller_gauche()`, ....
+	- Renommage de `._ajouter_a_pdp_y` en `._ajouter_a_pdtp_y`.
+	- Modification du message d'erreur si jamais les coordonnées sont incorrecte dans `.coordonees_globales_vers_coordonees_curseur()`.
++ entités
+	- Ajout de propriétés (pas encore ajoustées ni utilisées) `.pos_curseur_x` et `.pos_curseur_y`.
