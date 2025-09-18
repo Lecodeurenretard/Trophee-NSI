@@ -33,14 +33,5 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Ajout de template pour les discussions sur les idées d'attaques.
-+ Changements majeurs
-	- Ajout d'un repertoire [.github/](.github) et de template pour les discussions.
-+ Sur plusieurs fichiers
-+ Structure de fichier
-+ READMEs et documentation
-	- Ajout README à [.github/](.github) et [DISCUSSION_TEMPLATE/](.github/DISCUSSION_TEMPLATE/)
-+ Interaction utilisateur
-+ Ce fichier
-	- Doit être maintenant rafraichit à chaque rafraichissement.
-	- Les messages de commit sont des titres deuxièmes au lieu de premiers.
+## test
++ changé  un exemple

@@ -11,7 +11,6 @@ lignes   : list[int] = list(range(50, 501, 50))
 colonnes : list[int] = list(range(50, 501, 50))
 position_interdites : list[Pos] = [
     Pos(100, 100),
-    Pos(200, 200),
     Pos(150, 250),
     Pos(200, 250),
     
