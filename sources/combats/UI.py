@@ -1,5 +1,5 @@
 from liste_boutons import *
-from Monstre import *
+from Monstre import *        # pyright: ignore[reportGeneralTypeIssues]
 
 def demander_pseudo() -> None:
     pseudo : str  = ""
@@ -82,8 +82,8 @@ def afficher_info() -> None:
 
 def dessiner_boutons_attaques() -> None:
     for butt in boutons_attaques:
-        butt.draw(fenetre)
-    ButtonCursor.draw_cursors(fenetre)
+        butt.draw(menus_surf)
+    ButtonCursor.draw_cursors(menus_surf)
 
 def chargement(duree : float = 7.0) -> None:
     barre : int = 0
@@ -101,21 +101,22 @@ def chargement(duree : float = 7.0) -> None:
         barre += 2
         attendre(duree / NB_ITERATION)    # On assume que toutes les actions de la boucle sont instantanées
 
-def afficher_nombre_combat() -> None:
+def ecran_nombre_combat() -> Generator[Surface, None, None]:
     texte_combat : Surface = globales.POLICE_TITRE.render(f"Combat n°{globales.nbr_combat}", True, NOIR)
     
-    fenetre.fill(BLANC)
-    blit_centre(fenetre, texte_combat, CENTRE_FENETRE)
+    image = Surface(fenetre.get_size())
+    image.fill(BLANC)
+    blit_centre(image, texte_combat, CENTRE_FENETRE)
     
     logging.info("")
     logging.info(f"Début combat numéro {globales.nbr_combat}")
-    pygame.display.flip()
-    attendre(2)
+    return image_vers_generateur(image, Duree(s=2))
 
 
-def rafraichir_ecran() -> None:
+def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = []) -> None:
     # Effacer l'écran en redessinant l'arrière-plan
     fenetre.fill(BLANC)
+    menus_surf.fill(TRANSPARENT)
     
     # Dessiner le joueur
     joueur.dessiner(fenetre)
@@ -123,7 +124,7 @@ def rafraichir_ecran() -> None:
     dessiner_nom(joueur.pseudo, Pos(499, 370))
     
     # Dessiner les monstres
-    if len(Monstre.monstres_en_vie) != 0:   # TODO: S'il y en a plusieur, les décaler
+    if len(Monstre.monstres_en_vie) != 0:
         for monstre in Monstre.monstres_en_vie:
             monstre.dessiner(fenetre, pourcentage_largeur(70), pourcentage_hauteur(15))  # ils sont tous à la même position pour l'instant
             monstre.dessiner_barre_de_vie(fenetre, 50, 50)
@@ -134,17 +135,24 @@ def rafraichir_ecran() -> None:
         blit_centre(fenetre, Attaque.CRIT_IMG, (pourcentage_largeur(80), pourcentage_hauteur(60)))
     
     # Dessiner le fond de l'interface
-    pygame.draw.rect(fenetre, NOIR, (0, 3 * HAUTEUR // 4, 800, 600), 0)
+    pygame.draw.rect(fenetre, NOIR, (0, pourcentage_hauteur(75), 800, 600), 0)
     
     # Dessiner le curseur du menu de combat
     ButtonCursor.draw_cursors(fenetre)
     
     # Dessiner le texte
-    fenetre.blit(TEXTE_INFO_UTILISER, (620, pourcentage_hauteur(81) - 12))
-    fenetre.blit(TEXTE_INFO_INFO    , (620, pourcentage_hauteur(81) + 20))
+    blit_centre(fenetre, TEXTE_INFO_UTILISER, (pourcentage_largeur(50), pourcentage_hauteur(81)))
+    blit_centre(fenetre, TEXTE_INFO_INFO    , (pourcentage_largeur(50), pourcentage_hauteur(81)))
+    
+    # Ils sont censés ne dessiner sur une surface
+    avancer_generateurs(generateurs_dessin)
+    avancer_generateurs(generateurs_UI)
     
     # ...
     dessiner_boutons_attaques()
+    
+    # On oublie pas d'intégrer les menus
+    fenetre.blit(menus_surf, (0, 0))
     
     # Mettre à jour l'affichage
     pygame.display.flip()

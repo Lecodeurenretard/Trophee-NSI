@@ -1,13 +1,15 @@
 from imports import *
 from constantes_globales import *
+from Duree import Duree
 
 pygame.display.set_caption("Menu Principal")
 
 clock : pygame.time.Clock = pygame.time.Clock()
 
-fenetre : pygame.Surface = pygame.display.set_mode((LARGEUR, HAUTEUR))
+fenetre : Surface = pygame.display.set_mode((LARGEUR, HAUTEUR))
 fenetre.fill(BLANC)
 
+menus_surf : Surface = Surface((LARGEUR, HAUTEUR), pygame.SRCALPHA)
 
 nbr_combat : int = 1
 tour_joueur  : bool = True
@@ -18,4 +20,4 @@ menu_running : bool = True
 # de type list[Monstre|Joueur|None], le type n'est pas mis car les classes ne sont pas encore définies
 entites_vivantes : list = []
 
-delta : int = 0
+temps_de_jeu : Duree = Duree()

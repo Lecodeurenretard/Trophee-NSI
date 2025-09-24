@@ -25,7 +25,7 @@ format:
 + Sur plusieurs fichiers
 + Structure de fichier
 + READMEs et documentation
-+ Interaction utilisateur
++ Interactions utilisateur
 + 
 	- 
 -->
@@ -33,22 +33,45 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Changements mineurs en vue d'un changement de comportement des curseurs
+## Début refactorisation moteur graphique + implémentation animations _in game_ + merge
 + Changements majeurs
+	- Création de la classe `InterpolationLineaire`.
+	- Création de fonctions de easing.
+	- Ajout d'états au jeu.
+		* Implémentation rudimentaire
++ Changements mineurs
+	- Ajout de `Duree` pour éviter la confusion entre les unités.
 + Sur plusieurs fichiers
-	- Suppression de la fonctionnalité du compteur FPS car impréci et inutile
-		* Enlèvement de la constante `UI_TOUCHE_AFFICHAGE_FPS`.
-		* Suppression des variables globales `UI_affichage_fps_autorise` et `delta`.
-		* Ajustement des documentations.
 + Structure de fichier
 + READMEs et documentation
-+ Interaction utilisateur
-+ `ButtonCursor`
-	- Renommage et changement en propriété: `._do_group_cursor_select_button()` -> `._do_cursor_select_button`.
-+ `Curseur`
-	- Ajout de `._aller_premier_emplacement_autorise()` pour éviter que le curseur spawn à une position interdite.
-	- Ajout de la méthode (non finie) `._bouger()` qui généralisera le rôle de `.monter()`, `.aller_gauche()`, ....
-	- Renommage de `._ajouter_a_pdp_y` en `._ajouter_a_pdtp_y`.
-	- Modification du message d'erreur si jamais les coordonnées sont incorrecte dans `.coordonees_globales_vers_coordonees_curseur()`.
-+ entités
-	- Ajout de propriétés (pas encore ajoustées ni utilisées) `.pos_curseur_x` et `.pos_curseur_y`.
++ Interactions utilisateur
++ `Attaque`
+	- Ajout des constantes statiques `_DUREE_AFFICHAGE` et `_DUREE_VIDE`.
+	- Ajout du membre statique `._etat_graphique[]`.
+	- Modification de `lancer_toutes_les_attaques()`:
+		* Ajout du paramètre `surface`.
+		* Renommage en `lancer_toutes_les_attaques_gen()`.
+		* La fonction renvoie maintenant Un générateur qui exécute et dessine une par une.
+		* Suppression du paramètre `reset_ecran`.
++ [dessin.py](sources/combats/dessin.py)
+	- Ajout de la fonction `image_vers_generateur()` qui renvoie un générateur renvoyant l'image pendant un temps défini.
++ [fonctions_main](sources/combats/fonctions_main.py)
+	- `nouveau_combat()` est maintant un générateur.
++ [fonctions_vrac](sources/combats/fonctions_vrac.py)
+	- Jaout des fonctions `avancer_generateurs()` et `terminer_generateur()`.
++ Entités
+	- Ajout d'un dictionnaire `_etat_graphique[]`.
+	- Ajout des méthodes `.dessine_prochaine_frame()` et `.dessine_prochaine_frame_UI()`.
+	- `.recoit_degats()` ne retourne plus rien.
+	- `.est_mort` est une propriété désormais.
++ `Monstre`
+	- Renommage de `._attaques_disponibles[]` en `._moveset[]` pour une unicité dans les entités.
++ `Stat`
+	- `.est_mort` est une propriété désormais.
++ [UI.py](sources/combats/UI.py)
+	- `afficher_nombre_combat()` devient `ecran_nombre_combat()` et retourne un générateur qui donne l'écran pour chaque frames.
+	- `rafraichir_ecran()` à été adapté au fonctionnement avec les générateurs.
+		* Elle prend deux listes de générateurs en entrée et va les exécuter à chaque frames.
++ [variables_globales.py](sources/combats/variables_globales.py)
+	- Ajout de `menus_surf` qui contient tous les graphiques des menus.
+	- Remplacement de `delta` par `temps_de_jeu` (le delta timing des animations se fait nativement pour les animations).

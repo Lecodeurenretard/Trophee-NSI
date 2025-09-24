@@ -1,8 +1,10 @@
 from Settings import Parametre, TypeParametre
 import settings_vars as param
 
-import Pos
-import Stats
+from Pos       import Pos
+from Stats     import Stat
+from Duree     import Duree
+from Animation import InterpolationLineaire
 
 from fonctions_vrac import *
 from dessin import *

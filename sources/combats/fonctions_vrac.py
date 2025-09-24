@@ -111,3 +111,28 @@ def color_to_rgb(couleur : color) -> rgba:
     if type(couleur) is rgba:
         return rgba_to_rgb(couleur)  # type: ignore
     return couleur                                          # type: ignore
+
+def avancer_generateurs(gen_list : list[Generator], to_send : Any = None) -> None:
+    """
+    Appelle `next()` sur tous les générateurs de la liste.
+    Si un générateur élève une `StopIteration`, l'enlève de la liste.
+    """
+    for i, gen in enumerate(reversed(gen_list)):
+        try:
+            gen.send(to_send)
+        except StopIteration:
+            gen_list.pop(i)
+
+def terminer_generateur(gen : Generator) -> None:
+    """
+    Exécute `gen` tant qu'il n'est pas fini.
+    N'appelle PAS `commencer_frame()` donc la condition de sortie ne doit pas dépendre sur une variable globale non modifiée par la fonction.
+    """
+    while True:
+        try:
+            next(gen)
+        except StopIteration:
+            return
+
+def commencer_frame(framerate : int = 60) -> None:
+    globales.temps_de_jeu.millisecondes += clock.tick(framerate)

@@ -85,7 +85,7 @@ class Monstre:
         
         self._nom = nom
         self._stats = stats
-        self._attaques_disponibles = attaques
+        self._moveset = attaques
         self._type = type_calque
         
         assert(couleur is not None or chemin_sprite is not None), "A la fois couleur et chemin_sprite sont None"
@@ -97,6 +97,9 @@ class Monstre:
             self._sprite : Surface|None = None
         
         Monstre._ajouter_monstre_a_liste(self)
+        self._etat_graphique : dict[str, Any] = {
+            "afficher": True,
+        }
         
         self._id = premier_indice_libre_de_entites_vivantes()
         if self._id >= 0:
@@ -143,11 +146,11 @@ class Monstre:
     @staticmethod
     def tuer_les_monstres_morts() -> None:
         for monstre in Monstre.monstres_en_vie:
-            if monstre.est_mort():
+            if monstre.est_mort:
                 monstre.meurt()
     
     @staticmethod
-    def spawn(proba : dict[TypeMonstre, float]|None = None, autoriser_spawn_erreur : bool = False) -> 'Monstre':
+    def spawn(proba : dict[TypeMonstre, float]|None = None) -> 'Monstre':
         poids : list[float]|None = None
         liste_de_types : list[TypeMonstre] = list(TypeMonstre)
         if proba is not None:
@@ -164,6 +167,10 @@ class Monstre:
     @property
     def id(self) -> int:
         return self._id
+    
+    @property
+    def est_mort(self) -> bool:
+        return self._stats.est_mort
     
     @property
     def nom(self) -> str:
@@ -204,28 +211,27 @@ class Monstre:
         self._stats = copy(Monstre._STATS_DE_BASE[nouveau_type])
         self._stats.vie = round(self._stats.vie_max * ratio_vie)    # Conserve les proportions
         
-        self._attaques_disponibles = nouveau_type.moveset
+        self._moveset = nouveau_type.moveset
         self._couleur = nouveau_type.couleur
         
         self._sprite = pygame.transform.scale(pygame.image.load(nouveau_type.chemin_sprite), Monstre.dimensions_sprites)
         self._type = nouveau_type
     
     def choisir_attaque(self) -> Attaque:
-        return random.choice(self._attaques_disponibles)
+        return random.choice(self._moveset)
     
     def attaquer(self, id_cible : int, attaque : Attaque) -> None:
         """Attaque la cible et retourne si elle a été tuée."""
         assert(globales.entites_vivantes[id_cible] is not None), "La cible est une case vide de globales.entites_vivantes[] dans Monstre.attaquer()."
-        assert(attaque in self._attaques_disponibles), "L'attaque demandée dans Monstre.attaquer() n'est pas dans le moveset du monstre."
+        assert(attaque in self._moveset), "L'attaque demandée dans Monstre.attaquer() n'est pas dans le moveset du monstre."
         
         attaque.enregister_lancement(self._id, id_cible)
     
-    def recoit_degats(self, dommages : int) -> bool:
+    def recoit_degats(self, dommages : int) -> None:
         if bool(param.monstre_invincible) and dommages >= 0:
-            return False
+            return
         
         self._stats.baisser_vie(dommages)
-        return self.est_mort()
     
     def longueur_barre_de_vie(self) -> int:
         ratio = max(0, self._stats.vie / self._stats.vie_max)
@@ -242,9 +248,17 @@ class Monstre:
     
     def dessiner_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int):
         dessiner_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
+       
+    def dessine_prochaine_frame(self, surface : Surface) -> None:
+        if not self._etat_graphique["afficher"]:
+            return
+        self.dessiner(surface, pourcentage_largeur(70), pourcentage_hauteur(15))
         
-    def est_mort(self) -> bool:
-        return self._stats.est_mort()
+        if self._etat_graphique["attaque"]["temps expiration"] < globales.temps_de_jeu:
+            self._moveset[self._etat_graphique["attaque"]["clef"]].dessiner(surface)
+    
+    def dessine_prochaine_frame_UI(self, surface : Surface) -> None:
+        pass
     
     def vers_type_precedent(self) -> bool:
         """Si le monstre à un type, change le type du monstre vers le précédent et renvoie True, sinon renvoie False et ne fait rien."""

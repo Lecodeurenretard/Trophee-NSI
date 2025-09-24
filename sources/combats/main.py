@@ -1,30 +1,22 @@
 from fonctions_boutons import *
+import etats_jeu as GameState
+from etats_jeu import (
+    EtatJeu,
+    changer_etat,
+    attente_nouveau_combat, choix_attaque, ecran_titre,
+)
 
-def menu() -> None:
-    boutons_menu : tuple[ButtonCursor, ...] = (
-        ButtonCursor("Jouer"     , (300, 200, 200, 60), line_thickness=0, group_name="Ecran titre", group_color=VERT, action=lancer_jeu),
-        ButtonCursor("Paramètres", (300, 300, 200, 60), line_thickness=0, group_name="Ecran titre",                   action=menu_parametres),
-        ButtonCursor("Crédits"   , (300, 400, 200, 60), line_thickness=0, group_name="Ecran titre",                   action=afficher_credits),
-    )
-    while globales.menu_running:
-        fenetre.fill(BLEU_CLAIR)
-        for bouton in boutons_menu:
-            bouton.draw(fenetre)
-        
-        ButtonCursor.draw_cursors(fenetre)
-        pygame.display.flip()
-        
-        for event in pygame.event.get():
-            verifier_pour_quitter(event)
-            ButtonCursor.handle_inputs(boutons_menu, event)
 
 def jeu() -> None:
+    global etat_du_jeu
+    
     joueur.reset_vie()
     reset_monstre()
     
+    anim_gen : list[Generator] = []
     while True:
-        rafraichir_ecran()
-        clock.tick(60)
+        rafraichir_ecran(generateurs_dessin=anim_gen)
+        commencer_frame()
         
         for event in pygame.event.get():
             verifier_pour_quitter(event)
@@ -40,6 +32,16 @@ def jeu() -> None:
                 reagir_appui_touche(event)
                 continue
         
+        match GameState.etat_du_jeu:
+            case EtatJeu.ATTENTE_NOUVEAU_COMBAT:
+                attente_nouveau_combat()
+            case EtatJeu.CHOIX_ATTAQUE:
+                choix_attaque()
+            case _:
+                raise NotImplementedError(f"Etat `{GameState.etat_du_jeu.name}` non implémenté dans jeu().")
+        
+        
+        iter += 1
         Monstre.tuer_les_monstres_morts()
         if len(Monstre.monstres_en_vie) == 0:
             if fin_combat():
@@ -48,19 +50,22 @@ def jeu() -> None:
         
         if not globales.tour_joueur:
             monstres_attaquent()
-            Attaque.lancer_toutes_les_attaques(rafraichir_ecran)
+            anim_gen.append(
+                Attaque.lancer_toutes_les_attaques_gen(fenetre)
+            )
             
             globales.tour_joueur = True
         
-        if joueur.est_mort():
+        if joueur.est_mort:
             fin_partie(gagne=False)
             return
 
 def __main__() -> None:
-    reset_monstre()
+    changer_etat(EtatJeu.ECRAN_TITRE)
     
+    reset_monstre()
     while True:
-        menu()
+        ecran_titre()
         jeu()
 
 # N'éxecute le programme que si on le lance depuis ce fichier

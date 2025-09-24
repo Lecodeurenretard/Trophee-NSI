@@ -44,13 +44,18 @@ class AttaqueFlags(IntFlag):
     ATTAQUE_EQUIPE = ATTAQUE_LANCEUR | ATTAQUE_ALLIES
 
 class Attaque:
-    _PUISSANCE_CRIT : float = 1.5
+    _PUISSANCE_CRIT  : float = 1.5
+    _DUREE_AFFICHAGE : Duree = Duree(s=1)
+    _DUREE_VIDE      : Duree = Duree(s=.2)
     
     CRIT_IMG : Surface = pygame.transform.scale(
         pygame.image.load(f"{CHEMIN_DOSSIER_IMG}/crit.png"),
         (40, 40)
     )
     
+    _etat_graphique : dict[str, Any] = {    # Pour toutes les attaques
+        "fin attaques": [0]         # type: list[int]
+    }
     toujours_crits : bool = False   # ne pas activer ici, utiliser les touches du mode debug plutôt
     attaques_du_tour : PriorityQueue['AttaquePriorisee'] = PriorityQueue(MAXIMUM_ENTITES_SIMULTANEES)
     
@@ -103,29 +108,30 @@ class Attaque:
         )
     
     @staticmethod
-    def lancer_toutes_les_attaques(reset_ecran : Callable[[], None]) -> None:
+    def lancer_toutes_les_attaques_gen(surface: Surface) -> Generator[None, None, None]:
         if param.mode_debug.case_cochee:
             logging.debug("Début du lancement des attaques.")
+        
         while not Attaque.attaques_du_tour.empty():
             attaque : Attaque = Attaque.attaques_du_tour.get_nowait().attaque
-            if attaque._lanceur.est_mort():
-                return
+            if attaque._lanceur.est_mort:
+                raise StopIteration("Le lanceur est mort")   # return pour les générateurs
             
             if param.mode_debug.case_cochee:
                 logging.debug(f"{attaque._lanceur.dbg_nom} (id: {attaque._lanceur.id}) utilise {attaque._nom} sur {attaque._cible.dbg_nom}.")
             
-            attaque.appliquer()
+            debut_attaque = globales.temps_de_jeu + Attaque._DUREE_VIDE
+            fin_attaque   = debut_attaque + Attaque._DUREE_AFFICHAGE
             
-            reset_ecran()
-            attendre(.2)
-            
-            attaque.dessiner(fenetre)
-            pygame.display.flip()
-            attendre(1)
-    
-        if param.mode_debug.case_cochee:
+            while globales.temps_de_jeu < fin_attaque:
+                if debut_attaque <= globales.temps_de_jeu:
+                    attaque.dessiner(surface)
+                yield
+        
+        
+        if bool(param.mode_debug):
             logging.debug("Fin du lancement des attaques.")
-    
+
     @property
     def _couleur(self) -> rgb:
         return self._type.couleur

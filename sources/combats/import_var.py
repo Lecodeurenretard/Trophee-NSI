@@ -17,5 +17,6 @@ from variables_globales import (
     # ça ne fait pas sens de remplacer ces variables pendant le programme
     # on peut donc se permettre le raccourcit
     fenetre,
+    menus_surf,
     clock,
 )

@@ -12,6 +12,10 @@ class Joueur:
         self._pseudo : str = ""
         self._moveset = moveset
         
+        self._etat_graphique : dict[str, Any] = {
+            "afficher": True,
+        }
+        
         self._id = premier_indice_libre_de_entites_vivantes()
         if self._id >= 0:
             globales.entites_vivantes[self._id] = self
@@ -29,6 +33,10 @@ class Joueur:
         # Appelé quand l'objet est détruit (plus utilisé ou détruit avec del())
         if self._id > 0 and globales.entites_vivantes is not None:
             self.meurt()
+    
+    @property
+    def est_mort(self) -> bool:
+        return self._stats.est_mort
     
     @property
     def pseudo(self) -> str:
@@ -74,13 +82,12 @@ class Joueur:
         self._pseudo = value
     
     
-    def recoit_degats(self, degats_recu : int) -> bool:
+    def recoit_degats(self, degats_recu : int) -> None:
         """Prend en charge les dégats prits et retourne si un crit est retourné."""
         if bool(param.joueur_invincible) and degats_recu >= 0:   # joueur_invincible n'empèche pas les soins
-            return False
+            return
         
         self._stats.baisser_vie(degats_recu)
-        return self.est_mort()
     
     def meurt(self) -> None:
         globales.entites_vivantes[self._id] = None
@@ -108,7 +115,9 @@ class Joueur:
         
         if self._moveset[clef_attaque].friendly_fire:
             id_cible = self.id
+        
         self._moveset[clef_attaque].enregister_lancement(self._id, id_cible)
+        self._etat_graphique["attaque"]["clef"] = clef_attaque
     
     def dessiner(self, surface : Surface) -> None:
         if param.mode_debug.case_cochee:
@@ -119,13 +128,21 @@ class Joueur:
         if self._sprite is not None:
             blit_centre(surface, self._sprite, (LARGEUR // 4, pourcentage_hauteur(60)))
     
-    
     def dessine_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int) -> None:
         dessiner_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie)
     
-    def est_mort(self) -> bool:
-        return self._stats.est_mort()
-
+    
+    def dessine_prochaine_frame(self, surface : Surface) -> None:
+        if not self._etat_graphique["afficher"]:
+            return
+        self.dessiner(surface)
+        
+        if self._etat_graphique["attaque"]["expiration"] < globales.temps_de_jeu:
+            assert(self._etat_graphique["attaque"]["clef"] != '\0'), "L'attaque n'est pas initialisée."
+            self._moveset[self._etat_graphique["attaque"]["clef"]].dessiner(surface)
+    
+    def dessine_prochaine_frame_UI(self, surface : Surface) -> None:
+        self.dessine_barre_de_vie(surface, pourcentage_largeur(70), pourcentage_hauteur(65))
 
 joueur : Joueur = Joueur({
     "heal":     ATTAQUES_DISPONIBLES["heal"],

@@ -58,3 +58,11 @@ def dessiner_barre_de_vie(surface : Surface, pos_x : int, pos_y : int, ratio_vie
 def dessiner_nom(nom : str, position : Pos) -> None:
     # c'est plus clair de mettre cette ligne en procédure
     fenetre.blit(globales.POLICE_TITRE.render(nom, True, NOIR), tuple(position))
+
+def image_vers_generateur(image : Surface, temps_affichage : globales.Duree) -> Generator[Surface, None, None]:
+    """
+    Renvoie un générateur qui renvoie `image` pendant le temps requis.
+    """
+    fin : globales.Duree = globales.temps_de_jeu + temps_affichage
+    while globales.temps_de_jeu < fin:
+        yield image

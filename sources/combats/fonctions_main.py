@@ -42,7 +42,7 @@ def fin_combat() -> bool:
     nouveau_combat(globales.nbr_combat + 1)
     return False
 
-def nouveau_combat(numero_combat : int, reset_joueur : bool = False) -> None:
+def nouveau_combat(numero_combat : int, reset_joueur : bool = False) -> Generator[Surface, None, None]:
     if not (1 <= numero_combat <= MAX_COMBAT):
         raise ValueError(f"`numero_combat` ({numero_combat}) doit être compris dans [1; {MAX_COMBAT}].")
     globales.nbr_combat = numero_combat
@@ -53,7 +53,7 @@ def nouveau_combat(numero_combat : int, reset_joueur : bool = False) -> None:
     if reset_joueur:
         joueur.reset_vie()
     
-    afficher_nombre_combat()
+    return ecran_nombre_combat()
 
 def reagir_appui_touche(ev):
     from fonctions_boutons import menu_parametres

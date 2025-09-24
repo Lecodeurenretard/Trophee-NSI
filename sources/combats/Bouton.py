@@ -97,7 +97,7 @@ class ButtonCursor(Button):
         curse_butt.cursor.ajouter_pos(cursor_pos)
         
         ButtonCursor._static_group_count[curse_butt._group_name] += 1
-
+    
     @staticmethod
     def _group_exists(group_to_test : str) -> bool:
         return group_to_test in ButtonCursor._static_group_cursors.keys()
