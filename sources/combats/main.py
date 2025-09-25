@@ -24,7 +24,7 @@ def jeu() -> None:
     
     while True:
         rafraichir_ecran()
-        globales.delta = clock.tick(60) / 1000      # convertion en secondes
+        clock.tick(60)      # convertion en secondes
         
         for event in pygame.event.get():
             verifier_pour_quitter(event)

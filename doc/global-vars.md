@@ -85,11 +85,6 @@ Un chemin vers [la racine](https://github.com/Lecodeurenretard/Trophee-NSI/tree/
 Les chemins vers les sous-dossiers de [data](https://github.com/Lecodeurenretard/Trophee-NSI/tree/master/data/), changent en fonction de `CHEMIN_RACINE`.
 
 ## Autres variables
-> `UI_autoriser_affichage_fps : bool = False`
-
-Si l'affichage des FPS est activé, devrait rester `False` par défaut car l'utilisateur n'a pas besoin de voir le compteur FPS dès son arrivée.
-
-
 > `clock : Clock`
 
 La `Clock` se chargeant de plafonner le framerate à 60fps.
@@ -109,10 +104,6 @@ Le numéro de combat.
 Si c'est au joueur d'attaquer.
 
 
-> `UI_affichage_fps_autorise : bool`
-
-Utilisé pour l'affichage des FPS.
-
 > `menu_running : bool`
 
 Si le l'ecran titre doit être affiché, devrait être enlevé.
@@ -121,8 +112,3 @@ Si le l'ecran titre doit être affiché, devrait être enlevé.
 > `entitees_vivantes : list[Monstre|Joueur|None]`
 
 La liste de toutes les entitées vivante, plus d'info dans le document [fight-sys.md](../doc/fight-system.md).
-
-
-> `delta : int`
-
-Le temps que la dernière frame à prise à se calculer, utilisé seulement pour calculer le framerate. Lorsque du [delta time](https://coderivers.org/blog/python-delta-time/) sera implémenté, une autre variable devra être utilisé.

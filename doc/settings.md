@@ -30,4 +30,3 @@ opérateurs définis:
 	+ vers `int`:   Renvoie `._valeur` si dans une catégorie le permettant (v. tableau) sinon élève une `TypeError`.
 	+ vers `float`: Renvoie `._valeur` si dans une catégorie le permettant (v. tableau) sinon élève une `TypeError`.
 	+ vers `str`:   Renvoie `._valeur` si dans une catégorie le permettant (v. tableau) sinon élève une `TypeError`.
-

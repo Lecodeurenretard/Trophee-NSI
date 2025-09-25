@@ -64,10 +64,6 @@ def reagir_appui_touche(ev):
             afficher_info()
             return
         
-        case globales.UI_TOUCHE_AFFICHAGE_FPS:
-            globales.UI_affichage_fps_autorise = not globales.UI_affichage_fps_autorise       # v. pavé dans import_var
-            return
-        
         case globales.UI_TOUCHE_SETTINGS:
             menu_parametres()
             return

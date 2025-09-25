@@ -1,4 +1,4 @@
-from imports import dataclass, pygame, Vecteur, Generator
+from imports import dataclass, Vecteur, Generator
 
 @dataclass
 class Pos:
@@ -14,7 +14,6 @@ class Pos:
     def __repr__(self):
         return f"({self.x}; {self.y})"
     
-    # On traite les pos comme des vecteurs
     def __add__(self, other : 'Pos|Vecteur') -> 'Pos':
         if type(other) is Vecteur:
             return Pos(self.x + int(other.x), self.y + int(other.y))
@@ -34,6 +33,6 @@ class Pos:
     # La raison est simple: les positions ne sont pas des vecteurs
     
     @staticmethod
-    def a_partir_de_collection(iterable : list[int] | tuple[int, int]) -> 'Pos':
-        assert(len(iterable) == 2), "Les positions sont en deux dimensions."
-        return Pos(iterable[0], iterable[1])
+    def a_partir_de_collection(collection : list[int] | tuple[int, int]) -> 'Pos':
+        assert(len(collection) == 2), "Les positions sont en deux dimensions."
+        return Pos(collection[0], collection[1])

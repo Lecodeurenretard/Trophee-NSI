@@ -44,7 +44,7 @@ class ButtonCursor(Button):
     # Prefixed by static to avoid name conflict with propreties
     _static_group_count   : dict[str, int]     = {}    # group's name -> # of buttons in the group
     _static_group_cursors : dict[str, Curseur] = {}    # group's name -> group's cursor
-    _static_group_colors  : dict[str, rgba]   = {}    # group's name -> group's color
+    _static_group_colors  : dict[str, rgba]    = {}    # group's name -> group's color
     
     def __init__(
             self,
@@ -120,9 +120,8 @@ class ButtonCursor(Button):
         
         action_executed : bool = False
         for butt in butt_seq:
-            cursor_butt : Curseur = butt.cursor
             if butt._group_name not in groups_having_moved_cursor:
-                cursor_butt.deplacement_utilisateur(ev)
+                butt.cursor.deplacement_utilisateur(ev)
                 groups_having_moved_cursor.append(butt._group_name)
             
             if utilisateur_valide_menu(ev) and butt._do_group_cursor_select_button:
@@ -149,8 +148,9 @@ class ButtonCursor(Button):
         return ButtonCursor._static_group_colors[self._group_name]
     
     @property
-    def cursor(self) -> Curseur:
-        return self._group_cursor
-    
     def _do_group_cursor_select_button(self) -> bool:
         return self.cursor.position_dans_positions == self._cursor_pos
+    
+    @property
+    def cursor(self) -> Curseur:
+        return self._group_cursor

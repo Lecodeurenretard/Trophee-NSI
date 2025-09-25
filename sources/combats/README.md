@@ -8,7 +8,6 @@ Touches qui marchent dans tous les modes:
 	+ entrée (clavier ou pavé numérique)
 - Déplacer les curseurs:
 	+ les flèches du clavier
-- Afficher/cacher le compteur de FPS: maj gauche
 - Afficher/cacher le menu des paramètres: tab
 
 ___
