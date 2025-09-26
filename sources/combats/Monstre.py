@@ -183,6 +183,14 @@ class Monstre:
     def pos_attaque_y(self) -> int:
         return 300
     
+    @property
+    def pos_curseur_x(self) -> int:
+        return 0
+    @property
+    def pos_curseur_y(self) -> int:
+        return 0
+    
+    
     def meurt(self) -> None:
         globales.entites_vivantes[self._id] = None
         Monstre._enlever_monstre_a_liste(self)

@@ -146,16 +146,5 @@ def rafraichir_ecran() -> None:
     # ...
     dessiner_boutons_attaques()
     
-    # Calcul et affichage des FPS
-    if globales.UI_affichage_fps_autorise:
-        framerate : str = "inf"
-        if globales.delta != 0:
-            framerate = str(round(1 / globales.delta))
-        
-        fenetre.blit(
-            POLICE_TEXTE.render(framerate, True, NOIR),
-            (pourcentage_largeur(95), pourcentage_hauteur(2))
-        )
-    
     # Mettre à jour l'affichage
     pygame.display.flip()

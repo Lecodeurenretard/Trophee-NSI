@@ -26,8 +26,8 @@ position_interdites : list[Pos] = [
     Pos(400, 500),
 ]
 curseur = Curseur(
-    lignes,
     colonnes,
+    lignes,
     position_interdites
 )
 
