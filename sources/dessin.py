@@ -40,7 +40,7 @@ def dessiner_rect(
         )
 
 def dessiner_barre_de_vie(surface : Surface, pos_x : int, pos_y : int, ratio_vie : float, longueur_remplissage : int) -> None:
-    from settings_vars import mode_debug
+    from parametres_vars import mode_debug
     
     if mode_debug.case_cochee:
         dessiner_rect(surface, (pos_x, pos_y), (longueur_remplissage, UI_HAUTEUR_BARRE_DE_VIE), GRIS, epaisseur_trait=0)

@@ -1,10 +1,10 @@
 # Comment marche le système de combat
 
 Les classes décrites dans ce fichier sont:
-+ [`Stat`](../sources/combats/Stats.py): Représente les statistiques d'une entité.
-+ [`Attaque`](../sources/combats/Attaque.py) (ainsi que les enums/_wrappers_ en lien): Toute action qui puisse influer sur cette ou une autre entité.
-+ [`Joueur`](../sources/combats/Joueur.py): 1<sup>er</sup> type d'entité, le personnage que contrôle le joueur.
-+ [`Monstre`](../sources/combats/Monstre.py): 2<sup>nd</sup> type d'entité, tout ennemi au joueur.
++ [`Stat`](../sources/Stats.py): Représente les statistiques d'une entité.
++ [`Attaque`](../sources/Attaque.py) (ainsi que les enums/_wrappers_ en lien): Toute action qui puisse influer sur cette ou une autre entité.
++ [`Joueur`](../sources/Joueur.py): 1<sup>er</sup> type d'entité, le personnage que contrôle le joueur.
++ [`Monstre`](../sources/Monstre.py): 2<sup>nd</sup> type d'entité, tout ennemi au joueur.
 
 ## Les entités
 Une entité est un personnage indépendant en ce qui concerne le combat et pouvant y prendre part.  
@@ -50,13 +50,13 @@ Dessine la barre de vie à la position demandée.
 Renvoie si l'entité ne peut plus combattre.
 
 ### `Joueur`
-Il n'y a qu'un seul objet joueur, c'est la variable `joueur` (déclarée dans [Joueur.py](../sources/combats/Joueur.py)).  
+Il n'y a qu'un seul objet joueur, c'est la variable `joueur` (déclarée dans [Joueur.py](../sources/Joueur.py)).  
 Il n'y a pas besoin d'appeler de fonction pour l'ajouter ou l'enlever de `entites_vivantes[]` car le constructeur et le destructeur (`__init__()` et `__del__()`) s'en chargent automatiquement.
 
 ### `Monstre`
 Tous les monstres sont automatiquement ajoutés à la liste `Monstre.monstres_en_vie[]` et à `entites_vivantes[]`.
 
-Les monstres fonctionnent par types, un type de monstre est un monstre préfait: il aura ses stats et ses attaques propres. Les types sont gérés par l'énumération `TypeMonstre` (définie dans [Monstre.py](../sources/combats/Monstre.py)).  
+Les monstres fonctionnent par types, un type de monstre est un monstre préfait: il aura ses stats et ses attaques propres. Les types sont gérés par l'énumération `TypeMonstre` (définie dans [Monstre.py](../sources/Monstre.py)).  
 Voici les types implémentés:
 + Blob (attaque physique)
 + Sorcier (attaque magique)
@@ -65,7 +65,7 @@ Il est préférable de créer les nouveaux monstres par `Monstre.nouveau_monstre
 Pour détruire le monstre, il faut appeler `.meurt()`.
 
 ## Les stats
-Pour représenter les stats d'une entités, on utilise une instance de `Stat` (classe définie dans [Stat.py](../sources/combats/Stats.py)).
+Pour représenter les stats d'une entités, on utilise une instance de `Stat` (classe définie dans [Stat.py](../sources/Stats.py)).
 
 Pour le moment il y a sept stats:
 - `.vie`: La vie restante à l'entité détenant l'objet.
@@ -82,7 +82,7 @@ Pour le moment il y a sept stats:
 Dû à l'absence de constructeur manuellement définit, `.vie` sera initialisé à un nombre négatif, pour y remédier, utiliser `.reset_vie()`.
 
 ## Les attaques
-Chaque attaque est représentée par un objet `Attaque` (classe définie dans [Attaque.py](../sources/combats/Attaque.py)).  
+Chaque attaque est représentée par un objet `Attaque` (classe définie dans [Attaque.py](../sources/Attaque.py)).  
 attributs:
 + `._nom`: Le nom de l'attaque.
 + `._desc`: Une courte description à montrer à l'utilisateur.
@@ -119,10 +119,10 @@ Les objets `Attaque` ont un comportement personnalisé pour les opérateurs:
 + `!=`: Renvoie l'inverse de l'opérateur `==`.
 
 Les attaques se chargent d'infliger les dégats.  
-Les attaques prédéfinies sont dans le dictionnaire `ATTAQUES_DISPONIBLES[]` (défini dans [Attaque.py](../sources/combats/Attaque.py)) puis sont copiées dans un objet .
+Les attaques prédéfinies sont dans le dictionnaire `ATTAQUES_DISPONIBLES[]` (défini dans [Attaque.py](../sources/Attaque.py)) puis sont copiées dans un objet .
 
 Les attaques ont des types et des effets.  
-les types sont membres de l'énumeration `TypeAttaque` (définie dans [Attaque.py](../sources/combats/Attaque.py)) et dirigent la façon dont les dégats seront calculés et comment doit être traité.  
+les types sont membres de l'énumeration `TypeAttaque` (définie dans [Attaque.py](../sources/Attaque.py)) et dirigent la façon dont les dégats seront calculés et comment doit être traité.  
 Les effets seront les modifications de statut appliqués au destinataire, ils ne sont pas encore implémentés.
 
 ## Un tour expliqué sous différents points de vue

@@ -37,6 +37,6 @@ Il y a deux modes pour deux types d'utilisateurs:
 
 \*à faire
 
-Pour activer le mode débug, changez dans le code source le paramètre `mode_debug` dans [Settings.py](sources/combats/Settings.py).
+Pour activer le mode débug, changez dans le code source le paramètre `mode_debug` dans [Settings.py](sources/Settings.py).
 
-Les touches sont dans le [README](sources/combats/README.md) du répertoire [combats](sources/combats/).
+Les touches sont dans le [README](sources/README.md) du répertoire [sources](sources/).

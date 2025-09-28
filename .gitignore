@@ -1,3 +1,5 @@
+# Ce fichier permet d'interdire certains fichiers et dossiers d'être commits.
+
 # Je pense que les .gitignores utilisent les chemins de fichiers UNIX
 # '*' désigne un ou plusieurs caracètres d'un nom de fichier/dossier
 # '**' désigne un ou plusieurs dossiers

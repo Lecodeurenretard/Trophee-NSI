@@ -10,10 +10,10 @@
 # On pourrait y mettre les variables mutables mais le risque est de les remplacer, ce qui ne serait pas prit en compte dans les autres fichiers.
 
 from imports import *
-from constantes_globales import *
+from globales_constantes import *
 
-import variables_globales as globales
-from variables_globales import (
+import globales_variables as globales
+from globales_variables import (
     # ça ne fait pas sens de remplacer ces variables pendant le programme
     # on peut donc se permettre le raccourcit
     fenetre,

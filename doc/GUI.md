@@ -37,7 +37,7 @@ La classe `Button` est la seule à ne pas avoir été trop modifiée pendant les
 
 La détéction de clics, laisse volontairement à un clic le pouvoir d'activer plusieurs boutons, ce qui permet de simuler un boutons avec plusieurs actions. Faites attentions au placement et à la durée de vie des boutons (quand est-ce que la variable devient innacessible).
 
-Les fonctions appelées par les boutons sont définies dans [fonctions_boutons](../sources/combats/fonctions_boutons.py).
+Les fonctions appelées par les boutons sont définies dans [fonctions_boutons](../sources/fonctions_boutons.py).
 <!--here lies a buff shrug emoticon: ¯\\\_(ツ)_/¯-->
 
 ### `ButtonCursor`

@@ -71,12 +71,10 @@ TOUCHE_QUITTER          : int = pygame.K_ESCAPE
 
 # Le chemin du fichier vers le dossier racine
 # Quand on lance de VSCode, on lance le projet depuis racine
-# Quand on lance du terminal, on le lance du dossier "combats"
+# Quand on lance du terminal/en cliquant sur le fichier, on le lance du dossier "sources"
 CHEMIN_RACINE : str = ''
-if getcwd().endswith("combats"):    # rudimentaire mais fonctionnel
-    CHEMIN_RACINE = "../../"
-elif getcwd().endswith("sources"):
-    CHEMIN_RACINE = "../"
+if getcwd().endswith("sources"):
+    CHEMIN_RACINE = "../"    # rudimentaire mais fonctionnel
 else:
     logging.warning("Le dossier n'est pas reconnu, on suppose que l'on est à la racine.")
 

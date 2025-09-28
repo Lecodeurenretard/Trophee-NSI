@@ -1,5 +1,5 @@
-from Settings import Parametre, TypeParametre
-import settings_vars as param
+from Parametres import Parametre, TypeParametre
+import parametres_vars as param
 
 from Pos       import Pos
 from Stats     import Stat
@@ -10,4 +10,4 @@ from fonctions_vrac import *
 from dessin import *
 from import_var import *
 
-from settings_vars import PARAMETRES_NORMAUX, PARAMETRES_TRICHE
+from parametres_vars import PARAMETRES_NORMAUX, PARAMETRES_TRICHE

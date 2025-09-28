@@ -1,5 +1,5 @@
 from fonctions_boutons import *
-from etats_jeu import (
+from fonctions_etats import (
     changer_etat,
     attente_nouveau_combat, choix_attaque, ecran_titre,
 )

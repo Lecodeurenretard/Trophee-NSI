@@ -1,5 +1,5 @@
 # Les variables globales
-Une variable est globale si elle est déclarée dans [variables_globales](https://github.com/Lecodeurenretard/Trophee-NSI/tree/master/sources/combats/variables_globales.py).
+Une variable est globale si elle est déclarée dans [variables_globales](../variables_globales.py).
 
 ## Alias de types
 > `color`
@@ -13,10 +13,10 @@ Un alias à `float`, utilisé pour indiquer que le nombre est érroné. Sa seule
 
 
 ## Constantes
-Les constantes sont importées directement dans [import_var](https://github.com/Lecodeurenretard/Trophee-NSI/tree/master/sources/combats/import_var.py) ce qui permet de ne pas avoir à écrire `globales.` devant.
+Les constantes sont importées directement dans [import_var](../import_var.py) ce qui permet de ne pas avoir à écrire `globales.` devant.
 > `MODE_DEBUG : bool`
 
-Si le mode débug est actif, pour la liste des fonctionnalités du mode allez voir le [README](https://github.com/Lecodeurenretard/Trophee-NSI/tree/master/sources/combats/README.md) du répertoire [combats](https://github.com/Lecodeurenretard/Trophee-NSI/tree/master/sources/combats/).  
+Si le mode débug est actif, pour la liste des fonctionnalités du mode allez voir le [README](../sources/README.md) du répertoire [sources](../sources/).  
 Toutes les variables avec le préfixe `DBG_` ne doivent avoir aucun effet si le mode débug est inactif.
 
 
@@ -77,12 +77,12 @@ Des touches pour que l'utilisateur puisse interagir avec l'application avec les 
 
 > `CHEMIN_RACINE : str`
  
-Un chemin vers [la racine](https://github.com/Lecodeurenretard/Trophee-NSI/tree/master/) du projet, change suivant d'où le projet est éxécuté.
+Un chemin vers [la racine](../) du projet, change suivant d'où le projet est éxécuté.
 
 
 > `CHEMIN_DOSSIER_IMG`, `CHEMIN_DOSSIER_SAVE` et `CHEMIN_DOSSIER_ETC` de type `str`
 
-Les chemins vers les sous-dossiers de [data](https://github.com/Lecodeurenretard/Trophee-NSI/tree/master/data/), changent en fonction de `CHEMIN_RACINE`.
+Les chemins vers les sous-dossiers de [data](../data/), changent en fonction de `CHEMIN_RACINE`.
 
 ## Autres variables
 > `clock : Clock`

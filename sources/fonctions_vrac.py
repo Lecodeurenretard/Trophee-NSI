@@ -79,7 +79,7 @@ def utilisateur_valide_menu(ev : pygame.event.Event) -> bool:
 
 def testeur_skip(ev : pygame.event.Event) -> bool:
     """Si en mode débug, le testeur veut skip."""
-    from settings_vars import mode_debug
+    from parametres_vars import mode_debug
     
     return mode_debug.case_cochee and ev.type == pygame.KEYDOWN and ev.key in DBG_TOUCHES_SKIP
 

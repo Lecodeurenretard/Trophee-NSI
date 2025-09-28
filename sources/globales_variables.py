@@ -1,5 +1,5 @@
 from imports import *
-from constantes_globales import *
+from globales_constantes import *
 from Duree import Duree
 
 pygame.display.set_caption("Menu Principal")

@@ -1,4 +1,4 @@
-from Settings import *
+from Parametres import *
 
 _HAUTEUR_PREMIER_PARAMETRE : int = pourcentage_hauteur(11)
 _ECART_ENTRE_PARAMETRES : int = 10
