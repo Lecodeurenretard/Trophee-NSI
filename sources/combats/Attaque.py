@@ -84,7 +84,7 @@ class Attaque:
         self._prob_crit : float = crit_proba
         self._crit      : bool = False
         
-        self._effet : EffetAttaque = None   # type: ignore  # Si on veut lui assigner
+        self._effet : EffetAttaque = None   # type: ignore
         self._drapeaux = flags
         
         self._ajustement_degats = dernier_changements
@@ -115,7 +115,7 @@ class Attaque:
         while not Attaque.attaques_du_tour.empty():
             attaque : Attaque = Attaque.attaques_du_tour.get_nowait().attaque
             if attaque._lanceur.est_mort:
-                raise StopIteration("Le lanceur est mort")   # return pour les générateurs
+                return
             
             if param.mode_debug.case_cochee:
                 logging.debug(f"{attaque._lanceur.dbg_nom} (id: {attaque._lanceur.id}) utilise {attaque._nom} sur {attaque._cible.dbg_nom}.")

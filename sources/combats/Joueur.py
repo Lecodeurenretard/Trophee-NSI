@@ -6,7 +6,7 @@ class Joueur:
     _STATS_DE_BASE : Stat = Stat(45, 35, 40-5, 20, 30, 50, 1.2, 1).reset_vie()
     DIMENSIONS_SPRITE : tuple[int, int] = (160, 160)
     
-    def __init__(self, moveset : dict[str, Attaque], chemin_vers_sprite : str|None = None) -> None:
+    def __init__(self, moveset : dict[str, Attaque], chemin_vers_sprite : Optional[str] = None) -> None:
         # on assumera par la suite que _stats et _base_stats sont initialisés
         self._stats : Stat = Joueur._STATS_DE_BASE
         self._pseudo : str = ""
@@ -22,9 +22,9 @@ class Joueur:
             return
         
         if chemin_vers_sprite is not None:
-            self._sprite  : Surface|None = pygame.transform.scale(pygame.image.load(chemin_vers_sprite), Joueur.DIMENSIONS_SPRITE)
+            self._sprite  : Optional[Surface] = pygame.transform.scale(pygame.image.load(chemin_vers_sprite), Joueur.DIMENSIONS_SPRITE)
         else:
-            self._sprite : Surface|None = None
+            self._sprite  : Optional[Surface] = None
         
         self._id = len(globales.entites_vivantes)
         globales.entites_vivantes.append(self)

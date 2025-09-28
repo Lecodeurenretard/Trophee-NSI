@@ -21,7 +21,10 @@ def fin_partie(gagne : bool) -> None:
     blit_centre(fenetre, texte_fin, CENTRE_FENETRE)
     pygame.display.flip()
     
-    attendre(2)
+    attendre = pause(Duree(s=2))
+    while not next(attendre):
+        commencer_frame()
+    
     if param.fermer_a_la_fin.case_cochee:
         quit()
     
@@ -55,18 +58,16 @@ def nouveau_combat(numero_combat : int, reset_joueur : bool = False) -> Generato
     
     return ecran_nombre_combat()
 
-def reagir_appui_touche(ev):
+def reagir_appui_touche(ev) -> Optional[Interruption]:
     from fonctions_boutons import menu_parametres
     
     assert(ev.type == pygame.KEYDOWN), "L'évènement passé à reagir_appui_touche() n'est pas un appui de bouton."
     match ev.key:        # Un event ne peut être qu'une seule touche à la fois
         case globales.UI_TOUCHES_INFOS:
-            afficher_info()
-            return
+            return afficher_info()
         
         case globales.UI_TOUCHE_SETTINGS:
-            menu_parametres()
-            return
+            return menu_parametres()
     
     if not param.mode_debug.case_cochee:
         return
@@ -86,17 +87,11 @@ def reagir_appui_touche(ev):
             return
         
         case globales.DBG_TOUCHE_PRECEDENT_COMBAT:
-            try:
-                nouveau_combat(globales.nbr_combat - 1)
-            except ValueError:
-                ...   # Le testeur à tenté d'aller en dehors  des limites pour les combat
-                      # on ne réagit pas.
+            globales.nbr_combat -= 1
+            changer_etat(EtatJeu.ATTENTE_NOUVEAU_COMBAT)
             return
         
         case globales.DBG_TOUCHE_PROCHAIN_COMBAT:
-            try:
-                nouveau_combat(globales.nbr_combat + 1)
-            except ValueError:
-                ...   # Le testeur à tenté d'aller en dehors  des limites pour les combat
-                      # on ne réagit pas.
+            globales.nbr_combat += 1
+            changer_etat(EtatJeu.ATTENTE_NOUVEAU_COMBAT)
             return

@@ -1,5 +1,7 @@
 from imports import *
 
+Interruption : TypeAlias = Generator[Surface, None, None]
+
 DBG_TOUCHES_SKIP : tuple[int, ...] = (
     pygame.K_SPACE,
 )
@@ -48,8 +50,8 @@ POLICE_FOURRE_TOUT : pygame.font.Font = pygame.font.SysFont(None, 50)
 
 POLICE_TITRE.set_underline(True)
 
-TEXTE_INFO_UTILISER : pygame.Surface = POLICE_TEXTE.render("SPACE : utiliser", True, BLANC)
-TEXTE_INFO_INFO     : pygame.Surface = POLICE_TEXTE.render("I : info"        , True, BLANC)
+TEXTE_INFO_UTILISER : pygame.Surface = POLICE_TEXTE.render("ESPACE : utiliser", True, BLANC)
+TEXTE_INFO_INFO     : pygame.Surface = POLICE_TEXTE.render("I : info"         , True, BLANC)
 
 # v. doc pour son usage
 NaN : TypeAlias = float

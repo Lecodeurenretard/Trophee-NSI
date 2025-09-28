@@ -129,7 +129,7 @@ class Parametre:
         
         self._changement_utilisateur = on_change
         
-        self._valeurs_autorisees : list[str]|None = None
+        self._valeurs_autorisees : Optional[list[str]] = None
         if self._possibilites_finies:
             self._valeurs_autorisees = []
     
@@ -260,9 +260,9 @@ class Parametre:
         )
         
         self._categorie.dessiner(
-            fenetre,
+            surface,
             self._categorie,
-            Pos.a_partir_de_collection(self._hitbox_globale.topleft),
+            Pos(self._hitbox_globale.topleft),
             self._categorie.dimensions,
             self._valeur,
         )

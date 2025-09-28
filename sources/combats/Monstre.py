@@ -75,12 +75,12 @@ class Monstre:
     # devrait être utilisé le moins possible, préférer nouveau_monstre()
     def __init__(
             self,
-            nom : str,
-            stats : Stat,
-            attaques : tuple[Attaque],
-            couleur : rgb|None = None,
-            chemin_sprite : str|None = None,
-            type_calque : TypeMonstre|None = None
+            nom           : str,
+            stats         : Stat,
+            attaques      : tuple[Attaque],
+            couleur       : Optional[rgb]         = None,
+            chemin_sprite : Optional[str]         = None,
+            type_calque   : Optional[TypeMonstre] = None,
         ):
         
         self._nom = nom
@@ -89,12 +89,12 @@ class Monstre:
         self._type = type_calque
         
         assert(couleur is not None or chemin_sprite is not None), "A la fois couleur et chemin_sprite sont None"
-        self._couleur : rgb|None = couleur
+        self._couleur : Optional[rgb] = couleur
         
         if chemin_sprite is not None:
-            self._sprite  : Surface|None = pygame.transform.scale(pygame.image.load(chemin_sprite), Monstre.dimensions_sprites)
+            self._sprite  : Optional[Surface] = pygame.transform.scale(pygame.image.load(chemin_sprite), Monstre.dimensions_sprites)
         else:
-            self._sprite : Surface|None = None
+            self._sprite  : Optional[Surface] = None
         
         Monstre._ajouter_monstre_a_liste(self)
         self._etat_graphique : dict[str, Any] = {
@@ -150,8 +150,8 @@ class Monstre:
                 monstre.meurt()
     
     @staticmethod
-    def spawn(proba : dict[TypeMonstre, float]|None = None) -> 'Monstre':
-        poids : list[float]|None = None
+    def spawn(proba : Optional[dict[TypeMonstre, float]] = None) -> 'Monstre':
+        poids : Optional[list[float]] = None
         liste_de_types : list[TypeMonstre] = list(TypeMonstre)
         if proba is not None:
             poids = [-1.0] * len(liste_de_types)    # garantit de trouver une clef
@@ -160,7 +160,7 @@ class Monstre:
                 poids[i] = proba[type]
         
         return Monstre.nouveau_monstre(
-            random.choices(liste_de_types, weights=poids)[0] # type: ignore # la valeur par défaut de weights est None
+            random.choices(liste_de_types, weights=poids)[0]
         )
     
     

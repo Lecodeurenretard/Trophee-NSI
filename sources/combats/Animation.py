@@ -1,4 +1,4 @@
-from import_var import dataclass, Generator, Callable, TypeAlias, cos, pi, sqrt
+from import_var import dataclass, Generator, Callable, TypeAlias, cos, sqrt, math
 
 # Certains logiciels d'animations et de montage proposent ces fonctionnalités (par exemple Blender et DaVinci)
 # Les easing functions (j'ai pas le nom français) permettent d'avoir une animation plus fluide
@@ -12,9 +12,9 @@ no_easing          : EasingFunction = lambda x: x
 easing_square      : EasingFunction = lambda x: (2 * x**2) if x < .5 else (1 - 2 * (1 - x)**2)
 easing_cube        : EasingFunction = lambda x: (4 * x**3) if x < .5 else (1 - 4 * (1 - x)**3)
 easing_hypercube   : EasingFunction = lambda x: (8 * x**4) if x < .5 else (1 - 8 * (1 - x)**4)
-easing_trig        : EasingFunction = lambda x: .5 - cos(pi * x) / 2
 easing_circular    : EasingFunction = lambda x: (.5 - sqrt(.25 - x**2))             if x < .5 else (.5 + sqrt(.25 - (x - 1)**2))
 easing_exponential : EasingFunction = lambda x: (2**(10 * x - 10 + 4.04) - 2**5.96) if x < .5 else (1 - 2**(-10 * x + 4.04) + 2**5.96)
+easing_trig        : EasingFunction = lambda x: (.5 - cos(math.pi * x) / 2)
 
 easing_fade       : EasingFunction = easing_cube
 easing_exponent_4 : EasingFunction = easing_hypercube

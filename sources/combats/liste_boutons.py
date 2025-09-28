@@ -2,7 +2,6 @@
 
 from Bouton import *
 from fonction_combat import *
-from fonctions_vrac import attendre
 
 dimensions_boutons : tuple[tuple[int, int, int, int], ...]= (
     (70 , (13 * HAUTEUR // 16) - 25, 200, 50),

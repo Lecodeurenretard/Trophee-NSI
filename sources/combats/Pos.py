@@ -1,13 +1,33 @@
-from imports import dataclass, Vecteur, Generator
+from imports import dataclass, overload, Vecteur, Generator
 
 @dataclass
 class Pos:
     x : int
     y : int
     
+    @overload
+    def __init__(self, x_ou_pos : int, y : int): ...
+    @overload
+    def __init__(self, x_ou_pos : tuple[int, int]|list[int]): ...
+    
+    def __init__(self, x_ou_pos : int|tuple[int, int]|list[int], y : int = -1):
+        # J'ai déja dit à quel point je n'aime pas ce système de surchargement des fonctions?
+        self.x : int; self.y : int
+        if type(x_ou_pos) is int:
+            self.x = x_ou_pos; self.y = y
+            return
+        
+        if type(x_ou_pos) is not tuple and type(x_ou_pos) is not list:
+            raise TypeError(f"Mauvais type ({type(x_ou_pos).__name__}) du premier paramètre du constructeur de Pos.")
+        
+        assert(len(x_ou_pos) == 2), "Les positions sont en deux dimensions."
+        self.x, self.y = x_ou_pos[0], x_ou_pos[1]
+    
     def __iter__(self) -> Generator[int, None, None]:
         # v. Réponse StackOverflow https://stackoverflow.com/questions/37639363/how-to-convert-an-custom-class-object-to-a-tuple-in-python
         # En court, cette fonction permet de convertir les objets en tuple et en liste.
+        # Techniquement, grâce à elle on pourrait itérer à travers une position avec une boucle for
+        # mais personne ne fera ceci, n'est-ce pas?
         yield self.x    # return mais qui peut se faire plusieurs fois
         yield self.y
     
@@ -32,8 +52,3 @@ class Pos:
     # à NE PAS définir: le signe, la multiplication et division (scalaire ou pos), l'exponentiation.
     # La raison est simple: les positions ne sont pas des vecteurs
     # Si l'addition et la soustraction sont permis, c'est pour avoir moins à écrire.
-    
-    @staticmethod
-    def a_partir_de_collection(collection : list[int] | tuple[int, int]) -> 'Pos':
-        assert(len(collection) == 2), "Les positions sont en deux dimensions."
-        return Pos(collection[0], collection[1])

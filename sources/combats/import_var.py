@@ -19,4 +19,5 @@ from variables_globales import (
     fenetre,
     menus_surf,
     clock,
+    EtatJeu,
 )

@@ -21,3 +21,18 @@ menu_running : bool = True
 entites_vivantes : list = []
 
 temps_de_jeu : Duree = Duree()
+
+
+# Graphe des états: http://graphonline.top/fr/?graph=ZCaEuQwPStCefLfb
+class EtatJeu(Enum):
+    DECISION_ETAT          = auto()
+    CHOIX_ATTAQUE          = auto()
+    AFFICHAGE_ATTAQUES     = auto()
+    ATTENTE_NOUVEAU_COMBAT = auto()
+    FIN_DU_JEU             = auto()
+    
+    ECRAN_TITRE            = auto()
+    CREDITS                = auto()
+
+etat_jeu           : EtatJeu = EtatJeu.DECISION_ETAT
+precedent_etat_jeu : EtatJeu = EtatJeu.DECISION_ETAT

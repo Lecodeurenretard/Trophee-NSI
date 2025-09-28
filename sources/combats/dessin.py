@@ -1,15 +1,16 @@
 from import_var import *
 from Pos import Pos
+from Duree import Duree
 
 def dessiner_rect(
         surface : Surface,
-        position : tuple[int, int]|Pos, dimensions : tuple[int, int]|list[int], # pyright: ignore[reportRedeclaration]
+        position : tuple[int, int]|Pos, dimensions : tuple[int, int]|list[int],
         couleur_remplissage : color = ROUGE, couleur_bords : color = NOIR,
         epaisseur_trait : int = 1, dessiner_interieur : bool = True,
         centre_x : bool = False, centre_y : bool = False,
     ) -> None:
     if type(position) is tuple:
-        position = Pos.a_partir_de_collection(position)
+        position = Pos(position)
     assert(type(position) is Pos)   # c'est censé être sûr mais Pylance ne le pense pas
     
     if centre_x:
@@ -59,10 +60,10 @@ def dessiner_nom(nom : str, position : Pos) -> None:
     # c'est plus clair de mettre cette ligne en procédure
     fenetre.blit(globales.POLICE_TITRE.render(nom, True, NOIR), tuple(position))
 
-def image_vers_generateur(image : Surface, temps_affichage : globales.Duree) -> Generator[Surface, None, None]:
+def image_vers_generateur(image : Surface, temps_affichage : Duree) -> Generator[Surface, None, None]:
     """
     Renvoie un générateur qui renvoie `image` pendant le temps requis.
     """
-    fin : globales.Duree = globales.temps_de_jeu + temps_affichage
+    fin : Duree = globales.temps_de_jeu + temps_affichage
     while globales.temps_de_jeu < fin:
         yield image

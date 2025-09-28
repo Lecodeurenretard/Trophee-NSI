@@ -42,9 +42,10 @@ class ButtonCursor(Button):
     _cursor_radius : int = 12
     
     # Prefixed by static to avoid name conflict with propreties
-    _static_group_count   : dict[str, int]     = {}    # group's name -> # of buttons in the group
-    _static_group_cursors : dict[str, Curseur] = {}    # group's name -> group's cursor
-    _static_group_colors  : dict[str, rgba]    = {}    # group's name -> group's color
+    _static_group_count    : dict[str, int]     = {}    # group's name -> # of buttons in the group
+    _static_group_cursors  : dict[str, Curseur] = {}    # group's name -> group's cursor
+    _static_group_colors   : dict[str, rgba]    = {}    # group's name -> group's color
+    _static_group_is_drawn : dict[str, bool]    = {}    # group's name -> should the group be drawn
     
     def __init__(
             self,
@@ -81,6 +82,7 @@ class ButtonCursor(Button):
             del ButtonCursor._static_group_count[self._group_name]
             del ButtonCursor._static_group_cursors[self._group_name]
             del ButtonCursor._static_group_colors[self._group_name]
+            del ButtonCursor._static_group_is_drawn[self._group_name]
     
     @staticmethod
     def _create_group(cursor_position : Pos, group_name : str, group_color : color) -> None:
@@ -91,6 +93,7 @@ class ButtonCursor(Button):
         ButtonCursor._static_group_count[group_name] = 1
         ButtonCursor._static_group_cursors[group_name] = cursor
         ButtonCursor._static_group_colors[group_name] = color_to_rgba(group_color)
+        ButtonCursor._static_group_is_drawn[group_name] = False
     
     @staticmethod
     def _add_to_group(curse_butt : 'ButtonCursor', cursor_pos : Pos) -> None:
@@ -105,6 +108,9 @@ class ButtonCursor(Button):
     @staticmethod
     def draw_cursors(surface : Surface) -> None:
         for group_name in ButtonCursor._static_group_cursors:
+            if not ButtonCursor._static_group_is_drawn[group_name]:
+                continue
+            
             color = ButtonCursor._static_group_colors[group_name]
             group = ButtonCursor._static_group_cursors[group_name]
             
@@ -138,6 +144,9 @@ class ButtonCursor(Button):
         return action_executed
     
     @property
+    def _group_is_drawn(self) -> bool:
+        return ButtonCursor._static_group_is_drawn[self._group_name]
+    @property
     def _group_count(self) -> int:
         return ButtonCursor._static_group_count[self._group_name]
     @property
@@ -154,3 +163,8 @@ class ButtonCursor(Button):
     @property
     def cursor(self) -> Curseur:
         return self._group_cursor
+    
+    def enable_drawing(self) -> None:
+        ButtonCursor._static_group_is_drawn[self._group_name] = True
+    def disable_drawing(self) -> None:
+        ButtonCursor._static_group_is_drawn[self._group_name] = False

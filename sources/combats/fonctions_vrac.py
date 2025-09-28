@@ -1,5 +1,6 @@
 # Fonctions qui n'ont nulle part d'autre où aller
 from import_var import *
+from Duree import Duree
 
 def premier_indice_libre_de_entites_vivantes() -> int:
     """Retourne le premier indice disponible dans globales.entites_vivantes[] ou -1 s'il n'y en a pas."""
@@ -9,9 +10,27 @@ def premier_indice_libre_de_entites_vivantes() -> int:
             return i
     return -1
 
+# Le système d'overload est à la fois une bénédiction pour la fonctionnalité
+# et une malédiction pour sa syntaxe.
+@overload
+def verifier_pour_quitter() -> None:
+    """
+    Vérifie si un évènement dans la file des evènements est un évènement permettant de sortir, s'il en existe un quitte immédiatement.
+    Vide la file des évènements.
+    La décision est prise par la version surchargée avec un évènement.
+    """
+    ...
 
-def verifier_pour_quitter(ev : pygame.event.Event|None = None) -> None:
-    """Si ev n'est pas None, pop toutes les évènements de la file d'évènements sinon vérifie si l'utilisateur veut quitter."""
+@overload
+def verifier_pour_quitter(ev : pygame.event.Event) -> None:
+    """
+    Vérifie si `ev` permet de quitter le jeu, il doit respecter au moins une de ces conditions:
+    - Être de type `pygame.QUIT`;
+    - Représenter l'appui de la touche `TOUCHE_QUITTER`.
+    """
+    ...
+
+def verifier_pour_quitter(ev : Optional[pygame.event.Event] = None) -> None:
     if ev is not None:
         if ev.type == pygame.QUIT or (ev.type == pygame.KEYDOWN and ev.key == TOUCHE_QUITTER):
             quit()
@@ -19,7 +38,6 @@ def verifier_pour_quitter(ev : pygame.event.Event|None = None) -> None:
     
     for event in pygame.event.get():
         verifier_pour_quitter(event)
-
 
 
 def blit_centre(
@@ -34,7 +52,7 @@ def blit_centre(
     `dest` doit contenir au moins deux éléments (seuls les deux premiers serons utilisés); sous peine d'une `AssertionError`.
     Le paramètre
     """
-    assert(len(dest) >= 2 ), "On attend que le paramètre `dest` aie au moins 2 éléments."
+    assert(len(dest) >= 2), "On attend que le paramètre `dest` aie au moins 2 éléments."
     assert(area is None or len(area) == 4), "On attend que le paramètre `area` soit None ou aie exactement 4 éléments."
     
     emplacement_dessin : list[int] = list(dest)
@@ -65,20 +83,43 @@ def testeur_skip(ev : pygame.event.Event) -> bool:
     
     return mode_debug.case_cochee and ev.type == pygame.KEYDOWN and ev.key in DBG_TOUCHES_SKIP
 
-
-
-def attendre(secondes : float, intervalle : float = .01) -> None:
-    """Attend `secondes`s et vérifie tous les `intervalle`s si l'utilisateur veut quitter, si oui quitte."""
-    from settings_vars import mode_debug    # import local pour éviter d'éventuels imports circulaires
+@overload
+def testeur_skip_ou_quitte() -> bool:
+    """
+    Vérifie si un évènement dans la file des evènements est un évènement permettant de sortir, s'il en existe un quitte immédiatement.
+    La fonction vérifie aussi si le testeur veut skip, dans ce cas là elle renvoie `True`.
+    Vide la file des évènements.
+    La décision est prise par la version avec un argument.
+    """
+    ...
+@overload
+def testeur_skip_ou_quitte(ev : pygame.event.Event) -> bool:
+    """
+    Vérifie si `ev` permet de quitter le jeu, il doit respecter au moins une de ces conditions:
+    - Être de type `pygame.QUIT`;
+    - Représenter l'appui de la touche `TOUCHE_QUITTER`.
     
-    for _ in range(int(secondes//intervalle)):  # arrondi au plus bas
-        for ev in pygame.event.get():
-            verifier_pour_quitter(ev)
-            if mode_debug.case_cochee and testeur_skip(ev):
-                return
-        
-        time.sleep(intervalle)
-    time.sleep(secondes % intervalle)   # attend le temps restant
+    La fonction vérifie aussi si le testeur veut skip dans ce cas là elle renvoie `True`.
+    """
+    ...
+
+def testeur_skip_ou_quitte(ev : Optional[pygame.event.Event] = None) -> bool:
+    if ev is not None:
+        verifier_pour_quitter(ev)
+        return testeur_skip(ev)
+    
+    for ev in pygame.event.get():
+        if testeur_skip_ou_quitte(ev):
+            return True
+    return False
+
+def pause(temps_attente : Duree) -> Generator[bool, None, None]:
+    """Renvoie `True` une fois que la `temps_attente` s'est écoulée."""
+    fin : Duree = globales.temps_de_jeu + temps_attente
+    
+    while globales.temps_de_jeu < fin:
+        yield False
+    yield True
 
 
 
@@ -110,7 +151,7 @@ def color_to_rgb(couleur : color) -> rgba:
     """Cette fonction est pour éviter les longues ternaires et ne pas calmer le vérifieur de types: si necessaire, elle appelle rgba_to_rgb()"""
     if type(couleur) is rgba:
         return rgba_to_rgb(couleur)  # type: ignore
-    return couleur                                          # type: ignore
+    return couleur                   # type: ignore
 
 def avancer_generateurs(gen_list : list[Generator], to_send : Any = None) -> None:
     """
@@ -123,16 +164,57 @@ def avancer_generateurs(gen_list : list[Generator], to_send : Any = None) -> Non
         except StopIteration:
             gen_list.pop(i)
 
-def terminer_generateur(gen : Generator) -> None:
+def terminer_generateur(gen : Generator, a_envoyer : Any = None) -> None:
     """
     Exécute `gen` tant qu'il n'est pas fini.
     N'appelle PAS `commencer_frame()` donc la condition de sortie ne doit pas dépendre sur une variable globale non modifiée par la fonction.
     """
     while True:
         try:
-            next(gen)
+            gen.send(a_envoyer)
+        except StopIteration:
+            return
+
+def terminer_interruption(gen : Interruption) -> None:
+    """Exécute `gen` jusqu'à qu'il soit fini. Les résultats sont affichés à l'écran, met à jour l'horloge."""
+    while True:
+        commencer_frame()
+        try:
+            fenetre.blit(next(gen), (0, 0))
+            pygame.display.flip()
         except StopIteration:
             return
 
 def commencer_frame(framerate : int = 60) -> None:
+    """La fonction à appeler à chaque début de frame."""
     globales.temps_de_jeu.millisecondes += clock.tick(framerate)
+
+
+@overload
+def centrer_pos_tuple(pos : tuple[int, int, int, int]) -> tuple[int, int, int, int]:
+    """Centre la tuple de rectangle: `(pos_en_x, pos_en_y, taille_en_x, taille_en_y)` comme si c'était un rectangle."""
+    ...
+
+@overload
+def centrer_pos_tuple(pos : tuple[int, int], dim : tuple[int, int]) -> tuple[int, int]:
+    """Centre la tuple de position: `(pos_en_x, pos_en_y)` comme si c'était un rectangle de dimensions `(taille_en_x, taille_en_y)`."""
+    ...
+
+def centrer_pos_tuple(pos : tuple[int, int, int, int]|tuple[int, int], dim : Optional[tuple[int, int]] = None) -> tuple[int, int, int, int]|tuple[int, int]:
+    if len(pos) == 4:
+        return (
+            pos[0] - pos[2] // 2,
+            pos[1] - pos[3] // 2,
+            pos[2], pos[3]
+        )
+    
+    assert(dim is not None), "Il y a un bug dans les overloads"
+    return (pos[0] - dim[0] // 2, pos[1] - dim[1] // 2)
+
+
+
+
+def changer_etat(nouvel_etat : EtatJeu) -> None:
+    """Change l'état du jeu vers `nouvel_etat`."""
+    globales.precedent_etat_jeu = globales.etat_jeu
+    globales.etat_jeu           = nouvel_etat

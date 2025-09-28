@@ -1,5 +1,5 @@
 from liste_boutons import *
-from Monstre import *        # pyright: ignore[reportGeneralTypeIssues]
+from Monstre import *
 
 def demander_pseudo() -> None:
     pseudo : str  = ""
@@ -11,10 +11,10 @@ def demander_pseudo() -> None:
             break
         
         fenetre.fill(BLANC)
-        blit_centre(fenetre, texte, (CENTRE_FENETRE[0], pourcentage_hauteur(45)))
+        blit_centre(fenetre, texte, (pourcentage_largeur(50), pourcentage_hauteur(45)))
         
         pseudo_affiche : Surface = globales.POLICE_FOURRE_TOUT.render(pseudo, True, BLEU)
-        blit_centre(fenetre, pseudo_affiche, (CENTRE_FENETRE[0], pourcentage_hauteur(50)))
+        blit_centre(fenetre, pseudo_affiche, (pourcentage_largeur(50), pourcentage_hauteur(50)))
         
         pygame.display.flip()
     
@@ -60,24 +60,25 @@ def trouve_attaque_a_partir_du_curseur() -> Attaque:
     
     raise ValueError("Il y a au moins un cas non pris en charge dans trouve_attaque_a_partir_du_curseur().")
 
-def afficher_info() -> None:
-    texte_puissance : Surface
-    texte_vitesse   : Surface
+def afficher_info() -> Interruption:
+    texte_puissance   : Surface
+    texte_vitesse     : Surface
     texte_description : Surface
     
-    fenetre.fill(BLANC)
+    image : Surface = Surface((LARGEUR, HAUTEUR))
+    
+    image.fill(BLANC)
     
     attaque : Attaque = trouve_attaque_a_partir_du_curseur()
-    texte_puissance = globales.POLICE_TITRE.render(f"Puissance: {attaque.puissance}", True, NOIR)
-    texte_vitesse   = globales.POLICE_TITRE.render(f"Vitesse: {attaque.vitesse}", True, NOIR)
+    texte_puissance   = globales.POLICE_TITRE.render(f"Puissance: {attaque.puissance}", True, NOIR)
+    texte_vitesse     = globales.POLICE_TITRE.render(f"Vitesse: {attaque.vitesse}", True, NOIR)
     texte_description = globales.POLICE_TITRE.render(attaque.desc, True, NOIR)
     
-    fenetre.blit(texte_puissance,   (pourcentage_largeur(30), HAUTEUR // 2))
-    fenetre.blit(texte_vitesse,     (pourcentage_largeur(52), HAUTEUR // 2))
-    fenetre.blit(texte_description, (pourcentage_largeur(30), HAUTEUR // 2 + 30))
+    blit_centre(image, texte_puissance  , (pourcentage_largeur(33), pourcentage_hauteur(50)))
+    blit_centre(image, texte_vitesse    , (pourcentage_largeur(66), pourcentage_hauteur(50)))
+    blit_centre(image, texte_description, (pourcentage_largeur(50), pourcentage_hauteur(57)))
     
-    pygame.display.flip()
-    attendre(2)
+    return image_vers_generateur(image, Duree(s=2))
 
 
 def dessiner_boutons_attaques() -> None:
@@ -85,21 +86,24 @@ def dessiner_boutons_attaques() -> None:
         butt.draw(menus_surf)
     ButtonCursor.draw_cursors(menus_surf)
 
-def chargement(duree : float = 7.0) -> None:
+def faux_chargement(duree : Duree = Duree(s=7.0)) -> None:
     barre : int = 0
     NB_ITERATION : int = 700
     while barre < NB_ITERATION:
         fenetre.fill(BLANC)
         
-        pygame.draw.rect(fenetre, NOIR, (pourcentage_largeur(6.25), CENTRE_FENETRE[1], barre, 50), 0)
+        pygame.draw.rect(fenetre, NOIR, (pourcentage_largeur(6.25), pourcentage_hauteur(50), barre, 50), 0)
         
         texte_chargement : Surface = globales.POLICE_TITRE.render("Chargement...", True, NOIR)
-        blit_centre(fenetre, texte_chargement, (CENTRE_FENETRE[0], pourcentage_hauteur(45)))
+        blit_centre(fenetre, texte_chargement, (pourcentage_largeur(50), pourcentage_hauteur(45)))
         
         pygame.display.flip()
         
         barre += 2
-        attendre(duree / NB_ITERATION)    # On assume que toutes les actions de la boucle sont instantanées
+        
+        attendre = pause(duree // NB_ITERATION)    # On assume que toutes les actions de la boucle sont instantanées
+        while next(attendre):
+            commencer_frame()   # celle-ci ne l'est pas car clock.tick() peut prendre entre 0 et 16ms à exécuter
 
 def ecran_nombre_combat() -> Generator[Surface, None, None]:
     texte_combat : Surface = globales.POLICE_TITRE.render(f"Combat n°{globales.nbr_combat}", True, NOIR)
@@ -141,10 +145,10 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     ButtonCursor.draw_cursors(fenetre)
     
     # Dessiner le texte
-    blit_centre(fenetre, TEXTE_INFO_UTILISER, (pourcentage_largeur(50), pourcentage_hauteur(81)))
-    blit_centre(fenetre, TEXTE_INFO_INFO    , (pourcentage_largeur(50), pourcentage_hauteur(81)))
+    blit_centre(fenetre, TEXTE_INFO_UTILISER, (pourcentage_largeur(85), pourcentage_hauteur(81)))
+    blit_centre(fenetre, TEXTE_INFO_INFO    , (pourcentage_largeur(85), pourcentage_hauteur(84)))
     
-    # Ils sont censés ne dessiner sur une surface
+    # Dessin supplémentaire
     avancer_generateurs(generateurs_dessin)
     avancer_generateurs(generateurs_UI)
     

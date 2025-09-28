@@ -7,14 +7,14 @@ def lancer_jeu() -> None:
     
     if not param.mode_debug.case_cochee:
         demander_pseudo()
-        chargement()
+        faux_chargement()
         nouveau_combat(1, True)
         return
     
     joueur.pseudo = "Testeur"
     nouveau_combat(1, True)
 
-def menu_parametres() -> None:
+def menu_parametres() -> Interruption:
     logging.info("→ Ouverture des paramètres...")
     bouton_sortir : Button = Button('X', (10, 10, 50, 50))
     
@@ -39,18 +39,22 @@ def menu_parametres() -> None:
                 logging.info("← Fermeture des paramètres.")
                 return
         
-        fenetre.fill(BLANC)
+        image : Surface = Surface((LARGEUR, HAUTEUR))
+        image.fill(BLANC)
         
-        blit_centre(fenetre, TITRE_PARAMS, (CENTRE_FENETRE[0], pourcentage_hauteur(10)))
-        fin_params : int = Parametre.dessiner_groupe(fenetre, PARAMETRES_NORMAUX)
+        blit_centre(image, TITRE_PARAMS, (pourcentage_largeur(50), pourcentage_hauteur(10)))
+        fin_params : int = Parametre.dessiner_groupe(image, PARAMETRES_NORMAUX)
         
         if param.mode_debug.case_cochee:
-            blit_centre(fenetre, TITRE_TRICHE, (CENTRE_FENETRE[0], fin_params + 40))
-            Parametre.dessiner_groupe(fenetre, PARAMETRES_TRICHE)
+            blit_centre(image, TITRE_TRICHE, (pourcentage_largeur(50), fin_params + 40))
+            Parametre.dessiner_groupe(image, PARAMETRES_TRICHE)
         
-        bouton_sortir.draw(fenetre)
+        bouton_sortir.draw(image)
         
-        pygame.display.flip()
+        yield image
+
+def lancer_parametres() -> None:
+    terminer_interruption(menu_parametres())
 
 def afficher_credits() -> None:
     logging.info("→ Affichage des crédits...")
@@ -60,7 +64,7 @@ def afficher_credits() -> None:
     while credit_y > 0:
         verifier_pour_quitter()
         fenetre.fill(NOIR)
-        blit_centre(fenetre, texte_credits, (CENTRE_FENETRE[0], credit_y))
+        blit_centre(fenetre, texte_credits, (pourcentage_largeur(50), credit_y))
         
         credit_y -= 1
         

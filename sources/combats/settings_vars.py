@@ -11,7 +11,7 @@ def _generer_menu_pos() -> Generator[int, int, NoReturn]:
         # La ligne du dessus ajoute la position envoyée par l'utilisateur avec la position interne
         # pour plus de détails recherchez l'utilisation des générateurs en Python et l'utilisation de .send()
 menu_h = _generer_menu_pos()
-menu_h.send(None)    #type: ignore # https://stackoverflow.com/questions/19892204/send-method-using-generator-still-trying-to-understand-the-send-method-and-quir
+menu_h.send(None)    # type: ignore # https://stackoverflow.com/questions/19892204/send-method-using-generator-still-trying-to-understand-the-send-method-and-quir
 
 # paramètres normaux
 fermer_a_la_fin : Parametre = Parametre(
@@ -32,7 +32,7 @@ mode_debug : Parametre = Parametre(
     -1,
     TypeParametre.CASE_A_COCHER,
     True,
-    on_change=_on_mode_debug_change # type: ignore # on est certain que la valeur pasée est un booléen
+    on_change=_on_mode_debug_change # type: ignore # on est certain que la valeur passée est un booléen
 )
 
 
