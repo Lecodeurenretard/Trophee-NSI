@@ -13,16 +13,16 @@ class TypeAttaque(Enum):
     def couleur(self) -> rgb:
         match self:
             case TypeAttaque.PHYSIQUE:
-                return ROUGE
+                return Constantes.ROUGE
             
             case TypeAttaque.MAGIQUE:
-                return BLEU
+                return Constantes.BLEU
             
             case TypeAttaque.SOIN:
-                return VERT
+                return Constantes.VERT
             
             case TypeAttaque.DIVERS:
-                return NOIR
+                return Constantes.NOIR
             
             case _:
                 raise NotImplementedError("Type d'attaque non implémenté dans TypeAttaque.couleur().")
@@ -49,7 +49,7 @@ class Attaque:
     _DUREE_VIDE      : Duree = Duree(s=.2)
     
     CRIT_IMG : Surface = pygame.transform.scale(
-        pygame.image.load(f"{CHEMIN_DOSSIER_IMG}/crit.png"),
+        pygame.image.load(f"{Constantes.Chemins.DOSSIER_IMG}/crit.png"),
         (40, 40)
     )
     
@@ -120,11 +120,11 @@ class Attaque:
             if param.mode_debug.case_cochee:
                 logging.debug(f"{attaque._lanceur.dbg_nom} (id: {attaque._lanceur.id}) utilise {attaque._nom} sur {attaque._cible.dbg_nom}.")
             
-            debut_attaque = globales.temps_de_jeu + Attaque._DUREE_VIDE
+            debut_attaque = Jeu.duree_execution + Attaque._DUREE_VIDE
             fin_attaque   = debut_attaque + Attaque._DUREE_AFFICHAGE
             
-            while globales.temps_de_jeu < fin_attaque:
-                if debut_attaque <= globales.temps_de_jeu:
+            while Jeu.duree_execution < fin_attaque:
+                if debut_attaque <= Jeu.duree_execution:
                     attaque.dessiner(surface)
                 yield
         
@@ -162,7 +162,7 @@ class Attaque:
     
     @property
     def nom_surface(self) -> Surface:
-        return POLICE_TITRE.render(self._nom, True, BLANC)
+        return Constantes.Polices.TITRE.render(self._nom, True, Constantes.BLANC)
     
     @property
     def friendly_fire(self) -> bool:
@@ -242,7 +242,7 @@ class Attaque:
         pos_x : int = self._lanceur.pos_attaque_x
         pos_y : int = self._lanceur.pos_attaque_y
         
-        pygame.draw.rect(fenetre, self._couleur, (pos_x, pos_y , RECT_LARGEUR, RECT_HAUTEUR), 5)
+        pygame.draw.rect(Jeu.fenetre, self._couleur, (pos_x, pos_y , RECT_LARGEUR, RECT_HAUTEUR), 5)
         
         if self._crit:
             blit_centre(
@@ -278,11 +278,11 @@ class AttaquePriorisee:
     @staticmethod
     def _calcul_score(vitesse_attaque : float, vitesse_lanceur : float) -> float:
         if vitesse_attaque < 0 or vitesse_lanceur < 0:
-            return VITESSE_MAXIMUM
+            return Stat.VITESSE_MAX
         
         # Visualisez et essayez les modification de la formule ici: https://www.desmos.com/3D/332drqdeup
         # Les seules restrictions sont que la fonction doit être strictement décroissante pour vitesse_attaque et vitesse_joueur.
-        return -max(0, min(VITESSE_MAXIMUM, 1.2 * vitesse_attaque + 1.0 * vitesse_lanceur))
+        return -max(0, min(Stat.VITESSE_MAX, 1.2 * vitesse_attaque + 1.0 * vitesse_lanceur))
 
 
 ATTAQUES_DISPONIBLES : dict[str, Attaque] = {

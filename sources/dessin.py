@@ -5,7 +5,7 @@ from Duree import Duree
 def dessiner_rect(
         surface : Surface,
         position : tuple[int, int]|Pos, dimensions : tuple[int, int]|list[int],
-        couleur_remplissage : color = ROUGE, couleur_bords : color = NOIR,
+        couleur_remplissage : color = Constantes.ROUGE, couleur_bords : color = Constantes.NOIR,
         epaisseur_trait : int = 1, dessiner_interieur : bool = True,
         centre_x : bool = False, centre_y : bool = False,
     ) -> None:
@@ -43,27 +43,27 @@ def dessiner_barre_de_vie(surface : Surface, pos_x : int, pos_y : int, ratio_vie
     from parametres_vars import mode_debug
     
     if mode_debug.case_cochee:
-        dessiner_rect(surface, (pos_x, pos_y), (longueur_remplissage, UI_HAUTEUR_BARRE_DE_VIE), GRIS, epaisseur_trait=0)
-        dessiner_rect(surface, (pos_x, pos_y), (UI_LONGUEUR_BARRE_DE_VIE, UI_HAUTEUR_BARRE_DE_VIE), couleur_bords=NOIR, epaisseur_trait=2, dessiner_interieur=False)
+        dessiner_rect(surface, (pos_x, pos_y), (longueur_remplissage, UI_HAUTEUR_BARRE_DE_VIE), Constantes.GRIS, epaisseur_trait=0)
+        dessiner_rect(surface, (pos_x, pos_y), (UI_LONGUEUR_BARRE_DE_VIE, UI_HAUTEUR_BARRE_DE_VIE), couleur_bords=Constantes.NOIR, epaisseur_trait=2, dessiner_interieur=False)
         return
     
-    couleur_remplissage : rgb = VERT
+    couleur_remplissage : rgb = Constantes.VERT
     if ratio_vie <= .2:
-        couleur_remplissage = ROUGE
+        couleur_remplissage = Constantes.ROUGE
     elif ratio_vie <= .5:
-        couleur_remplissage = JAUNE
+        couleur_remplissage = Constantes.JAUNE
     
     dessiner_rect(surface, (pos_x, pos_y), (longueur_remplissage, UI_HAUTEUR_BARRE_DE_VIE), couleur_remplissage=couleur_remplissage, epaisseur_trait=0)
-    dessiner_rect(surface, (pos_x, pos_y), (UI_LONGUEUR_BARRE_DE_VIE, UI_HAUTEUR_BARRE_DE_VIE), couleur_bords=NOIR, epaisseur_trait=2, dessiner_interieur=False)
+    dessiner_rect(surface, (pos_x, pos_y), (UI_LONGUEUR_BARRE_DE_VIE, UI_HAUTEUR_BARRE_DE_VIE), couleur_bords=Constantes.NOIR, epaisseur_trait=2, dessiner_interieur=False)
 
 def dessiner_nom(nom : str, position : Pos) -> None:
     # c'est plus clair de mettre cette ligne en procédure
-    fenetre.blit(globales.POLICE_TITRE.render(nom, True, NOIR), tuple(position))
+    Jeu.fenetre.blit(Constantes.Polices.TITRE.render(nom, True, Constantes.NOIR), tuple(position))
 
 def image_vers_generateur(image : Surface, temps_affichage : Duree) -> Generator[Surface, None, None]:
     """
     Renvoie un générateur qui renvoie `image` pendant le temps requis.
     """
-    fin : Duree = globales.temps_de_jeu + temps_affichage
-    while globales.temps_de_jeu < fin:
+    fin : Duree = Jeu.duree_execution + temps_affichage
+    while Jeu.duree_execution < fin:
         yield image

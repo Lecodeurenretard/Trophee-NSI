@@ -121,12 +121,12 @@ class Joueur:
     
     def dessiner(self, surface : Surface) -> None:
         if param.mode_debug.case_cochee:
-            boite_de_contours = (LARGEUR // 4, pourcentage_hauteur(75) - 100, 100, 100)
-            pygame.draw.rect(surface, BLEU, boite_de_contours, 0)
+            boite_de_contours = (Jeu.LARGEUR // 4, pourcentage_hauteur(75) - 100, 100, 100)
+            pygame.draw.rect(surface, Constantes.BLEU, boite_de_contours, 0)
             return
         
         if self._sprite is not None:
-            blit_centre(surface, self._sprite, (LARGEUR // 4, pourcentage_hauteur(60)))
+            blit_centre(surface, self._sprite, (Jeu.LARGEUR // 4, pourcentage_hauteur(60)))
     
     def dessine_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int) -> None:
         dessiner_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie)
@@ -137,7 +137,7 @@ class Joueur:
             return
         self.dessiner(surface)
         
-        if self._etat_graphique["attaque"]["expiration"] < globales.temps_de_jeu:
+        if self._etat_graphique["attaque"]["expiration"] < Jeu.duree_execution:
             assert(self._etat_graphique["attaque"]["clef"] != '\0'), "L'attaque n'est pas initialisée."
             self._moveset[self._etat_graphique["attaque"]["clef"]].dessiner(surface)
     
@@ -149,4 +149,4 @@ joueur : Joueur = Joueur({
     "physique": ATTAQUES_DISPONIBLES["physique"],
     "magie":    ATTAQUES_DISPONIBLES["magie"],
     "skip":     ATTAQUES_DISPONIBLES["skip"],
-}, chemin_vers_sprite=f"{CHEMIN_DOSSIER_IMG}/joueur_placeholder.png")
+}, chemin_vers_sprite=f"{Constantes.Chemins.DOSSIER_IMG}/joueur_placeholder.png")

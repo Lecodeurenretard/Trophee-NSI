@@ -3,32 +3,32 @@ from UI import *
 
 def quit(exit_code : int = 0) -> NoReturn:
     pygame.quit()
-    sys.exit(exit_code)
+    exit(exit_code)
 
 def fin_partie(gagne : bool) -> None:
     couleur_fond : rgb
     texte_fin : Surface
     if gagne:
-        couleur_fond = VERT
-        texte_fin = POLICE_TITRE.render("Vous avez gagné !", True, NOIR)
+        couleur_fond = Constantes.VERT
+        texte_fin = Constantes.Polices.TITRE.render("Vous avez gagné !", True, Constantes.NOIR)
         logging.info("Vous avez gagné !")
     else:
-        couleur_fond = BLEU_CLAIR
-        texte_fin = POLICE_TITRE.render("Vous avez perdu !", True, NOIR)
+        couleur_fond = Constantes.BLEU_CLAIR
+        texte_fin = Constantes.Polices.TITRE.render("Vous avez perdu !", True, Constantes.NOIR)
         logging.info("Vous avez perdu...")
     
-    fenetre.fill(couleur_fond)
-    blit_centre(fenetre, texte_fin, CENTRE_FENETRE)
+    Jeu.fenetre.fill(couleur_fond)
+    blit_centre(Jeu.fenetre, texte_fin, Jeu.CENTRE_FENETRE)
     pygame.display.flip()
     
     attendre = pause(Duree(s=2))
     while not next(attendre):
-        commencer_frame()
+        Jeu.commencer_frame()
     
     if param.fermer_a_la_fin.case_cochee:
         quit()
     
-    globales.menu_running = True
+    Jeu.ecran_titre_running = True
 
 
 def reset_monstre() -> None:
@@ -38,19 +38,19 @@ def reset_monstre() -> None:
     Monstre.spawn()
 
 def fin_combat() -> bool:
-    if globales.nbr_combat >= MAX_COMBAT:
+    if Jeu.num_combat >= Jeu.MAX_COMBAT:
         fin_partie(gagne=True)
         return True
     
-    nouveau_combat(globales.nbr_combat + 1)
+    nouveau_combat(Jeu.num_combat + 1)
     return False
 
 def nouveau_combat(numero_combat : int, reset_joueur : bool = False) -> Generator[Surface, None, None]:
-    if not (1 <= numero_combat <= MAX_COMBAT):
-        raise ValueError(f"`numero_combat` ({numero_combat}) doit être compris dans [1; {MAX_COMBAT}].")
-    globales.nbr_combat = numero_combat
+    if not (1 <= numero_combat <= Jeu.MAX_COMBAT):
+        raise ValueError(f"`numero_combat` ({numero_combat}) doit être compris dans [1; {Jeu.MAX_COMBAT}].")
+    Jeu.num_combat = numero_combat
     
-    globales.tour_joueur = True
+    Jeu.tour_joueur = True
     
     reset_monstre()
     if reset_joueur:
@@ -60,38 +60,39 @@ def nouveau_combat(numero_combat : int, reset_joueur : bool = False) -> Generato
 
 def reagir_appui_touche(ev) -> Optional[Interruption]:
     from fonctions_boutons import menu_parametres
+    import Jeu as jeu
     
     assert(ev.type == pygame.KEYDOWN), "L'évènement passé à reagir_appui_touche() n'est pas un appui de bouton."
     match ev.key:        # Un event ne peut être qu'une seule touche à la fois
-        case globales.UI_TOUCHES_INFOS:
+        case jeu.Constantes.Touches.INFOS:
             return afficher_info()
         
-        case globales.UI_TOUCHE_SETTINGS:
+        case jeu.Constantes.Touches.SETTINGS:
             return menu_parametres()
     
     if not param.mode_debug.case_cochee:
         return
     match ev.key:
-        case globales.DBG_TOUCHE_CRIT:    # encore un moment où python ne fait sens: https://stackoverflow.com/questions/77164443/why-does-my-match-case-statement-not-work-for-class-members
+        case jeu.Constantes.Touches.DBG_CRIT:    # encore un moment où python ne fait sens: https://stackoverflow.com/questions/77164443/why-does-my-match-case-statement-not-work-for-class-members
             Attaque.toujours_crits = not Attaque.toujours_crits
             return
         
-        case globales.DBG_TOUCHE_PREDECENT_MONSTRE:
+        case jeu.Constantes.Touches.DBG_PREDECENT_MONSTRE:
             if not Monstre.monstres_en_vie[0].vers_type_precedent():
                 logging.warning("Le monstre n'a pas de type!")
             return
        
-        case globales.DBG_TOUCHE_PROCHAIN_MONSTRE:
+        case jeu.Constantes.Touches.DBG_PROCHAIN_MONSTRE:
             if not Monstre.monstres_en_vie[0].vers_type_suivant():
                 logging.warning("Le monstre n'a pas de type!")
             return
         
-        case globales.DBG_TOUCHE_PRECEDENT_COMBAT:
-            globales.nbr_combat -= 1
-            changer_etat(EtatJeu.ATTENTE_NOUVEAU_COMBAT)
+        case jeu.Constantes.Touches.DBG_PRECEDENT_COMBAT:
+            Jeu.num_combat -= 1
+            Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
             return
         
-        case globales.DBG_TOUCHE_PROCHAIN_COMBAT:
-            globales.nbr_combat += 1
-            changer_etat(EtatJeu.ATTENTE_NOUVEAU_COMBAT)
+        case jeu.Constantes.Touches.DBG_PROCHAIN_COMBAT:
+            Jeu.num_combat += 1
+            Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
             return

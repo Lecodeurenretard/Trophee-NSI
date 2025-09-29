@@ -5,19 +5,12 @@
 # une variable mutable peut être remplacée mais on peut aussi la changer partiellement (penser à la méthode list.append()).
 # 
 # Python n'aime pas quand on remplace la valeur des variables entre les fichiers (la modification est ignorée entre les fichiers);
-# pour contourner ce problème, il faut changer la variable directement dans le module (d'où la notation variables_globales.var).
-# Le deuxième import donne une liste de variables que l'on peut utiliser sans la notation variables_globales.var.
+# pour contourner ce problème, il faut changer la variable directement dans le module (d'où la notation variables_Jeu.var).
+# Le deuxième import donne une liste de variables que l'on peut utiliser sans la notation variables_Jeu.var.
 # On pourrait y mettre les variables mutables mais le risque est de les remplacer, ce qui ne serait pas prit en compte dans les autres fichiers.
 
 from imports import *
 from globales_constantes import *
-
 import globales_variables as globales
-from globales_variables import (
-    # ça ne fait pas sens de remplacer ces variables pendant le programme
-    # on peut donc se permettre le raccourcit
-    fenetre,
-    menus_surf,
-    clock,
-    EtatJeu,
-)
+
+from Jeu import Jeu, Constantes, color, rgb, rgba, Interruption

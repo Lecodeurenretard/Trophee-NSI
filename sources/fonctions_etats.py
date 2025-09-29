@@ -1,35 +1,35 @@
 """
 Ce fichier contient tout le code pour les états de jeu (comme pour une machine à états).
-Chaque fonction éponyme à une valeur de `EtatJeu` sera une boucle stournant tant que l'état correspondant est dans `etat_jeu`.
+Chaque fonction éponyme à une valeur de `EtatJeu` sera une boucle stournant tant que l'état correspondant est dans `etat`.
 """
 
 from fonctions_boutons import *
 
 def attente_nouveau_combat() -> None:
-    ecran_gen : Generator[Surface, None, None] = nouveau_combat(globales.nbr_combat)
+    ecran_gen : Generator[Surface, None, None] = nouveau_combat(Jeu.num_combat)
     while True:
-        commencer_frame()
+        Jeu.commencer_frame()
         
         if testeur_skip_ou_quitte():
             break
         
         try:
-            fenetre.blit(next(ecran_gen), (0, 0))
+            Jeu.fenetre.blit(next(ecran_gen), (0, 0))
         except StopIteration:
             break
         pygame.display.flip()
     
-    changer_etat(EtatJeu.CHOIX_ATTAQUE)
+    Jeu.changer_etat(Jeu.Etat.CHOIX_ATTAQUE)
 
 def choix_attaque() -> None:
     boutons_attaques[0].enable_drawing()
     interruption_gen : Optional[Interruption] = None
     
     while True:
-        commencer_frame()
+        Jeu.commencer_frame()
         if interruption_gen is not None:
             try:
-                fenetre.blit(next(interruption_gen), (0, 0))
+                Jeu.fenetre.blit(next(interruption_gen), (0, 0))
                 pygame.display.flip()
             except StopIteration:
                 interruption_gen = None
@@ -37,12 +37,12 @@ def choix_attaque() -> None:
         
         for event in pygame.event.get():
             verifier_pour_quitter(event)
-            if (event.type != pygame.KEYDOWN and event.type != pygame.MOUSEBUTTONDOWN) or not globales.tour_joueur:
+            if (event.type != pygame.KEYDOWN and event.type != pygame.MOUSEBUTTONDOWN) or not Jeu.tour_joueur:
                 continue
             
             # Si le joueur attaque...
             if ButtonCursor.handle_inputs(boutons_attaques, event):
-                globales.tour_joueur = False
+                Jeu.tour_joueur = False
                 continue
             
             if event.type == pygame.KEYDOWN:
@@ -65,23 +65,23 @@ def ecran_titre() -> None:
         centrer_pos_tuple((pourcentage_largeur(50), pourcentage_hauteur(70), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
     )
     boutons_menu : tuple[ButtonCursor, ...] = (
-        ButtonCursor("Jouer"     , DIMENSIONS_BOUTONS[0], line_thickness=0, group_name="Ecran titre", group_color=VERT, action=lancer_jeu),
+        ButtonCursor("Jouer"     , DIMENSIONS_BOUTONS[0], line_thickness=0, group_name="Ecran titre", group_color=Constantes.VERT, action=lancer_jeu),
         ButtonCursor("Paramètres", DIMENSIONS_BOUTONS[1], line_thickness=0, group_name="Ecran titre",                   action=lancer_parametres),
         ButtonCursor("Crédits"   , DIMENSIONS_BOUTONS[2], line_thickness=0, group_name="Ecran titre",                   action=afficher_credits),
     )
     boutons_menu[0].enable_drawing()
     
     
-    while globales.menu_running:
-        commencer_frame()
+    while Jeu.ecran_titre_running:
+        Jeu.commencer_frame()
         for event in pygame.event.get():
             verifier_pour_quitter(event)
             ButtonCursor.handle_inputs(boutons_menu, event)
         
-        fenetre.fill(BLEU_CLAIR)
+        Jeu.fenetre.fill(Constantes.BLEU_CLAIR)
         for bouton in boutons_menu:
-            bouton.draw(fenetre)
+            bouton.draw(Jeu.fenetre)
         
-        ButtonCursor.draw_cursors(fenetre)
+        ButtonCursor.draw_cursors(Jeu.fenetre)
         pygame.display.flip()
-    changer_etat(EtatJeu.ATTENTE_NOUVEAU_COMBAT)
+    Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)

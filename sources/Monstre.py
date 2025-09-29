@@ -12,9 +12,9 @@ class TypeMonstre(IntEnum):
         """Renvoie la couleur du type de monstre correspondant."""
         match self:
             case TypeMonstre.Blob:
-                return ROUGE
+                return Constantes.ROUGE
             case TypeMonstre.Sorcier:
-                return BLEU
+                return Constantes.BLEU
             
             case _:
                 raise NotImplementedError("Type de monstre non implémenté dans Monstre.Type.couleur().")
@@ -24,9 +24,9 @@ class TypeMonstre(IntEnum):
         """Renvoie le chemin vers le sprite du type de monstre correspondant."""
         match self:
             case TypeMonstre.Blob:
-                return f"{CHEMIN_DOSSIER_IMG}/blob_placeholder.webp"
+                return f"{Constantes.Chemins.DOSSIER_IMG}/blob_placeholder.webp"
             case TypeMonstre.Sorcier:
-                return f"{CHEMIN_DOSSIER_IMG}/sorcier_placeholder.png"
+                return f"{Constantes.Chemins.DOSSIER_IMG}/sorcier_placeholder.png"
             
             case _:
                 raise NotImplementedError("Type de monstre non implémenté dans Monstre.Type.sprite().")
@@ -59,6 +59,8 @@ class TypeMonstre(IntEnum):
             return TypeMonstre(1)
         return TypeMonstre(self.value + 1)
 
+
+INVICIBLE_ENNEMI : bool = False
 
 class Monstre:
     _STATS_DE_BASE : dict[TypeMonstre, Stat] = {
@@ -254,7 +256,7 @@ class Monstre:
             return
         self.dessiner(surface, pourcentage_largeur(70), pourcentage_hauteur(15))
         
-        if self._etat_graphique["attaque"]["temps expiration"] < globales.temps_de_jeu:
+        if self._etat_graphique["attaque"]["temps expiration"] < Jeu.duree_execution:
             self._moveset[self._etat_graphique["attaque"]["clef"]].dessiner(surface)
     
     def dessine_prochaine_frame_UI(self, surface : Surface) -> None:

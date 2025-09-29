@@ -1,6 +1,7 @@
 # Fonctions qui n'ont nulle part d'autre où aller
 from import_var import *
 from Duree import Duree
+from Jeu   import Jeu
 
 def premier_indice_libre_de_entites_vivantes() -> int:
     """Retourne le premier indice disponible dans globales.entites_vivantes[] ou -1 s'il n'y en a pas."""
@@ -32,7 +33,7 @@ def verifier_pour_quitter(ev : pygame.event.Event) -> None:
 
 def verifier_pour_quitter(ev : Optional[pygame.event.Event] = None) -> None:
     if ev is not None:
-        if ev.type == pygame.QUIT or (ev.type == pygame.KEYDOWN and ev.key == TOUCHE_QUITTER):
+        if ev.type == pygame.QUIT or (ev.type == pygame.KEYDOWN and ev.key == Constantes.Touches.QUITTER):
             quit()
         return
     
@@ -73,15 +74,7 @@ def blit_centre(
 
 
 
-def utilisateur_valide_menu(ev : pygame.event.Event) -> bool:
-    """Vérifie si l'utilisateur valide dans un menu."""
-    return ev.type == pygame.KEYDOWN and ev.key in UI_TOUCHES_VALIDER
 
-def testeur_skip(ev : pygame.event.Event) -> bool:
-    """Si en mode débug, le testeur veut skip."""
-    from parametres_vars import mode_debug
-    
-    return mode_debug.case_cochee and ev.type == pygame.KEYDOWN and ev.key in DBG_TOUCHES_SKIP
 
 @overload
 def testeur_skip_ou_quitte() -> bool:
@@ -106,7 +99,7 @@ def testeur_skip_ou_quitte(ev : pygame.event.Event) -> bool:
 def testeur_skip_ou_quitte(ev : Optional[pygame.event.Event] = None) -> bool:
     if ev is not None:
         verifier_pour_quitter(ev)
-        return testeur_skip(ev)
+        return Constantes.Touches.testeur_skip(ev)
     
     for ev in pygame.event.get():
         if testeur_skip_ou_quitte(ev):
@@ -115,9 +108,9 @@ def testeur_skip_ou_quitte(ev : Optional[pygame.event.Event] = None) -> bool:
 
 def pause(temps_attente : Duree) -> Generator[bool, None, None]:
     """Renvoie `True` une fois que la `temps_attente` s'est écoulée."""
-    fin : Duree = globales.temps_de_jeu + temps_attente
+    fin : Duree = Jeu.duree_execution + temps_attente
     
-    while globales.temps_de_jeu < fin:
+    while Jeu.duree_execution < fin:
         yield False
     yield True
 
@@ -125,11 +118,11 @@ def pause(temps_attente : Duree) -> Generator[bool, None, None]:
 
 def pourcentage_hauteur(pourcents : float) -> int:
     """Renvoie pourcentage de la hauteur de l'écran en pixels"""
-    return round(HAUTEUR * pourcents / 100)
+    return round(Jeu.HAUTEUR * pourcents / 100)
 
 def pourcentage_largeur(pourcents : float) -> int:
     """Renvoie pourcentage de la largeur de l'écran en pixels"""
-    return round(LARGEUR * pourcents / 100)
+    return round(Jeu.LARGEUR * pourcents / 100)
 
 
 
@@ -143,15 +136,15 @@ def rgba_to_rgb(couleur : rgba) -> rgb:
 
 def color_to_rgba(couleur : color, nouvelle_transparence : int = 255) -> rgba:
     """Cette fonction est pour éviter les longues ternaires et ne pas calmer le vérifieur de types: si necessaire, elle appelle rgb_to_rgba()"""
-    if type(couleur) is rgb:
-        return rgb_to_rgba(couleur, nouvelle_transparence)  # type: ignore
-    return couleur                                          # type: ignore
+    if len(couleur) == 3:
+        return rgb_to_rgba(couleur, nouvelle_transparence)
+    return couleur
 
-def color_to_rgb(couleur : color) -> rgba:
+def color_to_rgb(couleur : color) -> rgb:
     """Cette fonction est pour éviter les longues ternaires et ne pas calmer le vérifieur de types: si necessaire, elle appelle rgba_to_rgb()"""
-    if type(couleur) is rgba:
-        return rgba_to_rgb(couleur)  # type: ignore
-    return couleur                   # type: ignore
+    if len(couleur) == 4:
+        return rgba_to_rgb(couleur)
+    return couleur
 
 def avancer_generateurs(gen_list : list[Generator], to_send : Any = None) -> None:
     """
@@ -167,7 +160,7 @@ def avancer_generateurs(gen_list : list[Generator], to_send : Any = None) -> Non
 def terminer_generateur(gen : Generator, a_envoyer : Any = None) -> None:
     """
     Exécute `gen` tant qu'il n'est pas fini.
-    N'appelle PAS `commencer_frame()` donc la condition de sortie ne doit pas dépendre sur une variable globale non modifiée par la fonction.
+    N'appelle PAS `Jeu.commencer_frame()` donc la condition de sortie ne doit pas dépendre sur une variable globale non modifiée par la fonction.
     """
     while True:
         try:
@@ -178,16 +171,12 @@ def terminer_generateur(gen : Generator, a_envoyer : Any = None) -> None:
 def terminer_interruption(gen : Interruption) -> None:
     """Exécute `gen` jusqu'à qu'il soit fini. Les résultats sont affichés à l'écran, met à jour l'horloge."""
     while True:
-        commencer_frame()
+        Jeu.commencer_frame()
         try:
-            fenetre.blit(next(gen), (0, 0))
+            Jeu.fenetre.blit(next(gen), (0, 0))
             pygame.display.flip()
         except StopIteration:
             return
-
-def commencer_frame(framerate : int = 60) -> None:
-    """La fonction à appeler à chaque début de frame."""
-    globales.temps_de_jeu.millisecondes += clock.tick(framerate)
 
 
 @overload
@@ -210,11 +199,3 @@ def centrer_pos_tuple(pos : tuple[int, int, int, int]|tuple[int, int], dim : Opt
     
     assert(dim is not None), "Il y a un bug dans les overloads"
     return (pos[0] - dim[0] // 2, pos[1] - dim[1] // 2)
-
-
-
-
-def changer_etat(nouvel_etat : EtatJeu) -> None:
-    """Change l'état du jeu vers `nouvel_etat`."""
-    globales.precedent_etat_jeu = globales.etat_jeu
-    globales.etat_jeu           = nouvel_etat

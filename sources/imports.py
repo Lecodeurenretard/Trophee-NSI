@@ -1,8 +1,6 @@
 # Imports et choses importantes
 
 import pygame
-import sys
-import time
 import random
 import logging
 import math
@@ -18,6 +16,7 @@ from queue       import PriorityQueue
 from dataclasses import dataclass
 from os          import getcwd
 from bisect      import insort
+from sys         import exit
 
 
 from pygame.surface import Surface

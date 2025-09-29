@@ -1,6 +1,6 @@
 from fonctions_boutons import *
 from fonctions_etats import (
-    changer_etat,
+    Jeu,
     attente_nouveau_combat, choix_attaque, ecran_titre,
 )
 
@@ -11,18 +11,18 @@ def jeu() -> None:
     
     anim_gen : list[Generator] = []
     while True:
-        commencer_frame()
+        Jeu.commencer_frame()
         
-        match globales.etat_jeu:
-            case EtatJeu.ECRAN_TITRE:
+        match Jeu.etat:
+            case Jeu.Etat.ECRAN_TITRE:
                 ecran_titre()
-            case EtatJeu.ATTENTE_NOUVEAU_COMBAT:
-                globales.nbr_combat += 1
+            case Jeu.Etat.ATTENTE_NOUVEAU_COMBAT:
+                Jeu.num_combat += 1
                 attente_nouveau_combat()
-            case EtatJeu.CHOIX_ATTAQUE:
+            case Jeu.Etat.CHOIX_ATTAQUE:
                 choix_attaque()
             case _:
-                raise NotImplementedError(f"Etat `{globales.etat_jeu.name}` non implémenté dans jeu().")
+                raise NotImplementedError(f"Etat `{Jeu.etat.name}` non implémenté dans jeu().")
         continue
         
         
@@ -33,20 +33,20 @@ def jeu() -> None:
                 return
             continue
         
-        if not globales.tour_joueur:
+        if not Jeu.tour_joueur:
             monstres_attaquent()
             anim_gen.append(
                 Attaque.lancer_toutes_les_attaques_gen(fenetre)
             )
             
-            globales.tour_joueur = True
+            Jeu.tour_joueur = True
         
         if joueur.est_mort:
             fin_partie(gagne=False)
             return
 
 def __main__() -> None:
-    changer_etat(EtatJeu.ECRAN_TITRE)
+    Jeu.changer_etat(Jeu.Etat.ECRAN_TITRE)
     while True:
         ecran_titre()
         jeu()
