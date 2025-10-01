@@ -5,7 +5,7 @@ from Pos       import Pos
 from Stats     import Stat
 from Duree     import Duree
 from Animation import InterpolationLineaire
-from Jeu       import Jeu, Constantes, Interruption, rgb, rgba, color
+from Jeu       import Jeu, Interruption
 
 from fonctions_vrac import *
 from dessin         import *

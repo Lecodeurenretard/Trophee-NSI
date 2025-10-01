@@ -18,8 +18,8 @@ def menu_parametres() -> Interruption:
     logging.info("→ Ouverture des paramètres...")
     bouton_sortir : Button = Button('X', (10, 10, 50, 50))
     
-    TITRE_PARAMS : Surface = Constantes.Polices.TITRE.render("Options de jeu"   , True, Constantes.NOIR)
-    TITRE_TRICHE : Surface = Constantes.Polices.TITRE.render("Options de triche", True, Constantes.NOIR)
+    TITRE_PARAMS : Surface = Constantes.Polices.TITRE.render("Options de jeu"   , True, NOIR)
+    TITRE_TRICHE : Surface = Constantes.Polices.TITRE.render("Options de triche", True, NOIR)
     
     while True:
         for ev in pygame.event.get():
@@ -40,7 +40,7 @@ def menu_parametres() -> Interruption:
                 return
         
         image : Surface = Surface((Jeu.LARGEUR, Jeu.HAUTEUR))
-        image.fill(Constantes.BLANC)
+        image.fill(BLANC)
         
         blit_centre(image, TITRE_PARAMS, (pourcentage_largeur(50), pourcentage_hauteur(10)))
         fin_params : int = Parametre.dessiner_groupe(image, PARAMETRES_NORMAUX)
@@ -58,12 +58,12 @@ def lancer_parametres() -> None:
 
 def afficher_credits() -> None:
     logging.info("→ Affichage des crédits...")
-    texte_credits : Surface = Constantes.Polices.FOURRE_TOUT.render("Développé par Jules et Lucas", True, Constantes.BLANC)
+    texte_credits : Surface = Constantes.Polices.FOURRE_TOUT.render("Développé par Jules et Lucas", True, BLANC)
     credit_y : int = Jeu.HAUTEUR
     
     while credit_y > 0:
         verifier_pour_quitter()
-        Jeu.fenetre.fill(Constantes.NOIR)
+        Jeu.fenetre.fill(NOIR)
         blit_centre(Jeu.fenetre, texte_credits, (pourcentage_largeur(50), credit_y))
         
         credit_y -= 1

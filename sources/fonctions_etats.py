@@ -65,7 +65,7 @@ def ecran_titre() -> None:
         centrer_pos_tuple((pourcentage_largeur(50), pourcentage_hauteur(70), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
     )
     boutons_menu : tuple[ButtonCursor, ...] = (
-        ButtonCursor("Jouer"     , DIMENSIONS_BOUTONS[0], line_thickness=0, group_name="Ecran titre", group_color=Constantes.VERT, action=lancer_jeu),
+        ButtonCursor("Jouer"     , DIMENSIONS_BOUTONS[0], line_thickness=0, group_name="Ecran titre", group_color=VERT, action=lancer_jeu),
         ButtonCursor("Paramètres", DIMENSIONS_BOUTONS[1], line_thickness=0, group_name="Ecran titre",                   action=lancer_parametres),
         ButtonCursor("Crédits"   , DIMENSIONS_BOUTONS[2], line_thickness=0, group_name="Ecran titre",                   action=afficher_credits),
     )
@@ -78,7 +78,7 @@ def ecran_titre() -> None:
             verifier_pour_quitter(event)
             ButtonCursor.handle_inputs(boutons_menu, event)
         
-        Jeu.fenetre.fill(Constantes.BLEU_CLAIR)
+        Jeu.fenetre.fill(BLEU_CLAIR)
         for bouton in boutons_menu:
             bouton.draw(Jeu.fenetre)
         

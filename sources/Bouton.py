@@ -5,7 +5,7 @@ class Button:
         self,
         text : str, dim : tuple[int, int, int, int],
         action : Callable[[], None] | None = None,
-        line_thickness : int = 1, bg_color : color = Constantes.GRIS, line_color : color = Constantes.NOIR
+        line_thickness : int = 1, bg_color : color = GRIS, line_color : color = NOIR
     ):
         self._rect : Rect = Rect(*dim)
         self._text : str = text
@@ -22,7 +22,7 @@ class Button:
         if self._line_size > 0:
             pygame.draw.rect(surface, self._line_color, self._rect, width=self._line_size)
         
-        text_surf : Surface = Constantes.Polices.FOURRE_TOUT.render(self._text, True, Constantes.BLANC)
+        text_surf : Surface = Constantes.Polices.FOURRE_TOUT.render(self._text, True, BLANC)
         text_rect : Rect = text_surf.get_rect(center=self._rect.center)
         
         surface.blit(text_surf, text_rect)
@@ -49,8 +49,8 @@ class ButtonCursor(Button):
     def __init__(
             self,
             text: str, dim : tuple[int, int, int, int],
-            group_name : str, group_color : color = Constantes.NOIR,
-            line_thickness : int = 1, bg_color : color = Constantes.GRIS, line_color : color = Constantes.NOIR,
+            group_name : str, group_color : color = NOIR,
+            line_thickness : int = 1, bg_color : color = GRIS, line_color : color = NOIR,
             action: Callable[[], None] | None = None
         ):
         """

@@ -17,7 +17,7 @@ boutons_attaques : list[ButtonCursor] = [   # honnêtement, c'est vraiment moche
     ButtonCursor(
         joueur.moveset_clefs[i], dimensions_boutons[i], group_name="Attaques",
         action=partial(lambda idex: joueur_attaque_comment(idex), i),     # pourquoi partial? https://stackoverflow.com/questions/6076270/lambda-function-in-list-comprehensions
-        line_thickness=5, line_color=Constantes.BLANC, bg_color=Constantes.NOIR, group_color=Constantes.BLEU # La partie intéressante commence un peu avant son edit de du 30/08/2019
+        line_thickness=5, line_color=BLANC, bg_color=NOIR, group_color=BLEU # La partie intéressante commence un peu avant son edit de du 30/08/2019
     )
     for i in range(len(joueur.moveset_clefs))
 ]

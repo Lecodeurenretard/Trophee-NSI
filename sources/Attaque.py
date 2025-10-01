@@ -13,16 +13,16 @@ class TypeAttaque(Enum):
     def couleur(self) -> rgb:
         match self:
             case TypeAttaque.PHYSIQUE:
-                return Constantes.ROUGE
+                return ROUGE
             
             case TypeAttaque.MAGIQUE:
-                return Constantes.BLEU
+                return BLEU
             
             case TypeAttaque.SOIN:
-                return Constantes.VERT
+                return VERT
             
             case TypeAttaque.DIVERS:
-                return Constantes.NOIR
+                return NOIR
             
             case _:
                 raise NotImplementedError("Type d'attaque non implémenté dans TypeAttaque.couleur().")
@@ -162,7 +162,7 @@ class Attaque:
     
     @property
     def nom_surface(self) -> Surface:
-        return Constantes.Polices.TITRE.render(self._nom, True, Constantes.BLANC)
+        return Constantes.Polices.TITRE.render(self._nom, True, BLANC)
     
     @property
     def friendly_fire(self) -> bool:

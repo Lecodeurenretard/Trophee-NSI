@@ -122,7 +122,7 @@ class Joueur:
     def dessiner(self, surface : Surface) -> None:
         if param.mode_debug.case_cochee:
             boite_de_contours = (Jeu.LARGEUR // 4, pourcentage_hauteur(75) - 100, 100, 100)
-            pygame.draw.rect(surface, Constantes.BLEU, boite_de_contours, 0)
+            pygame.draw.rect(surface, BLEU, boite_de_contours, 0)
             return
         
         if self._sprite is not None:

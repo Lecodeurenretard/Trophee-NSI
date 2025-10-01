@@ -12,9 +12,9 @@ class TypeMonstre(IntEnum):
         """Renvoie la couleur du type de monstre correspondant."""
         match self:
             case TypeMonstre.Blob:
-                return Constantes.ROUGE
+                return ROUGE
             case TypeMonstre.Sorcier:
-                return Constantes.BLEU
+                return BLEU
             
             case _:
                 raise NotImplementedError("Type de monstre non implémenté dans Monstre.Type.couleur().")

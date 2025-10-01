@@ -9,12 +9,12 @@ def fin_partie(gagne : bool) -> None:
     couleur_fond : rgb
     texte_fin : Surface
     if gagne:
-        couleur_fond = Constantes.VERT
-        texte_fin = Constantes.Polices.TITRE.render("Vous avez gagné !", True, Constantes.NOIR)
+        couleur_fond = VERT
+        texte_fin = Constantes.Polices.TITRE.render("Vous avez gagné !", True, NOIR)
         logging.info("Vous avez gagné !")
     else:
-        couleur_fond = Constantes.BLEU_CLAIR
-        texte_fin = Constantes.Polices.TITRE.render("Vous avez perdu !", True, Constantes.NOIR)
+        couleur_fond = BLEU_CLAIR
+        texte_fin = Constantes.Polices.TITRE.render("Vous avez perdu !", True, NOIR)
         logging.info("Vous avez perdu...")
     
     Jeu.fenetre.fill(couleur_fond)
@@ -60,39 +60,39 @@ def nouveau_combat(numero_combat : int, reset_joueur : bool = False) -> Generato
 
 def reagir_appui_touche(ev) -> Optional[Interruption]:
     from fonctions_boutons import menu_parametres
-    import Jeu as jeu
+    import Constantes as c
     
     assert(ev.type == pygame.KEYDOWN), "L'évènement passé à reagir_appui_touche() n'est pas un appui de bouton."
     match ev.key:        # Un event ne peut être qu'une seule touche à la fois
-        case jeu.Constantes.Touches.INFOS:
+        case c.Touches.INFOS:
             return afficher_info()
         
-        case jeu.Constantes.Touches.SETTINGS:
+        case c.Touches.SETTINGS:
             return menu_parametres()
     
     if not param.mode_debug.case_cochee:
         return
     match ev.key:
-        case jeu.Constantes.Touches.DBG_CRIT:    # encore un moment où python ne fait sens: https://stackoverflow.com/questions/77164443/why-does-my-match-case-statement-not-work-for-class-members
+        case c.Touches.DBG_CRIT:    # encore un moment où python ne fait sens: https://stackoverflow.com/questions/77164443/why-does-my-match-case-statement-not-work-for-class-members
             Attaque.toujours_crits = not Attaque.toujours_crits
             return
         
-        case jeu.Constantes.Touches.DBG_PREDECENT_MONSTRE:
+        case c.Touches.DBG_PREDECENT_MONSTRE:
             if not Monstre.monstres_en_vie[0].vers_type_precedent():
                 logging.warning("Le monstre n'a pas de type!")
             return
        
-        case jeu.Constantes.Touches.DBG_PROCHAIN_MONSTRE:
+        case c.Touches.DBG_PROCHAIN_MONSTRE:
             if not Monstre.monstres_en_vie[0].vers_type_suivant():
                 logging.warning("Le monstre n'a pas de type!")
             return
         
-        case jeu.Constantes.Touches.DBG_PRECEDENT_COMBAT:
+        case c.Touches.DBG_PRECEDENT_COMBAT:
             Jeu.num_combat -= 1
             Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
             return
         
-        case jeu.Constantes.Touches.DBG_PROCHAIN_COMBAT:
+        case c.Touches.DBG_PROCHAIN_COMBAT:
             Jeu.num_combat += 1
             Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
             return

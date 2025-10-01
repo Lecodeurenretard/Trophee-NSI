@@ -25,8 +25,8 @@ class TypeParametre(Enum):
                 dessiner_rect(
                     surface,
                     position, dimensions,
-                    Constantes.BLEU if valeur else Constantes.BLANC,
-                    epaisseur_trait=2, couleur_bords=Constantes.GRIS
+                    BLEU if valeur else BLANC,
+                    epaisseur_trait=2, couleur_bords=GRIS
                 )
             case TypeParametre.RADIO:
                 pass
@@ -251,7 +251,7 @@ class Parametre:
     
     def dessiner(self, surface : Surface) -> None:
         DECALAGE : Vecteur = Vecteur(Parametre._ECART_NOM_VALEUR // 2, 0)
-        nom_rendered : Surface = Parametre._POLICE.render(self._nom_affichage, True, Constantes.NOIR)
+        nom_rendered : Surface = Parametre._POLICE.render(self._nom_affichage, True, NOIR)
         
         blit_centre(
             surface, nom_rendered,

@@ -14,10 +14,8 @@ from math        import isnan, cos, sin, sqrt
 from copy        import copy, deepcopy
 from queue       import PriorityQueue
 from dataclasses import dataclass
-from os          import getcwd
 from bisect      import insort
 from sys         import exit
-
 
 from pygame.surface import Surface
 from pygame.rect    import Rect

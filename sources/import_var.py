@@ -13,4 +13,7 @@ from imports import *
 from globales_constantes import *
 import globales_variables as globales
 
-from Jeu import Jeu, Constantes, color, rgb, rgba, Interruption
+import Constantes
+from Constantes.Couleurs import *
+
+from Jeu import Jeu, Interruption

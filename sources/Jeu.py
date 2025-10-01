@@ -1,9 +1,10 @@
 from imports import *
 from Duree import Duree
 
-def staticclass(cls):   # prend une classe et ressort une autre classe
+def staticclass(cls : type) -> type:
     """Empèche les classes d'avoir un constructeur, on les force à être 'statiques'."""
-    def __init__(self) -> NoReturn:
+    def __init__(self, *autre : Any, **autres : Any) -> NoReturn:   # Englobe toutes les fonctions possibles dans Python
+        """Lance une TypeError."""
         # the humble = delete
         # the humble not defining constructor => can't create object
         # J'aime déclarer un décorateur pour une fonctionalité qui devrait être inscrite dans le langage.
@@ -15,101 +16,7 @@ def staticclass(cls):   # prend une classe et ressort une autre classe
 
 Interruption : TypeAlias = Generator[Surface, None, None]
 
-rgb   : TypeAlias = tuple[int, int, int]
-rgba  : TypeAlias = tuple[int, int, int, int]
-color : TypeAlias = rgb|rgba
-
-
-@staticclass
-class Constantes:
-    """Classe spéciale pour les constates."""
-    @classmethod
-    def init(cls) -> None:
-        cls.Polices.init()
-        cls.Chemins.init()
-    
-    @staticclass
-    class Touches:  # La méthodes des sous-classes est trop verbeuse, peut-être avec des modules?
-        DBG_SKIP : tuple[int, ...] = (
-            pygame.K_SPACE,
-        )
-        VALIDER : tuple[int, ...] = (
-            pygame.K_SPACE,
-            pygame.K_RETURN,    # entrée (return pour carriage return ou retour chariot sur les machines à écrire)
-            pygame.K_KP_ENTER,  # entrée du pavé numérique
-        )
-        
-        DBG_CRIT              : int = pygame.K_c
-        DBG_PRECEDENT_COMBAT  : int = pygame.K_s
-        DBG_PROCHAIN_COMBAT   : int = pygame.K_z
-        
-        DBG_PREDECENT_MONSTRE : int = pygame.K_q
-        DBG_PROCHAIN_MONSTRE  : int = pygame.K_d
-        
-        INFOS                 : int = pygame.K_i
-        SETTINGS              : int = pygame.K_TAB
-        
-        QUITTER               : int = pygame.K_ESCAPE
-        
-        @staticmethod
-        def utilisateur_valide_menu(ev : pygame.event.Event) -> bool:
-            """Vérifie si l'utilisateur valide dans un menu."""
-            return ev.type == pygame.KEYDOWN and ev.key in Constantes.Touches.VALIDER
-        
-        @staticmethod
-        def testeur_skip(ev : pygame.event.Event) -> bool:
-            """Si en mode débug, le testeur veut skip."""
-            from parametres_vars import mode_debug
-            
-            return mode_debug.case_cochee and ev.type == pygame.KEYDOWN and ev.key in Constantes.Touches.DBG_SKIP
-    
-    # @staticclass
-    # class Couleurs:
-    NOIR    : rgb = (0, 0, 0)
-    BLANC   : rgb = (255, 255, 255)
-    GRIS    : rgb = (100, 100, 100)
-    GRIS_CLAIR : rgb = (145, 145, 145)
-    
-    ROUGE   : rgb = (255, 0, 0)
-    VERT    : rgb = (0, 255, 0)
-    BLEU    : rgb = (0, 0, 255)
-    BLEU_CLAIR : rgb = (50, 50, 255)
-    JAUNE      : rgb = (255, 255, 0)
-    
-    TRANSPARENT : rgba = (0, 0, 0, 0)
-    
-    @staticclass
-    class Polices:
-        TITRE       : pygame.font.Font = pygame.font.Font(None, 36)    # police par défaut de pygame
-        TEXTE       : pygame.font.Font = pygame.font.Font(None, 25)
-        FOURRE_TOUT : pygame.font.Font = pygame.font.Font(None, 50)
-        
-        @classmethod
-        def init(cls) -> None:
-            cls.TITRE.set_underline(True)
-            
-    
-    @staticclass
-    class Chemins:
-        RACINE : str
-        DOSSIER_IMG  : str
-        DOSSIER_SAVE : str
-        DOSSIER_ETC  : str
-        
-        @classmethod
-        def init(cls):
-            cls.RACINE = ''
-            if getcwd().endswith("sources"):
-                cls.RACINE = "../"    # rudimentaire mais fonctionnel
-            else:
-                logging.warning("Le dossier n'est pas reconnu, on suppose que l'on est à la racine.")
-            
-            cls.DOSSIER_IMG  = f"{cls.RACINE}data/img"
-            cls.DOSSIER_SAVE = f"{cls.RACINE}data/save"
-            cls.DOSSIER_ETC  = f"{cls.RACINE}data/etc"
-
-
-@staticclass
+# @staticclass # empèche pywright de typer les membres
 class Jeu:
     """
     Classe statique gerant le jeu.
@@ -158,20 +65,19 @@ class Jeu:
     def set_texte_fenetre(val : str) -> None:
         pygame.display.set_caption(val)
     
-    @staticmethod
-    def toggle_tour() -> None:
-        Jeu.tour_joueur = not Jeu.tour_joueur
+    @classmethod
+    def toggle_tour(cls) -> None:
+        cls.tour_joueur = not cls.tour_joueur
     
-    @staticmethod
-    def changer_etat(nouvel_etat : Etat) -> None:
+    @classmethod
+    def changer_etat(cls, nouvel_etat : Etat) -> None:
         """Change l'état du jeu vers `nouvel_etat`."""
-        Jeu.precedent_etat = Jeu.etat
-        Jeu.etat           = nouvel_etat
+        cls.precedent_etat = cls.etat
+        cls.etat           = nouvel_etat
     
-    @staticmethod
-    def commencer_frame(framerate : int = 60) -> None:
+    @classmethod
+    def commencer_frame(cls, framerate : int = 60) -> None:
         """La fonction à appeler à chaque début de frame."""
-        Jeu.duree_execution.millisecondes += Jeu.clock.tick(framerate)
+        cls.duree_execution.millisecondes += cls.clock.tick(framerate)
 
-Constantes.init()
 Jeu.init()

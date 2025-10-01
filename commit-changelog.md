@@ -34,14 +34,11 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Centralisation des variables (et constantes) globales
+## Les constantes sont désormais mieux importées
 + Changements majeurs
-	- Ajout des classes `Jeu` et `Constantes`.
+	- Déplacement des constantes dans le répertoire [Constantes](sources/Constantes/).
+		* Création de ce dossier et de son [\_\_init__.py](sources/Constantes/__init__.py).
 + Sur plusieurs fichiers
-	- Déplacements des variables globales dans la classe `Jeu`.
-		- Déplacements des fonctions directements reliées comme `changer_etat()`.
-		- Déplacement de l'enum `EtatJeu` et renommage en `Etat`.
 + Structure de fichier
-	- Création de [Jeu.py](sources/Jeu.py)
 + READMEs et documentation
 + Interactions utilisateur
