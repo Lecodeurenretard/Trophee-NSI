@@ -8,23 +8,22 @@ class Joueur:
     
     def __init__(self, moveset : dict[str, Attaque], chemin_vers_sprite : Optional[str] = None) -> None:
         # on assumera par la suite que _stats et _base_stats sont initialisés
-        self._stats : Stat = Joueur._STATS_DE_BASE
-        self._pseudo : str = ""
-        self._moveset = moveset
+        self._stats   : Stat               = Joueur._STATS_DE_BASE
+        self._pseudo  : str                = ""
+        self._moveset : dict[str, Attaque] = moveset
         
         self._etat_graphique : dict[str, Any] = {
             "afficher": True,
         }
         
-        self._id = premier_indice_libre_de_entites_vivantes()
+        self._sprite : Optional[Surface] = None
+        if chemin_vers_sprite is not None:
+            self._sprite = pygame.transform.scale(pygame.image.load(chemin_vers_sprite), Joueur.DIMENSIONS_SPRITE)
+        
+        self._id : int = premier_indice_libre_de_entites_vivantes()
         if self._id >= 0:
             globales.entites_vivantes[self._id] = self
             return
-        
-        if chemin_vers_sprite is not None:
-            self._sprite  : Optional[Surface] = pygame.transform.scale(pygame.image.load(chemin_vers_sprite), Joueur.DIMENSIONS_SPRITE)
-        else:
-            self._sprite  : Optional[Surface] = None
         
         self._id = len(globales.entites_vivantes)
         globales.entites_vivantes.append(self)
@@ -60,7 +59,7 @@ class Joueur:
     @property
     def longueur_barre_de_vie(self) -> int:
         ratio = max(0, self._stats.vie / self._stats.vie_max)
-        return round(ratio * UI_LONGUEUR_BARRE_DE_VIE)
+        return round(ratio * Constantes.UI_LONGUEUR_BARRE_DE_VIE)
     
     # propriété car la position pourrait changer suivant la position du ou des joueurs
     @property
@@ -121,12 +120,12 @@ class Joueur:
     
     def dessiner(self, surface : Surface) -> None:
         if param.mode_debug.case_cochee:
-            boite_de_contours = (Jeu.LARGEUR // 4, pourcentage_hauteur(75) - 100, 100, 100)
+            boite_de_contours = (Jeu.LARGEUR // 4, Jeu.pourcentage_hauteur(75) - 100, 100, 100)
             pygame.draw.rect(surface, BLEU, boite_de_contours, 0)
             return
         
         if self._sprite is not None:
-            blit_centre(surface, self._sprite, (Jeu.LARGEUR // 4, pourcentage_hauteur(60)))
+            blit_centre(surface, self._sprite, (Jeu.LARGEUR // 4, Jeu.pourcentage_hauteur(60)))
     
     def dessine_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int) -> None:
         dessiner_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie)
@@ -142,7 +141,7 @@ class Joueur:
             self._moveset[self._etat_graphique["attaque"]["clef"]].dessiner(surface)
     
     def dessine_prochaine_frame_UI(self, surface : Surface) -> None:
-        self.dessine_barre_de_vie(surface, pourcentage_largeur(70), pourcentage_hauteur(65))
+        self.dessine_barre_de_vie(surface, Jeu.pourcentage_largeur(70), Jeu.pourcentage_hauteur(65))
 
 joueur : Joueur = Joueur({
     "heal":     ATTAQUES_DISPONIBLES["heal"],

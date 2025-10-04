@@ -1,6 +1,6 @@
 from Parametres import *
 
-_HAUTEUR_PREMIER_PARAMETRE : int = pourcentage_hauteur(11)
+_HAUTEUR_PREMIER_PARAMETRE : int = Jeu.pourcentage_hauteur(11)
 _ECART_ENTRE_PARAMETRES : int = 10
 _ECART_ENTRE_SECTIONS   : int = 40
 
@@ -31,9 +31,10 @@ mode_debug : Parametre = Parametre(
     "Mode développeur",
     -1,
     TypeParametre.CASE_A_COCHER,
-    True,
+    False,
     on_change=_on_mode_debug_change # type: ignore # on est certain que la valeur passée est un booléen
 )
+_on_mode_debug_change(bool(mode_debug))
 
 
 # paramètres de triche

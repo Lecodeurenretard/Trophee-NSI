@@ -33,7 +33,7 @@ class TypeAttaque(Enum):
 class EffetAttaque:
     pass        # TODO: définir les effets des attaques (poison, confus, ...) (un jour)
 
-class AttaqueFlags(IntFlag):
+class AttaqueFlags(Flag):
     """Des particularités que pourraient avoir les attaques"""
     AUCUN               = 0
     IGNORE_STATS        = auto()
@@ -57,7 +57,7 @@ class Attaque:
         "fin attaques": [0]         # type: list[int]
     }
     toujours_crits : bool = False   # ne pas activer ici, utiliser les touches du mode debug plutôt
-    attaques_du_tour : PriorityQueue['AttaquePriorisee'] = PriorityQueue(MAXIMUM_ENTITES_SIMULTANEES)
+    attaques_du_tour : PriorityQueue['AttaquePriorisee'] = PriorityQueue(Constantes.MAX_ENTITES_SIMULTANEES)
     
     
     def __init__(

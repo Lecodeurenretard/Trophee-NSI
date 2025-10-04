@@ -4,8 +4,11 @@ Chaque fonction éponyme à une valeur de `EtatJeu` sera une boucle stournant ta
 """
 
 from fonctions_boutons import *
+from Jeu import *
 
 def attente_nouveau_combat() -> None:
+    logging.debug(f"Activation de l'état {Jeu.Etat.ATTENTE_NOUVEAU_COMBAT.name}.")
+    
     ecran_gen : Generator[Surface, None, None] = nouveau_combat(Jeu.num_combat)
     while True:
         Jeu.commencer_frame()
@@ -22,6 +25,8 @@ def attente_nouveau_combat() -> None:
     Jeu.changer_etat(Jeu.Etat.CHOIX_ATTAQUE)
 
 def choix_attaque() -> None:
+    logging.debug(f"Activation de l'état {Jeu.Etat.CHOIX_ATTAQUE.name}.")
+    
     boutons_attaques[0].enable_drawing()
     interruption_gen : Optional[Interruption] = None
     
@@ -56,13 +61,15 @@ def choix_attaque() -> None:
     changer_etat(EtatJeu.AFFICHAGE_ATTAQUES)
 
 def ecran_titre() -> None:
+    logging.debug(f"Activation de l'état {Jeu.Etat.ECRAN_TITRE.name}.")
+    
     LARGEUR_BOUTONS : int = 200
     HAUTEUR_BOUTONS : int = 60
     
     DIMENSIONS_BOUTONS : tuple[tuple[int, int, int, int], ...] = (
-        centrer_pos_tuple((pourcentage_largeur(50), pourcentage_hauteur(30), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
-        centrer_pos_tuple((pourcentage_largeur(50), pourcentage_hauteur(50), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
-        centrer_pos_tuple((pourcentage_largeur(50), pourcentage_hauteur(70), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
+        centrer_pos_tuple((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(30), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
+        centrer_pos_tuple((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(50), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
+        centrer_pos_tuple((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(70), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
     )
     boutons_menu : tuple[ButtonCursor, ...] = (
         ButtonCursor("Jouer"     , DIMENSIONS_BOUTONS[0], line_thickness=0, group_name="Ecran titre", group_color=VERT, action=lancer_jeu),

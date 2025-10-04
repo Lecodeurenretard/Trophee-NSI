@@ -1,5 +1,6 @@
 from imports import *
 from Duree import Duree
+from Constantes import Touches
 
 def staticclass(cls : type) -> type:
     """Empèche les classes d'avoir un constructeur, on les force à être 'statiques'."""
@@ -16,7 +17,9 @@ def staticclass(cls : type) -> type:
 
 Interruption : TypeAlias = Generator[Surface, None, None]
 
-# @staticclass # empèche pywright de typer les membres
+# J'ai commenté le décorateur car il empèche pywright de détecter les membre
+# En principe, Le code devrait marcher même avec le décarateur d'activé.
+# @staticclass
 class Jeu:
     """
     Classe statique gerant le jeu.
@@ -40,9 +43,9 @@ class Jeu:
     # Graphe des états: http://graphonline.top/fr/?graph=ZCaEuQwPStCefLfb
     class Etat(Enum):
         DECISION_ETAT          = auto()
+        ATTENTE_NOUVEAU_COMBAT = auto()
         CHOIX_ATTAQUE          = auto()
         AFFICHAGE_ATTAQUES     = auto()
-        ATTENTE_NOUVEAU_COMBAT = auto()
         FIN_DU_JEU             = auto()
         
         ECRAN_TITRE            = auto()
@@ -79,5 +82,73 @@ class Jeu:
     def commencer_frame(cls, framerate : int = 60) -> None:
         """La fonction à appeler à chaque début de frame."""
         cls.duree_execution.millisecondes += cls.clock.tick(framerate)
+    
+    @staticmethod
+    def pourcentage_hauteur(pourcents : float) -> int:
+        """Renvoie pourcentage de la hauteur de l'écran en pixels"""
+        return round(Jeu.HAUTEUR * pourcents / 100)
+    
+    @staticmethod
+    def pourcentage_largeur(pourcents : float) -> int:
+        """Renvoie pourcentage de la largeur de l'écran en pixels"""
+        return round(Jeu.LARGEUR * pourcents / 100)
 
-Jeu.init()
+
+# Le système d'overload est à la fois une bénédiction pour la fonctionnalité
+# et une malédiction pour sa syntaxe.
+@overload
+def verifier_pour_quitter() -> None:
+    """
+    Vérifie si un évènement dans la file des evènements est un évènement permettant de sortir, s'il en existe un quitte immédiatement.
+    Vide la file des évènements.
+    La décision est prise par la version surchargée avec un évènement.
+    """
+    ...
+
+@overload
+def verifier_pour_quitter(ev : pygame.event.Event) -> None:
+    """
+    Vérifie si `ev` permet de quitter le jeu, il doit respecter au moins une de ces conditions:
+    - Être de type `pygame.QUIT`;
+    - Représenter l'appui de la touche `TOUCHE_QUITTER`.
+    """
+    ...
+
+def verifier_pour_quitter(ev : Optional[pygame.event.Event] = None) -> None:
+    if ev is not None:
+        if ev.type == pygame.QUIT or (ev.type == pygame.KEYDOWN and ev.key == Touches.QUITTER):
+            quit()
+        return
+    
+    for event in pygame.event.get():
+        verifier_pour_quitter(event)
+
+@overload
+def testeur_skip_ou_quitte() -> bool:
+    """
+    Vérifie si un évènement dans la file des evènements est un évènement permettant de sortir, s'il en existe un quitte immédiatement.
+    La fonction vérifie aussi si le testeur veut skip, dans ce cas là elle renvoie `True`.
+    Vide la file des évènements.
+    La décision est prise par la version avec un argument.
+    """
+    ...
+@overload
+def testeur_skip_ou_quitte(ev : pygame.event.Event) -> bool:
+    """
+    Vérifie si `ev` permet de quitter le jeu, il doit respecter au moins une de ces conditions:
+    - Être de type `pygame.QUIT`;
+    - Représenter l'appui de la touche `TOUCHE_QUITTER`.
+    
+    La fonction vérifie aussi si le testeur veut skip dans ce cas là elle renvoie `True`.
+    """
+    ...
+
+def testeur_skip_ou_quitte(ev : Optional[pygame.event.Event] = None) -> bool:
+    if ev is not None:
+        verifier_pour_quitter(ev)
+        return Touches.testeur_skip(ev)
+    
+    for ev in pygame.event.get():
+        if testeur_skip_ou_quitte(ev):
+            return True
+    return False

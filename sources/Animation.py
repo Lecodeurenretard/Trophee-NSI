@@ -1,4 +1,4 @@
-from import_var import dataclass, Generator, Callable, TypeAlias, cos, sqrt, math
+from imports import dataclass, Generator, Callable, TypeAlias, cos, sqrt, math
 
 # Certains logiciels d'animations et de montage proposent ces fonctionnalités (par exemple Blender et DaVinci)
 # Les easing functions (j'ai pas le nom français) permettent d'avoir une animation plus fluide

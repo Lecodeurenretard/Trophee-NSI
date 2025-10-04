@@ -8,10 +8,10 @@ import math
 logging.basicConfig(level=logging.INFO)    # Active tous les logs
 
 from typing      import TypeAlias, Callable, TypeVar, NoReturn, Any, Generator, Optional, overload
-from enum        import Enum, IntEnum, IntFlag, auto
 from functools   import partial, total_ordering
-from math        import isnan, cos, sin, sqrt
+from enum        import Enum, Flag, auto
 from copy        import copy, deepcopy
+from math        import cos, sin, sqrt
 from queue       import PriorityQueue
 from dataclasses import dataclass
 from bisect      import insort

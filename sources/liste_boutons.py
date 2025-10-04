@@ -4,10 +4,10 @@ from Bouton import *
 from fonction_combat import *
 
 dimensions_boutons : tuple[tuple[int, int, int, int], ...]= (
-    (70 , pourcentage_hauteur(81.25) - 25, 200, 50),
-    (70 , pourcentage_hauteur(81.25) + 45, 200, 50),
-    (375, pourcentage_hauteur(81.25) - 25, 200, 50),
-    (375, pourcentage_hauteur(81.25) + 45, 200, 50),
+    (70 , Jeu.pourcentage_hauteur(81.25) - 25, 200, 50),
+    (70 , Jeu.pourcentage_hauteur(81.25) + 45, 200, 50),
+    (375, Jeu.pourcentage_hauteur(81.25) - 25, 200, 50),
+    (375, Jeu.pourcentage_hauteur(81.25) + 45, 200, 50),
 )
 
 def joueur_attaque_comment(index_attaque : int) -> None:

@@ -3,7 +3,7 @@ from fonctions_vrac import *
 from Attaque import *
 from Joueur import joueur
 
-class TypeMonstre(IntEnum):
+class TypeMonstre(Enum):
     Blob    = auto()
     Sorcier = auto()
     
@@ -237,7 +237,7 @@ class Monstre:
     
     def longueur_barre_de_vie(self) -> int:
         ratio = max(0, self._stats.vie / self._stats.vie_max)
-        return round(ratio * UI_LONGUEUR_BARRE_DE_VIE)
+        return round(ratio * Constantes.UI_LONGUEUR_BARRE_DE_VIE)
     
     def dessiner(self, surface : Surface, pos_x : int, pos_y : int) -> None:
         if param.mode_debug.case_cochee and self._couleur is not None:
@@ -254,7 +254,7 @@ class Monstre:
     def dessine_prochaine_frame(self, surface : Surface) -> None:
         if not self._etat_graphique["afficher"]:
             return
-        self.dessiner(surface, pourcentage_largeur(70), pourcentage_hauteur(15))
+        self.dessiner(surface, Jeu.pourcentage_largeur(70), Jeu.pourcentage_hauteur(15))
         
         if self._etat_graphique["attaque"]["temps expiration"] < Jeu.duree_execution:
             self._moveset[self._etat_graphique["attaque"]["clef"]].dessiner(surface)

@@ -2,8 +2,6 @@ from imports import *
 
 @dataclass
 class Stat:
-    
-    
     vie_max         : int
     force           : int
     defense         : int

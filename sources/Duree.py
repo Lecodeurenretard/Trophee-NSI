@@ -1,4 +1,4 @@
-from imports import *
+from imports import total_ordering, logging
 
 @total_ordering
 class Duree:

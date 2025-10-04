@@ -5,40 +5,11 @@ from Jeu   import Jeu
 
 def premier_indice_libre_de_entites_vivantes() -> int:
     """Retourne le premier indice disponible dans globales.entites_vivantes[] ou -1 s'il n'y en a pas."""
-    assert(len(globales.entites_vivantes) <= MAXIMUM_ENTITES_SIMULTANEES), "Trop d'entitées sont dans le combat."
+    assert(len(globales.entites_vivantes) <= Constantes.MAX_ENTITES_SIMULTANEES), "Trop d'entitées sont dans le combat."
     for i in range(len(globales.entites_vivantes)):
         if globales.entites_vivantes[i] is None:
             return i
     return -1
-
-# Le système d'overload est à la fois une bénédiction pour la fonctionnalité
-# et une malédiction pour sa syntaxe.
-@overload
-def verifier_pour_quitter() -> None:
-    """
-    Vérifie si un évènement dans la file des evènements est un évènement permettant de sortir, s'il en existe un quitte immédiatement.
-    Vide la file des évènements.
-    La décision est prise par la version surchargée avec un évènement.
-    """
-    ...
-
-@overload
-def verifier_pour_quitter(ev : pygame.event.Event) -> None:
-    """
-    Vérifie si `ev` permet de quitter le jeu, il doit respecter au moins une de ces conditions:
-    - Être de type `pygame.QUIT`;
-    - Représenter l'appui de la touche `TOUCHE_QUITTER`.
-    """
-    ...
-
-def verifier_pour_quitter(ev : Optional[pygame.event.Event] = None) -> None:
-    if ev is not None:
-        if ev.type == pygame.QUIT or (ev.type == pygame.KEYDOWN and ev.key == Constantes.Touches.QUITTER):
-            quit()
-        return
-    
-    for event in pygame.event.get():
-        verifier_pour_quitter(event)
 
 
 def blit_centre(
@@ -72,40 +43,6 @@ def blit_centre(
     
     return toile.blit(a_dessiner, emplacement_dessin, area=area, special_flags=flags)
 
-
-
-
-
-@overload
-def testeur_skip_ou_quitte() -> bool:
-    """
-    Vérifie si un évènement dans la file des evènements est un évènement permettant de sortir, s'il en existe un quitte immédiatement.
-    La fonction vérifie aussi si le testeur veut skip, dans ce cas là elle renvoie `True`.
-    Vide la file des évènements.
-    La décision est prise par la version avec un argument.
-    """
-    ...
-@overload
-def testeur_skip_ou_quitte(ev : pygame.event.Event) -> bool:
-    """
-    Vérifie si `ev` permet de quitter le jeu, il doit respecter au moins une de ces conditions:
-    - Être de type `pygame.QUIT`;
-    - Représenter l'appui de la touche `TOUCHE_QUITTER`.
-    
-    La fonction vérifie aussi si le testeur veut skip dans ce cas là elle renvoie `True`.
-    """
-    ...
-
-def testeur_skip_ou_quitte(ev : Optional[pygame.event.Event] = None) -> bool:
-    if ev is not None:
-        verifier_pour_quitter(ev)
-        return Constantes.Touches.testeur_skip(ev)
-    
-    for ev in pygame.event.get():
-        if testeur_skip_ou_quitte(ev):
-            return True
-    return False
-
 def pause(temps_attente : Duree) -> Generator[bool, None, None]:
     """Renvoie `True` une fois que la `temps_attente` s'est écoulée."""
     fin : Duree = Jeu.duree_execution + temps_attente
@@ -113,38 +50,6 @@ def pause(temps_attente : Duree) -> Generator[bool, None, None]:
     while Jeu.duree_execution < fin:
         yield False
     yield True
-
-
-
-def pourcentage_hauteur(pourcents : float) -> int:
-    """Renvoie pourcentage de la hauteur de l'écran en pixels"""
-    return round(Jeu.HAUTEUR * pourcents / 100)
-
-def pourcentage_largeur(pourcents : float) -> int:
-    """Renvoie pourcentage de la largeur de l'écran en pixels"""
-    return round(Jeu.LARGEUR * pourcents / 100)
-
-
-
-def rgb_to_rgba(couleur : rgb, nouvelle_transparence : int = 255) -> rgba:
-    """Convertit une couleur RGB en RGBA. La transparence a donner à la nouvelle couleur est `nouvelle_transparence`."""
-    return (*couleur, nouvelle_transparence)
-
-def rgba_to_rgb(couleur : rgba) -> rgb:
-    """Convertit une couleur RGBA en RGB en effaçant sa donnée de transparence (Souvent interprété comme si la couleur est opaque)."""
-    return (couleur[0], couleur[1], couleur[2])
-
-def color_to_rgba(couleur : color, nouvelle_transparence : int = 255) -> rgba:
-    """Cette fonction est pour éviter les longues ternaires et ne pas calmer le vérifieur de types: si necessaire, elle appelle rgb_to_rgba()"""
-    if len(couleur) == 3:
-        return rgb_to_rgba(couleur, nouvelle_transparence)
-    return couleur
-
-def color_to_rgb(couleur : color) -> rgb:
-    """Cette fonction est pour éviter les longues ternaires et ne pas calmer le vérifieur de types: si necessaire, elle appelle rgba_to_rgb()"""
-    if len(couleur) == 4:
-        return rgba_to_rgb(couleur)
-    return couleur
 
 def avancer_generateurs(gen_list : list[Generator], to_send : Any = None) -> None:
     """

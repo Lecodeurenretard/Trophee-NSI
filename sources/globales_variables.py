@@ -1,6 +1,4 @@
 from imports import *
-from globales_constantes import *
-from Duree import Duree
 
 # Toutes les entitées (joueurs, monstres ou None) vont dans cette liste
 # leurs ID sera leur index dans cette liste

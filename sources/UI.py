@@ -11,10 +11,10 @@ def demander_pseudo() -> None:
             break
         
         Jeu.fenetre.fill(BLANC)
-        blit_centre(Jeu.fenetre, texte, (pourcentage_largeur(50), pourcentage_hauteur(45)))
+        blit_centre(Jeu.fenetre, texte, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(45)))
         
         pseudo_affiche : Surface = Constantes.Polices.FOURRE_TOUT.render(pseudo, True, BLEU)
-        blit_centre(Jeu.fenetre, pseudo_affiche, (pourcentage_largeur(50), pourcentage_hauteur(50)))
+        blit_centre(Jeu.fenetre, pseudo_affiche, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(50)))
         
         pygame.display.flip()
     
@@ -61,6 +61,8 @@ def trouve_attaque_a_partir_du_curseur() -> Attaque:
     raise ValueError("Il y a au moins un cas non pris en charge dans trouve_attaque_a_partir_du_curseur().")
 
 def afficher_info() -> Interruption:
+    logging.debug(f"→ Interruption: affichage des informations d'une attaque.")
+    
     texte_puissance   : Surface
     texte_vitesse     : Surface
     texte_description : Surface
@@ -74,11 +76,16 @@ def afficher_info() -> Interruption:
     texte_vitesse     = Constantes.Polices.TITRE.render(f"Vitesse: {attaque.vitesse}"    , True, NOIR)
     texte_description = Constantes.Polices.TITRE.render(attaque.desc                     , True, NOIR)
     
-    blit_centre(image, texte_puissance  , (pourcentage_largeur(33), pourcentage_hauteur(50)))
-    blit_centre(image, texte_vitesse    , (pourcentage_largeur(66), pourcentage_hauteur(50)))
-    blit_centre(image, texte_description, (pourcentage_largeur(50), pourcentage_hauteur(57)))
+    blit_centre(image, texte_puissance  , (Jeu.pourcentage_largeur(33), Jeu.pourcentage_hauteur(50)))
+    blit_centre(image, texte_vitesse    , (Jeu.pourcentage_largeur(66), Jeu.pourcentage_hauteur(50)))
+    blit_centre(image, texte_description, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(57)))
     
-    return image_vers_generateur(image, Duree(s=2))
+    return image_vers_generateur(
+        image,
+        Duree(s=2),
+        gerer_evenements=True,
+        derniere_etape=lambda: logging.debug(f"← Fin interruption (infos d'une attaque).")
+    )
 
 
 def dessiner_boutons_attaques() -> None:
@@ -92,10 +99,10 @@ def faux_chargement(duree : Duree = Duree(s=7.0)) -> None:
     while barre < NB_ITERATION:
         Jeu.fenetre.fill(BLANC)
         
-        pygame.draw.rect(Jeu.fenetre, NOIR, (pourcentage_largeur(6.25), pourcentage_hauteur(50), barre, 50), 0)
+        pygame.draw.rect(Jeu.fenetre, NOIR, (Jeu.pourcentage_largeur(6.25), Jeu.pourcentage_hauteur(50), barre, 50), 0)
         
         texte_chargement : Surface = Constantes.Polices.TITRE.render("Chargement...", True, NOIR)
-        blit_centre(Jeu.fenetre, texte_chargement, (pourcentage_largeur(50), pourcentage_hauteur(45)))
+        blit_centre(Jeu.fenetre, texte_chargement, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(45)))
         
         pygame.display.flip()
         
@@ -114,7 +121,7 @@ def ecran_nombre_combat() -> Generator[Surface, None, None]:
     
     logging.info("")
     logging.info(f"Début combat numéro {Jeu.num_combat}")
-    return image_vers_generateur(image, Duree(s=2))
+    return image_vers_generateur(image, Duree(s=2), gerer_evenements=True)
 
 
 def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = []) -> None:
@@ -125,28 +132,28 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     # Dessiner le joueur
     joueur.dessiner(Jeu.fenetre)
     joueur.dessine_barre_de_vie(Jeu.fenetre, 500, 400)
-    dessiner_nom(joueur.pseudo, Pos(499, 370))
+    dessiner_nom(Jeu.menus_surf, joueur.pseudo, Pos(499, 370))
     
     # Dessiner les monstres
     if len(Monstre.monstres_en_vie) != 0:
         for monstre in Monstre.monstres_en_vie:
-            monstre.dessiner(Jeu.fenetre, pourcentage_largeur(70), pourcentage_hauteur(15))  # ils sont tous à la même position pour l'instant
+            monstre.dessiner(Jeu.fenetre, Jeu.pourcentage_largeur(70), Jeu.pourcentage_hauteur(15))  # ils sont tous à la même position pour l'instant
             monstre.dessiner_barre_de_vie(Jeu.fenetre, 50, 50)
-            dessiner_nom(monstre.nom, Pos(49, 20))
+            dessiner_nom(Jeu.menus_surf, monstre.nom, Pos(49, 20))
     
     # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:
-        blit_centre(Jeu.fenetre, Attaque.CRIT_IMG, (pourcentage_largeur(80), pourcentage_hauteur(60)))
+        blit_centre(Jeu.fenetre, Attaque.CRIT_IMG, (Jeu.pourcentage_largeur(80), Jeu.pourcentage_hauteur(60)))
     
     # Dessiner le fond de l'interface
-    pygame.draw.rect(Jeu.fenetre, NOIR, (0, pourcentage_hauteur(75), 800, 600), 0)
+    pygame.draw.rect(Jeu.fenetre, NOIR, (0, Jeu.pourcentage_hauteur(75), 800, 600), 0)
     
     # Dessiner le curseur du menu de combat
     ButtonCursor.draw_cursors(Jeu.fenetre)
     
     # Dessiner le texte
-    blit_centre(Jeu.fenetre, Constantes.Polices.TEXTE.render("ESPACE : utiliser", True, BLANC), (pourcentage_largeur(85), pourcentage_hauteur(81)))
-    blit_centre(Jeu.fenetre, Constantes.Polices.TEXTE.render("I : info"         , True, BLANC), (pourcentage_largeur(85), pourcentage_hauteur(84)))
+    blit_centre(Jeu.fenetre, Constantes.Polices.TEXTE.render("ESPACE : utiliser", True, BLANC), (Jeu.pourcentage_largeur(85), Jeu.pourcentage_hauteur(81)))
+    blit_centre(Jeu.fenetre, Constantes.Polices.TEXTE.render("I : info"         , True, BLANC), (Jeu.pourcentage_largeur(85), Jeu.pourcentage_hauteur(84)))
     
     # Dessin supplémentaire
     avancer_generateurs(generateurs_dessin)

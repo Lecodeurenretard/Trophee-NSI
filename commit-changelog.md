@@ -5,19 +5,17 @@ Un bon moyen de savoir si le changement devrait être écrit ici, c'est de se de
 format:
 ## [message du commit]
 + Changements majeurs
-	- [Changements à la base du but du commit?]
+	- [Changements à la base du but du commit]
 + Sur plusieurs fichiers
 	- [Autres changements?]
 + Structure de fichier
-	- [changements sur la structure de ficher?]
+	- [Changements sur la structure de ficher]
 + READMEs et documentation
-	- [changements dans la doc?]
+	- [Changements dans la doc?]
 + Interaction joueur/testeur
 	- [Changement touches/dialogue/...]
 + [fichier/classe]
-	- [changements...]
-+ [...]
-
+	- [...]
 
 --------------template--------------
 ## 
@@ -34,11 +32,16 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Les constantes sont désormais mieux importées
+## Meilleure répartition des méthodes
 + Changements majeurs
-	- Déplacement des constantes dans le répertoire [Constantes](sources/Constantes/).
-		* Création de ce dossier et de son [\_\_init__.py](sources/Constantes/__init__.py).
 + Sur plusieurs fichiers
+	- Déplacements des fonctions de convertions de couleurs (`rgb_to_rgba()`, `color_to_rgb()`, ...) dans [Constantes.Couleurs](sources/Constantes/Couleurs.py).
+	- Déplacements des fonctions `pourcentage_hauteur()` et `pourcentage_largeur()` dans la classe `Jeu`.
 + Structure de fichier
 + READMEs et documentation
 + Interactions utilisateur
+	- La barre de vie est maintenant cyan quand elle est au max.
+	- Les etats/interruptions utilisant `image_vers_generateur()` permettent maintenant de quitter le jeu.
+	- Les iterruptions affichent maintenant des messages dans la console.
++ [dessin.py](sources/dessin.py)
+	- Ajouts des paramètres `gerer_evenements` et `derniere_etape` à `image_vers_generateur()`.
