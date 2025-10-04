@@ -19,8 +19,8 @@ class Pos:
         
         if type(x_ou_pos) is not tuple and type(x_ou_pos) is not list:
             raise TypeError(f"Mauvais type ({type(x_ou_pos).__name__}) du premier paramètre du constructeur de Pos.")
-        
-        assert(len(x_ou_pos) == 2), "Les positions sont en deux dimensions."
+        if len(x_ou_pos) != 2:
+            raise ValueError("Les positions sont en deux dimensions.")
         self.x, self.y = x_ou_pos[0], x_ou_pos[1]
     
     def __iter__(self) -> Generator[int, None, None]:

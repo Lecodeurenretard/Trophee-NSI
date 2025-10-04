@@ -30,7 +30,8 @@ def choix_attaque() -> None:
     boutons_attaques[0].enable_drawing()
     interruption_gen : Optional[Interruption] = None
     
-    while True:
+    finir : bool = False
+    while not finir:
         Jeu.commencer_frame()
         if interruption_gen is not None:
             try:
@@ -42,23 +43,30 @@ def choix_attaque() -> None:
         
         for event in pygame.event.get():
             verifier_pour_quitter(event)
-            if (event.type != pygame.KEYDOWN and event.type != pygame.MOUSEBUTTONDOWN) or not Jeu.tour_joueur:
+            if event.type != pygame.KEYDOWN and event.type != pygame.MOUSEBUTTONDOWN:
                 continue
             
             # Si le joueur attaque...
             if ButtonCursor.handle_inputs(boutons_attaques, event):
-                Jeu.tour_joueur = False
-                continue
+                monstres_attaquent()
+                finir = True
+                break
             
             if event.type == pygame.KEYDOWN:
                 interruption_gen = reagir_appui_touche(event)
                 continue
         
-        
         rafraichir_ecran()
-    # inutile maintenant, le sera un jour
+    
     boutons_attaques[0].disable_drawing()
-    changer_etat(EtatJeu.AFFICHAGE_ATTAQUES)
+    Jeu.changer_etat(Jeu.Etat.AFFICHAGE_ATTAQUES)
+
+def afficher_attaques() -> None:
+    logging.debug(f"Activation de l'état {Jeu.Etat.AFFICHAGE_ATTAQUES.name}.")
+    while True:
+        Jeu.commencer_frame()
+        verifier_pour_quitter()
+        pass
 
 def ecran_titre() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.ECRAN_TITRE.name}.")
@@ -92,3 +100,11 @@ def ecran_titre() -> None:
         ButtonCursor.draw_cursors(Jeu.fenetre)
         pygame.display.flip()
     Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
+
+def fin_jeu() -> None:
+    terminer_generateur(fin_partie(Jeu.a_gagne))
+    
+    if param.fermer_a_la_fin.case_cochee:
+        quit()
+    
+    Jeu.ecran_titre_running = True

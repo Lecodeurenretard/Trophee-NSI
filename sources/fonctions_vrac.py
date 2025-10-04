@@ -51,6 +51,16 @@ def pause(temps_attente : Duree) -> Generator[bool, None, None]:
         yield False
     yield True
 
+def attendre(temps_attente : Duree) -> None:
+    """
+    Fait planter le programme pendant une durée de `temps_attente`.
+    La fonction n'accepte que des durées de moins d'une seconde.
+    Contrairement à `pause()` qui peut s'éxécuter sur plusieurs frames, `attendre()` ne s'éxécute que sur une et une seule frame d'où de telles restrictions.
+    """
+    assert(temps_attente <= Duree(s=1)), "Temps d'attente trop long "
+    
+    Jeu.duree_execution.millisecondes += Jeu.clock.tick_busy_loop(1 / temps_attente.secondes)   # framerate = 1 / temps_execution_frame
+
 def avancer_generateurs(gen_list : list[Generator], to_send : Any = None) -> None:
     """
     Appelle `next()` sur tous les générateurs de la liste.

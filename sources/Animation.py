@@ -1,4 +1,8 @@
-from imports import dataclass, Generator, Callable, TypeAlias, cos, sqrt, math
+import EasingFunctions as Easing
+from EasingFunctions import EasingFunction
+
+from imports import Generator, Optional
+from Constantes.Couleurs import rgba, color, color_to_rgba, TypeAlias
 
 # Certains logiciels d'animations et de montage proposent ces fonctionnalités (par exemple Blender et DaVinci)
 # Les easing functions (j'ai pas le nom français) permettent d'avoir une animation plus fluide
@@ -6,33 +10,61 @@ from imports import dataclass, Generator, Callable, TypeAlias, cos, sqrt, math
 # Démo Desmos: https://www.desmos.com/calculator/rrinotdfez
 
 # ici seules les fonctions ease-in-out sont mise car ce sont les plus naturelles.
-EasingFunction : TypeAlias = Callable[[float], float]
 
-no_easing          : EasingFunction = lambda x: x
-easing_square      : EasingFunction = lambda x: (2 * x**2) if x < .5 else (1 - 2 * (1 - x)**2)
-easing_cube        : EasingFunction = lambda x: (4 * x**3) if x < .5 else (1 - 4 * (1 - x)**3)
-easing_hypercube   : EasingFunction = lambda x: (8 * x**4) if x < .5 else (1 - 8 * (1 - x)**4)
-easing_circular    : EasingFunction = lambda x: (.5 - sqrt(.25 - x**2))             if x < .5 else (.5 + sqrt(.25 - (x - 1)**2))
-easing_exponential : EasingFunction = lambda x: (2**(10 * x - 10 + 4.04) - 2**5.96) if x < .5 else (1 - 2**(-10 * x + 4.04) + 2**5.96)
-easing_trig        : EasingFunction = lambda x: (.5 - cos(math.pi * x) / 2)
-
-easing_fade       : EasingFunction = easing_cube
-easing_exponent_4 : EasingFunction = easing_hypercube
-easing_radial     : EasingFunction = easing_circular
-
-@dataclass(init=False)  # Comment dréer une interface en Python /s
 class InterpolationLineaire:
     """
     L'interpolation linéaire, va d'une valeur A à une valeur B sans jamais changer de vitesse (on pourrait dire que sa dérivée est constante)
     https://fr.wikipedia.org/wiki/Interpolation_lin%C3%A9aire
     """
     @staticmethod
-    def calculer_valeur(debut, fin, t, easing_fun : EasingFunction = no_easing):
+    def calculer_valeur(debut : float, fin : float, t : float, easing_fun : EasingFunction = Easing.NO_EASING) -> float:
+        """
+        Calcule la valeur qu'a une valeur variant de `debut` à `fin` avec la fonction d'easing `easing_fun`.
+        En d'autre mots, calcule l'ordonnée  de la courbe correspondante sur la fonction Desmos: https://www.desmos.com/calculator/rrinotdfez.
+        """
         return debut + easing_fun(t) * (fin - debut)
 
     @staticmethod
-    def generateur(debut : float, fin : float, easing : EasingFunction = no_easing) -> Generator[float, None, None]:
-        valeur : float = debut
-        while valeur < fin:
-            valeur = InterpolationLineaire.calculer_valeur(debut, fin, valeur, easing)
-            yield valeur
+    def generateur(debut : float, fin : float, nb_iterations : int, easing : EasingFunction = Easing.NO_EASING) -> Generator[float, None, None]:
+        for i in range(nb_iterations):
+            yield InterpolationLineaire.calculer_valeur(debut, fin, i / nb_iterations, easing_fun=easing)
+
+ColorEasing : TypeAlias = tuple[EasingFunction, EasingFunction, EasingFunction, EasingFunction]
+class Gradient:
+    """Implémentation de InterpolationLineaire pour les couleurs."""
+    def __init__(self, couleur_debut : color, couleur_fin : color):
+        self._debut : rgba = color_to_rgba(couleur_debut)
+        self._fin   : rgba = color_to_rgba(couleur_fin)
+    
+    def __repr__(self):
+        return f"Gradient(debut={self._debut}; fin={self._fin})"
+    
+    def calculer_valeur(
+            self,
+            t : float,
+            easing_fun : Optional[EasingFunction] = None, *args,
+            r : EasingFunction = Easing.NO_EASING, g : EasingFunction = Easing.NO_EASING,
+            b : EasingFunction = Easing.NO_EASING, a : EasingFunction = Easing.NO_EASING, 
+        ) -> rgba:
+        """
+        Même chose que sa version dans InterpolationLineaire mais le fait sur 4 valeurs.
+        Si l'argument `easing_fun` est fourni alors l'utilise pour toutes les couleurs, sinon utilise les arguments `r`, `g`, `b` et `a` pour les valeurs correspodantes.
+        """
+        if easing_fun is not None:
+            return self.calculer_valeur(t, r=easing_fun, g=easing_fun, b=easing_fun, a=easing_fun)
+        return (
+            round(InterpolationLineaire.calculer_valeur(self._debut[0], self._fin[0], t, easing_fun=r)),
+            round(InterpolationLineaire.calculer_valeur(self._debut[1], self._fin[1], t, easing_fun=g)),
+            round(InterpolationLineaire.calculer_valeur(self._debut[2], self._fin[2], t, easing_fun=b)),
+            round(InterpolationLineaire.calculer_valeur(self._debut[3], self._fin[3], t, easing_fun=a)),
+        )
+    
+    def generateur(
+            self,
+            nb_iterations : int,
+            easing : Optional[EasingFunction] = None, *args,
+            r : EasingFunction = Easing.NO_EASING, g : EasingFunction = Easing.NO_EASING,
+            b : EasingFunction = Easing.NO_EASING, a : EasingFunction = Easing.NO_EASING,
+        ) -> Generator[rgba, None, None]:
+        for i in range(nb_iterations):
+            yield self.calculer_valeur(i / nb_iterations, easing_fun=easing, r=r, g=g, b=b, a=a)

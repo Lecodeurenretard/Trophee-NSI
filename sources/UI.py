@@ -6,6 +6,8 @@ def demander_pseudo() -> None:
     saisie : bool = True
     texte : Surface = Constantes.Polices.TITRE.render("Entrez votre pseudo :", True, NOIR)
     while saisie:
+        Jeu.commencer_frame()
+        
         pseudo, continuer = texte_entree_event(pseudo)
         if not continuer:
             break
@@ -93,24 +95,42 @@ def dessiner_boutons_attaques() -> None:
         butt.draw(Jeu.menus_surf)
     ButtonCursor.draw_cursors(Jeu.menus_surf)
 
-def faux_chargement(duree : Duree = Duree(s=7.0)) -> None:
-    barre : int = 0
-    NB_ITERATION : int = 700
-    while barre < NB_ITERATION:
-        Jeu.fenetre.fill(BLANC)
+def faux_chargement(duree_totale : Duree = Duree(s=2.0)) -> None:
+    LONGUEUR_BARRE : int = 700
+    ratio_barre : float = 0
+    
+    gradient : Gradient = Gradient(ROUGE, VERT)
+    while ratio_barre < 1:
+        delta : Duree = Jeu.commencer_frame()
+        verifier_pour_quitter()
         
-        pygame.draw.rect(Jeu.fenetre, NOIR, (Jeu.pourcentage_largeur(6.25), Jeu.pourcentage_hauteur(50), barre, 50), 0)
+        Jeu.fenetre.fill(BLANC)
+        dessiner_rect(
+            Jeu.fenetre,
+            (Jeu.pourcentage_largeur(6.25), Jeu.pourcentage_hauteur(50)),
+            (round(ratio_barre * LONGUEUR_BARRE), 50),
+            couleur_remplissage=gradient.calculer_valeur(
+                ratio_barre,
+                r=Easing.ecraser_easing(Easing.TRIGONOMETRIC, (.5, 1)),
+                g=Easing.ecraser_easing(Easing.TRIGONOMETRIC, (0, .5)),
+            ),
+            epaisseur_trait=0
+        )
+        dessiner_rect(
+            Jeu.fenetre,
+            (Jeu.pourcentage_largeur(6.25), Jeu.pourcentage_hauteur(50)),
+            (LONGUEUR_BARRE, 50),
+            couleur_bords=NOIR, dessiner_interieur=False,
+            epaisseur_trait=5,
+        )
         
         texte_chargement : Surface = Constantes.Polices.TITRE.render("Chargement...", True, NOIR)
         blit_centre(Jeu.fenetre, texte_chargement, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(45)))
         
         pygame.display.flip()
-        
-        barre += 2
-        
-        attendre = pause(duree // NB_ITERATION)    # On assume que toutes les actions de la boucle sont instantanées
-        while not next(attendre):
-            Jeu.commencer_frame()   # celle-ci ne l'est pas car clock.tick() peut prendre entre 0 et 16ms à exécuter
+
+        ratio_barre += delta.secondes / duree_totale.secondes
+
 
 def ecran_nombre_combat() -> Generator[Surface, None, None]:
     texte_combat : Surface = Constantes.Polices.TITRE.render(f"Combat n°{Jeu.num_combat}", True, NOIR)

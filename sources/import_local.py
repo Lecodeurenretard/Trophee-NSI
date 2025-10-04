@@ -1,10 +1,13 @@
-from Parametres import Parametre, TypeParametre
 import parametres_vars as param
+import EasingFunctions as Easing
+
+from Parametres      import Parametre, TypeParametre
+from EasingFunctions import EasingFunction, EasingType
 
 from Pos       import Pos
 from Stats     import Stat
 from Duree     import Duree
-from Animation import InterpolationLineaire
+from Animation import InterpolationLineaire, Gradient, ColorEasing
 
 from fonctions_vrac import *
 from dessin         import *

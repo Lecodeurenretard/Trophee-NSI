@@ -33,10 +33,11 @@ class Jeu:
     menus_surf : Surface = Surface((LARGEUR, HAUTEUR), pygame.SRCALPHA)
     
     num_combat          : int   = 1
-    tour_joueur         : bool  = True
     ecran_titre_running : bool  = True
     duree_execution     : Duree = Duree()
     clock               : pygame.time.Clock = pygame.time.Clock()
+    
+    a_gagne : bool = False
     
     
     
@@ -46,7 +47,7 @@ class Jeu:
         ATTENTE_NOUVEAU_COMBAT = auto()
         CHOIX_ATTAQUE          = auto()
         AFFICHAGE_ATTAQUES     = auto()
-        FIN_DU_JEU             = auto()
+        FIN_JEU             = auto()
         
         ECRAN_TITRE            = auto()
         CREDITS                = auto()
@@ -69,19 +70,18 @@ class Jeu:
         pygame.display.set_caption(val)
     
     @classmethod
-    def toggle_tour(cls) -> None:
-        cls.tour_joueur = not cls.tour_joueur
-    
-    @classmethod
     def changer_etat(cls, nouvel_etat : Etat) -> None:
         """Change l'état du jeu vers `nouvel_etat`."""
         cls.precedent_etat = cls.etat
         cls.etat           = nouvel_etat
     
     @classmethod
-    def commencer_frame(cls, framerate : int = 60) -> None:
-        """La fonction à appeler à chaque début de frame."""
-        cls.duree_execution.millisecondes += cls.clock.tick(framerate)
+    def commencer_frame(cls, framerate : int = 60) -> Duree:
+        """La fonction à appeler à chaque début de frame. Renvoie le temps écoulé depuis la dernière frame."""
+        delta = cls.clock.tick(framerate)
+        cls.duree_execution.millisecondes += delta
+        
+        return Duree(ms=delta)
     
     @staticmethod
     def pourcentage_hauteur(pourcents : float) -> int:

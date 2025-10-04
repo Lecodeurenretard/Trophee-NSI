@@ -5,7 +5,7 @@ def quit(exit_code : int = 0) -> NoReturn:
     pygame.quit()
     exit(exit_code)
 
-def fin_partie(gagne : bool) -> None:
+def fin_partie(gagne : bool) -> Interruption:
     couleur_fond : rgb
     texte_fin : Surface
     if gagne:
@@ -17,18 +17,11 @@ def fin_partie(gagne : bool) -> None:
         texte_fin = Constantes.Polices.TITRE.render("Vous avez perdu !", True, NOIR)
         logging.info("Vous avez perdu...")
     
-    Jeu.fenetre.fill(couleur_fond)
-    blit_centre(Jeu.fenetre, texte_fin, Jeu.CENTRE_FENETRE)
-    pygame.display.flip()
+    image : Surface = Surface((Jeu.LARGEUR, Jeu.HAUTEUR))
+    image.fill(couleur_fond)
+    blit_centre(image, texte_fin, Jeu.CENTRE_FENETRE)
     
-    attendre = pause(Duree(s=2))
-    while not next(attendre):
-        Jeu.commencer_frame()
-    
-    if param.fermer_a_la_fin.case_cochee:
-        quit()
-    
-    Jeu.ecran_titre_running = True
+    return image_vers_generateur(image, Duree(s=2), gerer_evenements=True)
 
 
 def reset_monstre() -> None:
@@ -49,8 +42,6 @@ def nouveau_combat(numero_combat : int, reset_joueur : bool = False) -> Generato
     if not (1 <= numero_combat <= Jeu.MAX_COMBAT):
         raise ValueError(f"`numero_combat` ({numero_combat}) doit être compris dans [1; {Jeu.MAX_COMBAT}].")
     Jeu.num_combat = numero_combat
-    
-    Jeu.tour_joueur = True
     
     reset_monstre()
     if reset_joueur:
