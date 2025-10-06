@@ -4,6 +4,8 @@ from EasingFunctions import EasingFunction
 from imports import Generator, Optional
 from Constantes.Couleurs import rgba, color, color_to_rgba, TypeAlias
 
+from Pos import Pos
+
 # Certains logiciels d'animations et de montage proposent ces fonctionnalités (par exemple Blender et DaVinci)
 # Les easing functions (j'ai pas le nom français) permettent d'avoir une animation plus fluide
 # en accélerant au début et en ralentissant à la fin.
@@ -29,7 +31,7 @@ class InterpolationLineaire:
         for i in range(nb_iterations):
             yield InterpolationLineaire.calculer_valeur(debut, fin, i / nb_iterations, easing_fun=easing)
 
-ColorEasing : TypeAlias = tuple[EasingFunction, EasingFunction, EasingFunction, EasingFunction]
+
 class Gradient:
     """Implémentation de InterpolationLineaire pour les couleurs."""
     def __init__(self, couleur_debut : color, couleur_fin : color):
@@ -42,7 +44,7 @@ class Gradient:
     def calculer_valeur(
             self,
             t : float,
-            easing_fun : Optional[EasingFunction] = None, *args,
+            easing_fun : Optional[EasingFunction] = None, *,
             r : EasingFunction = Easing.NO_EASING, g : EasingFunction = Easing.NO_EASING,
             b : EasingFunction = Easing.NO_EASING, a : EasingFunction = Easing.NO_EASING, 
         ) -> rgba:
@@ -62,9 +64,45 @@ class Gradient:
     def generateur(
             self,
             nb_iterations : int,
-            easing : Optional[EasingFunction] = None, *args,
+            easing : Optional[EasingFunction] = None, *,
             r : EasingFunction = Easing.NO_EASING, g : EasingFunction = Easing.NO_EASING,
             b : EasingFunction = Easing.NO_EASING, a : EasingFunction = Easing.NO_EASING,
         ) -> Generator[rgba, None, None]:
         for i in range(nb_iterations):
             yield self.calculer_valeur(i / nb_iterations, easing_fun=easing, r=r, g=g, b=b, a=a)
+
+
+class Deplacement:
+    """Implémentation de InterpolationLineaire pour les positions."""
+    def __init__(self, position_debut : Pos, position_fin : Pos):
+        self._debut : Pos = position_debut
+        self._fin   : Pos = position_fin
+    
+    def __repr__(self):
+        return f"Deplacement(debut={self._debut}; fin={self._fin})"
+    
+    def calculer_valeur(
+            self,
+            t : float,
+            easing_fun : Optional[EasingFunction] = None, *,
+            x : EasingFunction = Easing.NO_EASING, y : EasingFunction = Easing.NO_EASING,
+        ) -> Pos:
+        """
+        Même chose que sa version dans InterpolationLineaire mais le fait sur 2 valeurs.
+        Si l'argument `easing_fun` est fourni alors l'utilise pour toutes les couleurs, sinon utilise les arguments `x` et `y` pour les valeurs correspodantes.
+        """
+        if easing_fun is not None:
+            return self.calculer_valeur(t, x=easing_fun, y=easing_fun)
+        return Pos(
+            round(InterpolationLineaire.calculer_valeur(self._debut.x, self._fin.x, t, easing_fun=x)),
+            round(InterpolationLineaire.calculer_valeur(self._debut.y, self._fin.y, t, easing_fun=y)),
+        )
+    
+    def generateur(
+            self,
+            nb_iterations : int,
+            easing : Optional[EasingFunction] = None, *,
+            x : EasingFunction = Easing.NO_EASING, y : EasingFunction = Easing.NO_EASING,
+        ) -> Generator[Pos, None, None]:
+        for i in range(nb_iterations):
+            yield self.calculer_valeur(i / nb_iterations, easing_fun=easing, x=x, y=y)

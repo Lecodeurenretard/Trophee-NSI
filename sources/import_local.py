@@ -7,7 +7,7 @@ from EasingFunctions import EasingFunction, EasingType
 from Pos       import Pos
 from Stats     import Stat
 from Duree     import Duree
-from Animation import InterpolationLineaire, Gradient, ColorEasing
+from Animation import InterpolationLineaire, Gradient, Deplacement
 
 from fonctions_vrac import *
 from dessin         import *

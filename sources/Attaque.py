@@ -44,9 +44,9 @@ class AttaqueFlags(Flag):
     ATTAQUE_EQUIPE = ATTAQUE_LANCEUR | ATTAQUE_ALLIES
 
 class Attaque:
-    _PUISSANCE_CRIT  : float = 1.5
-    _DUREE_AFFICHAGE : Duree = Duree(s=1)
-    _DUREE_VIDE      : Duree = Duree(s=.2)
+    _PUISSANCE_CRIT       : float = 1.5
+    _DUREE_ANIMATION      : Duree = Duree(s=1)
+    _DUREE_ENTRE_ATTAQUES : Duree = Duree(s=.5)
     
     CRIT_IMG : Surface = pygame.transform.scale(
         pygame.image.load(f"{Constantes.Chemins.DOSSIER_IMG}/crit.png"),
@@ -69,7 +69,8 @@ class Attaque:
             type_attaque : TypeAttaque,
             crit_proba : float = .1,
             flags : AttaqueFlags = AttaqueFlags.ATTAQUE_ENNEMIS,
-            dernier_changements : Callable[[float, bool], int] = (lambda degats, crit: round(degats)),
+            ajustement_degats : Callable[[float, bool], int] = (lambda degats, crit: round(degats)),
+            glisser : bool = True,
         ):
         self._nom    : str = nom
         self._desc   : str = desc
@@ -87,7 +88,8 @@ class Attaque:
         self._effet : EffetAttaque = None   # type: ignore
         self._drapeaux = flags
         
-        self._ajustement_degats = dernier_changements
+        self._ajustement_degats = ajustement_degats
+        self._animation = glisser
     
     def __eq__(self, attaque: 'Attaque') -> bool:
         return self._nom == attaque._nom
@@ -95,16 +97,17 @@ class Attaque:
     
     def __repr__(self) -> str:
         return (
-            "Attaque{"
-            + f"nom: {self._nom}; "
-            + f"desc: {self._desc}; "
-            + f"puissance: {self._puissance}; "
-            + f"vitesse: {self._vitesse}; "
-            + f"type: {self._type}"
-            + f"lanceur: {self._lanceur_id}"
-            + f"cible: {self._cible_id}"
-            + f"somme des flags: {self._drapeaux.value}"
-            + "}"
+            "Attaque("
+            + f"nom={self._nom}, "
+            + f"desc='{self._desc}', "
+            + f"puissance={self._puissance}, "
+            + f"vitesse={self._vitesse}, "
+            + f"type={self._type.name}, "
+            + f"ID lanceur: {self._lanceur_id}, "
+            + f"ID cible: {self._cible_id}, "
+            + f"somme des flags: {self._drapeaux.value}, "
+            + f"Jouer animation: {self._animation}"
+            + ")"
         )
     
     @staticmethod
@@ -120,33 +123,57 @@ class Attaque:
             if param.mode_debug.case_cochee:
                 logging.debug(f"{attaque._lanceur.dbg_nom} (id: {attaque._lanceur.id}) utilise {attaque._nom} sur {attaque._cible.dbg_nom}.")
             
-            debut_attaque = Jeu.duree_execution + Attaque._DUREE_VIDE
-            fin_attaque   = debut_attaque + Attaque._DUREE_AFFICHAGE
+            debut_attaque : Duree = copy(Jeu.duree_execution)
+            fin_attaque   : Duree = debut_attaque + Attaque._DUREE_ANIMATION
             
             while Jeu.duree_execution < fin_attaque:
-                if debut_attaque <= Jeu.duree_execution:
-                    attaque.dessiner(surface)
+                if Jeu.duree_execution - debut_attaque == 0:
+                    attaque._dessiner(surface, attaque.pos_anim_attaque(0))
+                    yield
+                    continue
+                
+                pos : Pos = attaque.pos_anim_attaque(
+                    (Jeu.duree_execution - debut_attaque) / Attaque._DUREE_ANIMATION
+                )
+                attaque._dessiner(surface, pos)
+                yield
+            
+            attaque.appliquer()
+            
+            # Pas de attendre() ici, on ne veut pas interrompre la boucle de l'état
+            peut_sortir = pause(Attaque._DUREE_ENTRE_ATTAQUES)
+            while not next(peut_sortir):
                 yield
         
         
         if bool(param.mode_debug):
             logging.debug("Fin du lancement des attaques.")
-
+    
     @property
     def _couleur(self) -> rgb:
         return self._type.couleur
     
     @property
     def _lanceur(self): # -> Joueur|Monstre
-        assert(globales.entites_vivantes[self._lanceur_id] is not None), f"L'ID du lanceur est incorrecte dans la propriété ._lanceur de l'attaque {self.__repr__}."
+        # https://docs.python.org/3/tutorial/inputoutput.html#formatted-string-literals
+        assert(globales.entites_vivantes[self._lanceur_id] is not None), f"L'ID du lanceur est incorrecte dans la propriété ._lanceur de l'attaque {self!r}."
         
         return globales.entites_vivantes[self._lanceur_id]
     
     @property
     def _cible(self): # -> Joueur|Monstre
-        assert(globales.entites_vivantes[self._cible_id] is not None), f"L'ID de la cible est incorrecte dans la propriété ._lanceur de l'attaque {self.__repr__}."
+        assert(globales.entites_vivantes[self._cible_id] is not None), f"L'ID de la cible est incorrecte dans la propriété ._lanceur de l'attaque {self!r}."
         
         return globales.entites_vivantes[self._cible_id]
+    
+    @property
+    def _deplacement(self) -> Deplacement:
+        if self._animation:
+            return Deplacement(self._lanceur.pos_attaque, self._cible.pos_attaque)
+        return Deplacement(
+            Pos.milieu(self._lanceur.pos_attaque, self._cible.pos_attaque),
+            Pos.milieu(self._lanceur.pos_attaque, self._cible.pos_attaque)
+        )
     
     @property
     def puissance(self) -> float:
@@ -165,12 +192,28 @@ class Attaque:
         return Constantes.Polices.TITRE.render(self._nom, True, BLANC)
     
     @property
-    def friendly_fire(self) -> bool:
+    def peut_attaquer_allies(self) -> bool:
         return AttaqueFlags.ATTAQUE_EQUIPE in self._drapeaux
     
     @property
-    def ennemy_fire(self) -> bool:
+    def peut_attaquer_adversaires(self) -> bool:
         return AttaqueFlags.ATTAQUE_ENNEMIS in self._drapeaux
+    
+    def _dessiner(self, surface : Surface, position : Pos) -> None:
+        RECT_LARGEUR = 200
+        RECT_HAUTEUR = 50
+        
+        pygame.draw.rect(Jeu.fenetre, self._couleur, (position.x, position.y , RECT_LARGEUR, RECT_HAUTEUR), 5)
+        
+        if self._crit:
+            blit_centre(
+                surface,
+                Attaque.CRIT_IMG,
+                (
+                    position.x + RECT_LARGEUR // 2, # on centre l'étoile
+                    position.y + RECT_HAUTEUR // 2,
+                )
+            )
     
     def _calcul_attaque_defense(self, puissance_attaquant : int, defense_cible : int, def_min : float) -> tuple[float, float]:
         if AttaqueFlags.IGNORE_STATS in self._drapeaux:
@@ -179,6 +222,10 @@ class Attaque:
         attaque : float = self._puissance * puissance_attaquant
         defense : float = max(def_min, defense_cible)
         return (attaque, defense)
+    
+    def pos_anim_attaque(self, t : float) -> Pos:
+        """La position de l'attaque pour un temps t. (t = 0 => animation finie à 0%, t = 0.5 => animation finie à 50%, ...)"""
+        return self._deplacement.calculer_valeur(t, Easing.EasingType.ease_in(EasingType.POLYNOMIAL, 3))
     
     def calculer_degats(self, defense_min = 10) -> int:
         """
@@ -234,25 +281,6 @@ class Attaque:
         elif AttaqueFlags.ATTAQUE_LANCEUR not in self._drapeaux and AttaqueFlags.ATTAQUE_ALLIES not in self._drapeaux and AttaqueFlags.ATTAQUE_ENNEMIS not in self._drapeaux:
             return
         self._cible.recoit_degats(self.calculer_degats())
-    
-    def dessiner(self, surface : Surface) -> None:
-        RECT_LARGEUR = 200
-        RECT_HAUTEUR = 50
-        
-        pos_x : int = self._lanceur.pos_attaque_x
-        pos_y : int = self._lanceur.pos_attaque_y
-        
-        pygame.draw.rect(Jeu.fenetre, self._couleur, (pos_x, pos_y , RECT_LARGEUR, RECT_HAUTEUR), 5)
-        
-        if self._crit:
-            blit_centre(
-                surface,
-                Attaque.CRIT_IMG,
-                (
-                    pos_x + RECT_LARGEUR // 2, # on centre l'étoile
-                    pos_y + RECT_HAUTEUR // 2,
-                )
-            )
     
     def enregister_lancement(self, id_lanceur : int, id_cible : int, flags_a_ajouter : AttaqueFlags = AttaqueFlags.AUCUN) -> None:
         copie : Attaque = copy(self)

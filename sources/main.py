@@ -1,6 +1,6 @@
 from fonctions_boutons import *
 from fonctions_etats import (
-    attente_nouveau_combat, choix_attaque, ecran_titre, fin_jeu,
+    attente_nouveau_combat, choix_attaque, ecran_titre, fin_jeu, affichage_attaques
 )
 
 
@@ -8,7 +8,6 @@ def jeu() -> None:
     joueur.reset_vie()
     reset_monstre()
     
-    anim_gen : list[Generator] = []
     while True:
         match Jeu.etat:
             case Jeu.Etat.ECRAN_TITRE:
@@ -18,6 +17,8 @@ def jeu() -> None:
                 attente_nouveau_combat()
             case Jeu.Etat.CHOIX_ATTAQUE:
                 choix_attaque()
+            case Jeu.Etat.AFFICHAGE_ATTAQUES:
+                affichage_attaques()
             case Jeu.Etat.FIN_JEU:
                 fin_jeu()
             case _:

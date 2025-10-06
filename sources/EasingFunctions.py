@@ -94,7 +94,10 @@ class EasingType(Enum):
                 return lambda x: x ** n_a
             
             case cls.EXPONENTIAL:
-                assert(type(n_a) is float and n_a >= 2), "On accepte que les n_a supérieurs ou égaux à 2."
+                assert(
+                    (type(n_a) is float or type(n_a) is int)
+                    and n_a >= 2
+                ), "On accepte que les n_a supérieurs ou égaux à 2."
                 return lambda x: n_a**(10*x - 10)
             
             case cls.CIRCULAR:
@@ -127,7 +130,10 @@ class EasingType(Enum):
                 calque = lambda x, n=n_a: 2**(n - 1) * x**n
             
             case cls.EXPONENTIAL:
-                assert(type(n_a) is float and n_a >= 2 and b >= 4.04), "On accepte que les n_a supérieurs ou égaux à 2, b doit donc être supérieur ou égal à 4.04."
+                assert(
+                    (type(n_a) is float or type(n_a) is int)
+                    and n_a >= 2 and b >= 4.04
+                ), "On accepte que les n_a supérieurs ou égaux à 2, b doit donc être supérieur ou égal à 4.04."
                 calque = lambda x, n_a=n_a, b=b: n_a**(10 * (x - 1) + b) - n_a**(b - 10)
             
             case cls.CIRCULAR:
@@ -152,7 +158,9 @@ def ecraser_easing(easing : EasingFunction, intervalle : tuple[float, float]) ->
     Visualitation Desmos (dossier après la définition de p): https://www.desmos.com/calculator/rrinotdfez
     """
     assert(0 <= intervalle[0] < intervalle[1] <= 1), "Les valeurs de l'intervalle doivent être entre 0 et 1, et la première strictement inférieure à la seconde."
-    return lambda x, a=intervalle[0], b=min(intervalle[1], 1-intervalle[0]): easing(max(min((x - a) / b, 1), 0))
+    
+    a = intervalle[0]; b = min(intervalle[1], 1-intervalle[0])
+    return lambda x, a=a, b=b: easing(max(min((x - a) / b, 1), 0))
 
 NO_EASING     : EasingFunction = EasingType.ease_in_out(EasingType.NONE)
 SQUARE        : EasingFunction = EasingType.ease_in_out(EasingType.POLYNOMIAL, 2)

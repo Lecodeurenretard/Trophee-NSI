@@ -61,12 +61,16 @@ def choix_attaque() -> None:
     boutons_attaques[0].disable_drawing()
     Jeu.changer_etat(Jeu.Etat.AFFICHAGE_ATTAQUES)
 
-def afficher_attaques() -> None:
+def affichage_attaques() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.AFFICHAGE_ATTAQUES.name}.")
-    while True:
+    
+    attaque_gen : list[Generator[None, None, None]] = [Attaque.lancer_toutes_les_attaques_gen(Jeu.fenetre)]
+    while len(attaque_gen) != 0:
         Jeu.commencer_frame()
         verifier_pour_quitter()
-        pass
+        
+        rafraichir_ecran(attaque_gen)
+    Jeu.changer_etat(Jeu.Etat.CHOIX_ATTAQUE)
 
 def ecran_titre() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.ECRAN_TITRE.name}.")

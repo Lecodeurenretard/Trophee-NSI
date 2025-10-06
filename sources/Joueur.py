@@ -3,7 +3,7 @@ from fonctions_vrac import *
 from Attaque import *
 
 class Joueur:
-    _STATS_DE_BASE : Stat = Stat(45, 35, 40-5, 20, 30, 50, 1.2, 1).reset_vie()
+    _STATS_DE_BASE : Stat = Stat(45, 35, 35, 20, 30, 50, 1.2, 1).reset_vie()
     DIMENSIONS_SPRITE : tuple[int, int] = (160, 160)
     
     def __init__(self, moveset : dict[str, Attaque], chemin_vers_sprite : Optional[str] = None) -> None:
@@ -63,18 +63,12 @@ class Joueur:
     
     # propriété car la position pourrait changer suivant la position du ou des joueurs
     @property
-    def pos_attaque_x(self) -> int:
-        return 400
-    @property
-    def pos_attaque_y(self) -> int:
-        return 300
+    def pos_attaque(self) -> Pos:
+        return Pos(Jeu.LARGEUR // 4, Jeu.pourcentage_hauteur(60))
     
     @property
-    def pos_curseur_x(self) -> int:
-        return 0
-    @property
-    def pos_curseur_y(self) -> int:
-        return 0
+    def pos_curseur(self) -> Pos:
+        return Pos(0, 0)
     
     @pseudo.setter
     def pseudo(self, value : str) -> None:
@@ -99,12 +93,12 @@ class Joueur:
     def attaque_peut_toucher_allies(self, clef_attaque : str) -> bool:
         assert(clef_attaque in self.moveset_clefs), "Attaque pas inclue dans moveset dans attaque_peut_toucher_allies()."
         
-        return self._moveset[clef_attaque].friendly_fire
+        return self._moveset[clef_attaque].peut_attaquer_allies
     
     def attaque_peut_toucher_ennemis(self, clef_attaque : str) -> bool:
         assert(clef_attaque in self.moveset_clefs), "Attaque pas inclue dans moveset dans attaque_peut_toucher_ennemis()."
         
-        return self._moveset[clef_attaque].ennemy_fire
+        return self._moveset[clef_attaque].peut_attaquer_adversaires
     
     def reset_vie(self) -> None:
         self._stats.vie = self._stats.vie_max
@@ -112,11 +106,10 @@ class Joueur:
     def attaquer(self, id_cible : int, clef_attaque : str) -> None:
         assert(clef_attaque in self.moveset_clefs)
         
-        if self._moveset[clef_attaque].friendly_fire:
+        if self._moveset[clef_attaque].peut_attaquer_allies:
             id_cible = self.id
         
         self._moveset[clef_attaque].enregister_lancement(self._id, id_cible)
-        self._etat_graphique["attaque"]["clef"] = clef_attaque
     
     def dessiner(self, surface : Surface) -> None:
         if param.mode_debug.case_cochee:
@@ -135,10 +128,6 @@ class Joueur:
         if not self._etat_graphique["afficher"]:
             return
         self.dessiner(surface)
-        
-        if self._etat_graphique["attaque"]["expiration"] < Jeu.duree_execution:
-            assert(self._etat_graphique["attaque"]["clef"] != '\0'), "L'attaque n'est pas initialisée."
-            self._moveset[self._etat_graphique["attaque"]["clef"]].dessiner(surface)
     
     def dessine_prochaine_frame_UI(self, surface : Surface) -> None:
         self.dessine_barre_de_vie(surface, Jeu.pourcentage_largeur(70), Jeu.pourcentage_hauteur(65))

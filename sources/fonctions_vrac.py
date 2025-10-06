@@ -61,12 +61,12 @@ def attendre(temps_attente : Duree) -> None:
     
     Jeu.duree_execution.millisecondes += Jeu.clock.tick_busy_loop(1 / temps_attente.secondes)   # framerate = 1 / temps_execution_frame
 
-def avancer_generateurs(gen_list : list[Generator], to_send : Any = None) -> None:
+def avancer_generateurs(gen_list : list[Generator[Any, Any, Any]], to_send : Any = None) -> None:
     """
     Appelle `next()` sur tous les générateurs de la liste.
     Si un générateur élève une `StopIteration`, l'enlève de la liste.
     """
-    for i, gen in enumerate(reversed(gen_list)):
+    for i, gen in enumerate(gen_list.copy()):
         try:
             gen.send(to_send)
         except StopIteration:

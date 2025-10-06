@@ -32,34 +32,46 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Implémentation de gradients et amélioration des outils sur les fonctions d'easing.
+## Implémentation de l'état AFFICHAGE_ATTAQUES
 + Changements majeurs
-	- Création de la classe `Gradient`.
-	- Création de `EasingType`, `ecraser_easing()` et `inversement_ease()`.
+	- Implémentation de `afficher_attaques()`
+		- Renommage en `affichage_attaques()`.
 + Sur plusieurs fichiers
-	- Déplacements des fonctions d'easing (`easing_square`, `easing_circular`, ...) vers l'enum `EasingType` dans [EasingFunctions.py](sources/EasingFunctions.py).
-		* Suppression du prefixe `easing_` et mise en constantes.
-	- `tour_joueur` n'est plus une variable globale.
 + Structure de fichier
-	- Nouveau fichier [EasingFunctions.py](sources/EasingFunctions.py).
 + READMEs et documentation
 + Interactions utilisateur
-	- Amélioration du faux chargement.
-		* Ajout de contours à la barre.
-		* Ajout de gradient à la barre: elle varie de rouge à vert suivant son niveau d'accomplissement.
-		* Le temps de chargement est maintenant précis.
-	- Baisse du temps du faux chargement: 7s -> 2s.
-+ `InterpolationLineaire`
-	- Correction de la logique pour `.generateur()`.
-+ [fonctions_etats.py](sources/fonctions_etats.py)
-	- Début d'implémentation de l'état `afficher_attaques()`.
-	- Implémentation de l'état `FIN_JEU` bien qu'il soit innacéssible pour l'instant.
-
++ [ex_curseur.py](exemples/ex_curseur.py)
+	- Ajout de rounds gris pour indiquer les emplacements interdits
+	- Réparation de l'exemple
++ [ex_param.py](exemples/ex_param.py)
+	- Réparation de l'exemple
++ [Animation.py](sources/Animation.py)
+	- Ajout d'une classe `Deplacement`.
+	- Les arguments positionnels dans les `.calculer_valeur()` sont maintenant limités à `t` (et `self`).
+	- Suppression de l'alias `ColorEasing`.
++ `Attaque`
+	- Ajout d'une animation de glissade quand les attaques sont dessinées.
+	- Ajout d'une propriété `._deplacement`.
+	- Ajout d'une méthode `.pos_anim_attaque()`.
+	- Renommage de `_DUREE_AFFICHAGE` et `_DUREE_VIDE` en `_DUREE_ANIMATION` et `_DUREE_ENTRE_ATTAQUES`.
+	- Renommage de `.friendly_fire` et `.ennemy_fire` en `.peut_attaquer_allies` et `.peut_attaquer_adversaires`.
+	- Le `.__repr__()` est maintenant mieux formaté.
+	- Réécriture de `lancer_toutes_les_attaques_gen()`.
+	- `.dessiner()` est maintenant non public et prend une position en entrée.
++ `Duree`
+	- Ajout d'opérateurs de divisions de durées à durées.
+	- Ajout d'une méthode `.__str__()`
+		* Elle reprend la sortie qu'avait `.__repr__()`.
+		* `.__repr__()` à une nouvelle sortie.
++ [EasingFunctions.py](sources/EasingFunctions.py)
+	- `EasingType.ease_in()`, `EasingType.ease_out()` et `EasingType.ease_in_out()` accèpte maintenant les entiers.
 + [fonctions_vrac.py](sources/fonctions_vrac.py)
-	- Réimplémentation de la fonction `attendre()`, cette fois-ci elle joue que prenait `time.sleep()`.
-+ `Jeu`
-	- Ajout de la variable globale `a_gagne`.
-	- Modification de `commencer_frame()` pour qu'elle retourne la durée de la dernière frame.
-	- Suppression de `toggle_tour()`.
-+ [UI.py](sources/UI.py)
-	- Réécriture de `faux_chargement()`. v. Interactions utilisateur
+	- Réparation de `avancer_generateurs()`.
++ entitées
+	- Fusion de `.pos_attaque_x` et de `.pos_attaque_y` en `pos_attaque`.
+	- Fusion de `.pos_curseur_x` et de `.pos_curseur_y` en `pos_curseur`.
++ `Monstre`
+	- Ajout d'une constante statique `POSITION`.
++ `Pos`
+	- Ajout d'une overload au constructeur pour simplifier les calculs avec les vecteurs.
+	- Ajout d'une méthode `milieu()`

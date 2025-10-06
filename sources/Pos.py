@@ -9,12 +9,17 @@ class Pos:
     def __init__(self, x_ou_pos : int, y : int): ...
     @overload
     def __init__(self, x_ou_pos : tuple[int, int]|list[int]): ...
+    @overload
+    def __init__(self, x_ou_pos : Vecteur): ...
     
-    def __init__(self, x_ou_pos : int|tuple[int, int]|list[int], y : int = -1):
+    def __init__(self, x_ou_pos : int|tuple[int, int]|list[int]|Vecteur, y : int = -1):
         # J'ai déja dit à quel point je n'aime pas ce système de surchargement des fonctions?
         self.x : int; self.y : int
         if type(x_ou_pos) is int:
             self.x = x_ou_pos; self.y = y
+            return
+        if type(x_ou_pos) is Vecteur:
+            self.x = round(x_ou_pos.x); self.y = round(x_ou_pos.y)
             return
         
         if type(x_ou_pos) is not tuple and type(x_ou_pos) is not list:
@@ -48,6 +53,14 @@ class Pos:
             return Pos(self.x - other.x, self.y - other.y)
         
         raise TypeError("On ne peut ajouter un objet pos qu'a un vecteur (de pygame) ou une autre instance de Pos.")
+    
+    @staticmethod
+    def milieu(p1 : 'Pos|Vecteur', p2 : 'Pos|Vecteur') -> 'Pos':
+        """Retourne le milieu du segment allant de p1à p2."""
+        p1 = Vecteur(tuple(p1)) # conversion en vecteur
+        p2 = Vecteur(tuple(p2))
+        
+        return Pos((p1 + p2) / 2)
     
     # à NE PAS définir: le signe, la multiplication et division (scalaire ou pos), l'exponentiation.
     # La raison est simple: les positions ne sont pas des vecteurs

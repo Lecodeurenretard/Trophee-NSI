@@ -31,7 +31,7 @@ mode_debug : Parametre = Parametre(
     "Mode développeur",
     -1,
     TypeParametre.CASE_A_COCHER,
-    False,
+    True,
     on_change=_on_mode_debug_change # type: ignore # on est certain que la valeur passée est un booléen
 )
 _on_mode_debug_change(bool(mode_debug))

@@ -17,7 +17,7 @@ class TypeMonstre(Enum):
                 return BLEU
             
             case _:
-                raise NotImplementedError("Type de monstre non implémenté dans Monstre.Type.couleur().")
+                raise NotImplementedError("Type de monstre non implémenté.")
     
     @property
     def chemin_sprite(self) -> str:
@@ -29,10 +29,10 @@ class TypeMonstre(Enum):
                 return f"{Constantes.Chemins.DOSSIER_IMG}/sorcier_placeholder.png"
             
             case _:
-                raise NotImplementedError("Type de monstre non implémenté dans Monstre.Type.sprite().")
+                raise NotImplementedError("Type de monstre non implémenté.")
     
     @property
-    def moveset(self) -> tuple[Attaque]:
+    def moveset(self) -> tuple[Attaque, ...]:
         match self:
             case TypeMonstre.Blob:
                 return (
@@ -47,7 +47,7 @@ class TypeMonstre(Enum):
                 )
             
             case _:
-                raise NotImplementedError("Type de monstre non implémenté dans Monstre.Type.attaques_du_type().")
+                raise NotImplementedError("Type de monstre non implémenté.")
     
     def type_precedent(self) -> 'TypeMonstre':
         if self.value == 1:     # minimum value
@@ -67,6 +67,7 @@ class Monstre:
         TypeMonstre.Blob    : Stat(35, 23, 50, 0 , 17, 30, 2.0, 1.3).reset_vie(),
         TypeMonstre.Sorcier : Stat(40, 10, 30, 15, 40, 60, 1.3, 1.8).reset_vie(),
     }
+    POSITION : Pos = Pos(Jeu.pourcentage_largeur(70), Jeu.pourcentage_hauteur(15))
     
     dimensions_sprites : tuple[int, int] = (150, 150)
     
@@ -79,7 +80,7 @@ class Monstre:
             self,
             nom           : str,
             stats         : Stat,
-            attaques      : tuple[Attaque],
+            attaques      : tuple[Attaque, ...],
             couleur       : Optional[rgb]         = None,
             chemin_sprite : Optional[str]         = None,
             type_calque   : Optional[TypeMonstre] = None,
@@ -186,19 +187,12 @@ class Monstre:
         return copy(self._stats)
     
     @property
-    def pos_attaque_x(self) -> int:
-        return 400
-    @property
-    def pos_attaque_y(self) -> int:
-        return 300
-    
+    def pos_attaque(self) -> Pos:
+        return Monstre.POSITION
     
     @property
-    def pos_curseur_x(self) -> int:
-        return 0
-    @property
-    def pos_curseur_y(self) -> int:
-        return 0
+    def pos_curseur(self) -> Pos:
+        return Pos(0, 0)
     
     def meurt(self) -> None:
         globales.entites_vivantes[self._id] = None
@@ -254,7 +248,7 @@ class Monstre:
     def dessine_prochaine_frame(self, surface : Surface) -> None:
         if not self._etat_graphique["afficher"]:
             return
-        self.dessiner(surface, Jeu.pourcentage_largeur(70), Jeu.pourcentage_hauteur(15))
+        self.dessiner(surface, Monstre.POSITION.x, Monstre.POSITION.y)
         
         if self._etat_graphique["attaque"]["temps expiration"] < Jeu.duree_execution:
             self._moveset[self._etat_graphique["attaque"]["clef"]].dessiner(surface)
