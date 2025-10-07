@@ -1,5 +1,4 @@
 from import_var import *
-from Pos import Pos
 from dessin import dessiner_rect
 from fonctions_vrac import blit_centre
 

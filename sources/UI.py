@@ -111,8 +111,8 @@ def faux_chargement(duree_totale : Duree = Duree(s=2.0)) -> None:
             (round(ratio_barre * LONGUEUR_BARRE), 50),
             couleur_remplissage=gradient.calculer_valeur(
                 ratio_barre,
-                r=Easing.ecraser_easing(Easing.TRIGONOMETRIC, (.5, 1)),
-                g=Easing.ecraser_easing(Easing.TRIGONOMETRIC, (0, .5)),
+                r=ecraser_easing(Easing.TRIGONOMETRIC, (.5, 1)),
+                g=ecraser_easing(Easing.TRIGONOMETRIC, (0, .5)),
             ),
             epaisseur_trait=0
         )

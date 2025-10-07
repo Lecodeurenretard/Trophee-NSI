@@ -1,4 +1,8 @@
-from imports import TypeAlias, Callable, math, cos, sqrt, Enum, auto
+import math
+
+from typing import TypeAlias, Callable
+from math import cos, sqrt
+from enum import Enum, auto
 
 # Ces fonctions sont définies dans [0; 1] et ont leurs images dans [0; 1]
 EasingFunction : TypeAlias = Callable[[float], float]
@@ -161,15 +165,3 @@ def ecraser_easing(easing : EasingFunction, intervalle : tuple[float, float]) ->
     
     a = intervalle[0]; b = min(intervalle[1], 1-intervalle[0])
     return lambda x, a=a, b=b: easing(max(min((x - a) / b, 1), 0))
-
-NO_EASING     : EasingFunction = EasingType.ease_in_out(EasingType.NONE)
-SQUARE        : EasingFunction = EasingType.ease_in_out(EasingType.POLYNOMIAL, 2)
-CUBE          : EasingFunction = EasingType.ease_in_out(EasingType.POLYNOMIAL, 3)
-HYPERCUBE     : EasingFunction = EasingType.ease_in_out(EasingType.POLYNOMIAL, 4)
-EXPONENTIAL   : EasingFunction = EasingType.ease_in_out(EasingType.EXPONENTIAL, 2.0, 4.0458036896)
-CIRCULAR      : EasingFunction = EasingType.ease_in_out(EasingType.CIRCULAR)
-TRIGONOMETRIC : EasingFunction = EasingType.ease_in_out(EasingType.TRIGONOMETRIC)
-
-FADE       : EasingFunction = CUBE
-EXPONENT_4 : EasingFunction = HYPERCUBE
-RADIAL     : EasingFunction = CIRCULAR

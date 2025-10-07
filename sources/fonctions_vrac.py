@@ -1,6 +1,5 @@
 # Fonctions qui n'ont nulle part d'autre où aller
 from import_var import *
-from Duree import Duree
 from Jeu   import Jeu
 
 def premier_indice_libre_de_entites_vivantes() -> int:

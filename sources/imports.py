@@ -1,4 +1,4 @@
-# Imports et choses importantes
+"""imports externes et de modules."""
 
 import pygame
 import random

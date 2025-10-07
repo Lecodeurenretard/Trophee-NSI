@@ -1,10 +1,9 @@
-import EasingFunctions as Easing
-from EasingFunctions import EasingFunction
-
 from imports import Generator, Optional
 from Constantes.Couleurs import rgba, color, color_to_rgba, TypeAlias
 
-from Pos import Pos
+from .Pos import Pos
+from .EasingFunctions import EasingFunction
+from . import EasingConstants as Easing
 
 # Certains logiciels d'animations et de montage proposent ces fonctionnalités (par exemple Blender et DaVinci)
 # Les easing functions (j'ai pas le nom français) permettent d'avoir une animation plus fluide

@@ -1,6 +1,4 @@
 from import_var import *
-from Pos        import Pos
-from Duree      import Duree
 from Jeu import verifier_pour_quitter
 
 def dessiner_rect(

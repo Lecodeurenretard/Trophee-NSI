@@ -1,5 +1,5 @@
 from imports import *
-from Duree import Duree
+from classes_utiles import Duree
 from Constantes import Touches
 
 def staticclass(cls : type) -> type:

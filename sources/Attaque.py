@@ -225,7 +225,7 @@ class Attaque:
     
     def pos_anim_attaque(self, t : float) -> Pos:
         """La position de l'attaque pour un temps t. (t = 0 => animation finie à 0%, t = 0.5 => animation finie à 50%, ...)"""
-        return self._deplacement.calculer_valeur(t, Easing.EasingType.ease_in(EasingType.POLYNOMIAL, 3))
+        return self._deplacement.calculer_valeur(t, EasingType.ease_in(EasingType.POLYNOMIAL, 3))
     
     def calculer_degats(self, defense_min = 10) -> int:
         """

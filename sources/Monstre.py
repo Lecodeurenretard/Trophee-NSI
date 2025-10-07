@@ -1,5 +1,3 @@
-from dessin import *
-from fonctions_vrac import *
 from Attaque import *
 from Joueur import joueur
 
