@@ -118,7 +118,7 @@ class Attaque:
         while not Attaque.attaques_du_tour.empty():
             attaque : Attaque = Attaque.attaques_du_tour.get_nowait().attaque
             if attaque._lanceur.est_mort:
-                return
+                break
             
             if param.mode_debug.case_cochee:
                 logging.debug(f"{attaque._lanceur.dbg_nom} (id: {attaque._lanceur.id}) utilise {attaque._nom} sur {attaque._cible.dbg_nom}.")
@@ -148,6 +148,7 @@ class Attaque:
         
         if bool(param.mode_debug):
             logging.debug("Fin du lancement des attaques.")
+            logging.debug("")
     
     @property
     def _couleur(self) -> rgb:
@@ -313,6 +314,7 @@ class AttaquePriorisee:
         return -max(0, min(Stat.VITESSE_MAX, 1.2 * vitesse_attaque + 1.0 * vitesse_lanceur))
 
 
+#TODO: mettre ça dans un module ou un truc du genre
 ATTAQUES_DISPONIBLES : dict[str, Attaque] = {
     "heal": Attaque(
         "Soin", "Soignez-vous de quelques PV",
@@ -338,6 +340,7 @@ ATTAQUES_DISPONIBLES : dict[str, Attaque] = {
         0,
         0,
         TypeAttaque.DIVERS,
-        crit_proba=.5, flags=AttaqueFlags.AUCUN   # ça sert à rien d'augmenter la chance de crit mais ¯\_(ツ)_/¯ funny
+        crit_proba=.5, flags=AttaqueFlags.AUCUN,   # ça sert à rien d'augmenter la chance de crit mais ¯\_(ツ)_/¯ funny
+        glisser=False,
     ),
 }

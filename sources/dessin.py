@@ -62,7 +62,7 @@ def dessiner_barre_de_vie(surface : Surface, pos_x : int, pos_y : int, ratio_vie
 
 def dessiner_nom(surface : Surface, nom : str, position : Pos) -> None:
     # c'est plus clair de mettre cette ligne en procédure
-    surface.blit(Constantes.Polices.TITRE.render(nom, True, NOIR), tuple(position))
+    surface.blit(Constantes.Polices.TITRE.render(nom, True, NOIR), position.tuple)
 
 def image_vers_generateur(
         image : Surface,

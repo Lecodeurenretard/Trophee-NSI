@@ -18,6 +18,7 @@ class Pos:
         if type(x_ou_pos) is int:
             self.x = x_ou_pos; self.y = y
             return
+        
         if type(x_ou_pos) is Vecteur:
             self.x = round(x_ou_pos.x); self.y = round(x_ou_pos.y)
             return
@@ -27,14 +28,6 @@ class Pos:
         if len(x_ou_pos) != 2:
             raise ValueError("Les positions sont en deux dimensions.")
         self.x, self.y = x_ou_pos[0], x_ou_pos[1]
-    
-    def __iter__(self) -> Generator[int, None, None]:
-        # v. Réponse StackOverflow https://stackoverflow.com/questions/37639363/how-to-convert-an-custom-class-object-to-a-tuple-in-python
-        # En court, cette fonction permet de convertir les objets en tuple et en liste.
-        # Techniquement, grâce à elle on pourrait itérer à travers une position avec une boucle for
-        # mais personne ne fera ceci, n'est-ce pas?
-        yield self.x    # return mais qui peut se faire plusieurs fois
-        yield self.y
     
     def __repr__(self):
         return f"({self.x}; {self.y})"
@@ -56,12 +49,23 @@ class Pos:
     
     @staticmethod
     def milieu(p1 : 'Pos|Vecteur', p2 : 'Pos|Vecteur') -> 'Pos':
-        """Retourne le milieu du segment allant de p1à p2."""
-        p1 = Vecteur(tuple(p1)) # conversion en vecteur
-        p2 = Vecteur(tuple(p2))
+        """Retourne le milieu du segment allant de p1 à p2."""
+        if type(p1) is Pos:
+            p1 = p1.vecteur
+        if type(p2) is Pos:
+            p2 = p2.vecteur
         
+        assert(type(p1) is Vecteur and type(p2) is Vecteur) # on réassure le type checker
         return Pos((p1 + p2) / 2)
     
     # à NE PAS définir: le signe, la multiplication et division (scalaire ou pos), l'exponentiation.
     # La raison est simple: les positions ne sont pas des vecteurs
     # Si l'addition et la soustraction sont permis, c'est pour avoir moins à écrire.
+    
+    @property
+    def tuple(self) -> tuple[int, int]:
+        return (self.x, self.y)
+    
+    @property
+    def vecteur(self) -> Vecteur:
+        return Vecteur(self.x, self.y)

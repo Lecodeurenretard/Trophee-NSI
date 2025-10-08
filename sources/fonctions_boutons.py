@@ -2,16 +2,14 @@ from fonctions_main import *
 
 def lancer_jeu() -> None:
     logging.info("→ Lancement du jeu...")
-    Jeu.ecran_titre_running = False
+    Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
     
     if not param.mode_debug.case_cochee:
         demander_pseudo()
         faux_chargement()
-        nouveau_combat(1, True)
         return
     
     joueur.pseudo = "Testeur"
-    nouveau_combat(1, True)
 
 def menu_parametres() -> Interruption:
     logging.debug("→ Interruption: Paramètres")
@@ -54,18 +52,3 @@ def menu_parametres() -> Interruption:
 
 def lancer_parametres() -> None:
     terminer_interruption(menu_parametres())
-
-def afficher_credits() -> None:
-    logging.info("→ Affichage des crédits...")
-    texte_credits : Surface = Constantes.Polices.FOURRE_TOUT.render("Développé par Jules et Lucas", True, BLANC)
-    credit_y : int = Jeu.HAUTEUR
-    
-    while credit_y > 0:
-        verifier_pour_quitter()
-        Jeu.fenetre.fill(NOIR)
-        blit_centre(Jeu.fenetre, texte_credits, (Jeu.pourcentage_largeur(50), credit_y))
-        
-        credit_y -= 1
-        
-        pygame.display.flip()
-        pygame.time.delay(4)

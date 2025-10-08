@@ -30,13 +30,8 @@ def reset_monstre() -> None:
         # monstre sera détruit par le garbage collector
     Monstre.spawn()
 
-def fin_combat() -> bool:
-    if Jeu.num_combat >= Jeu.MAX_COMBAT:
-        fin_partie(gagne=True)
-        return True
-    
-    nouveau_combat(Jeu.num_combat + 1)
-    return False
+def joueur_gagne() -> bool:
+    return Jeu.num_combat >= Jeu.MAX_COMBAT
 
 def nouveau_combat(numero_combat : int, reset_joueur : bool = False) -> Generator[Surface, None, None]:
     if not (1 <= numero_combat <= Jeu.MAX_COMBAT):

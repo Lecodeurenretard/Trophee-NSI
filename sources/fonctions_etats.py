@@ -27,7 +27,7 @@ def attente_nouveau_combat() -> None:
 def choix_attaque() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.CHOIX_ATTAQUE.name}.")
     
-    boutons_attaques[0].enable_drawing()
+    ButtonCursor.enable_drawing("Attaques")
     interruption_gen : Optional[Interruption] = None
     
     finir : bool = False
@@ -54,11 +54,14 @@ def choix_attaque() -> None:
             
             if event.type == pygame.KEYDOWN:
                 interruption_gen = reagir_appui_touche(event)
+                if Jeu.etat != Jeu.Etat.CHOIX_ATTAQUE:
+                    ButtonCursor.disable_drawing("Attaques")
+                    return
                 continue
         
         rafraichir_ecran()
     
-    boutons_attaques[0].disable_drawing()
+    ButtonCursor.disable_drawing("Attaques")
     Jeu.changer_etat(Jeu.Etat.AFFICHAGE_ATTAQUES)
 
 def affichage_attaques() -> None:
@@ -70,6 +73,24 @@ def affichage_attaques() -> None:
         verifier_pour_quitter()
         
         rafraichir_ecran(attaque_gen)
+    
+    # Check pour les monstres morts
+    Monstre.tuer_les_monstres_morts()
+    if len(Monstre.monstres_en_vie) == 0:
+        if not joueur_gagne():
+            Jeu.num_combat += 1
+            Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
+            return
+        
+        Jeu.a_gagne = True
+        Jeu.changer_etat(Jeu.Etat.FIN_JEU)
+        return
+    
+    if joueur.est_mort:
+        Jeu.a_gagne = False
+        Jeu.changer_etat(Jeu.Etat.FIN_JEU)
+        return
+    
     Jeu.changer_etat(Jeu.Etat.CHOIX_ATTAQUE)
 
 def ecran_titre() -> None:
@@ -79,19 +100,19 @@ def ecran_titre() -> None:
     HAUTEUR_BOUTONS : int = 60
     
     DIMENSIONS_BOUTONS : tuple[tuple[int, int, int, int], ...] = (
-        centrer_pos_tuple((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(30), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
-        centrer_pos_tuple((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(50), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
-        centrer_pos_tuple((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(70), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
+        centrer_pos((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(30), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
+        centrer_pos((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(50), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
+        centrer_pos((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(70), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
     )
     boutons_menu : tuple[ButtonCursor, ...] = (
         ButtonCursor("Jouer"     , DIMENSIONS_BOUTONS[0], line_thickness=0, group_name="Ecran titre", group_color=VERT, action=lancer_jeu),
         ButtonCursor("Paramètres", DIMENSIONS_BOUTONS[1], line_thickness=0, group_name="Ecran titre",                   action=lancer_parametres),
-        ButtonCursor("Crédits"   , DIMENSIONS_BOUTONS[2], line_thickness=0, group_name="Ecran titre",                   action=afficher_credits),
+        ButtonCursor("Crédits"   , DIMENSIONS_BOUTONS[2], line_thickness=0, group_name="Ecran titre",                   action=lambda: Jeu.changer_etat(Jeu.Etat.CREDITS)),
     )
-    boutons_menu[0].enable_drawing()
+    ButtonCursor.enable_drawing("Ecran titre")
     
     
-    while Jeu.ecran_titre_running:
+    while Jeu.etat == Jeu.Etat.ECRAN_TITRE:
         Jeu.commencer_frame()
         for event in pygame.event.get():
             verifier_pour_quitter(event)
@@ -103,12 +124,51 @@ def ecran_titre() -> None:
         
         ButtonCursor.draw_cursors(Jeu.fenetre)
         pygame.display.flip()
-    Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
+    
+    if Jeu.etat != Jeu.Etat.CREDITS:
+        Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
+
+def credits(duree : Duree = Duree(s=5)) -> None:
+    logging.debug(f"Activation de l'état {Jeu.Etat.CREDITS.name}.")
+    if duree == Duree():
+        return
+    
+    texte_credits  : Surface = Constantes.Polices.FOURRE_TOUT.render("Développé par Jules et Lucas", True, BLANC)
+    texte_credits2 : Surface = pygame.font.Font(None, 30).render("et Nils", True, BLANC)
+    
+    deplacement : Deplacement = Deplacement(
+        Pos(Jeu.pourcentage_largeur(50), Jeu.HAUTEUR),
+        Pos(Jeu.pourcentage_largeur(50), -50),  # pour laisser le "et Nils" aller hors écran
+    )
+    
+    debut : Duree = copy(Jeu.duree_execution)
+    while not testeur_skip_ou_quitte() and Jeu.duree_execution < debut + duree:
+        Jeu.commencer_frame()
+        
+        pos = deplacement.calculer_valeur((Jeu.duree_execution - debut) / duree)
+        
+        Jeu.fenetre.fill(NOIR)
+        blit_centre(Jeu.fenetre, texte_credits , pos.tuple)
+        blit_centre(Jeu.fenetre, texte_credits2, (pos + Vecteur(0, 30)).tuple)
+        
+        pygame.display.flip()
+    Jeu.changer_etat(Jeu.precedent_etat)
 
 def fin_jeu() -> None:
-    terminer_generateur(fin_partie(Jeu.a_gagne))
+    logging.debug("")
+    logging.debug("")
+    logging.debug(f"Activation de l'état {Jeu.Etat.FIN_JEU.name}.")
+    
+    ecran_gen : Generator[Surface, None, None] = fin_partie(Jeu.a_gagne)
+    while not testeur_skip_ou_quitte():
+        Jeu.commencer_frame()
+        try:
+            Jeu.fenetre.blit(next(ecran_gen), (0, 0))
+        except StopIteration:
+            break
+        pygame.display.flip()
     
     if param.fermer_a_la_fin.case_cochee:
         quit()
     
-    Jeu.ecran_titre_running = True
+    Jeu.changer_etat(Jeu.Etat.ECRAN_TITRE)

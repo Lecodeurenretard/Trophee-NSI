@@ -108,7 +108,7 @@ class Curseur:
         )
     
     def dessiner(self, surface : Surface, couleur : color, rayon : int = 10) -> None:
-        pygame.draw.circle(surface, couleur, tuple(self._pos), rayon)
+        pygame.draw.circle(surface, couleur, self._pos.tuple, rayon)
     
     def monter(self) -> None:
         self._ajouter_a_pdtp_y(-1)

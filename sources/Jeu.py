@@ -33,7 +33,6 @@ class Jeu:
     menus_surf : Surface = Surface((LARGEUR, HAUTEUR), pygame.SRCALPHA)
     
     num_combat          : int   = 1
-    ecran_titre_running : bool  = True
     duree_execution     : Duree = Duree()
     clock               : pygame.time.Clock = pygame.time.Clock()
     

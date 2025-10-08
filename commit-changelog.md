@@ -14,6 +14,8 @@ format:
 	- [Changements dans la doc?]
 + Interaction joueur/testeur
 	- [Changement touches/dialogue/...]
++ Correction de bug
+	- [Interaction joueur/testeur mais pour les corrections de bugs]
 + [fichier/classe]
 	- [...]
 
@@ -23,8 +25,9 @@ format:
 + Sur plusieurs fichiers
 + Structure de fichier
 + READMEs et documentation
-+ Interactions utilisateur
-+ 
++ Interactions joueur/testeur
++ Correction de bugs
++ []()
 	- 
 ------------------------------------
 -->
@@ -32,16 +35,39 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Création module [classes_utiles](sources/classes_utiles/).
+## Implémentation des crédits et fin du remaniement de la logique du jeu.
 + Changements majeurs
-	- Déplacement des fichiers:
-		* Animation.py
-		* Duree.py
-		* EasingFunctions.py
-		* Pos.py
-	- `Easing` n'est maintenant utilisé que pour les consantes dans [EasingConstants.py](sources/classes_utiles/EasingConstants.py)
+	- Création fonction `credits()`.
 + Sur plusieurs fichiers
-	- Les constantes de [EasingFunctions.py](sources/classes_utiles/EasingFunctions.py) sont déplacées dans [EasingConstants.py](sources/classes_utiles/EasingConstants.py)
 + Structure de fichier
 + READMEs et documentation
-+ Interactions utilisateur
++ Interactions joueur/testeur
+	- Les logs sont mieux espacés.
+	- L'attaque "Skip" ne glisse plus.
++ Correction de bug
+	- `nouveau_combat()` n'est appelée qu'une seule fois avant le premier combat.
+	- Les touches débugs marchent.
++ [Ce fichier](commit-changelog.md)
+	- Modification nom catégorie "Interaction utilisateur" --> "Interaction joueur/testeur".
++ `Pos`
+	- Ajout de la propriété ``
+	- Remplacement de la méthode `.__iter__()` par la propriété `.tuple` pour aider le _type checker_.
++ `Attaque`
+	- La fin de `lancer_toutes_les_attaques_gen()` est maintenant toujours exécutée.
++ [Bouton.py](sources/Bouton.py)
+	- `Button.check_click()` peut prendre une tuple en argument.
+	- `ButtonCursor.enable_drawing()` et `ButtonCursor.disable_drawing()` sont maintenant des fonctions statiques prenant le nom du groupe en argument.
++ [fonctions_main.py](sources/fonctions_main.py)
+	- Ajout de `joueur_gagne()`.
+	- Suppression de `fin_combat()`.
+		* Le rôle est déplacé dans l'état `AFFICHAGE_ATTAQUES`.
++ [fonctions_vrac.py](sources/fonctions_vrac.py)
+	- Ajout overload pour que `centrer_pos_tuple()` accepte les objets `Pos`.
+		* Renommage de la fonction en `centrer_pos()`.
++ [main.py](sources/main.py)
+	- `jeu()` ne modifie plus le numéro de combat.
+	- Suppression de la fonction `__main__()`.
+		* On passe directement par `jeu()`.
+
+_________________________________
+note: Les docs serons dans le prochain commit

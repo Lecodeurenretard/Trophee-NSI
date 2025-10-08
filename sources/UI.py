@@ -140,6 +140,7 @@ def ecran_nombre_combat() -> Generator[Surface, None, None]:
     blit_centre(image, texte_combat, Jeu.CENTRE_FENETRE)
     
     logging.info("")
+    logging.info("")
     logging.info(f"Début combat numéro {Jeu.num_combat}")
     return image_vers_generateur(image, Duree(s=2), gerer_evenements=True)
 

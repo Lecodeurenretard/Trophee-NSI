@@ -216,7 +216,7 @@ class Parametre:
         position : Pos = self._position - Vecteur(*self._categorie.dimensions) // 2
         position.x += Parametre._ECART_NOM_VALEUR // 2
         
-        return Rect(tuple(position), self._categorie.dimensions)
+        return Rect(position.tuple, self._categorie.dimensions)
     
     @property
     def valeurs_autorisees(self) -> list[str]:
@@ -254,7 +254,7 @@ class Parametre:
         
         blit_centre(
             surface, nom_rendered,
-            tuple(self._position - Vecteur(nom_rendered.get_width(), 0) - DECALAGE),  # type: ignore  # une position renvoie une tuple[int, int]
+            (self._position - Vecteur(nom_rendered.get_width(), 0) - DECALAGE).tuple,
             centre_en_x=False
         )
         

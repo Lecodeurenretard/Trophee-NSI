@@ -27,14 +27,16 @@ class Button:
         
         surface.blit(text_surf, text_rect)
     
-    def check_click(self, pos_click : Pos) -> bool:
-        if self._rect.collidepoint(tuple(pos_click)) and self._action is not None:
+    def check_click(self, pos_click : Pos|tuple[int, int]) -> bool:
+        if type(pos_click) is Pos:
+            pos_click = pos_click.tuple
+        if self._rect.collidepoint(pos_click) and self._action is not None:  #type:ignore
             self._action()
             return True
         return False
     
-    def in_butt_hit(self, pos_mouse : Pos) -> bool: # peak naming
-        return self._rect.collidepoint(tuple(pos_mouse))
+    def in_butt_hit(self, pos_mouse : tuple[int, int]) -> bool: # peak naming
+        return self._rect.collidepoint(pos_mouse)
 
 class ButtonCursor(Button):
     _CURSOR_OFFSET : int = 10
@@ -163,7 +165,12 @@ class ButtonCursor(Button):
     def cursor(self) -> Curseur:
         return self._group_cursor
     
-    def enable_drawing(self) -> None:
-        ButtonCursor._static_group_is_drawn[self._group_name] = True
-    def disable_drawing(self) -> None:
-        ButtonCursor._static_group_is_drawn[self._group_name] = False
+    @staticmethod
+    def enable_drawing(group_name : str) -> None:
+        assert(group_name in ButtonCursor._static_group_is_drawn.keys()), "Mauvais nom de groupe."
+        ButtonCursor._static_group_is_drawn[group_name] = True
+    
+    @staticmethod
+    def disable_drawing(group_name : str) -> None:
+        assert(group_name in ButtonCursor._static_group_is_drawn.keys()), "Mauvais nom de groupe."
+        ButtonCursor._static_group_is_drawn[group_name] = False

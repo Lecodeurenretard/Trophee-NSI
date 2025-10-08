@@ -1,4 +1,4 @@
-from imports import Generator, Optional
+from imports import Generator, Optional, Vecteur, math
 from Constantes.Couleurs import rgba, color, color_to_rgba, TypeAlias
 
 from .Pos import Pos
