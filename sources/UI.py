@@ -188,3 +188,22 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     
     # Mettre à jour l'affichage
     pygame.display.flip()
+
+
+def afficher_gif(chemin_dossier : str, debut_nom : str, extention : str, interval : Duree, pos : Pos, *, skippable : bool = False) -> None:
+    """"Affiche un gif, codé sur EduPython donc sera bientôt changé."""
+    from glob import glob
+    import time
+
+    assert(chemin_dossier.endswith('/') or chemin_dossier.endswith('\\')), "Le chemin vers le dossier doit se terminer par un slash."
+    assert(extention.startswith('.')), "L'extention doit commencer par un point."
+
+    for i, image in enumerate(glob(f"{chemin_dossier}{debut_nom}*{extention}")):
+            if skippable:
+                quit = testeur_skip_ou_quitte()
+            else:
+                quit = verifier_pour_quitter()
+
+            fenetre.blit(pygame.image.load(image), pos.tuple)
+            pygame.display.flip()
+            time.sleep(interval.secondes)
