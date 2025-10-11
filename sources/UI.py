@@ -145,7 +145,7 @@ def ecran_nombre_combat() -> Generator[Surface, None, None]:
     return image_vers_generateur(image, Duree(s=2), gerer_evenements=True)
 
 
-def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = []) -> None:
+def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = [], to_send_dessin : Any = None, to_send_UI : Any = None) -> None:
     # Effacer l'écran en redessinant l'arrière-plan
     Jeu.fenetre.fill(BLANC)
     Jeu.menus_surf.fill(TRANSPARENT)
@@ -153,14 +153,13 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     # Dessiner le joueur
     joueur.dessiner(Jeu.fenetre)
     joueur.dessine_barre_de_vie(Jeu.fenetre, 500, 400)
-    dessiner_nom(Jeu.menus_surf, joueur.pseudo, Pos(499, 370))
+    Jeu.menus_surf.blit(Constantes.Polices.TITRE.render(joueur.pseudo, True, NOIR), (499, 370))
     
     # Dessiner les monstres
-    if len(Monstre.monstres_en_vie) != 0:
-        for monstre in Monstre.monstres_en_vie:
-            monstre.dessiner(Jeu.fenetre, Jeu.pourcentage_largeur(70), Jeu.pourcentage_hauteur(15))  # ils sont tous à la même position pour l'instant
-            monstre.dessiner_barre_de_vie(Jeu.fenetre, 50, 50)
-            dessiner_nom(Jeu.menus_surf, monstre.nom, Pos(49, 20))
+    for monstre in Monstre.monstres_en_vie:
+        monstre.dessiner(Jeu.fenetre, Jeu.pourcentage_largeur(70), Jeu.pourcentage_hauteur(15))  # ils sont tous à la même position pour l'instant
+        monstre.dessiner_barre_de_vie(Jeu.fenetre, 50, 50)
+        Jeu.menus_surf.blit(Constantes.Polices.TITRE.render(monstre.nom, True, NOIR), (49, 20))
     
     # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:
@@ -177,8 +176,8 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     blit_centre(Jeu.fenetre, Constantes.Polices.TEXTE.render("I : info"         , True, BLANC), (Jeu.pourcentage_largeur(85), Jeu.pourcentage_hauteur(84)))
     
     # Dessin supplémentaire
-    avancer_generateurs(generateurs_dessin)
-    avancer_generateurs(generateurs_UI)
+    avancer_generateurs(generateurs_dessin, to_send_dessin)
+    avancer_generateurs(generateurs_UI,     to_send_UI)
     
     # ...
     dessiner_boutons_attaques()
@@ -188,22 +187,3 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     
     # Mettre à jour l'affichage
     pygame.display.flip()
-
-
-def afficher_gif(chemin_dossier : str, debut_nom : str, extention : str, interval : Duree, pos : Pos, *, skippable : bool = False) -> None:
-    """"Affiche un gif, codé sur EduPython donc sera bientôt changé."""
-    from glob import glob
-    import time
-
-    assert(chemin_dossier.endswith('/') or chemin_dossier.endswith('\\')), "Le chemin vers le dossier doit se terminer par un slash."
-    assert(extention.startswith('.')), "L'extention doit commencer par un point."
-
-    for i, image in enumerate(glob(f"{chemin_dossier}{debut_nom}*{extention}")):
-            if skippable:
-                quit = testeur_skip_ou_quitte()
-            else:
-                quit = verifier_pour_quitter()
-
-            fenetre.blit(pygame.image.load(image), pos.tuple)
-            pygame.display.flip()
-            time.sleep(interval.secondes)

@@ -33,6 +33,7 @@ curseur = Curseur(
 )
 
 
+print("Exemple: Comment se servir d'un curseur.")
 while True:
     Jeu.clock.tick(60)
     Jeu.fenetre.fill(NOIR)

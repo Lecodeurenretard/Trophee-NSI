@@ -68,11 +68,12 @@ def affichage_attaques() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.AFFICHAGE_ATTAQUES.name}.")
     
     attaque_gen : list[Generator[None, None, None]] = [Attaque.lancer_toutes_les_attaques_gen(Jeu.fenetre)]
+    attaque_gen[0].send(None)
     while len(attaque_gen) != 0:
         Jeu.commencer_frame()
-        verifier_pour_quitter()
+        skip : bool = testeur_skip_ou_quitte()
         
-        rafraichir_ecran(attaque_gen)
+        rafraichir_ecran(attaque_gen, to_send_dessin=skip)
     
     # Check pour les monstres morts
     Monstre.tuer_les_monstres_morts()
@@ -112,13 +113,18 @@ def ecran_titre() -> None:
     ButtonCursor.enable_drawing("Ecran titre")
     
     
+    dessiner_fond_ecran = dessiner_gif(
+        Jeu.fenetre,
+        f"{Constantes.Chemins.DOSSIER_ANIM}/fond/frame *.png",
+        Duree(s=.1), Pos(Jeu.CENTRE_FENETRE), loop=True, scale=True
+    )
     while Jeu.etat == Jeu.Etat.ECRAN_TITRE:
         Jeu.commencer_frame()
         for event in pygame.event.get():
             verifier_pour_quitter(event)
             ButtonCursor.handle_inputs(boutons_menu, event)
         
-        Jeu.fenetre.fill(BLEU_CLAIR)
+        next(dessiner_fond_ecran)
         for bouton in boutons_menu:
             bouton.draw(Jeu.fenetre)
         

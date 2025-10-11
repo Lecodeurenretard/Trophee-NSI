@@ -111,7 +111,7 @@ class Attaque:
         )
     
     @staticmethod
-    def lancer_toutes_les_attaques_gen(surface: Surface) -> Generator[None, None, None]:
+    def lancer_toutes_les_attaques_gen(surface: Surface) -> Generator[None, Optional[bool], None]:
         if param.mode_debug.case_cochee:
             logging.debug("Début du lancement des attaques.")
         
@@ -126,24 +126,26 @@ class Attaque:
             debut_attaque : Duree = copy(Jeu.duree_execution)
             fin_attaque   : Duree = debut_attaque + Attaque._DUREE_ANIMATION
             
-            while Jeu.duree_execution < fin_attaque:
+            skip_attaque : bool = False
+            while Jeu.duree_execution < fin_attaque and not skip_attaque:
                 if Jeu.duree_execution - debut_attaque == 0:
                     attaque._dessiner(surface, attaque.pos_anim_attaque(0))
-                    yield
+                    skip_attaque = bool((yield))
                     continue
                 
                 pos : Pos = attaque.pos_anim_attaque(
                     (Jeu.duree_execution - debut_attaque) / Attaque._DUREE_ANIMATION
                 )
                 attaque._dessiner(surface, pos)
-                yield
+                skip_attaque = bool((yield))
             
             attaque.appliquer()
             
             # Pas de attendre() ici, on ne veut pas interrompre la boucle de l'état
             peut_sortir = pause(Attaque._DUREE_ENTRE_ATTAQUES)
-            while not next(peut_sortir):
-                yield
+            while not next(peut_sortir) and not skip_attaque:
+                if (yield):   # None est "falsy", ça veut dire que çaa donnera le même résultat si `sent` est none que s'il était False.
+                    break
         
         
         if bool(param.mode_debug):

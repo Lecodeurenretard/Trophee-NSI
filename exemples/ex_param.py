@@ -21,13 +21,14 @@ params = [
     ),
 ]
 
-
+print("Exemple: Comment se servir des paramètres.")
 while True:
     Jeu.fenetre.fill(BLANC)
     
     for ev in pygame.event.get():
         verifier_pour_quitter(ev)
         
+        # Vérifie si l'évènement ne concerne pas les paramètres
         for param in params:
             param.prendre_input(ev)
     

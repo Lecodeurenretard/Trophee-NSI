@@ -16,4 +16,5 @@ else:
 
 DOSSIER_IMG  = f"{RACINE}data/img"
 DOSSIER_SAVE = f"{RACINE}data/save"
+DOSSIER_ANIM = f"{RACINE}data/anim"
 DOSSIER_ETC  = f"{RACINE}data/etc"
