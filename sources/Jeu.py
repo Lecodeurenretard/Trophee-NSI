@@ -40,13 +40,13 @@ class Jeu:
     
     
     
-    # Graphe des états: http://graphonline.top/fr/?graph=ZCaEuQwPStCefLfb
+    # Graphe des états: http://graphonline.top/fr/?graph=sQpJKZbmqurILdcl
     class Etat(Enum):
         DECISION_ETAT          = auto()
         ATTENTE_NOUVEAU_COMBAT = auto()
         CHOIX_ATTAQUE          = auto()
         AFFICHAGE_ATTAQUES     = auto()
-        FIN_JEU             = auto()
+        GAME_OVER              = auto()
         
         ECRAN_TITRE            = auto()
         CREDITS                = auto()

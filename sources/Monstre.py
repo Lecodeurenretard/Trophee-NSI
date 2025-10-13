@@ -53,7 +53,7 @@ class TypeMonstre(Enum):
         return TypeMonstre(self.value - 1)
     
     def type_suivant(self) -> 'TypeMonstre':
-        if self.value == TypeMonstre(len(TypeMonstre)):
+        if self.value == len(TypeMonstre):
             return TypeMonstre(1)
         return TypeMonstre(self.value + 1)
 

@@ -1,19 +1,16 @@
-from fonctions_boutons import *
+from Jeu import Jeu
 from fonctions_etats import (
     ecran_titre,
     credits,
     attente_nouveau_combat,
     choix_attaque,
     affichage_attaques,
-    fin_jeu,
+    game_over,
 )
 
 
 def jeu() -> None:
     Jeu.changer_etat(Jeu.Etat.ECRAN_TITRE)
-    
-    joueur.reset_vie()
-    reset_monstre()
     
     while True:
         match Jeu.etat:
@@ -32,12 +29,12 @@ def jeu() -> None:
             case Jeu.Etat.AFFICHAGE_ATTAQUES:
                 affichage_attaques()
             
-            case Jeu.Etat.FIN_JEU:
-                fin_jeu()
+            case Jeu.Etat.GAME_OVER:
+                game_over()
             
             case _:
                 raise NotImplementedError(f"Etat `{Jeu.etat.name}` non implémenté dans jeu().")
 
-# N'éxecute le programme que si on le lance depuis ce fichier
+# N'exécute le programme que si on le lance depuis ce fichier
 if __name__ == "__main__":
     jeu()

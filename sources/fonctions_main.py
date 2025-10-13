@@ -1,5 +1,5 @@
 """Fonctions seulements utilisées dans main.py."""
-from UI import *
+from fonctions_boutons import *
 
 def quit(exit_code : int = 0) -> NoReturn:
     pygame.quit()
@@ -45,8 +45,7 @@ def nouveau_combat(numero_combat : int, reset_joueur : bool = False) -> Generato
     return ecran_nombre_combat()
 
 def reagir_appui_touche(ev) -> Optional[Interruption]:
-    from fonctions_boutons import menu_parametres
-    import Constantes as c
+    import Constantes as c  #nécéssaire pour les match... case
     
     assert(ev.type == pygame.KEYDOWN), "L'évènement passé à reagir_appui_touche() n'est pas un appui de bouton."
     match ev.key:        # Un event ne peut être qu'une seule touche à la fois
@@ -75,10 +74,16 @@ def reagir_appui_touche(ev) -> Optional[Interruption]:
         
         case c.Touches.DBG_PRECEDENT_COMBAT:
             Jeu.num_combat -= 1
+            if Jeu.num_combat < 1: 
+                Jeu.num_combat = Jeu.MAX_COMBAT
+            
             Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
             return
         
         case c.Touches.DBG_PROCHAIN_COMBAT:
             Jeu.num_combat += 1
+            if Jeu.num_combat > Jeu.MAX_COMBAT: 
+                Jeu.num_combat = 1
+            
             Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
             return

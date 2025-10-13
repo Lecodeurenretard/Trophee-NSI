@@ -3,7 +3,7 @@ Ce fichier contient tout le code pour les états de jeu (comme pour une machine 
 Chaque fonction éponyme à une valeur de `EtatJeu` sera une boucle stournant tant que l'état correspondant est dans `etat`.
 """
 
-from fonctions_boutons import *
+from fonctions_main import *
 from Jeu import *
 
 def attente_nouveau_combat() -> None:
@@ -12,7 +12,6 @@ def attente_nouveau_combat() -> None:
     ecran_gen : Generator[Surface, None, None] = nouveau_combat(Jeu.num_combat)
     while True:
         Jeu.commencer_frame()
-        
         if testeur_skip_ou_quitte():
             break
         
@@ -84,12 +83,12 @@ def affichage_attaques() -> None:
             return
         
         Jeu.a_gagne = True
-        Jeu.changer_etat(Jeu.Etat.FIN_JEU)
+        Jeu.changer_etat(Jeu.Etat.GAME_OVER)
         return
     
     if joueur.est_mort:
         Jeu.a_gagne = False
-        Jeu.changer_etat(Jeu.Etat.FIN_JEU)
+        Jeu.changer_etat(Jeu.Etat.GAME_OVER)
         return
     
     Jeu.changer_etat(Jeu.Etat.CHOIX_ATTAQUE)
@@ -120,9 +119,14 @@ def ecran_titre() -> None:
     )
     while Jeu.etat == Jeu.Etat.ECRAN_TITRE:
         Jeu.commencer_frame()
-        for event in pygame.event.get():
-            verifier_pour_quitter(event)
-            ButtonCursor.handle_inputs(boutons_menu, event)
+        
+        potentiellement_fini : bool= False  # Vérifie si un bouton à été appuyé
+        for event in pygame.event.get():    # si c'est le cas, il se peut que l'on dessine une frame de trop
+            verifier_pour_quitter(event)    # donc on revient au début de la boucle
+            potentiellement_fini = ButtonCursor.handle_inputs(boutons_menu, event)
+        
+        if potentiellement_fini:
+            continue
         
         next(dessiner_fond_ecran)
         for bouton in boutons_menu:
@@ -160,10 +164,10 @@ def credits(duree : Duree = Duree(s=5)) -> None:
         pygame.display.flip()
     Jeu.changer_etat(Jeu.precedent_etat)
 
-def fin_jeu() -> None:
+def game_over() -> None:
     logging.debug("")
     logging.debug("")
-    logging.debug(f"Activation de l'état {Jeu.Etat.FIN_JEU.name}.")
+    logging.debug(f"Activation de l'état {Jeu.Etat.GAME_OVER.name}.")
     
     ecran_gen : Generator[Surface, None, None] = fin_partie(Jeu.a_gagne)
     while not testeur_skip_ou_quitte():
@@ -177,4 +181,6 @@ def fin_jeu() -> None:
     if param.fermer_a_la_fin.case_cochee:
         quit()
     
+    joueur.reset_vie()
+    Jeu.num_combat = 1
     Jeu.changer_etat(Jeu.Etat.ECRAN_TITRE)

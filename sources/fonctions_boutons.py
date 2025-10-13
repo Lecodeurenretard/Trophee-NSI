@@ -1,4 +1,4 @@
-from fonctions_main import *
+from UI import *
 
 def lancer_jeu() -> None:
     logging.info("→ Lancement du jeu...")

@@ -95,6 +95,7 @@ def dessiner_boutons_attaques() -> None:
         butt.draw(Jeu.menus_surf)
     ButtonCursor.draw_cursors(Jeu.menus_surf)
 
+# TODO: faire de ça une interruption
 def faux_chargement(duree_totale : Duree = Duree(s=2.0)) -> None:
     LONGUEUR_BARRE : int = 700
     ratio_barre : float = 0
@@ -111,9 +112,9 @@ def faux_chargement(duree_totale : Duree = Duree(s=2.0)) -> None:
             (round(ratio_barre * LONGUEUR_BARRE), 50),
             couleur_remplissage=gradient.calculer_valeur(
                 ratio_barre,
-                r=ecraser_easing(Easing.TRIGONOMETRIC, (.5, 1)),
-                g=ecraser_easing(Easing.TRIGONOMETRIC, (0, .5)),
-            ),
+                r=ecraser_easing(Easing.TRIGONOMETRIC, (.5, 1)),    # On commence par augmenter le rouge
+                g=ecraser_easing(Easing.TRIGONOMETRIC, (0, .5)),    # puis on diminue le vert
+            ),                                                      # sinon ça donne un marron pas très estéthique
             epaisseur_trait=0
         )
         dessiner_rect(
@@ -128,7 +129,7 @@ def faux_chargement(duree_totale : Duree = Duree(s=2.0)) -> None:
         blit_centre(Jeu.fenetre, texte_chargement, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(45)))
         
         pygame.display.flip()
-
+        
         ratio_barre += delta.secondes / duree_totale.secondes
 
 
