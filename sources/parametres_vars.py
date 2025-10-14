@@ -29,7 +29,7 @@ def _on_mode_debug_change(nouvelle_valeur : bool) -> None:
 
 mode_debug : Parametre = Parametre(
     "Mode développeur",
-    -1,
+    menu_h.send(TypeParametre.CASE_A_COCHER.hauteur),
     TypeParametre.CASE_A_COCHER,
     True,
     on_change=_on_mode_debug_change # type: ignore # on est certain que la valeur passée est un booléen
@@ -58,6 +58,7 @@ monstre_invincible = Parametre(
 
 PARAMETRES_NORMAUX : list[Parametre] = [
     fermer_a_la_fin,
+    mode_debug,
 ]
 
 PARAMETRES_TRICHE : list[Parametre] = [
