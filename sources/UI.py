@@ -1,7 +1,9 @@
 from liste_boutons import *
 from Monstre import *
 
-def demander_pseudo() -> None:
+def demander_pseudo(surface : Surface) -> Interruption:
+    logging.debug(f"→ Interruption: demande du pseudo.")
+    
     pseudo : str  = ""
     saisie : bool = True
     texte : Surface = Constantes.Polices.TITRE.render("Entrez votre pseudo :", True, NOIR)
@@ -12,23 +14,34 @@ def demander_pseudo() -> None:
         if not continuer:
             break
         
-        Jeu.fenetre.fill(BLANC)
-        blit_centre(Jeu.fenetre, texte, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(45)))
+        surface.fill(BLANC)
+        blit_centre(surface, texte, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(45)))
         
         pseudo_affiche : Surface = Constantes.Polices.FOURRE_TOUT.render(pseudo, True, BLEU)
-        blit_centre(Jeu.fenetre, pseudo_affiche, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(50)))
-        
-        pygame.display.flip()
+        blit_centre(surface, pseudo_affiche, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(50)))
+        yield surface
     
     joueur.pseudo = pseudo
+    logging.debug(f"← Fin interruption (demande du pseudo).")
 
 def texte_entree_event(texte : str) -> tuple[str, bool]:
     continuer : bool = True
+
+    TOUCHES_A_IGNORER : tuple[int, ...] = (
+        pygame.K_LSHIFT, pygame.K_RSHIFT,
+        pygame.K_LALT, pygame.K_RALT,
+        pygame.K_LCTRL, pygame.K_CAPSLOCK,
+        pygame.K_INSERT, pygame.K_AC_BACK,
+        pygame.K_BREAK, pygame.K_CARET,
+        pygame.K_END, 
+        pygame.K_PAGEDOWN, pygame.K_PAGEUP,
+        pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN,   # flemme de faire un système de curseur
+        # on s'arrête ici pour l'instant
+    )
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            quit()
+        verifier_pour_quitter(event)
         
-        if event.type != pygame.KEYDOWN:
+        if event.type != pygame.KEYDOWN or event.key in TOUCHES_A_IGNORER:
             continue
         
         if event.key == pygame.K_RETURN and len(texte) > 0:
@@ -39,12 +52,18 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
             texte = texte[:-1]
             continue
         
-        if len(texte) < 12 and event.unicode.isprintable():
+        # On vérifie que la lettre soit correcte.
+        lettre_ascii        : int = ord(event.unicode)
+        est_lettre          : bool = 48  <= lettre_ascii <= 122 and not (58 <= lettre_ascii <= 62 or 92 <= lettre_ascii <= 96)  # nombre ou lettre latine (+ '?' et '@')
+        est_lettre_speciale : bool = 192 <= lettre_ascii <= 255                                                                 # Lettre latine avec accent
+        if len(texte) < 12 and (est_lettre or est_lettre_speciale or event.unicode in ('œ', '&', '!', ' ')):
             texte += event.unicode
             continue
         
     return (texte, continuer)
 
+# TODO: J'aime pas le fait que ce soit hardcodé
+# Il faudra changer ça avec l'ajout du système de cartes
 def trouve_attaque_a_partir_du_curseur() -> Attaque:
     curseur_pos : Pos = boutons_attaques[0].cursor.position_dans_positions   # Ce qui est important, c'est que le bouton soit dans le groupe Attaques
     
@@ -69,7 +88,7 @@ def afficher_info() -> Interruption:
     texte_vitesse     : Surface
     texte_description : Surface
     
-    image : Surface = Surface((Jeu.LARGEUR, Jeu.HAUTEUR))
+    image : Surface = Surface((Jeu.largeur, Jeu.hauteur))
     
     image.fill(BLANC)
     
@@ -96,29 +115,29 @@ def dessiner_boutons_attaques() -> None:
     ButtonCursor.draw_cursors(Jeu.menus_surf)
 
 # TODO: faire de ça une interruption
-def faux_chargement(duree_totale : Duree = Duree(s=2.0)) -> None:
+def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> Interruption:
     LONGUEUR_BARRE : int = 700
     ratio_barre : float = 0
     
-    gradient : Gradient = Gradient(ROUGE, VERT)
+    gradient : MultiGradient = MultiGradient([ROUGE, JAUNE, VERT])
     while ratio_barre < 1:
         delta : Duree = Jeu.commencer_frame()
         verifier_pour_quitter()
         
-        Jeu.fenetre.fill(BLANC)
+        surface.fill(BLANC)
         dessiner_rect(
-            Jeu.fenetre,
+            surface,
             (Jeu.pourcentage_largeur(6.25), Jeu.pourcentage_hauteur(50)),
             (round(ratio_barre * LONGUEUR_BARRE), 50),
             couleur_remplissage=gradient.calculer_valeur(
                 ratio_barre,
-                r=ecraser_easing(Easing.TRIGONOMETRIC, (.5, 1)),    # On commence par augmenter le rouge
-                g=ecraser_easing(Easing.TRIGONOMETRIC, (0, .5)),    # puis on diminue le vert
+                #r=ecraser_easing(Easing.TRIGONOMETRIC, (.5, 1)),    # On commence par augmenter le rouge
+                #g=ecraser_easing(Easing.TRIGONOMETRIC, (0, .5)),    # puis on diminue le vert
             ),                                                      # sinon ça donne un marron pas très estéthique
             epaisseur_trait=0
         )
         dessiner_rect(
-            Jeu.fenetre,
+            surface,
             (Jeu.pourcentage_largeur(6.25), Jeu.pourcentage_hauteur(50)),
             (LONGUEUR_BARRE, 50),
             couleur_bords=NOIR, dessiner_interieur=False,
@@ -126,11 +145,10 @@ def faux_chargement(duree_totale : Duree = Duree(s=2.0)) -> None:
         )
         
         texte_chargement : Surface = Constantes.Polices.TITRE.render("Chargement...", True, NOIR)
-        blit_centre(Jeu.fenetre, texte_chargement, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(45)))
-        
-        pygame.display.flip()
+        blit_centre(surface, texte_chargement, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(45)))
         
         ratio_barre += delta.secondes / duree_totale.secondes
+        yield surface
 
 
 def ecran_nombre_combat() -> Generator[Surface, None, None]:
@@ -138,7 +156,7 @@ def ecran_nombre_combat() -> Generator[Surface, None, None]:
     
     image = Surface(Jeu.fenetre.get_size())
     image.fill(BLANC)
-    blit_centre(image, texte_combat, Jeu.CENTRE_FENETRE)
+    blit_centre(image, texte_combat, Jeu.centre_fenetre)
     
     logging.info("")
     logging.info("")

@@ -25,22 +25,23 @@ class Jeu:
     Classe statique gerant le jeu.
     Elle contient les variables globales.
     """
-    LARGEUR : int = 800 ;   HAUTEUR : int = 600
-    CENTRE_FENETRE : tuple[int, int] = (LARGEUR // 2, HAUTEUR // 2)
+    largeur : int = 800 ;   hauteur : int = 600
+    centre_fenetre : tuple[int, int] = (largeur // 2, hauteur // 2)
     MAX_COMBAT : int = 5
     
-    fenetre    : Surface = pygame.display.set_mode((LARGEUR, HAUTEUR))
-    menus_surf : Surface = Surface((LARGEUR, HAUTEUR), pygame.SRCALPHA)
+    fenetre    : Surface = pygame.display.set_mode((largeur, hauteur))
+    menus_surf : Surface = Surface((largeur, hauteur), pygame.SRCALPHA)
     
     num_combat          : int   = 1
+    a_gagne             : bool = False
+    
     duree_execution     : Duree = Duree()
     clock               : pygame.time.Clock = pygame.time.Clock()
-    
-    a_gagne : bool = False
-    
+    framerate           : int = 60
     
     
-    # Graphe des états: http://graphonline.top/fr/?graph=sQpJKZbmqurILdcl
+    
+    # Graphe des états: http://graphonline.top/fr/?graph=OMlRPwRCzhQxYjcl
     class Etat(Enum):
         DECISION_ETAT          = auto()
         ATTENTE_NOUVEAU_COMBAT = auto()
@@ -50,6 +51,7 @@ class Jeu:
         
         ECRAN_TITRE            = auto()
         CREDITS                = auto()
+        PREPARATION            = auto()
     etat           : Etat = Etat.DECISION_ETAT
     precedent_etat : Etat = Etat.DECISION_ETAT
     
@@ -74,23 +76,31 @@ class Jeu:
         cls.precedent_etat = cls.etat
         cls.etat           = nouvel_etat
     
-    @classmethod
-    def commencer_frame(cls, framerate : int = 60) -> Duree:
+    @staticmethod
+    def commencer_frame() -> Duree:
         """La fonction à appeler à chaque début de frame. Renvoie le temps écoulé depuis la dernière frame."""
-        delta = cls.clock.tick(framerate)
-        cls.duree_execution.millisecondes += delta
+        delta = Jeu.clock.tick(Jeu.framerate)
+        Jeu.duree_execution.millisecondes += delta
         
         return Duree(ms=delta)
     
     @staticmethod
     def pourcentage_hauteur(pourcents : float) -> int:
         """Renvoie pourcentage de la hauteur de l'écran en pixels"""
-        return round(Jeu.HAUTEUR * pourcents / 100)
+        return round(Jeu.hauteur * pourcents / 100)
     
     @staticmethod
     def pourcentage_largeur(pourcents : float) -> int:
         """Renvoie pourcentage de la largeur de l'écran en pixels"""
-        return round(Jeu.LARGEUR * pourcents / 100)
+        return round(Jeu.largeur * pourcents / 100)
+    
+    @staticmethod
+    def changer_taille_fenetre(nouvelle_taille : tuple[int, int]) -> None:
+        """Change la taille de la fenetre."""
+        pygame.display.set_mode(nouvelle_taille)
+        
+        Jeu.largeur, Jeu.hauteur = nouvelle_taille
+        Jeu.centre_fenetre = (Jeu.largeur // 2, Jeu.hauteur // 2)
 
 
 # Le système d'overload est à la fois une bénédiction pour la fonctionnalité

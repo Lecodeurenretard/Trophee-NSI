@@ -2,6 +2,7 @@ from Jeu import Jeu
 from fonctions_etats import (
     ecran_titre,
     credits,
+    preparation,
     attente_nouveau_combat,
     choix_attaque,
     affichage_attaques,
@@ -19,6 +20,9 @@ def jeu() -> None:
             
             case Jeu.Etat.CREDITS:
                 credits()
+            
+            case Jeu.Etat.PREPARATION:
+                preparation()
             
             case Jeu.Etat.ATTENTE_NOUVEAU_COMBAT:
                 attente_nouveau_combat()

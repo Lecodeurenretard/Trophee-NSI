@@ -31,7 +31,7 @@ mode_debug : Parametre = Parametre(
     "Mode développeur",
     menu_h.send(TypeParametre.CASE_A_COCHER.hauteur),
     TypeParametre.CASE_A_COCHER,
-    True,
+    False,
     on_change=_on_mode_debug_change # type: ignore # on est certain que la valeur passée est un booléen
 )
 _on_mode_debug_change(bool(mode_debug))

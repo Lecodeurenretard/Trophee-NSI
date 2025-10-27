@@ -17,9 +17,9 @@ def fin_partie(gagne : bool) -> Interruption:
         texte_fin = Constantes.Polices.TITRE.render("Vous avez perdu !", True, NOIR)
         logging.info("Vous avez perdu...")
     
-    image : Surface = Surface((Jeu.LARGEUR, Jeu.HAUTEUR))
+    image : Surface = Surface((Jeu.largeur, Jeu.hauteur))
     image.fill(couleur_fond)
-    blit_centre(image, texte_fin, Jeu.CENTRE_FENETRE)
+    blit_centre(image, texte_fin, Jeu.centre_fenetre)
     
     return image_vers_generateur(image, Duree(s=2), gerer_evenements=True)
 
@@ -33,7 +33,7 @@ def reset_monstre() -> None:
 def joueur_gagne() -> bool:
     return Jeu.num_combat >= Jeu.MAX_COMBAT
 
-def nouveau_combat(numero_combat : int, reset_joueur : bool = False) -> Generator[Surface, None, None]:
+def initialiser_nouveau_combat(numero_combat : int, reset_joueur : bool = False) -> None:
     if not (1 <= numero_combat <= Jeu.MAX_COMBAT):
         raise ValueError(f"`numero_combat` ({numero_combat}) doit être compris dans [1; {Jeu.MAX_COMBAT}].")
     Jeu.num_combat = numero_combat
@@ -41,8 +41,6 @@ def nouveau_combat(numero_combat : int, reset_joueur : bool = False) -> Generato
     reset_monstre()
     if reset_joueur:
         joueur.reset_vie()
-    
-    return ecran_nombre_combat()
 
 def reagir_appui_touche(ev) -> Optional[Interruption]:
     import Constantes as c  #nécéssaire pour les match... case

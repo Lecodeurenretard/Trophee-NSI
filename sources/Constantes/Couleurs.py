@@ -40,3 +40,25 @@ def color_to_rgb(couleur : color) -> rgb:
     if len(couleur) == 4:
         return rgba_to_rgb(couleur)
     return couleur
+
+def iterable_to_color(liste : list[int]|tuple[int, int, int]|tuple[int, int, int, int]) -> color:
+    """
+    S'assure que la liste passée en entrée respecte l'annotation `color`.
+    Cette fonction n'est rien de plus qu'un assert et sert surtout pour prouver à pywright que les types concordent.
+    """
+    assert(len(liste) == 3 or len(liste) == 4), f"Une couleur doit avoir 3 ou 4 données ({len(liste)} passées)."
+    return tuple(liste)  # type: ignore
+
+def iterable_to_rgb(liste : list[int]|tuple[int, int, int]|tuple[int, int, int, int]) -> rgb:
+    """
+    S'assure que la liste passée en entrée respecte l'annotation `rgb`.
+    Cette fonction n'est rien de plus qu'un assert et sert surtout pour prouver à pywright que les types concordent.
+    """
+    return color_to_rgb(iterable_to_color(liste))
+
+def iterable_to_rgba(liste : list[int]|tuple[int, int, int]|tuple[int, int, int, int]) -> rgba:
+    """
+    S'assure que la liste passée en entrée respecte l'annotation `rgba`.
+    Cette fonction n'est rien de plus qu'un assert et sert surtout pour prouver à pywright que les types concordent.
+    """
+    return color_to_rgba(iterable_to_color(liste))

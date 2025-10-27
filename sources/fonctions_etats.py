@@ -9,7 +9,9 @@ from Jeu import *
 def attente_nouveau_combat() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.ATTENTE_NOUVEAU_COMBAT.name}.")
     
-    ecran_gen : Generator[Surface, None, None] = nouveau_combat(Jeu.num_combat)
+    initialiser_nouveau_combat(Jeu.num_combat)
+    ecran_gen : Generator[Surface, None, None] = ecran_nombre_combat()
+   
     while True:
         Jeu.commencer_frame()
         if testeur_skip_ou_quitte():
@@ -105,7 +107,7 @@ def ecran_titre() -> None:
         centrer_pos((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(70), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
     )
     boutons_menu : tuple[ButtonCursor, ...] = (
-        ButtonCursor("Jouer"     , DIMENSIONS_BOUTONS[0], line_thickness=0, group_name="Ecran titre", group_color=VERT, action=lancer_jeu),
+        ButtonCursor("Jouer"     , DIMENSIONS_BOUTONS[0], line_thickness=0, group_name="Ecran titre", group_color=VERT, action=lambda: Jeu.changer_etat(Jeu.Etat.PREPARATION)),
         ButtonCursor("Paramètres", DIMENSIONS_BOUTONS[1], line_thickness=0, group_name="Ecran titre",                   action=lancer_parametres),
         ButtonCursor("Crédits"   , DIMENSIONS_BOUTONS[2], line_thickness=0, group_name="Ecran titre",                   action=lambda: Jeu.changer_etat(Jeu.Etat.CREDITS)),
     )
@@ -115,12 +117,12 @@ def ecran_titre() -> None:
     dessiner_fond_ecran = dessiner_gif(
         Jeu.fenetre,
         f"{Constantes.Chemins.DOSSIER_ANIM}/fond/frame *.png",
-        Duree(s=.1), Pos(Jeu.CENTRE_FENETRE), loop=True, scale=True
+        Duree(s=.1), Pos(Jeu.centre_fenetre), loop=True, scale=True
     )
     while Jeu.etat == Jeu.Etat.ECRAN_TITRE:
         Jeu.commencer_frame()
         
-        potentiellement_fini : bool= False  # Vérifie si un bouton à été appuyé
+        potentiellement_fini : bool = False # Vérifie si un bouton à été appuyé
         for event in pygame.event.get():    # si c'est le cas, il se peut que l'on dessine une frame de trop
             verifier_pour_quitter(event)    # donc on revient au début de la boucle
             potentiellement_fini = ButtonCursor.handle_inputs(boutons_menu, event)
@@ -136,7 +138,7 @@ def ecran_titre() -> None:
         pygame.display.flip()
     
     if Jeu.etat != Jeu.Etat.CREDITS:
-        Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
+        Jeu.changer_etat(Jeu.Etat.PREPARATION)
 
 def credits(duree : Duree = Duree(s=5)) -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.CREDITS.name}.")
@@ -147,7 +149,7 @@ def credits(duree : Duree = Duree(s=5)) -> None:
     texte_credits2 : Surface = pygame.font.Font(None, 30).render("et Nils", True, BLANC)
     
     deplacement : Deplacement = Deplacement(
-        Pos(Jeu.pourcentage_largeur(50), Jeu.HAUTEUR),
+        Pos(Jeu.pourcentage_largeur(50), Jeu.hauteur),
         Pos(Jeu.pourcentage_largeur(50), -50),  # pour laisser le "et Nils" aller hors écran
     )
     
@@ -178,9 +180,22 @@ def game_over() -> None:
             break
         pygame.display.flip()
     
-    if param.fermer_a_la_fin.case_cochee:
+    if bool(param.fermer_a_la_fin):
         quit()
     
     joueur.reset_vie()
     Jeu.num_combat = 1
     Jeu.changer_etat(Jeu.Etat.ECRAN_TITRE)
+
+def preparation() -> None:
+    logging.debug(f"Activation de l'état {Jeu.Etat.PREPARATION.name}.")
+    
+    if not bool(param.mode_debug):
+        # exception au principe de la boucle principale dans l'état
+        # C'est juste plus simple et propre de faire comme ça ici
+        terminer_interruption(demander_pseudo(Jeu.fenetre))
+        terminer_interruption(faux_chargement(Jeu.fenetre))
+    else:
+        joueur.pseudo = "Testeur"
+    
+    Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)

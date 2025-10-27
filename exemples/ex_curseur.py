@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 sys.path.insert(0, str(next(Path(__file__).parent.parent.glob('sources/'))))
-# La ligne du dessus fais croire à Python que l'on se trouve dans `sources/combats/` au  lieu de `exemple`
+# La ligne du dessus fais croire à Python que l'on se trouve dans `sources/` au  lieu de `exemple`
 # Pourquoi doit-on écrire du spagetti code pour une chose aussi simple qu'importer depuis un autre dossier?
 
 # VSCode bombarde d'erreurs (28 à l'heure du commentaire) mais le script marche

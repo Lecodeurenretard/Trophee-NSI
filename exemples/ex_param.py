@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 sys.path.insert(0, str(next(Path(__file__).parent.parent.glob('sources/'))))
-# La ligne du dessus fais croire à Python que l'on se trouve dans `sources/combats/` au  lieu de `exemple/`
+# La ligne du dessus fais croire à Python que l'on se trouve dans `sources/` au  lieu de `exemple/`
 
 
 # VSCode ne détecte pas les imports et affiche 8 erreurs

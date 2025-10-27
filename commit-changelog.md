@@ -35,19 +35,35 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Petit bugfix
+## Encore plus de méthodes d'animations + nouvel état.
 + Changements majeurs
+	- Ajout de classes pour interpoler entre plus que deux valeurs:
+		* `MultiInterpolation`
+		* `MultiGradient`
+		* `MultiDeplacement`
+	- Ajout état `PREPARATION`.
+		* Ajout `preparation()` dans [fonctions_etats.py](sources/fonctions_etats.py).
+		* Suppression `lancer_jeu()` dans [fonctions_boutons](sources/fonctions_boutons.py).
 + Sur plusieurs fichiers
-	- Renommage de l'état `FIN_JEU` en `GAME_OVER`.
-		* La fonction correspondante à aussi été renommée.
 + Structure de fichier
+	- Ajout documentation [Jeu.md](doc/Jeu.md).
+	- Ajout exemple [ex_anim.py](exemples/ex_anim.py).
 + READMEs et documentation
+	- Début documentation sur le jeu et les méthodes d'animaations.
 + Interactions joueur/testeur
 + Correction de bugs
-	- La vie et le numéro de combat sont correctements resets après un game over.
-	- Le joueur ne verra plus la frame de trop à la fin du temps de chargement.
-	- Correction d'une erreur d'_overflow_ quand on défile à travers les monstres en mode débug.
-	- Correction d'une erreur d'_overflow_ quand on défile à travers les combats en mode débug.
-
-_________________________________
-note: promis je rédige la documentation pour le prochain commit.
++ [Animation.py](sources/classes_utiles/Animation.py)
+	- Ajout paramètre `loop` aux méthodes `.generateur()` des classess.
++ [Couleurs.py](sources/Constantes/Couleurs.py)
+	- Ajout fonctions `iterable_to_color()`, `iterable_to_rgb()` et `iterable_to_rgba()` pour assert un type de couleur sur une valeur.
++ [fonctions_boutons.py](sources/fonctions_boutons.py)
+	- Un seul point de sortie pour `menu_parametres()`.
+	- `menu_parametres()` écoute maintenant pour des `GeneratorExit` (on peut l'arrêter avec `.close()`).
++ [fonctions_main.py](sources/fonctions_main.py)
+	- `nouveau_combat()` ne renvoie plus l'image de nouveau combat.
+	- Renommage de `nouveau_combat()` --> `initialiser_nouveau_combat()`.
++ `Jeu`
+	- Nouvel attriibut statique `framerate`.
+	- Ajout méthode `changer_taille_fenetre()`.
+	- Les attributs statiques `HAUTEUR` et `LARGEUR` ne sont plus constants.
+		* Renommage vers `hauteur` et `largeur`.s

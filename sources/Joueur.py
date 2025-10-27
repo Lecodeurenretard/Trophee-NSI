@@ -64,7 +64,7 @@ class Joueur:
     # propriété car la position pourrait changer suivant la position du ou des joueurs
     @property
     def pos_attaque(self) -> Pos:
-        return Pos(Jeu.LARGEUR // 4, Jeu.pourcentage_hauteur(60))
+        return Pos(Jeu.largeur // 4, Jeu.pourcentage_hauteur(60))
     
     @property
     def pos_curseur(self) -> Pos:
@@ -113,12 +113,12 @@ class Joueur:
     
     def dessiner(self, surface : Surface) -> None:
         if param.mode_debug.case_cochee:
-            boite_de_contours = (Jeu.LARGEUR // 4, Jeu.pourcentage_hauteur(75) - 100, 100, 100)
+            boite_de_contours = (Jeu.largeur // 4, Jeu.pourcentage_hauteur(75) - 100, 100, 100)
             pygame.draw.rect(surface, BLEU, boite_de_contours, 0)
             return
         
         if self._sprite is not None:
-            blit_centre(surface, self._sprite, (Jeu.LARGEUR // 4, Jeu.pourcentage_hauteur(60)))
+            blit_centre(surface, self._sprite, (Jeu.largeur // 4, Jeu.pourcentage_hauteur(60)))
     
     def dessine_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int) -> None:
         dessiner_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie)

@@ -3,9 +3,9 @@ from .Duree import Duree
 from .Pos   import Pos
 
 from .Animation import (
-    InterpolationLineaire,
-    Gradient,
-    Deplacement,
+    InterpolationLineaire, MultiInterpolation,
+    Gradient             , MultiGradient,
+    Deplacement          , MultiDeplacement,
 )
 
 from .EasingFunctions import (
