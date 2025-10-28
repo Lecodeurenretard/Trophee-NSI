@@ -35,35 +35,20 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Encore plus de méthodes d'animations + nouvel état.
+## Réécriture de `MultiInterpolation` et `MultiDeplacement`.
 + Changements majeurs
-	- Ajout de classes pour interpoler entre plus que deux valeurs:
-		* `MultiInterpolation`
-		* `MultiGradient`
-		* `MultiDeplacement`
-	- Ajout état `PREPARATION`.
-		* Ajout `preparation()` dans [fonctions_etats.py](sources/fonctions_etats.py).
-		* Suppression `lancer_jeu()` dans [fonctions_boutons](sources/fonctions_boutons.py).
+	- Les constructeurs des deux classes ne prennent plus en entrée des listes de listes mais des valeurs `rgb`/`rgba` ou des objets `Pos`.
+		- Plein de code inutile enlevé.
+		- Les méthodes `.generateur()` ne passent plus par t=1
 + Sur plusieurs fichiers
 + Structure de fichier
-	- Ajout documentation [Jeu.md](doc/Jeu.md).
-	- Ajout exemple [ex_anim.py](exemples/ex_anim.py).
 + READMEs et documentation
-	- Début documentation sur le jeu et les méthodes d'animaations.
+	- Suppression d'une ligne qui n'était plus vraie dans un README.
 + Interactions joueur/testeur
 + Correction de bugs
-+ [Animation.py](sources/classes_utiles/Animation.py)
-	- Ajout paramètre `loop` aux méthodes `.generateur()` des classess.
 + [Couleurs.py](sources/Constantes/Couleurs.py)
-	- Ajout fonctions `iterable_to_color()`, `iterable_to_rgb()` et `iterable_to_rgba()` pour assert un type de couleur sur une valeur.
-+ [fonctions_boutons.py](sources/fonctions_boutons.py)
-	- Un seul point de sortie pour `menu_parametres()`.
-	- `menu_parametres()` écoute maintenant pour des `GeneratorExit` (on peut l'arrêter avec `.close()`).
-+ [fonctions_main.py](sources/fonctions_main.py)
-	- `nouveau_combat()` ne renvoie plus l'image de nouveau combat.
-	- Renommage de `nouveau_combat()` --> `initialiser_nouveau_combat()`.
-+ `Jeu`
-	- Nouvel attriibut statique `framerate`.
-	- Ajout méthode `changer_taille_fenetre()`.
-	- Les attributs statiques `HAUTEUR` et `LARGEUR` ne sont plus constants.
-		* Renommage vers `hauteur` et `largeur`.s
+	- Les fonctions `iterables_to_*()` ont leurs annotations changées pour prendre un nombre illimité d'éléments (de toute façon, elles élèvent une erreur si le nombre d'élément n'est pas bon.). 
++ `Attaque`
+	- Suppression de `_etat_graphique[]`.
++ Entitées
+	- Remplacement de `._etat_graphique[]` est remplacé par `.afficher` car `._etat_graphique[]` ne servait à rien de toute façon.

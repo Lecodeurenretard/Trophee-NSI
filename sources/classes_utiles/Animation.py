@@ -183,8 +183,11 @@ class MultiInterpolation:
         """
         if len(valeurs_clefs) < 2:
             raise ValueError(f"Pour faire une interpolation, il faut au moins 2 valeurs (seulemeent {len(valeurs_clefs)} ont été passées).")
+        
         assert(len(temps_clefs) == len(valeurs_clefs) - 2), f"Il doit y avoir exactement deux valeurs de moins dans `temps_clefs` que dans valeurs (t=0 et t=1 sont implicites), seulement {len(temps_clefs)} temps_clefs ont été passées contre {len(valeurs_clefs)}." # plus de 3 fois les recomandations de la PEP 8, pas mal.
-        assert(temps_clefs == sorted(temps_clefs)), "`temps_clefs` n'est pas rangée dans l'ordre croissant."  # Je doute que `temps_clef` dépasse la dixaine d'éléments, la trier ne demandera pas beacoup de temps
+        assert(list(temps_clefs) == sorted(temps_clefs)), "`temps_clefs` n'est pas rangée dans l'ordre croissant."
+        # Je doute que `temps_clef` dépasse la dixaine d'éléments, la trier ne demandera pas beaucoup de temps.
+        # Aussi, on doit convertir temps_clefs en liste car comparer une liste à une tuple renverra toujours faux (comme quoi, Python est plus sensé que javascript)
         
         temps_clefs = [0, *temps_clefs, 1]  # 0 et 1 sont implicites pour l'utilisateur, on les met ici
         
@@ -221,56 +224,48 @@ def valeurs_regulieres_entre_01(nombre_a_produire : int, inclure_0 : bool = True
 class MultiGradient:
     """Implémentation de MultiInterpolation pour les couleurs."""
     
-    def __init__(self, evolution_rgba : list[list[int]|tuple[int, ...]], liste_temps_clefs : list[list[float]|tuple[float, ...]] = []):
+    def __init__(
+                self,
+                couleurs_clefs : list[list[int]|tuple[int, ...]],
+                temps_clefs    : list[float]|tuple[float, ...] = [],
+        ):
         """
         Constructeur de MultiGradient.
-        Le paramètre `evolution_rgba[]` contient les valeurs clefs (la liste passée à MultiInterpolation.calculer_valeurs()) pour dans l'ordre le rouge, vert, bleu et alpha (transparence).
-        Le paramètre `liste_temps_clefs[]` contients les temps clefs de la même manière que `evolution_rgba[]`, si vide se complète de manière à se que les valeurs soient équidistantes.
+        Le paramètre `couleurs_clefs[]` contient les valeurs clefs (la liste passée à MultiInterpolation.calculer_valeurs()) pour dans l'ordre le rouge, vert, bleu et alpha (transparence).
+        Le paramètre `temps_clefs[]` contient les temps clefs pour lequels atteindre chaque couleur, si vide se complète de manière à se que les valeurs soient équidistantes.
         
         Exemples d'appel:
         MultiGradient(
-            ([0, 128, 255], [128, 0, 255], [255, 128, 0]),   # Le rouge croit, le bleu décroit et le vert décroit puis croit (la transparence reste à 255).
-            ([.5], [.33], [.5])                              # La "valeur du milieu" sera atteinte à la moitié du temps pour le rouge et bleu alors qu'elle sera atteite qu'au tier por le vert (la transaprence est constante).
+            (NOIR, GRIS, BLEU),    # Toutes les valeurs RGB montent (pour aller à gris) puis le bleu augmente au maximum alors que le rouge et le vert décroissent (la transparence reste à 255 tout le long).
+            [1/3]                  # On sera gris au tier de l'animation puis la couleur tendra vers le bleu
         )
         
         MultiGradient(
             ([0, 128, 255], [128, 0, 255], [255, 128, 0])
         )
+        # reviens à la même chose que
+        MultiGradient(
+            ([0, 128, 255], [128, 0, 255], [255, 128, 0]),
+            [1/2],
+        )
         """
-        evolution_rgba    = deepcopy(evolution_rgba)
-        liste_temps_clefs =     copy(liste_temps_clefs)
-        
-        # Si evolution_rgba n'a que 3 valeurs, ajoute en une à la fin de `evolution_rgba[]`
-        if len(evolution_rgba) == 3:
-            evolution_rgba.append([255 for _ in range(len(evolution_rgba[0]))])
-        assert(len(evolution_rgba) == 4), "Il doit y avoir 3 ou 4 éléments dans `evolution_rgba[]`."
-        
-        # Si la liste des temps clefs sont vides, remplit la avec des listes vides
-        if len(liste_temps_clefs) == 0:
-            liste_temps_clefs = [[], [], [], []]
+        couleurs_clefs = copy(couleurs_clefs)
+        temps_clefs    = copy(temps_clefs)
+        assert(len(couleurs_clefs) >= 2), "Il doit y avoir au moins 2 couleurs clefs."
         
         # Si les temps clefs sont vides, remplit les avec des valeurs régulières
-        for i, temps_clefs in enumerate(liste_temps_clefs):
-            if len(temps_clefs) == 0:
-                liste_temps_clefs[i] = valeurs_regulieres_entre_01(len(evolution_rgba[0]) - 1, inclure_0=False)
-                # par exemple, si l'utilistateur donne 5 valeurs
-                # liste_temps_clefs = [1/5, 2/5, 3/5, 4/5] * 4
+        if len(temps_clefs) == 0:
+            temps_clefs = valeurs_regulieres_entre_01(len(couleurs_clefs) - 1, inclure_0=False)
+            # par exemple, si l'utilistateur donne 5 valeurs pour evolution_rgba[]
+            # temps_clefs = [1/4, 2/4, 3/4]
+            # encore une fois 0/4 et 4/4 sont ajoutés après
+        assert(len(temps_clefs) == len(couleurs_clefs) - 2), f"Il doit y avoir exactement 2 éléments de moins dans `temps_clefs[]` que dans `couleurs_clefs[]`, on s'attend à {len(couleurs_clefs) - 2} éléments mais il y en a {len(temps_clefs)}."
         
-        # S'il manque une valeur à la liste des temps clefs, ajoute une liste vide
-        if len(liste_temps_clefs) == 3:
-            liste_temps_clefs.append([])
-        assert(len(liste_temps_clefs) == 4), "Il doit y avoir aucun, 3 ou 4 éléments dans `liste_temps_clefs[]`."
-        
-        for valeur_clef, temps_clefs in zip(evolution_rgba, liste_temps_clefs):
-            assert(len(valeur_clef) >= 2), f"Il doit y a voir au moins 2 valeurs clefs, mis on a {valeur_clef=}."
-            assert(len(temps_clefs) == len(valeur_clef) - 2), f"Il devrait avoir {len(valeur_clef) - 2} éléments dans chaque éléments de `liste_temps_clefs[]` car le début et la fin sont implicites, au lieu de ça il y a {len(temps_clefs)=}."
-        
-        self._couleurs_clefs = evolution_rgba
-        
-        self._liste_temps_clefs = liste_temps_clefs
+        self._couleurs_clefs : list[rgba] = [iterable_to_rgba(coul) for coul in couleurs_clefs]
+        self._temps_clefs : tuple[float, ...] = tuple(temps_clefs)
     
     def __repr__(self):
-        return f"MultiGradient({self._couleurs_clefs=}, {self._liste_temps_clefs=})"
+        return f"MultiGradient({self._couleurs_clefs=}, {self._temps_clefs=})"
     
     def calculer_valeur(
             self,
@@ -282,17 +277,26 @@ class MultiGradient:
         Si `easing_funs[]` n'est pas vide alors utilise ses valeurs (doit avoir une valeur de moins que `self._couleurs_clefs[]`) sinon utilise `easing_fun`.
         """
         
-        # Le truc en bas est un peut compliqué à lire donc voilà ce qu'il fait:
-        # Il calcule la valeur des lerp pour r, v, b et a puis met tout ça dans une liste
-        # la liste est ensuite "convertie" en couleur rgba.
+        # La compréhension de liste en bas sert à extraire les couleurs en canaux
+        # par exemple: ([255, 128, 0, 200], [128, 0, 200, 255], [0, 200, 255, 128])
+        # -----------> ([255, 128, 0], [128, 0, 200], [0, 200, 255], [200, 255, 128])
+        
+        # Rien à voir mais maintenant que j'y pense, c'est une rotation de matrice:
+        # (                                  (
+        #  [255, 128, 0  , 200],              [255, 128, 0  ],
+        #  [128, 0  , 200, 255],   ------>    [128, 0  , 200],
+        #  [0  , 200, 255, 128]               [0  , 200, 255],
+        # )                                   [200, 255, 128]
+        #                                    )
         return iterable_to_rgba([
-            MultiInterpolation.calculer_valeur(
-                self._couleurs_clefs[i],        # type: ignore  # il n'accèpte pas la convertion list[int]|tuple[int, ...] --> list[float]|tuple[float, ...]
-                self._liste_temps_clefs[i],
-                t,
-                easing_fun=easing_fun, easing_funs=easing_funs
-            )
-            for i in range(4)
+            round(
+                MultiInterpolation.calculer_valeur(
+                    [couleur[canal] for couleur in self._couleurs_clefs],
+                    self._temps_clefs,
+                    t,
+                    easing_fun=easing_fun, easing_funs=easing_funs
+                )
+            )   for canal in range(4)
         ])
     
     def generateur(
@@ -305,40 +309,51 @@ class MultiGradient:
         while loop or premiere_iteration:
             premiere_iteration = False
             
-            yield self.calculer_valeur(0, easing_fun=easing)
-            for i in range(1, nb_iterations):
-                yield self.calculer_valeur(i / (nb_iterations-1), easing_fun=easing)
+            for i in range(nb_iterations):
+                yield self.calculer_valeur(i / (nb_iterations), easing_fun=easing)
 
 
 class MultiDeplacement:
     """Implémentation de MultiInterpolation pour les positions."""
     
-    def __init__(self, evolution_pos : list[list[int]|tuple[int, ...]]|tuple[list[int]|tuple[int, ...], list[int]|tuple[int, ...]], liste_temps_clefs : list[list[float]|tuple[float, ...]]):
+    def __init__(
+                self,
+                pos_clefs : list[Pos]|tuple[Pos, ...],
+                temps_clefs : list[float]|tuple[float] = [],
+        ) -> None:
         """
         Constructeur de MultiDeplacement.
-        Le paramètre `evolution_pos[]` contient les valeurs clefs (la liste passée à MultiInterpolation.calculer_valeurs()) pour dans l'ordre les abcisses et les ordonées.
-        Le paramètre `liste_temps_clefs[]` contients les temps clefs de la même manière que `evolution_pos[]`.
-        
-        Exemple d'appel:
+        Le paramètre `pos_clefs[]` contient les positions clefs aux déplacement, un peu comme des keyframes.
+        Le paramètre `temps_clefs[]` contients les temps clefs, soit pour temps_clef[i], le `t` pour lequel pos_clef[i-1] serait atteint (le premier (t=0) et dernier (t=1) sont implicites et ne doivent pas être présent).
+                                    Si vide, est remplit de valeurs réglières.
+        Exemples d'appel:
         MultiDeplacement(
-            ([0, 250, 500], [500, 250, 0]),   # Les abcisses croissent  et les ordonnées décroissent.
-            ([.5], [.5])                      # La "valeur du milieu" sera atteinte à la moitié du temps pour à la fois les abcisses et les ordonnées.
+            (Pos(0, 500), Pos(250, 250), Pos(500, 0))   # Les abcisses croissent  et les ordonnées décroissent.
+            [.5]                                        # C'est comprit comme étant [0, 1/2, 1]
+        )
+        
+        MultiDeplacement(
+            (Pos(50, 200), Pos(50, 0), Pos(200, 200), Pos(200, 0))
+            # si aucun autre argument n'est donné, chaque position sera atteinte avec un interval égal
+            # dans ce cas là, c'est  comme si on avait passé
+            # [1/3, 2/3]
         )
         """
-        assert(len(evolution_pos) == 2)    , "Il doit y avoir exactement 2 éléments dans `evolution_pos[]`."
-        assert(len(liste_temps_clefs) == 2), "Il doit y avoir exactement 2 éléments dans `liste_temps_clefs[]`."
+        pos_clefs   = deepcopy(pos_clefs)
+        temps_clefs = deepcopy(temps_clefs)
+        assert(len(pos_clefs) >= 2), "Il doit y avoir au moins 2 positions clefs."
         
-        evolution_pos     = deepcopy(evolution_pos)
-        liste_temps_clefs =     copy(liste_temps_clefs)
+        # Si les temps clefs sont vides, remplit les avec des valeurs régulières
+        if len(temps_clefs) == 0:
+            temps_clefs = valeurs_regulieres_entre_01(len(pos_clefs) - 1, inclure_0=False)
         
-        for valeurs_clef, temps_clefs in zip(evolution_pos, liste_temps_clefs):
-            assert(len(temps_clefs) == len(valeurs_clef) - 2), f"Il devrait avoir {len(valeurs_clef) - 2} éléments dans chaque éléments de `liste_temps_clefs[]` car le début et la fin sont implicites, au lieu de ça il y a {len(temps_clefs)=}."
+        assert(len(temps_clefs) == len(pos_clefs) - 2), f"Il doit y avoir exactement 2 éléments de moins dans `temps_clefs[]` que dans `pos_clefs[]`, on s'attend à {len(pos_clefs) - 2} éléments mais il y en a {len(temps_clefs)}."
         
-        self._positions_clefs = evolution_pos
-        self._liste_temps_clefs = liste_temps_clefs
+        self._positions_clefs : tuple[Pos, ...]   = tuple(pos_clefs)
+        self._temps_clefs     : tuple[float, ...] = tuple(temps_clefs)
     
     def __repr__(self):
-        return f"MultiDeplacement({self._positions_clefs=}, {self._liste_temps_clefs=})"
+        return f"MultiDeplacement({self._positions_clefs=}, {self._temps_clefs=})"
     
     def calculer_valeur(
             self,
@@ -350,17 +365,18 @@ class MultiDeplacement:
         Si `easing_funs[]` n'est pas vide alors utilise ses valeurs (doit avoir une valeur de moins que `self._couleurs_clefs[]`) sinon utilise `easing_fun`.
         """
         
-        # Le truc en bas est un peut compliqué à lire donc voilà ce qu'il fait:
-        # Il calcule la valeur des lerp pour r, v, b et a puis met tout ça dans une liste
-        # la liste est ensuite "convertie" en couleur rgba.
+        # La compréhension de liste en bas sert à extraire les directions.
+        # c'est la même chose que dans la classe `MultiGradent`,
+        # allez voir la méthode coresspondante pour plus d'infos
         return Pos([
-            MultiInterpolation.calculer_valeur(
-                self._positions_clefs[i],         #type: ignore # pyright: ignore[reportArgumentType] # il n'accèpte pas la convertion list[int]|tuple[int, ...] --> list[float]|tuple[float, ...] 
-                self._liste_temps_clefs[i],
-                t,
-                easing_fun=easing_fun, easing_funs=easing_funs
-            )
-            for i in range(2)
+            round(
+                MultiInterpolation.calculer_valeur(
+                    [pos.tuple[direction] for pos in self._positions_clefs],
+                    self._temps_clefs,
+                    t,
+                    easing_fun=easing_fun, easing_funs=easing_funs
+                )
+            )   for direction in range(2)
         ])
     
     def generateur(
@@ -372,5 +388,6 @@ class MultiDeplacement:
         premiere_iteration = True
         while loop or premiere_iteration:
             premiere_iteration = False
+            
             for i in range(nb_iterations):
                 yield self.calculer_valeur(i / nb_iterations, easing_fun=easing)

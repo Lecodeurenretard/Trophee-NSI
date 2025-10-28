@@ -53,9 +53,6 @@ class Attaque:
         (40, 40)
     )
     
-    _etat_graphique : dict[str, Any] = {    # Pour toutes les attaques
-        "fin attaques": [0]         # type: list[int]
-    }
     toujours_crits : bool = False   # ne pas activer ici, utiliser les touches du mode debug plutôt
     attaques_du_tour : PriorityQueue['AttaquePriorisee'] = PriorityQueue(Constantes.MAX_ENTITES_SIMULTANEES)
     
@@ -270,10 +267,11 @@ class Attaque:
         if self._crit:
             crit_facteur : float = stats_attaquant.crit_puissance / stats_victime.crit_resitance
             degats *= Attaque._PUISSANCE_CRIT * crit_facteur
+        
         return self._ajustement_degats(degats, self._crit)
     
     def appliquer(self) -> None:
-        self._effet     # faire quelque chose avec
+        self._effet     #TODO: faire quelque chose avec
         
         if AttaqueFlags.ATTAQUE_LANCEUR not in self._drapeaux and self._lanceur_id == self._cible_id:
             return

@@ -12,9 +12,7 @@ class Joueur:
         self._pseudo  : str                = ""
         self._moveset : dict[str, Attaque] = moveset
         
-        self._etat_graphique : dict[str, Any] = {
-            "afficher": True,
-        }
+        self.afficher : bool = True
         
         self._sprite : Optional[Surface] = None
         if chemin_vers_sprite is not None:
@@ -125,7 +123,7 @@ class Joueur:
     
     
     def dessine_prochaine_frame(self, surface : Surface) -> None:
-        if not self._etat_graphique["afficher"]:
+        if not self.afficher:
             return
         self.dessiner(surface)
     

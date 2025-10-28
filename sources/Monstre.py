@@ -98,9 +98,7 @@ class Monstre:
             self._sprite  : Optional[Surface] = None
         
         Monstre._ajouter_monstre_a_liste(self)
-        self._etat_graphique : dict[str, Any] = {
-            "afficher": True,
-        }
+        self.afficher : bool= True
         
         self._id = premier_indice_libre_de_entites_vivantes()
         if self._id >= 0:
@@ -244,7 +242,7 @@ class Monstre:
         dessiner_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
        
     def dessine_prochaine_frame(self, surface : Surface) -> None:
-        if not self._etat_graphique["afficher"]:
+        if not self.afficher:
             return
         self.dessiner(surface, Monstre.POSITION.x, Monstre.POSITION.y)
     

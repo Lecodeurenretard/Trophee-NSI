@@ -12,17 +12,22 @@ from Jeu                            import Jeu, verifier_pour_quitter
 from Constantes.Couleurs            import BLANC, NOIR, BLEU_CLAIR
 from classes_utiles.Animation       import MultiDeplacement
 from classes_utiles.EasingConstants import FADE
+from classes_utiles.Pos import Pos
 
 
 diamant_gen = MultiDeplacement(
 	[
-		[Jeu.pourcentage_largeur(25), Jeu.pourcentage_largeur(50), Jeu.pourcentage_largeur(75), Jeu.pourcentage_largeur(50), Jeu.pourcentage_largeur(25)],	# x va boucler à travers ces valeurs
-		[Jeu.pourcentage_hauteur(50), Jeu.pourcentage_hauteur(25), Jeu.pourcentage_hauteur(50), Jeu.pourcentage_hauteur(75), Jeu.pourcentage_hauteur(50)]	# y va boucler à travers ces valeurs
+		Pos(Jeu.pourcentage_largeur(25), Jeu.pourcentage_hauteur(50)),
+		Pos(Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(25)),
+		Pos(Jeu.pourcentage_largeur(75), Jeu.pourcentage_hauteur(50)),
+		Pos(Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(75)),
+		Pos(Jeu.pourcentage_largeur(25), Jeu.pourcentage_hauteur(50)),
 	],
-	[
-		[1/4, 1/2, 3/4],	# x atteindra 50 pourcents au quart (.25) de l'animation et 75 pourcents à la moitié (.50) de l'animation, ...
-		[1/4, 1/2, 3/4]		# y atteindra 75 pourcents au quart (.25) de l'animation et 50 pourcents à la moitié (.50) de l'animation, ...
-	]
+	[	# sur une fenêtre carrée de 100 pixel de côté, le rond atteindra (50, 25) au quart (.25) de l'animation, (75, 50) à la moitié (.50) de l'animation, ...
+		1/4,
+		1/2,
+		3/4
+	],
 ).generateur(Jeu.framerate * 3, easing=FADE, loop=True)		# On crée un générateur pour facilement pouvoir animer à l'infini
 															# On aurait aussi pu faire avec .caluler_valeur()
 

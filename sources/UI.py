@@ -119,8 +119,7 @@ def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> I
     LONGUEUR_BARRE : int = 700
     ratio_barre : float = 0
     
-    # TOFIX: 
-    gradient : MultiGradient = MultiGradient([ROUGE, JAUNE, VERT])
+    gradient : MultiGradient = MultiGradient([ROUGE, JAUNE, VERT])        # sinon ça donne un marron pas très estéthique
     while ratio_barre < 1:
         delta : Duree = Jeu.commencer_frame()
         verifier_pour_quitter()
@@ -130,11 +129,8 @@ def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> I
             surface,
             (Jeu.pourcentage_largeur(6.25), Jeu.pourcentage_hauteur(50)),
             (round(ratio_barre * LONGUEUR_BARRE), 50),
-            couleur_remplissage=gradient.calculer_valeur(
-                ratio_barre,
-                #r=ecraser_easing(Easing.TRIGONOMETRIC, (.5, 1)),    # On commence par augmenter le rouge
-                #g=ecraser_easing(Easing.TRIGONOMETRIC, (0, .5)),    # puis on diminue le vert
-            ),                                                      # sinon ça donne un marron pas très estéthique
+            
+            couleur_remplissage=gradient.calculer_valeur(ratio_barre),
             epaisseur_trait=0
         )
         dessiner_rect(

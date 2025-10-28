@@ -5,9 +5,9 @@ rgba  : TypeAlias = tuple[int, int, int, int]
 color : TypeAlias = rgb|rgba
 
 
-NOIR    : rgb = (0, 0, 0)
-BLANC   : rgb = (255, 255, 255)
-GRIS    : rgb = (100, 100, 100)
+NOIR       : rgb = (0, 0, 0)
+BLANC      : rgb = (255, 255, 255)
+GRIS       : rgb = (100, 100, 100)
 GRIS_CLAIR : rgb = (145, 145, 145)
 
 ROUGE   : rgb = (255, 0, 0)
@@ -41,7 +41,7 @@ def color_to_rgb(couleur : color) -> rgb:
         return rgba_to_rgb(couleur)
     return couleur
 
-def iterable_to_color(liste : list[int]|tuple[int, int, int]|tuple[int, int, int, int]) -> color:
+def iterable_to_color(liste : list[int]|tuple[int, ...]) -> color:
     """
     S'assure que la liste passée en entrée respecte l'annotation `color`.
     Cette fonction n'est rien de plus qu'un assert et sert surtout pour prouver à pywright que les types concordent.
@@ -49,14 +49,14 @@ def iterable_to_color(liste : list[int]|tuple[int, int, int]|tuple[int, int, int
     assert(len(liste) == 3 or len(liste) == 4), f"Une couleur doit avoir 3 ou 4 données ({len(liste)} passées)."
     return tuple(liste)  # type: ignore
 
-def iterable_to_rgb(liste : list[int]|tuple[int, int, int]|tuple[int, int, int, int]) -> rgb:
+def iterable_to_rgb(liste : list[int]|tuple[int, ...]) -> rgb:
     """
     S'assure que la liste passée en entrée respecte l'annotation `rgb`.
     Cette fonction n'est rien de plus qu'un assert et sert surtout pour prouver à pywright que les types concordent.
     """
     return color_to_rgb(iterable_to_color(liste))
 
-def iterable_to_rgba(liste : list[int]|tuple[int, int, int]|tuple[int, int, int, int]) -> rgba:
+def iterable_to_rgba(liste : list[int]|tuple[int, ...]) -> rgba:
     """
     S'assure que la liste passée en entrée respecte l'annotation `rgba`.
     Cette fonction n'est rien de plus qu'un assert et sert surtout pour prouver à pywright que les types concordent.
