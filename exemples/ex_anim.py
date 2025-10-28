@@ -9,8 +9,8 @@ sys.path.insert(0, str(next(Path(__file__).parent.parent.glob('sources/'))))
 # VsCode n'aime pas la magie noire, il reporte 4 erreurs
 import pygame
 from Jeu                            import Jeu, verifier_pour_quitter
-from Constantes.Couleurs            import BLANC, NOIR, BLEU_CLAIR
-from classes_utiles.Animation       import MultiDeplacement
+from Constantes.Couleurs            import BLANC, NOIR, BLEU_CLAIR, BLEU, ROUGE, VERT, GRIS
+from classes_utiles.Animation       import MultiDeplacement, MultiGradient
 from classes_utiles.EasingConstants import FADE
 from classes_utiles.Pos import Pos
 
@@ -31,6 +31,17 @@ diamant_gen = MultiDeplacement(
 ).generateur(Jeu.framerate * 3, easing=FADE, loop=True)		# On crée un générateur pour facilement pouvoir animer à l'infini
 															# On aurait aussi pu faire avec .caluler_valeur()
 
+couleur_gen = MultiGradient(
+	[
+		GRIS,
+		ROUGE,
+		VERT,
+		BLEU,
+		GRIS,
+	]
+	# les temps sont facultatifs
+).generateur(Jeu.framerate * 3 , easing=FADE, loop=True)	
+
 # vu qu'on a un générateur on aurait pu mettre une boucle for mais ça aurait été source de confusion
 # for pos_rond in triangle_gen:
 while True:
@@ -38,6 +49,7 @@ while True:
 	verifier_pour_quitter()
 	
 	pos_rond = next(diamant_gen)
+	coul_rond = next(couleur_gen)
 	Jeu.fenetre.fill(BLANC)
 	
 	# dessin diamant
@@ -54,5 +66,5 @@ while True:
 	)
 	
 	# dessin rond et affichage
-	pygame.draw.circle(Jeu.fenetre, NOIR, pos_rond.tuple, 20)
+	pygame.draw.circle(Jeu.fenetre, coul_rond, pos_rond.tuple, 20)
 	pygame.display.flip()

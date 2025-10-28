@@ -1,5 +1,4 @@
 from import_local import *
-from Stats import Stat
 
 class TypeAttaque(Enum):
     """Tous les types d'attaques disponibles."""

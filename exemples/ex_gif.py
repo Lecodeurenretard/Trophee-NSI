@@ -9,7 +9,7 @@ sys.path.insert(0, str(next(Path(__file__).parent.parent.glob('sources/'))))
 from dessin import dessiner_gif, pygame, Duree, verifier_pour_quitter, Jeu, Constantes
 
 # Création du générateur
-dessin_gif = dessiner_gif(Jeu.fenetre, "exemples/gif/frames/*.png", Duree(ms=30), Jeu.CENTRE_FENETRE, loop=True, scale=True)
+dessin_gif = dessiner_gif(Jeu.fenetre, "exemples/gif/frames/*.png", Duree(ms=30), Jeu.centre_fenetre, loop=True, scale=True)
 
 print("Exemple: Comment dessiner un gif.")
 while True:

@@ -1,5 +1,3 @@
-from dessin import *
-from fonctions_vrac import *
 from Attaque import *
 
 class Joueur:
@@ -135,4 +133,4 @@ joueur : Joueur = Joueur({
     "physique": ATTAQUES_DISPONIBLES["physique"],
     "magie":    ATTAQUES_DISPONIBLES["magie"],
     "skip":     ATTAQUES_DISPONIBLES["skip"],
-}, chemin_vers_sprite=f"{Constantes.Chemins.DOSSIER_IMG}/joueur_placeholder.png")
+}, chemin_vers_sprite=f"{Constantes.Chemins.DOSSIER_IMG}/joueur.png")

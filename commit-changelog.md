@@ -35,20 +35,16 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Réécriture de `MultiInterpolation` et `MultiDeplacement`.
+## Avancement doc + suppresion imports inutiles
 + Changements majeurs
-	- Les constructeurs des deux classes ne prennent plus en entrée des listes de listes mais des valeurs `rgb`/`rgba` ou des objets `Pos`.
-		- Plein de code inutile enlevé.
-		- Les méthodes `.generateur()` ne passent plus par t=1
+	- Avancement de [Jeu.md](doc/Jeu.md).
 + Sur plusieurs fichiers
 + Structure de fichier
+	- Suppression du suffixe `_placeholder` pour les sprites.
 + READMEs et documentation
-	- Suppression d'une ligne qui n'était plus vraie dans un README.
 + Interactions joueur/testeur
 + Correction de bugs
-+ [Couleurs.py](sources/Constantes/Couleurs.py)
-	- Les fonctions `iterables_to_*()` ont leurs annotations changées pour prendre un nombre illimité d'éléments (de toute façon, elles élèvent une erreur si le nombre d'élément n'est pas bon.). 
-+ `Attaque`
-	- Suppression de `_etat_graphique[]`.
-+ Entitées
-	- Remplacement de `._etat_graphique[]` est remplacé par `.afficher` car `._etat_graphique[]` ne servait à rien de toute façon.
++ [ex_anim.py](exemples/ex_anim.py)
+	- Ajout de couleur gradient.
++ [fonctions_vrac.py](sources/fonctions_vrac.py)
+	- Ajout `valeurs_regulieres()`.

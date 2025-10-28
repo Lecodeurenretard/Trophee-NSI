@@ -1,5 +1,5 @@
-from Monstre import *
-from Joueur import *
+from Monstre import Monstre
+from Joueur import Joueur, joueur
 
 def joueur_attaque(clef_attaque : str, cible : Monstre|Joueur) -> None:
     if len(Monstre.monstres_en_vie) == 0:

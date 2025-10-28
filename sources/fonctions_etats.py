@@ -4,7 +4,6 @@ Chaque fonction éponyme à une valeur de `EtatJeu` sera une boucle stournant ta
 """
 
 from fonctions_main import *
-from Jeu import *
 
 def attente_nouveau_combat() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.ATTENTE_NOUVEAU_COMBAT.name}.")

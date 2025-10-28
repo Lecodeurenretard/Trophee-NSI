@@ -55,4 +55,36 @@ Comme le nom ne l'indique pas, les interuptions ne cassent pas la règle décrit
 Pour distinguer les interruptions, il faut utiliser l'alias `Interruption` en type de retour.
 
 ## 2. Les animations
-On distingue deux types d'animations: celles qui sont préfaites et qui proviennent d'un fichier GIF ou vidéo et celles qui doivent être générées par le jeu. Par exemple, <!--...-->
+On distingue deux types d'animations: celles qui sont préfaites et qui proviennent d'un fichier GIF ou vidéo et celles qui doivent être générées par le jeu. Par exemple, si jamais je veux faire breakdance Esquimo pour une attaque, je devrait dessiner chaque frame et les jouer les unes après les autres; mais si je veux simplement le sauter, je n'ai juste qu'a changer sa position verticale.
+
+Commençons par le premier cas, soit un gif, prenons exemple.gif:  
+![exemple.gif](../exemples/gif/exemple.gif)  
+Malheureusement, Pygame ne permet pas d'afficher les gifs en l'état, il faut d'abord le découper en frames; pour cette tâche, j'utilise [EzGif](https://ezgif.com/split). Une fois le gif tranché, il faut mettre les images dans un sous-dossier de [/data/anim/](../data/anim/)([`Constantes.Chemins.ANIM`](../sources/Constantes/Chemins.py)).
+Nous sommes enfin en mesure d'afficher les images avec la fonction `dessiner_gif()` de [dessin.py](../sources/dessin.py). Pour le second argument il nous faut un pattern glob, cette fonction ne demande pas de grand savoir dans le domaine et la seule chose à savoir, c'est qu'il faut mettre une étoile à la place des noms de fichiers.  
+Pour un exemple, allez voir [ex_gif.py](../exemples/ex_gif.py)
+
+Dans le second cas, il sera nécessaire d'utiliser les classe du fichier [Animation.py](../sources/classes_utiles/Animation.py). On en documente 6:
+- `InterpolationLineaire`
+- `Deplacement`
+- `Gradient`
+- `MultiInterpolation`
+- `MultiGradient`
+- `MultiDeplacement`
+
+La premiere classe n'est qu'un moyen d'utiliser LERP.  
+Pour comprendre LERP, disons que l'on veuille déplacer un sprite horizontalement, sa position horizontale ira de $x_1$ à $x_2$ en un temps $t$, notre objectif est de trouver une fonction trouvant la position horizontale de $x_1$ à $x_2$ après $t\%$ du temps du déplacement. C'est exactement le problème que vient résoudre LERP. Nous avons donc
+$$
+\text{LERP}(x_1, x_2, t) = x_1 + (x_2 - x_1)\frac{t}{100}
+$$
+Autrement dit, LERP prend $t$ pourcents de la longueur du chemin à parcourir et l'ajoute au départ pour avoir le point d'arrivé.  
+On remarque quand $t=0\%$, $\text{LERP}(x_1, x_2, 0) = x_1$, quand $t = 100\%$, $\text{LERP}(x_1, x_2, 1) = x_1 + x_2 - x_1 = x_2$. On s'attendrait aussi à ce que si $t = 50\%$ alors la fonction renvoie la moyenne de $x_1$ et $x_2$ pour indiquer le milieu, vérifions cela:  
+$\text{LERP}(x_1, x_2, 50) = x_1 + (x_2 - x_1)\frac{50}{100} = \frac{2x_1}{2} + \frac{x_2-x_1}{2} = \frac{x_1 + x_2}{2}$  
+C'est en effet le cas.  
+En réalité, quand on parle de LERP, on préfère garder entre 0 et 1 car si on veut faire le tier du chemin, on prend $t=\frac{1}{3}$ au lieu de $t=\frac{100}{3}$.  
+La formule finale de LERP est:
+$$
+\text{pour tout} \, x_1 \, \text{et} \, x_2 \, \text{réels}, t \in [0; 1] \\
+\text{LERP}(x_1, x_2, t) = x_1 + (x_2 - x_1)t
+$$
+Et concrètement, c'est tout ce que fait `InterpolationLineaire.calculer_valeur()`,
+à une chose près, la méthode applique ce que l'on appelle des fonctions d'easing. Les fonctions d'easing permettent d'obtenir une transition plus naturelle au début et à la fin d'un LERP, c'est un concept très difficle à décrire en texte seulement; j'ai donc créé un **[graphique interactif Desmos](https://www.desmos.com/calculator/rrinotdfez)** pour visualiser le tout. Si vous clickez sur le métronôme en haut à gauche, $t$ devrait augmenter et un point défiler entre 0 et 1 sur la droite $y=1$, ce point (dont l <!--...-->).

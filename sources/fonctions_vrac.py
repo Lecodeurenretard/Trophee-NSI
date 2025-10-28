@@ -1,6 +1,7 @@
 # Fonctions qui n'ont nulle part d'autre où aller
 from import_var import *
-from Jeu   import Jeu
+from Jeu import Jeu
+from classes_utiles.Animation import valeurs_regulieres_entre_01
 
 def premier_indice_libre_de_entites_vivantes() -> int:
     """Retourne le premier indice disponible dans globales.entites_vivantes[] ou -1 s'il n'y en a pas."""
@@ -121,3 +122,8 @@ def centrer_pos(pos : tuple[int, int, int, int]|tuple[int, int]|Pos, dim : Optio
     
     assert(dim is not None), "Il y a un bug dans les overloads"
     return (pos[0] - dim[0] // 2, pos[1] - dim[1] // 2)
+
+def valeurs_regulieres(minimum : float, maximum : float, nombre_a_produire : int, inclure_min : bool = True, inclure_max : bool = False) -> list[float]:
+    """`valeurs_regulieres_entre_01()` mais entre `minimum` et `maximum`."""
+    res = valeurs_regulieres_entre_01(nombre_a_produire, inclure_0=inclure_min, inclure_1=inclure_max)
+    return [val * (maximum - minimum) + minimum for val in res]     # J'aime pas voir des lerp partout.

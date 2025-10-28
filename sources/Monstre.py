@@ -1,5 +1,4 @@
 from Attaque import *
-from Joueur import joueur
 
 class TypeMonstre(Enum):
     Blob    = auto()
@@ -22,9 +21,9 @@ class TypeMonstre(Enum):
         """Renvoie le chemin vers le sprite du type de monstre correspondant."""
         match self:
             case TypeMonstre.Blob:
-                return f"{Constantes.Chemins.DOSSIER_IMG}/blob_placeholder.webp"
+                return f"{Constantes.Chemins.DOSSIER_IMG}/blob.png"
             case TypeMonstre.Sorcier:
-                return f"{Constantes.Chemins.DOSSIER_IMG}/sorcier_placeholder.png"
+                return f"{Constantes.Chemins.DOSSIER_IMG}/sorcier.png"
             
             case _:
                 raise NotImplementedError("Type de monstre non implémenté.")

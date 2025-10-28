@@ -1,5 +1,5 @@
 from liste_boutons import *
-from Monstre import *
+from Attaque import Attaque, ATTAQUES_DISPONIBLES
 
 def demander_pseudo(surface : Surface) -> Interruption:
     logging.debug(f"→ Interruption: demande du pseudo.")

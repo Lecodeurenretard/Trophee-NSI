@@ -5,6 +5,18 @@ from .Pos import Pos
 from .EasingFunctions import EasingFunction
 from . import EasingConstants as Easing
 
+def valeurs_regulieres_entre_01(nombre_a_produire : int, inclure_0 : bool = True, inclure_1 : bool = False) -> list[float]:
+    """
+    Renvoie une liste de valeurs "régulières" entre 0 et 1 contenant `nombre_a_produire` éléments (sans toucher aux paramètres optionnels).
+    Si ni inclure_0 ni inclure_1 sont True, alors renvoie `nombre_a_produire - 1` éléments. Si un des deux est `True`, renvoie exactement `nombre_a_produire`.  
+    """
+    debut : int = 0                     if inclure_0 else 1
+    fin   : int = nombre_a_produire + 1 if inclure_1 else nombre_a_produire
+    
+    return [idex / nombre_a_produire for idex in range(debut, fin)]
+
+
+
 # Certains logiciels d'animations et de montage proposent ces fonctionnalités (par exemple Blender et DaVinci)
 # Les easing functions (j'ai pas le nom français) permettent d'avoir une animation plus fluide
 # en accélerant au début et en ralentissant à la fin.
@@ -209,17 +221,6 @@ class MultiInterpolation:
             yield MultiInterpolation.calculer_valeur(valeurs, temps_clefs, 0, easing_fun=easing)
             for i in range(1, nb_iterations):
                 yield MultiInterpolation.calculer_valeur(valeurs, temps_clefs, i / (nb_iterations-1), easing_fun=easing)
-
-
-def valeurs_regulieres_entre_01(nombre_a_produire : int, inclure_0 : bool = True, inclure_1 : bool = False) -> list[float]:
-    """
-    Renvoie une liste de valeurs "régulières" entre 0 et 1 contenant `nombre_a_produire` éléments (sans toucher aux paramètres optionnels).
-    Si ni inclure_0 ni inclure_1 sont True, alors renvoie `nombre_a_produire - 1` éléments. Si un des deux est `True`, renvoie exactement `nombre_a_produire`.  
-    """
-    debut : int = 0                     if inclure_0 else 1
-    fin   : int = nombre_a_produire + 1 if inclure_1 else nombre_a_produire
-    
-    return [idex / nombre_a_produire for idex in range(debut, fin)]
 
 class MultiGradient:
     """Implémentation de MultiInterpolation pour les couleurs."""

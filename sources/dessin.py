@@ -86,9 +86,12 @@ def image_vers_generateur(
 
 def dessiner_gif(surface : Surface, pattern : str, duree_affichage : Duree, pos : Pos|tuple[int, int], loop : bool = False, scale : bool = False) -> Generator[None, None, None]:
     """
-    Renvoie un générateur qui dessine chaque image du dossier les unes à la suite des autres sur `surface`, chacunes pendant `duree_affichage`.
+    Renvoie un générateur qui dessine chaque image du dossier les unes à la suite des autres par ordre alphabétique sur `surface`, chacunes pendant `duree_affichage`. Pour savoir combien de temps s'est écoulé, la fonction utilise l'horloge interne.
+    `pattern` est un pattern glob qui est passé sans filtre à `glob()`.
     Si `loop` est true, le générateur reprendra au début quand il atteint la fin.
     Si `scale` est true, les images serons redimensionnées pour remplir complètement `surface`.
+    
+    Si depuis le dernier appel il s'est écoulé plus de `duree_affichage`, le générateur ne fera que passer à la prochaine image peut importe le temps supplémentaire.
     """
     if type(pos) is Pos:
         pos = pos.tuple
@@ -105,7 +108,8 @@ def dessiner_gif(surface : Surface, pattern : str, duree_affichage : Duree, pos 
         
         for image in images:
             img : Surface = pygame.image.load(image)
-            if scale: img = pygame.transform.scale(img, surface.get_size())
+            if scale:
+                img = pygame.transform.scale(img, surface.get_size())
             
             img_gen = image_vers_generateur(img, duree_affichage)
             while True:
