@@ -1,0 +1,38 @@
+title: "Ajout de l'attaque: "
+labels: ["possibilité", "enhancement"]
+body:
+  - type: dropdown
+    label: "Mode de dommages"
+    options: ["Par puissance", "Par dégats directs"]
+    required: false
+    description: |
+    "Tout dépend du type de l'attaque
+    
+    CHARGE: qu'en pourcentage.
+        appliqué à une entité: La puissance de sa prochaine attaque (excepté une autre charge) est multipliée par la puissance de la charge.
+        appliqué à une attaque: La puissance de l'attaque (si se n'est pas une charge) est multipliée par la puissance de la charge.
+    DIVERS: Indiqué en description
+    les autres: La puissance d'attaque à envoyer à Attaque.calculer_degats()." 
+    
+    
+  - type: input
+    label: "Puissance/dégats infligés"
+    required: false
+  - type: dropdown
+    label: "Type"
+    options: ["PHYSIQUE", "MAGIQUE", "SOIN", "CHARGE", "DIVERS"]
+    required: false
+  - type: input
+    label: "Vitesse"
+    required: no
+  - type: input
+    label: "Probabilité de crit (en pourcents)"
+    required: no
+  - type: dropdown
+    label: "Cibles potentielles"
+    description: "Tous les groupes pouvant être touchés avec cette attaque."
+    options: ["Le lanceur", "Les alliés du lanceur", "Les adversaires du lanceur"]
+    multiple: yes
+  - type: textarea
+    label: "Autres infos importantes"
+    description: "La description de l'attaque et détails techniques."

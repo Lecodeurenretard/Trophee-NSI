@@ -1,3 +1,12 @@
+# Ce fichier permet d'interdire certains fichiers et dossiers d'être commits.
+
+# Je pense que les .gitignores utilisent les chemins de fichiers UNIX
+# '*' désigne un ou plusieurs caracètres d'un nom de fichier/dossier
+# '**' désigne un ou plusieurs dossiers
+# exemples: 
+# "*.txt" empèche le commit de tous les fichiers .txt
+# "**/Jacob.jpeg" empèche le commit des fichiers Jacob.jpeg peu importe le sous-dossier
+
 test.py
-**/__pycache__/*
+**/__pycache__
 data/save

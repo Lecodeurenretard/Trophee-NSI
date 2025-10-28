@@ -1,54 +1,54 @@
-from imports import import_from_filepath
-curse = import_from_filepath("sources/combats/Curseur.py")
+import sys
+from pathlib import Path
+sys.path.insert(0, str(next(Path(__file__).parent.parent.glob('sources/'))))
+# La ligne du dessus fais croire à Python que l'on se trouve dans `sources/` au  lieu de `exemple`
+# Pourquoi doit-on écrire du spagetti code pour une chose aussi simple qu'importer depuis un autre dossier?
 
-import pygame
+# VSCode bombarde d'erreurs (28 à l'heure du commentaire) mais le script marche
+from Curseur import *
 
-lignes   : tuple[int, ...] = tuple(range(50, 501, 50))
-colonnes : tuple[int, ...] = tuple(range(50, 501, 50))
-position_interdites : tuple['Pos', ...] = ( # type: ignore  # Pos est défini dans curse
-    curse.Pos(100, 100),
-    curse.Pos(200, 200),
-    curse.Pos(150, 250),
-    curse.Pos(200, 250),
+lignes   : list[int] = list(range(50, 501, 50))
+colonnes : list[int] = list(range(50, 501, 50))
+position_interdites : list[Pos] = [
+    Pos(100, 100),
+    Pos(200, 200),
+    Pos(150, 250),
+    Pos(200, 250),
     
-    #Carré en bas à droite
-    curse.Pos(400, 400),
-    curse.Pos(450, 400),
-    curse.Pos(400, 450),
-    curse.Pos(450, 450),
-    curse.Pos(500, 450),
-    curse.Pos(500, 400),
-    curse.Pos(500, 500),
-    curse.Pos(450, 500),
-    curse.Pos(400, 500),
-)
-curseur = curse.Curseur(
-	lignes,
-	colonnes,
+    # Carré en bas à droite
+    Pos(400, 400),
+    Pos(450, 400),
+    Pos(400, 450),
+    Pos(450, 450),
+    Pos(500, 450),
+    Pos(500, 400),
+    Pos(500, 500),
+    Pos(450, 500),
+    Pos(400, 500),
+]
+curseur = Curseur(
+    colonnes,
+    lignes,
     position_interdites
 )
 
-clock = curse.clock
-fenetre = curse.fenetre
 
-ROUGE = curse.ROUGE
-VERT = curse.VERT
-NOIR = curse.NOIR
-
+print("Exemple: Comment se servir d'un curseur.")
 while True:
-    clock.tick(60)
-    fenetre.fill(NOIR)
+    Jeu.clock.tick(60)
+    Jeu.fenetre.fill(NOIR)
     
     for ev in pygame.event.get():
-        curseur.utilisateur_deplace_curseur(ev)
-        if ev.type == pygame.QUIT:
-            quit()
+        curseur.deplacement_utilisateur(ev)
+        verifier_pour_quitter(ev)
     
     # Desssine les positions disponibles
     for col in colonnes:
         for lne in lignes:
-            if curse.Pos(col, lne) not in position_interdites:
-                pygame.draw.circle(fenetre, VERT, (col, lne), 5)
+            if Pos(col, lne) in position_interdites:
+                pygame.draw.circle(Jeu.fenetre, GRIS, (col, lne), 5)
+            else:
+                pygame.draw.circle(Jeu.fenetre, VERT, (col, lne), 5)
             
-    curseur.dessiner(fenetre, ROUGE)
+    curseur.dessiner(Jeu.fenetre, ROUGE)
     pygame.display.flip()

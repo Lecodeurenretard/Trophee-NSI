@@ -1,7 +1,0 @@
-# Ce fichier est une liste de tous ce qu'il y a à faire avant de pouvoir
-# Considérer ce projet comme fini.
-# Les commentaires commencent par des #
-# Pour voir ce qu'il y a à faire allez sur le repo Github puis sur "Projects"
-
-Un système de combat aboutit
-et?
