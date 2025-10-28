@@ -2,6 +2,10 @@
 
 Ce fichier est un [fichier markdown](https://www.markdownguide.org/basic-syntax/) ([guide markdown](https://www.markdownguide.org/getting-started/)) qui explique le fonctionnement du projet, il devrait être automatiquement mis en forme sur Github (sinon il existe pleins d'extentions sur VS code).
 
+## Configuration minimum
++ [Python 3.10](https://www.python.org/downloads/release/python-31018/) ou plus récent
++ [pygame 2.6](https://www.pygame.org/news) ou plus récent
+
 ## Rester ordonné
 L'architecture du projet suit celui qu'il faut faire pour les trophées de NSI ([page des trophées](https://trophees-nsi.fr/participation)):
 - [sources](sources/): Tout le code Python qui sera éxécuté.

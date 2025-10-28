@@ -72,6 +72,8 @@ def __main__() -> None:
     reset_monstre()
     menu()
     
+    ont_joueurs_attaque  : bool = False
+    ont_monstres_attaque : bool = False
     while True:
         rafraichir_ecran()
         globales.delta = clock.tick(60) / 1000      # convertion en secondes
@@ -81,8 +83,10 @@ def __main__() -> None:
             if (event.type != pygame.KEYDOWN and event.type != pygame.MOUSEBUTTONDOWN) or not globales.tour_joueur:
                 continue
             
-            if ButtonCursor.check_inputs(boutons_attaques, event):  # Si true, le joueur à attaqué
+            if ButtonCursor.check_inputs(boutons_attaques, event):  # Si true, le joueur a attaqué
                 globales.tour_joueur = False
+                ont_joueurs_attaque = True
+
                 
                 rafraichir_ecran()
                 attendre(1)
@@ -131,7 +135,21 @@ def __main__() -> None:
         if not globales.tour_joueur:
             monstres_attaquent()
             globales.tour_joueur = True
+            ont_monstres_attaque = True
         
+        if ont_joueurs_attaque and ont_monstres_attaque:
+            for attaque in globales.liste_attaques:
+                attaque.lancer()
+                
+                # On met un temps de pause pour indiquer 
+                # que c'est des attaques différentes
+                rafraichir_ecran()
+                attendre(.3)
+            
+            globales.liste_attaques.clear()
+            ont_joueurs_attaque = False
+            ont_monstres_attaque = False
+
         if joueur.est_mort():
             partie_fin(gagne=False)
 

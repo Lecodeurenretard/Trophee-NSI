@@ -19,10 +19,10 @@ assert(find([1, 2, 3, 4], 5, 42) == 42)
 
 
 
-def premier_indice_libre_de_entitees_vivantes() -> int:
-    """Retourne le premier indice disponible dans entitees_vivantes[] ou -1 s'il n'y en a pas."""
-    for i in range(len(entitees_vivantes)):
-        if entitees_vivantes[i] is None:
+def premier_indice_libre_de_entites_vivantes() -> int:
+    """Retourne le premier indice disponible dans entites_vivantes[] ou -1 s'il n'y en a pas."""
+    for i, entite in enumerate(entites_vivantes):
+        if entite is None:
             return i
     return -1
 
@@ -54,3 +54,8 @@ def pourcentage_hauteur(pourcents : int) -> int:
 def pourcentage_largeur(pourcents : int) -> int:
     """Renvoie pourcent% de la largeur de l'écran en pixels"""
     return round(LARGEUR * pourcents/100)
+
+def est_id_correct(id : int, max_id : int = 1) -> bool:
+    if max_id < 0:
+        return 0 <= id
+    return 0 <= id < max_id

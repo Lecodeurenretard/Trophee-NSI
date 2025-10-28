@@ -32,19 +32,19 @@ class TypeMonstre(IntEnum):
                 raise NotImplementedError("Type de monstre non implémenté dans Monstre.Type.sprite().")
     
     @property
-    def moveset(self) -> tuple[Attaque]:
+    def moveset(self) -> dict[str, Attaque]:
         match self:
             case TypeMonstre.Blob:
-                return (
-                    ATTAQUES_DISPONIBLES["physique"],
+                return {
+                    "base": ATTAQUES_DISPONIBLES["physique"],
                     # d'autres attaques?
-                )
+                }
             
             case TypeMonstre.Sorcier:
-                return (
-                    ATTAQUES_DISPONIBLES["magie"],
+                return {
+                    "base": ATTAQUES_DISPONIBLES["magie"],
                     # d'autres attaques?
-                )
+                }
             
             case _:
                 raise NotImplementedError("Type de monstre non implémenté dans Monstre.Type.attaques_du_type().")
@@ -64,8 +64,20 @@ class Monstre:
     sont_invincibles : bool = False
     
     _STATS_DE_BASE : dict[TypeMonstre, Stat] = {
-        TypeMonstre.Blob	: Stat(35, 23, 50, 0 , 17, 30, 2.0, 1.3),
-        TypeMonstre.Sorcier	: Stat(40, 10, 30, 15, 40, 60, 1.3, 1.8),
+        TypeMonstre.Blob : Stat(
+            35,         # vie
+            23, 50,     # att/def physique
+            0, 17,      # att/def magique
+            40,         # vitesse
+            2.0, 1.3    # att/def crits
+        ),
+        TypeMonstre.Sorcier	: Stat(
+            40,
+            10, 30,
+            15, 40,
+            60,
+            1.3, 1.8
+        ),
     }
 
     dimensions_sprites : tuple[int, int] = (150, 150)
@@ -79,16 +91,16 @@ class Monstre:
             self,
             nom : str,
             stats : Stat,
-            attaques : tuple[Attaque],
-            couleur : color|None = None,
-            chemin_sprite : str|None = None,
-            type_calque : TypeMonstre|None = None
+            attaques : dict[str, Attaque],
+            couleur       :       color|None = None,
+            chemin_sprite :         str|None = None,
+            type_calque   : TypeMonstre|None = None
         ):
         assert(stats.est_initialise), "stats n'est pas initialisé dans le constructeur de Monstre."
         
         self._nom = nom
         self._stats = stats
-        self._attaques_disponibles = attaques
+        self._attaques_disponibles = copy(attaques)
         self._type = type_calque
         
         assert(couleur is not None or chemin_sprite is not None), "A la fois couleur et chemin_sprite sont None"
@@ -101,22 +113,28 @@ class Monstre:
         
         Monstre._ajouter_monstre_a_liste(self)
         
-        self._id = premier_indice_libre_de_entitees_vivantes()
+        self._id = premier_indice_libre_de_entites_vivantes()
         if self._id >= 0:
-            entitees_vivantes[self._id] = self
+            entites_vivantes[self._id] = self
             return
         
-        self._id = len(entitees_vivantes)
-        entitees_vivantes.append(self)
+        self._id = len(entites_vivantes)
+        entites_vivantes.append(self)
     
     def __del__(self):
-        # Appelé quand l'objet est détruit (plus utilisé ou détruit avec del())
+        # Appelé quand l'objet est détruit (quand nous ne pouvons plus accéder à l'objet)
         if (
             self._id > 0
-            and entitees_vivantes is not None
+            and entites_vivantes is not None
             and Monstre.monstres_en_vie is not None
         ):
             self.meurt()
+    
+    # même raisonnement que dans Joueur
+    def meurt(self) -> None:
+        entites_vivantes[self._id] = None
+        Monstre._enlever_monstre_a_liste(self)
+        self._id = -1
     
     @staticmethod
     def nouveau_monstre(type : TypeMonstre) -> 'Monstre':
@@ -136,8 +154,7 @@ class Monstre:
     
     @staticmethod
     def _enlever_monstre_a_liste(monstre : 'Monstre') -> None:
-        for i in range(len(Monstre.monstres_en_vie)):
-            m = Monstre.monstres_en_vie[i]
+        for i, m in enumerate(Monstre.monstres_en_vie):
             if monstre._id == m._id:
                 Monstre.monstres_en_vie.pop(i)
                 return
@@ -149,7 +166,10 @@ class Monstre:
             if monstre.est_mort():
                 monstre.meurt()
     
-    
+    @property
+    def _moveset_clefs(self) -> tuple[str, ...]:
+        return tuple(self._attaques_disponibles.keys())
+
     @property
     def id(self) -> int:
         return self._id
@@ -158,37 +178,40 @@ class Monstre:
     def nom(self) -> str:
         return self._nom
     
-    def meurt(self) -> None:
-        entitees_vivantes[self._id] = None
-        Monstre._enlever_monstre_a_liste(self)
-        self._id = -1
+    @property
+    def stats(self) -> Stat:
+        return self._stats
     
-    def choisir_attaque(self) -> Attaque:
-        return random.choice(self._attaques_disponibles)
-    
-    def attaquer(self, id_cible : int, attaque : Attaque) -> bool:
-        """Attaque la cible et retourne si elle a été tuée."""
-        assert(entitees_vivantes[id_cible] is not None), "La cible est une case vide de entitees_vivantes[] dans Monstre.attaquer()."
-        assert(attaque in self._attaques_disponibles), "L'attaque demandée dans Monstre.attaquer() n'est pas dans le moveset du monstre."
-        
-        if attaque.friendly_fire:
-            return self.subir_attaque(attaque, self._stats)
-        if attaque.ennemy_fire:
-            return entitees_vivantes[id_cible].subir_attaque(attaque, self._stats)
-        return False
-    
-    def subir_attaque(self, attaque : Attaque, stats_attaquant : Stat) -> bool:
-        degats, crit = attaque.calculer_degats(stats_attaquant, self._stats)
-        
-        self.recoit_dommages(degats)
-        return crit
-    
-    def recoit_dommages(self, dommages : int) -> bool:
+    def _recoit_dommages(self, dommages : int) -> bool:
         if Monstre.sont_invincibles and dommages >= 0:
             return False
         
         self._stats.baisser_vie(dommages)
         return self.est_mort()
+    
+    def choisir_attaque(self) -> Attaque:
+        return random.choice(tuple(self._attaques_disponibles.values()))
+    
+    def attaquer(self, id_cible : int, attaque : Attaque) -> None:
+        """Attaque la cible et retourne si elle a été tuée."""
+        assert(entites_vivantes[id_cible] is not None), "La cible est une case vide de entites_vivantes[] dans Monstre.attaquer()."
+        assert(attaque in self._attaques_disponibles.values()), "L'attaque demandée dans Monstre.attaquer() n'est pas dans le moveset du monstre."
+        assert()
+
+        if attaque.friendly_fire:
+            attaque.inserer_dans_liste_attaque(self._id)
+            return
+        if attaque.enemy_fire:
+            attaque.inserer_dans_liste_attaque(id_cible)
+            return
+    
+    def subir_attaque(self, attaque : Attaque, stats_attaquant : Stat) -> None:
+        assert(attaque.cible_id == -1 or attaque.cible_id == self._id), f"L'attaque n'est pas dirigée vers l'entité id {self.id} mais vers celle id {attaque.cible_id}."
+        attaque.cible_id = self.id
+
+        degats = attaque.calculer_degats(stats_attaquant)
+        
+        self._recoit_dommages(degats)
     
     def longueur_barre_de_vie(self) -> int:
         ratio = max(0, self._stats.vie / self._stats.vie_max)
@@ -206,9 +229,16 @@ class Monstre:
     def dessiner_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int):
         dessine_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
     
-    def dessiner_attaque(self, surface : Surface, attaque : Attaque, crit : bool) -> None:
-        attaque.dessiner(surface, 400, 300, crit)
+    def dessiner_attaque(self, surface : Surface, attaque : Attaque|str) -> None:
+        if type(attaque) is str:
+            assert(attaque in self._moveset_clefs), f"L'argument `attaque` de Monstre.dessiner_attaque() n'est pas une clef du moveset de l'entitée d'ID {self._id}."
+            attaque = self._attaques_disponibles[attaque]
+        elif type(attaque) is Attaque:
+            assert(attaque in self._attaques_disponibles.values()), f"L'argument `attaque` de Monstre.dessiner_attaque() n'est pas dans le moveset de l'entitée d'ID {self._id}."
+        else:
+            raise TypeError(f"L'argument `attaque` de doit être de type str ou Attaque mais est de type {type(attaque)}.")
         
+        attaque.dessiner(surface, 400, 300)
         pygame.display.flip()
         attendre(1)
         

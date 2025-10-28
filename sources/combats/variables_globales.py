@@ -70,10 +70,17 @@ nbr_combat : int = 1
 tour_joueur  : bool = True
 menu_running : bool = True
 
-# Toutes les entitées (joueurs, monstres ou None) vont dans cette liste
-# leurs ID sera leur index dans cette liste
-# de type list[Monstre|Joueur|None], le type n'est pas mis car les classes ne sont pas encore définies
-entitees_vivantes : list = []
+"""
+Toutes les entitées (joueurs, monstres ou None) y vont, leurs IDs seront leur index dans cette liste.
+`entites_vivantes[]` doit être considérée de type list[Monstre|Joueur|None], le type n'est pas mis car les classes ne sont pas encore définies
+"""
+entites_vivantes : list = []
+
+"""
+La liste de toutes les attaques du tour.
+`liste_attaques[]` doit être considérée de type `list[Attaque]`
+"""
+liste_attaques : list = []
 
 delta : int = 0
 

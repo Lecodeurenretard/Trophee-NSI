@@ -1,5 +1,4 @@
 from import_var import *
-from bisect import insort
 
 class Curseur:
     def __init__(self, col_dispo : list[int], lne_dispo : list[int], pos_interdites : list[Pos] = []) -> None:
@@ -11,6 +10,10 @@ class Curseur:
         self._pos_dans_toutes_pos = Pos(0, 0)	# v. doc
         self._pos = Pos(0, 0)
         self._update_pos()
+
+    @property
+    def position_dans_position(self) -> Pos:
+        return self._pos_dans_toutes_pos
     
     def _update_pos(self, update_col : bool = True, update_lne : bool = True) -> bool:
         """Retourne si la position à été modifiée."""
@@ -95,10 +98,6 @@ class Curseur:
         while not self._update_pos():     # skip les positions interdites
             self._ajouter_a_pdtp_x(1)
         
-
-    @property
-    def position_dans_position(self) -> Pos:
-        return self._pos_dans_toutes_pos
     
     def deplacement_utilisateur(self, ev : pygame.event.Event) -> None:
         if ev.type != pygame.KEYDOWN:

@@ -13,6 +13,7 @@ from typing import TypeAlias, Callable, TypeVar, NoReturn, Any
 from copy import copy, deepcopy
 from functools import partial
 from enum import Enum, IntEnum, IntFlag, auto
+from bisect import insort
 
 
 from pygame.surface import (

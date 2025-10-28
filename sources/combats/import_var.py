@@ -23,12 +23,13 @@ from variables_globales import (
     copy,
     deepcopy,
     auto,
+    insort,
     
     # ça ne fait pas sens de remplacer ces variables pendant le programme
     # on peut donc se permettre le raccourcit
     fenetre,
     clock,
-    entitees_vivantes,
+    entites_vivantes,
     
     # ces variables sont, certes, immuables mais elles ne doivent pas être changées
     # on peut donc les importer librement
