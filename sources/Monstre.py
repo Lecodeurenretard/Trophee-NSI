@@ -30,7 +30,7 @@ class TypeMonstre(Enum):
                 raise NotImplementedError("Type de monstre non implémenté.")
     
     @property
-    def moveset(self) -> tuple[Attaque, ...]:
+    def moveset(self) -> dict[str, Attaque]:
         match self:
             case TypeMonstre.Blob:
                 return {
@@ -119,19 +119,13 @@ class Monstre:
         ):
             self.meurt()
     
-    # même raisonnement que dans Joueur
-    def meurt(self) -> None:
-        globales.entites_vivantes[self._id] = None
-        Monstre._enlever_monstre_a_liste(self)
-        self._id = -1
-    
     @staticmethod
     def nouveau_monstre(type : TypeMonstre) -> 'Monstre':
         """Crée un nouveau monstre suivant son type"""
         return Monstre(
             type.name,
             copy(Monstre._STATS_DE_BASE[type]),    # Si pas de copie, tous les monstres suivants auront leurs vie à 0
-            type.moveset,
+            tuple(type.moveset.values()),
             couleur=type.couleur,
             chemin_sprite=type.chemin_sprite,
             type_calque=type
@@ -197,6 +191,7 @@ class Monstre:
     def pos_curseur(self) -> Pos:
         return Pos(0, 0)
     
+    # même raisonnement que dans Joueur
     def meurt(self) -> None:
         globales.entites_vivantes[self._id] = None
         Monstre._enlever_monstre_a_liste(self)
@@ -210,7 +205,7 @@ class Monstre:
         self._stats = copy(Monstre._STATS_DE_BASE[nouveau_type])
         self._stats.vie = round(self._stats.vie_max * ratio_vie)    # Conserve les proportions
         
-        self._moveset = nouveau_type.moveset
+        self._moveset = tuple(nouveau_type.moveset.values())
         self._couleur = nouveau_type.couleur
         
         self._sprite = pygame.transform.scale(pygame.image.load(nouveau_type.chemin_sprite), Monstre.dimensions_sprites)
@@ -252,9 +247,6 @@ class Monstre:
         if not self._etat_graphique["afficher"]:
             return
         self.dessiner(surface, Monstre.POSITION.x, Monstre.POSITION.y)
-        
-        if self._etat_graphique["attaque"]["temps expiration"] < Jeu.duree_execution:
-            self._moveset[self._etat_graphique["attaque"]["clef"]].dessiner(surface)
     
     def dessine_prochaine_frame_UI(self, surface : Surface) -> None:
         pass

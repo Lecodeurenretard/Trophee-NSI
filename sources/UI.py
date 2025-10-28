@@ -119,6 +119,7 @@ def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> I
     LONGUEUR_BARRE : int = 700
     ratio_barre : float = 0
     
+    # TOFIX: 
     gradient : MultiGradient = MultiGradient([ROUGE, JAUNE, VERT])
     while ratio_barre < 1:
         delta : Duree = Jeu.commencer_frame()

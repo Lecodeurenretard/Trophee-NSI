@@ -10,3 +10,4 @@
 test.py
 **/__pycache__
 data/save
+.vscode

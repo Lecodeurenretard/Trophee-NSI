@@ -237,12 +237,12 @@ class MultiGradient:
             ([0, 128, 255], [128, 0, 255], [255, 128, 0])
         )
         """
-        evolution_rgba     = deepcopy(evolution_rgba)
+        evolution_rgba    = deepcopy(evolution_rgba)
         liste_temps_clefs =     copy(liste_temps_clefs)
         
         # Si evolution_rgba n'a que 3 valeurs, ajoute en une à la fin de `evolution_rgba[]`
         if len(evolution_rgba) == 3:
-            evolution_rgba.append([])
+            evolution_rgba.append([255 for _ in range(len(evolution_rgba[0]))])
         assert(len(evolution_rgba) == 4), "Il doit y avoir 3 ou 4 éléments dans `evolution_rgba[]`."
         
         # Si la liste des temps clefs sont vides, remplit la avec des listes vides
@@ -252,7 +252,7 @@ class MultiGradient:
         # Si les temps clefs sont vides, remplit les avec des valeurs régulières
         for i, temps_clefs in enumerate(liste_temps_clefs):
             if len(temps_clefs) == 0:
-                liste_temps_clefs[i] = valeurs_regulieres_entre_01(len(evolution_rgba[0]))
+                liste_temps_clefs[i] = valeurs_regulieres_entre_01(len(evolution_rgba[0]) - 1, inclure_0=False)
                 # par exemple, si l'utilistateur donne 5 valeurs
                 # liste_temps_clefs = [1/5, 2/5, 3/5, 4/5] * 4
         
@@ -262,6 +262,7 @@ class MultiGradient:
         assert(len(liste_temps_clefs) == 4), "Il doit y avoir aucun, 3 ou 4 éléments dans `liste_temps_clefs[]`."
         
         for valeur_clef, temps_clefs in zip(evolution_rgba, liste_temps_clefs):
+            assert(len(valeur_clef) >= 2), f"Il doit y a voir au moins 2 valeurs clefs, mis on a {valeur_clef=}."
             assert(len(temps_clefs) == len(valeur_clef) - 2), f"Il devrait avoir {len(valeur_clef) - 2} éléments dans chaque éléments de `liste_temps_clefs[]` car le début et la fin sont implicites, au lieu de ça il y a {len(temps_clefs)=}."
         
         self._couleurs_clefs = evolution_rgba
