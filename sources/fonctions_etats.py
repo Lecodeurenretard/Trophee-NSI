@@ -96,6 +96,7 @@ def affichage_attaques() -> None:
 
 def ecran_titre() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.ECRAN_TITRE.name}.")
+    Jeu.set_texte_fenetre("Ecran titre")
     
     LARGEUR_BOUTONS : int = 200
     HAUTEUR_BOUTONS : int = 60
@@ -171,6 +172,11 @@ def game_over() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.GAME_OVER.name}.")
     
     ecran_gen : Generator[Surface, None, None] = fin_partie(Jeu.a_gagne)
+    if Jeu.a_gagne:
+        Jeu.set_texte_fenetre("yay!")
+    else:
+        Jeu.set_texte_fenetre("...")
+    
     while not testeur_skip_ou_quitte():
         Jeu.commencer_frame()
         try:
@@ -192,9 +198,13 @@ def preparation() -> None:
     if not bool(param.mode_debug):
         # exception au principe de la boucle principale dans l'état
         # C'est juste plus simple et propre de faire comme ça ici
+        Jeu.set_texte_fenetre("Who am I?")
         terminer_interruption(demander_pseudo(Jeu.fenetre))
+        
+        Jeu.set_texte_fenetre("Chargement...")
         terminer_interruption(faux_chargement(Jeu.fenetre))
     else:
         joueur.pseudo = "Testeur"
     
+    Jeu.set_texte_fenetre("Combat!")
     Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)

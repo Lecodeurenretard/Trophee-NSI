@@ -35,16 +35,17 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Avancement doc + suppresion imports inutiles
+## Fin de la documentation (pour l'instant).
 + Changements majeurs
-	- Avancement de [Jeu.md](doc/Jeu.md).
+	- Ajout titre et section "Retour sur les classes" dans [Jeu.md](doc/Jeu.md)
 + Sur plusieurs fichiers
 + Structure de fichier
-	- Suppression du suffixe `_placeholder` pour les sprites.
 + READMEs et documentation
 + Interactions joueur/testeur
+	- Le texte du haut de fenètre change suivant la partie du jeu dans lequel le joueur se trouve.
+	- Les pseudo ne peuvent plus être que des espaces ou contenir deux caractères blancs côte à côtes.
 + Correction de bugs
-+ [ex_anim.py](exemples/ex_anim.py)
-	- Ajout de couleur gradient.
-+ [fonctions_vrac.py](sources/fonctions_vrac.py)
-	- Ajout `valeurs_regulieres()`.
++ [Animation.py](sources/classes_utiles/Animation.py)
+	- Ajout à toutes les classes de méthodes statiquess ou non pour qu'elles aie toutes un constructeur, un `.__repr__()`, et les méthodes `generateur_s()`, `calculer_valeur_s()`, `.generateur()`, `.calculer_valeur()`.
+		* Modification de [ex_anim.py](exemples/ex_anim.py) pour inclure les nouvelles méthodes.
+	- Regroupement de la logique des méthodes `.generateur()` dans la fonction `_generer_generateur()` (et `_generer_generateur_multi()`).

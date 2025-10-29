@@ -1,4 +1,4 @@
-from imports import Generator, Optional, logging, copy, deepcopy
+from imports import Generator, Optional, logging, Any, TypeVar
 from Constantes.Couleurs import rgba, color, color_to_rgba, iterable_to_rgba
 
 from .Pos import Pos
@@ -16,6 +16,42 @@ def valeurs_regulieres_entre_01(nombre_a_produire : int, inclure_0 : bool = True
     return [idex / nombre_a_produire for idex in range(debut, fin)]
 
 
+# dans l'idéal, _generer_generateur() devrait être un décorateur
+# mais l'intellisense ne marche pour les classes avec un décorateur custom
+
+T = TypeVar('T')
+#template<typename T>
+def _generer_generateur(
+        debut : T,
+        fin   : T,
+        nb_iterations : int,
+        cls : type,
+        easing : Optional[EasingFunction] = Easing.NO_EASING,
+        loop : bool = False,
+        *postionnels, **noms_seulment   #d'autres arguments à passer
+    ) -> Generator[T, None, None]:
+    """
+    Utilisé pour contenir la logique des méthodes generateur_s().
+    cls` représente la classe accueillant la méthode.
+    """
+    premiere_iteration = True
+    while loop or premiere_iteration:
+        premiere_iteration = False
+        
+        for i in range(nb_iterations):
+            yield cls.calculer_valeur_s(debut, fin, i / nb_iterations, easing_fun=easing, *postionnels, *noms_seulment)
+
+def _generer_generateur_multi(
+        valeurs_clefs : list[T]|tuple[T, ...],
+        temps_clefs   : list[float]|tuple[float, ...],
+        nb_iterations : int,
+        cls : type,
+        easing : Optional[EasingFunction] = Easing.NO_EASING,
+        loop : bool = False,
+        *postionnels, **noms_seulment   #d'autres arguments à passer
+    ) -> Generator[T, None, None]:
+    """_generer_generateur() mais pour les classes Multi..."""
+    return _generer_generateur(valeurs_clefs, temps_clefs, nb_iterations, cls, easing=easing, loop=loop, *postionnels, *noms_seulment)  # type: ignore
 
 # Certains logiciels d'animations et de montage proposent ces fonctionnalités (par exemple Blender et DaVinci)
 # Les easing functions (j'ai pas le nom français) permettent d'avoir une animation plus fluide
@@ -29,28 +65,42 @@ class InterpolationLineaire:
     L'interpolation linéaire, va d'une valeur A à une valeur B sans jamais changer de vitesse (on pourrait dire que sa dérivée est constante)
     https://fr.wikipedia.org/wiki/Interpolation_lin%C3%A9aire
     """
+    
+    def __init__(self, debut : float, fin : float):
+        self._debut = debut
+        self._fin = fin
+    
+    def __repr__(self):
+        return f"InterpolationLineaire(debut={self._debut}; fin={self._fin})"
+    
     @staticmethod
-    def calculer_valeur(debut : float, fin : float, t : float, easing_fun : EasingFunction = Easing.NO_EASING) -> float:
+    def calculer_valeur_s(debut : float, fin : float, t : float, easing_fun : EasingFunction = Easing.NO_EASING) -> float:
         """
         Calcule la valeur qu'a une valeur variant de `debut` à `fin` avec la fonction d'easing `easing_fun`.
         En d'autre mots, calcule l'ordonnée  de la courbe correspondante sur la fonction Desmos: https://www.desmos.com/calculator/rrinotdfez.
         """
         return debut + easing_fun(t) * (fin - debut)
-
+    
     @staticmethod
+    def generateur_s(
+            debut : float,
+            fin : float,
+            nb_iterations : int,
+            easing : EasingFunction = Easing.NO_EASING,
+            loop : bool = False,
+        ) -> Generator[float, None, None]:
+        return _generer_generateur(debut, fin, nb_iterations, InterpolationLineaire, easing=easing, loop=loop)
+    
+    def calculer_valeur(self, t : float, easing_fun : EasingFunction) -> float:
+        return InterpolationLineaire.calculer_valeur_s(self._debut, self._fin, t, easing_fun=easing_fun)
+    
     def generateur(
-        debut : float,
-        fin : float,
-        nb_iterations : int,
-        easing : EasingFunction = Easing.NO_EASING,
-        loop : bool = False,
-    ) -> Generator[float, None, None]:
-        premiere_iteration = True
-        while loop or premiere_iteration:
-            premiere_iteration = False
-            
-            for i in range(nb_iterations):
-                yield InterpolationLineaire.calculer_valeur(debut, fin, i / nb_iterations, easing_fun=easing)
+            self,
+            nb_iterations : int,
+            easing : EasingFunction = Easing.NO_EASING,
+            loop : bool = False
+        ) -> Generator[float, None, None]:
+        return InterpolationLineaire.generateur_s(self._debut, self._fin, nb_iterations, easing=easing, loop=loop)
 
 
 class Gradient:
@@ -62,8 +112,10 @@ class Gradient:
     def __repr__(self):
         return f"Gradient(debut={self._debut}, fin={self._fin})"
     
-    def calculer_valeur(
-            self,
+    @staticmethod
+    def calculer_valeur_s(
+            debut : color,
+            fin : color,
             t : float,
             easing_fun : Optional[EasingFunction] = None, *,
             r : EasingFunction = Easing.NO_EASING, g : EasingFunction = Easing.NO_EASING,
@@ -74,28 +126,41 @@ class Gradient:
         Si l'argument `easing_fun` est fourni alors l'utilise pour toutes les couleurs, sinon utilise les arguments `r`, `g`, `b` et `a` pour les valeurs correspodantes.
         """
         if easing_fun is not None:
-            return self.calculer_valeur(t, r=easing_fun, g=easing_fun, b=easing_fun, a=easing_fun)
+            return Gradient.calculer_valeur_s(debut, fin, t, r=easing_fun, g=easing_fun, b=easing_fun, a=easing_fun)
+        
+        debut = color_to_rgba(debut)
+        fin = color_to_rgba(fin)
         return (
-            round(InterpolationLineaire.calculer_valeur(self._debut[0], self._fin[0], t, easing_fun=r)),
-            round(InterpolationLineaire.calculer_valeur(self._debut[1], self._fin[1], t, easing_fun=g)),
-            round(InterpolationLineaire.calculer_valeur(self._debut[2], self._fin[2], t, easing_fun=b)),
-            round(InterpolationLineaire.calculer_valeur(self._debut[3], self._fin[3], t, easing_fun=a)),
+            round(InterpolationLineaire.calculer_valeur_s(debut[0], fin[0], t, easing_fun=r)),
+            round(InterpolationLineaire.calculer_valeur_s(debut[1], fin[1], t, easing_fun=g)),
+            round(InterpolationLineaire.calculer_valeur_s(debut[2], fin[2], t, easing_fun=b)),
+            round(InterpolationLineaire.calculer_valeur_s(debut[3], fin[3], t, easing_fun=a)),
         )
     
-    def generateur(
-            self,
+    @staticmethod
+    def generateur_s(
+            debut : color,
+            fin : color,
             nb_iterations : int,
             easing : Optional[EasingFunction] = None, *,
             r : EasingFunction = Easing.NO_EASING, g : EasingFunction = Easing.NO_EASING,
             b : EasingFunction = Easing.NO_EASING, a : EasingFunction = Easing.NO_EASING,
             loop : bool = True,
         ) -> Generator[rgba, None, None]:
-        premiere_iteration = True
-        while loop or premiere_iteration:
-            premiere_iteration = False
-            
-            for i in range(nb_iterations):
-                yield self.calculer_valeur(i / nb_iterations, easing_fun=easing, r=r, g=g, b=b, a=a)
+                debut = color_to_rgba(debut)
+                fin   = color_to_rgba(fin)
+                return _generer_generateur(debut, fin, nb_iterations, Gradient, easing=easing, loop=loop, r=r, g=g, b=b, a=a)
+    
+    def calculer_valeur(self, t : float, easing_fun : EasingFunction) -> rgba:
+        return Gradient.calculer_valeur_s(self._debut, self._fin, t, easing_fun=easing_fun)
+    
+    def generateur(
+            self,
+            nb_iterations : int,
+            easing : EasingFunction = Easing.NO_EASING,
+            loop : bool = False
+        ) -> Generator[rgba, None, None]:
+        return Gradient.generateur_s(self._debut, self._fin, nb_iterations, easing=easing, loop=loop)
 
 
 class Deplacement:
@@ -107,8 +172,10 @@ class Deplacement:
     def __repr__(self):
         return f"Deplacement(debut={self._debut}, fin={self._fin})"
     
-    def calculer_valeur(
-            self,
+    @staticmethod
+    def calculer_valeur_s(
+            debut : Pos,
+            fin : Pos,
             t : float,
             easing_fun : Optional[EasingFunction] = None, *,
             x : EasingFunction = Easing.NO_EASING, y : EasingFunction = Easing.NO_EASING,
@@ -118,25 +185,38 @@ class Deplacement:
         Si l'argument `easing_fun` est fourni alors l'utilise pour toutes les couleurs, sinon utilise les arguments `x` et `y` pour les valeurs correspodantes.
         """
         if easing_fun is not None:
-            return self.calculer_valeur(t, x=easing_fun, y=easing_fun)
+            return Deplacement.calculer_valeur_s(debut, fin, t, x=easing_fun, y=easing_fun)
         return Pos(
-            round(InterpolationLineaire.calculer_valeur(self._debut.x, self._fin.x, t, easing_fun=x)),
-            round(InterpolationLineaire.calculer_valeur(self._debut.y, self._fin.y, t, easing_fun=y)),
+            round(InterpolationLineaire.calculer_valeur_s(debut.x, fin.x, t, easing_fun=x)),
+            round(InterpolationLineaire.calculer_valeur_s(debut.y, fin.y, t, easing_fun=y)),
         )
+    
+    @staticmethod
+    def generateur_s(
+            debut : Pos,
+            fin : Pos,
+            nb_iterations : int,
+            easing_fun : Optional[EasingFunction] = None, *,
+            x : EasingFunction = Easing.NO_EASING, y : EasingFunction = Easing.NO_EASING,
+            loop : bool = False,
+        ) -> Generator[Pos, None, None]:
+        return _generer_generateur(debut, fin, nb_iterations, InterpolationLineaire, easing=easing_fun, loop=loop, x=x, y=y)
+    
+    def calculer_valeur(
+            self,
+            t : float,
+            easing_fun : Optional[EasingFunction] = None, *,
+            x : EasingFunction = Easing.NO_EASING, y : EasingFunction = Easing.NO_EASING,
+        ) -> Pos:
+        return Deplacement.calculer_valeur_s(self._debut, self._fin, t, easing_fun=easing_fun, x=x, y=y)
     
     def generateur(
             self,
             nb_iterations : int,
-            easing : Optional[EasingFunction] = None, *,
-            x : EasingFunction = Easing.NO_EASING, y : EasingFunction = Easing.NO_EASING,
-            loop : bool = False,
+            easing_fun : EasingFunction = Easing.NO_EASING,
+            loop : bool = False
         ) -> Generator[Pos, None, None]:
-        premiere_iteration = True
-        while loop or premiere_iteration:
-            premiere_iteration = False
-            
-            for i in range(nb_iterations):
-                yield self.calculer_valeur(i / nb_iterations, easing_fun=easing, x=x, y=y)
+        return Deplacement.generateur_s(self._debut, self._fin, nb_iterations, easing_fun=easing_fun, loop=loop)
 
 
 # TODO: Métaclasses?
@@ -145,9 +225,24 @@ class MultiInterpolation:
     """
     Interpole une valeur avec plus de deux valeurs sans de magie de polynômes.
     """
+    
+    def __init__(
+            self,
+            valeurs_clefs : list[float]|tuple[float, ...],
+            temps_clefs   : list[float]|tuple[float, ...] = (),
+        ) -> None:
+        if len(temps_clefs) == 0:
+            temps_clefs = valeurs_regulieres_entre_01(len(valeurs_clefs) - 1, inclure_0=False)
+        MultiInterpolation.verifications_parametres(valeurs_clefs, temps_clefs)
+        
+        self._val_clefs   = valeurs_clefs
+        self._temps_clefs = temps_clefs
+    
+    def __repr__(self):
+        return f"MultiInterpolation(val_clefs={self._val_clefs}; temps_clefs={self._temps_clefs})"
+    
     # L'avantage de na pas approximer avec des polynômes, c'est que l'on peut
     # facilement changer les fonctions d'easing.
-    
     @staticmethod
     def _adaptation_pour_2_points(valeurs, temps_clefs, t, easing_fun, easing_funs) -> tuple[int, int, int, EasingFunction]:
         """
@@ -167,7 +262,6 @@ class MultiInterpolation:
         
         # vérifie si on a besoin de changer `easing_fun`
         if len(easing_funs) != 0:
-            assert(len(easing_funs) == len(valeurs)), "Le nombre de fonctions d'easing doit être le même que le nombre de valeurs fournies."
             if easing_fun != Easing.NO_EASING:
                 logging.warning("Le paramètre `easing_fun` est ignoré car `easing_funs` a été passé.")
             
@@ -179,56 +273,91 @@ class MultiInterpolation:
         t_entre_ab = (t - a) / (b - a)
         
         return (valeurs[index_fin - 1], valeurs[index_fin], t_entre_ab, easing_fun)
-        
+    
     @staticmethod
-    def calculer_valeur(
-            valeurs_clefs : list[float]|tuple[float, ...],
-            temps_clefs   : list[float]|tuple[float, ...], 
-            t : float,
-            easing_fun : EasingFunction = Easing.NO_EASING, easing_funs : list[EasingFunction]|tuple[EasingFunction, ...] = []
-        ) -> float:
-        """
-        Soit un plan, on ne s'interesse qu'aux valeurs dont l'abcisse est entre 0 et 1 inclus.
-        On y place des points qui ont pour coordonées (temps_clefs[i]; valeurs[i+1]) avec 0 < i < n, n = len(valeurs) - 2 = len(temps_clefs) -1. On place aussi (temps_clefs[0]; valeurs[0]) et (temps_clefs[n-1]; valeurs[n+1]).
-        Nous relions ensuite les points entre eux en respectant les fonctions d'easing repectives pour obtenir une courbe.
-        La fonction renvoie donc l'ordonnée du point ayant pour abcisse `t`.
-        """
+    def verifications_parametres(
+            valeurs_clefs : list[Any]|tuple[Any, ...],          # Le type des éléments de `valeurs_clefs[]` change suivant les classes
+            temps_clefs   : list[float]|tuple[float, ...],
+            easing_funs   : list[EasingFunction]|tuple[EasingFunction, ...] =  (),
+        ) -> None:
+        """Vérifie les valeurs passées en paramètre pour `MultiInterpolation` et classes dérivées."""
         if len(valeurs_clefs) < 2:
             raise ValueError(f"Pour faire une interpolation, il faut au moins 2 valeurs (seulemeent {len(valeurs_clefs)} ont été passées).")
         
-        assert(len(temps_clefs) == len(valeurs_clefs) - 2), f"Il doit y avoir exactement deux valeurs de moins dans `temps_clefs` que dans valeurs (t=0 et t=1 sont implicites), seulement {len(temps_clefs)} temps_clefs ont été passées contre {len(valeurs_clefs)}." # plus de 3 fois les recomandations de la PEP 8, pas mal.
-        assert(list(temps_clefs) == sorted(temps_clefs)), "`temps_clefs` n'est pas rangée dans l'ordre croissant."
-        # Je doute que `temps_clef` dépasse la dixaine d'éléments, la trier ne demandera pas beaucoup de temps.
-        # Aussi, on doit convertir temps_clefs en liste car comparer une liste à une tuple renverra toujours faux (comme quoi, Python est plus sensé que javascript)
+        if len(temps_clefs) != len(valeurs_clefs) - 2:
+            raise ValueError(
+                "Il doit y avoir exactement deux valeurs de moins dans `temps_clefs`"           # C'est une syntaxe héritée du C
+                " que dans valeurs (t=0 et t=1 sont implicites), seulement "                    # Le signe '+' est implicite entre les string litérales
+                f"temps_clef contient {len(temps_clefs)} éléments contre {len(valeurs_clefs)}." # "bon" + "jour" == "bon" "jour" == "bonjour"
+            )
         
+        # Je doute que `temps_clef` dépasse la dixaine d'éléments, la trier ne demandera pas beaucoup de temps.
+        # Aussi, on doit convertir temps_clefs en liste car comparer une liste à une tuple renverra toujours faux
+        # (comme quoi, Python est plus sensé que javascript)
+        if list(temps_clefs) != sorted(temps_clefs):
+            raise ValueError("`temps_clefs[]` n'est pas rangée dans l'ordre croissant.")
+        
+        
+        if len(easing_funs) != 0 and len(easing_funs) != len(valeurs_clefs):
+            raise ValueError(
+                f"Le nombre d'éléments dans `easing_funs[]` ({len(easing_funs)}) doit être le même"
+                f" que le nombre d'éléments de `valeurs_clefs` ({len(valeurs_clefs)})."
+            )
+    
+    @staticmethod
+    def calculer_valeur_s(
+            valeurs_clefs : list[float]|tuple[float, ...],
+            temps_clefs   : list[float]|tuple[float, ...],
+            t : float,
+            easing_fun : EasingFunction = Easing.NO_EASING,
+            easing_funs : list[EasingFunction]|tuple[EasingFunction, ...] = (),
+        ) -> float:
+        """
+        Même chose que la version de `InterpolationLineaire` mais agit sur un "chemin" de valeurs `valeurs_clefs[]` au lieu d'un début et d'une fin.
+        `temps_clefs[i]` est la valeur de `t` pour laquelle `valeur_clef[i]` sera atteinte.
+        Si `easing_funs[]` est fournie, sa valeur écrasera celle de `easing_fun`.
+
+        La version mathématique si ça interresse quelqu'un:
+        Soit un plan quelconque, on ne s'interesse qu'aux points dont l'abcisse est entre 0 et 1 inclus.
+        On y place des points qui ont pour coordonées (temps_clefs[i]; valeurs[i+1]) avec 0 < i <= n, n = len(valeurs) - 2 = len(temps_clefs).
+        On place aussi (0; valeurs[0]) et (n+1; valeurs[n+1]).
+        Nous relions ensuite les points entre eux en respectant les fonctions d'easing repectives pour obtenir une courbe C.
+        La fonction renvoie donc l'ordonnée du point de C ayant pour abcisse `t`.
+        """
+        MultiInterpolation.verifications_parametres(valeurs_clefs, temps_clefs)
         temps_clefs = [0, *temps_clefs, 1]  # 0 et 1 sont implicites pour l'utilisateur, on les met ici
         
         debut, fin, nouveau_t, easing_fun = MultiInterpolation._adaptation_pour_2_points(valeurs_clefs, temps_clefs, t, easing_fun, easing_funs)
-        return InterpolationLineaire.calculer_valeur(debut, fin, nouveau_t, easing_fun=easing_fun)
+        return InterpolationLineaire.calculer_valeur_s(debut, fin, nouveau_t, easing_fun=easing_fun)
     
     @staticmethod
-    def generateur(
-            valeurs     : list[float]|tuple[float, ...],
-            temps_clefs : list[float]|tuple[float, ...],
+    def generateur_s(
+            valeurs_clefs : list[float]|tuple[float, ...],
+            temps_clefs   : list[float]|tuple[float, ...],
             nb_iterations : int,
             easing : EasingFunction = Easing.NO_EASING,
             loop : bool = False,
         ) -> Generator[float, None, None]:
-        premiere_iteration = True
-        while loop or premiere_iteration:
-            premiere_iteration = False
-            
-            yield MultiInterpolation.calculer_valeur(valeurs, temps_clefs, 0, easing_fun=easing)
-            for i in range(1, nb_iterations):
-                yield MultiInterpolation.calculer_valeur(valeurs, temps_clefs, i / (nb_iterations-1), easing_fun=easing)
+        return _generer_generateur_multi(valeurs_clefs, temps_clefs, nb_iterations, InterpolationLineaire, easing=easing, loop=loop)
+    
+    def calculer_valeur(self, t : float, easing_fun : EasingFunction) -> float:
+        return MultiInterpolation.calculer_valeur_s(self._val_clefs, self._temps_clefs, t, easing_fun=easing_fun)
+    
+    def generateur(
+            self,
+            nb_iterations : int,
+            easing : EasingFunction = Easing.NO_EASING,
+            loop : bool = False
+        ) -> Generator[float, None, None]:
+        return MultiInterpolation.generateur_s(self._val_clefs, self._temps_clefs, nb_iterations, easing=easing, loop=loop)
 
 class MultiGradient:
     """Implémentation de MultiInterpolation pour les couleurs."""
     
     def __init__(
-                self,
-                couleurs_clefs : list[list[int]|tuple[int, ...]],
-                temps_clefs    : list[float]|tuple[float, ...] = [],
+            self,
+            couleurs_clefs : list[color]|tuple[color, ...],
+            temps_clefs    : list[float]|tuple[float, ...] = (),
         ):
         """
         Constructeur de MultiGradient.
@@ -250,9 +379,6 @@ class MultiGradient:
             [1/2],
         )
         """
-        couleurs_clefs = copy(couleurs_clefs)
-        temps_clefs    = copy(temps_clefs)
-        assert(len(couleurs_clefs) >= 2), "Il doit y avoir au moins 2 couleurs clefs."
         
         # Si les temps clefs sont vides, remplit les avec des valeurs régulières
         if len(temps_clefs) == 0:
@@ -260,18 +386,21 @@ class MultiGradient:
             # par exemple, si l'utilistateur donne 5 valeurs pour evolution_rgba[]
             # temps_clefs = [1/4, 2/4, 3/4]
             # encore une fois 0/4 et 4/4 sont ajoutés après
-        assert(len(temps_clefs) == len(couleurs_clefs) - 2), f"Il doit y avoir exactement 2 éléments de moins dans `temps_clefs[]` que dans `couleurs_clefs[]`, on s'attend à {len(couleurs_clefs) - 2} éléments mais il y en a {len(temps_clefs)}."
+        MultiInterpolation.verifications_parametres(couleurs_clefs, temps_clefs)
         
-        self._couleurs_clefs : list[rgba] = [iterable_to_rgba(coul) for coul in couleurs_clefs]
-        self._temps_clefs : tuple[float, ...] = tuple(temps_clefs)
+        self._couleurs_clefs : list[rgba] = [color_to_rgba(coul) for coul in couleurs_clefs]
+        self._temps_clefs    : tuple[float, ...] = tuple(temps_clefs)
     
     def __repr__(self):
         return f"MultiGradient({self._couleurs_clefs=}, {self._temps_clefs=})"
     
-    def calculer_valeur(
-            self,
+    @staticmethod
+    def calculer_valeur_s(
+            couleurs_clefs : list[color]|tuple[color, ...],
+            temps_clefs    : list[float]|tuple[float, ...],
             t : float,
-            easing_fun : EasingFunction = Easing.NO_EASING, easing_funs : list[EasingFunction]|tuple[EasingFunction, ...] = []
+            easing_fun : EasingFunction = Easing.NO_EASING,
+            easing_funs : list[EasingFunction]|tuple[EasingFunction, ...] = [],
         ) -> rgba:
         """
         Même chose que sa version dans Gradient mais sur un nombre de couleurs indéterminées.
@@ -282,7 +411,7 @@ class MultiGradient:
         # par exemple: ([255, 128, 0, 200], [128, 0, 200, 255], [0, 200, 255, 128])
         # -----------> ([255, 128, 0], [128, 0, 200], [0, 200, 255], [200, 255, 128])
         
-        # Rien à voir mais maintenant que j'y pense, c'est une rotation de matrice:
+        # Rien à voir mais maintenant que j'y pense, c'est (presque) une rotation de matrice:
         # (                                  (
         #  [255, 128, 0  , 200],              [255, 128, 0  ],
         #  [128, 0  , 200, 255],   ------>    [128, 0  , 200],
@@ -291,27 +420,51 @@ class MultiGradient:
         #                                    )
         return iterable_to_rgba([
             round(
-                MultiInterpolation.calculer_valeur(
-                    [couleur[canal] for couleur in self._couleurs_clefs],
-                    self._temps_clefs,
+                MultiInterpolation.calculer_valeur_s(
+                    [couleur[canal] for couleur in couleurs_clefs],
+                    temps_clefs,
                     t,
                     easing_fun=easing_fun, easing_funs=easing_funs
                 )
             )   for canal in range(4)
         ])
     
+    @staticmethod
+    def generateur_s(
+            couleurs_clefs : list[color]|tuple[color, ...],
+            temps_clefs    : list[float]|tuple[float, ...],
+            nb_iterations : int,
+            easing : EasingFunction = Easing.NO_EASING,
+            loop : bool = False,
+        ) -> Generator[rgba, None, None]:
+        couleurs_clefs = [color_to_rgba(col) for col in couleurs_clefs]
+        return _generer_generateur_multi(couleurs_clefs, temps_clefs, nb_iterations, MultiGradient, easing=easing, loop=loop)  #type:ignore # on est sûr que le type est rgba
+    
+    def calculer_valeur(
+            self,
+            t : float,
+            easing_fun : EasingFunction = Easing.NO_EASING,
+            easing_funs : list[EasingFunction]|tuple[EasingFunction, ...] = [],
+        ):
+        return MultiGradient.calculer_valeur_s(
+            self._couleurs_clefs,        # type: ignore # même problème que dans .generateur()
+            self._temps_clefs,
+            t,
+            easing_fun=easing_fun,
+            easing_funs=easing_funs,
+        )
+    
     def generateur(
             self,
             nb_iterations : int,
             easing : EasingFunction = Easing.NO_EASING,
             loop : bool = False,
-        ) -> Generator[rgba, None, None]:
-        premiere_iteration = True
-        while loop or premiere_iteration:
-            premiere_iteration = False
-            
-            for i in range(nb_iterations):
-                yield self.calculer_valeur(i / (nb_iterations), easing_fun=easing)
+        ):
+        return MultiGradient.generateur_s(
+            self._couleurs_clefs,       # type: ignore  # apparament "list[rgba]" to "list[color]|tuple[color, ...]" n'est pas une bonne convertion.
+            self._temps_clefs,
+            nb_iterations, easing=easing, loop=loop
+        )
 
 
 class MultiDeplacement:
@@ -319,8 +472,8 @@ class MultiDeplacement:
     
     def __init__(
                 self,
-                pos_clefs : list[Pos]|tuple[Pos, ...],
-                temps_clefs : list[float]|tuple[float] = [],
+                pos_clefs   : list[Pos]|tuple[Pos, ...],
+                temps_clefs : list[float]|tuple[float, ...] = [],
         ) -> None:
         """
         Constructeur de MultiDeplacement.
@@ -340,26 +493,29 @@ class MultiDeplacement:
             # [1/3, 2/3]
         )
         """
-        pos_clefs   = deepcopy(pos_clefs)
-        temps_clefs = deepcopy(temps_clefs)
-        assert(len(pos_clefs) >= 2), "Il doit y avoir au moins 2 positions clefs."
-        
         # Si les temps clefs sont vides, remplit les avec des valeurs régulières
         if len(temps_clefs) == 0:
             temps_clefs = valeurs_regulieres_entre_01(len(pos_clefs) - 1, inclure_0=False)
-        
-        assert(len(temps_clefs) == len(pos_clefs) - 2), f"Il doit y avoir exactement 2 éléments de moins dans `temps_clefs[]` que dans `pos_clefs[]`, on s'attend à {len(pos_clefs) - 2} éléments mais il y en a {len(temps_clefs)}."
+        MultiInterpolation.verifications_parametres(pos_clefs, temps_clefs)
         
         self._positions_clefs : tuple[Pos, ...]   = tuple(pos_clefs)
         self._temps_clefs     : tuple[float, ...] = tuple(temps_clefs)
     
     def __repr__(self):
-        return f"MultiDeplacement({self._positions_clefs=}, {self._temps_clefs=})"
+        return (
+            "MultiDeplacement("
+            f"positions_clefs={self._positions_clefs}"
+            f", temps_clefs={self._temps_clefs}"
+            ")"
+        )
     
-    def calculer_valeur(
-            self,
+    @staticmethod
+    def calculer_valeur_s(
+            positions_clefs : list[Pos]|tuple[Pos, ...],
+            temps_clefs     : list[float]|tuple[float, ...],
             t : float,
-            easing_fun : EasingFunction = Easing.NO_EASING, easing_funs : list[EasingFunction]|tuple[EasingFunction, ...] = []
+            easing_fun : EasingFunction = Easing.NO_EASING,
+            easing_funs : list[EasingFunction]|tuple[EasingFunction, ...] = [],
         ) -> Pos:
         """
         Même chose que sa version dans Deplacement mais sur un nombre de couleurs indéterminées.
@@ -371,14 +527,39 @@ class MultiDeplacement:
         # allez voir la méthode coresspondante pour plus d'infos
         return Pos([
             round(
-                MultiInterpolation.calculer_valeur(
-                    [pos.tuple[direction] for pos in self._positions_clefs],
-                    self._temps_clefs,
+                MultiInterpolation.calculer_valeur_s(
+                    [pos.tuple[direction] for pos in positions_clefs],
+                    temps_clefs,
                     t,
-                    easing_fun=easing_fun, easing_funs=easing_funs
+                    easing_fun=easing_fun,
+                    easing_funs=easing_funs,
                 )
             )   for direction in range(2)
         ])
+    
+    @staticmethod
+    def generateur_s(
+            positions_clefs : list[Pos]|tuple[Pos, ...],
+            temps_clefs     : list[float]|tuple[float, ...],
+            nb_iterations : int,
+            easing : EasingFunction = Easing.NO_EASING,
+            loop : bool = False,
+        ) -> Generator[Pos, None, None]:
+        return _generer_generateur_multi(positions_clefs, temps_clefs, nb_iterations, MultiDeplacement, easing=easing, loop=loop)
+    
+    def calculer_valeur(
+            self,
+            t : float,
+            easing_fun : EasingFunction = Easing.NO_EASING,
+            easing_funs : list[EasingFunction]|tuple[EasingFunction, ...] = [],
+        ) -> Pos:
+        return MultiDeplacement.calculer_valeur_s(
+            self._positions_clefs,
+            self._temps_clefs,
+            t,
+            easing_fun=easing_fun,
+            easing_funs=easing_funs,
+        )
     
     def generateur(
             self,
@@ -386,9 +567,4 @@ class MultiDeplacement:
             easing : EasingFunction = Easing.NO_EASING,
             loop : bool = False,
         ) -> Generator[Pos, None, None]:
-        premiere_iteration = True
-        while loop or premiere_iteration:
-            premiere_iteration = False
-            
-            for i in range(nb_iterations):
-                yield self.calculer_valeur(i / nb_iterations, easing_fun=easing)
+        return MultiDeplacement.generateur_s(self._positions_clefs, self._temps_clefs, nb_iterations, easing=easing, loop=loop)

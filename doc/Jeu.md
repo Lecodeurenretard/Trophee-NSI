@@ -57,12 +57,14 @@ Pour distinguer les interruptions, il faut utiliser l'alias `Interruption` en ty
 ## 2. Les animations
 On distingue deux types d'animations: celles qui sont préfaites et qui proviennent d'un fichier GIF ou vidéo et celles qui doivent être générées par le jeu. Par exemple, si jamais je veux faire breakdance Esquimo pour une attaque, je devrait dessiner chaque frame et les jouer les unes après les autres; mais si je veux simplement le sauter, je n'ai juste qu'a changer sa position verticale.
 
+### Les Animations de GIF/séquences PNG
 Commençons par le premier cas, soit un gif, prenons exemple.gif:  
 ![exemple.gif](../exemples/gif/exemple.gif)  
 Malheureusement, Pygame ne permet pas d'afficher les gifs en l'état, il faut d'abord le découper en frames; pour cette tâche, j'utilise [EzGif](https://ezgif.com/split). Une fois le gif tranché, il faut mettre les images dans un sous-dossier de [/data/anim/](../data/anim/)([`Constantes.Chemins.ANIM`](../sources/Constantes/Chemins.py)).
 Nous sommes enfin en mesure d'afficher les images avec la fonction `dessiner_gif()` de [dessin.py](../sources/dessin.py). Pour le second argument il nous faut un pattern glob, cette fonction ne demande pas de grand savoir dans le domaine et la seule chose à savoir, c'est qu'il faut mettre une étoile à la place des noms de fichiers.  
 Pour un exemple, allez voir [ex_gif.py](../exemples/ex_gif.py)
 
+### Les animations dans le code
 Dans le second cas, il sera nécessaire d'utiliser les classe du fichier [Animation.py](../sources/classes_utiles/Animation.py). On en documente 6:
 - `InterpolationLineaire`
 - `Deplacement`
@@ -71,6 +73,7 @@ Dans le second cas, il sera nécessaire d'utiliser les classe du fichier [Animat
 - `MultiGradient`
 - `MultiDeplacement`
 
+#### Parenthèse mathématique sur le LERP
 La premiere classe n'est qu'un moyen d'utiliser LERP.  
 Pour comprendre LERP, disons que l'on veuille déplacer un sprite horizontalement, sa position horizontale ira de $x_1$ à $x_2$ en un temps $t$, notre objectif est de trouver une fonction trouvant la position horizontale de $x_1$ à $x_2$ après $t\%$ du temps du déplacement. C'est exactement le problème que vient résoudre LERP. Nous avons donc
 $$
@@ -86,5 +89,14 @@ $$
 \text{pour tout} \, x_1 \, \text{et} \, x_2 \, \text{réels}, t \in [0; 1] \\
 \text{LERP}(x_1, x_2, t) = x_1 + (x_2 - x_1)t
 $$
-Et concrètement, c'est tout ce que fait `InterpolationLineaire.calculer_valeur()`,
-à une chose près, la méthode applique ce que l'on appelle des fonctions d'easing. Les fonctions d'easing permettent d'obtenir une transition plus naturelle au début et à la fin d'un LERP, c'est un concept très difficle à décrire en texte seulement; j'ai donc créé un **[graphique interactif Desmos](https://www.desmos.com/calculator/rrinotdfez)** pour visualiser le tout. Si vous clickez sur le métronôme en haut à gauche, $t$ devrait augmenter et un point défiler entre 0 et 1 sur la droite $y=1$, ce point (dont l <!--...-->).
+Et concrètement, c'est tout ce que fait `InterpolationLineaire.calculer_valeur_s()`,
+à une chose près, la méthode applique ce que l'on appelle des fonctions d'easing.  
+Les fonctions d'easing permettent d'obtenir une transition plus naturelle au début et à la fin d'un LERP, c'est un concept très difficle à décrire en texte seulement; j'ai donc créé un **[graphique interactif Desmos](https://www.desmos.com/calculator/rrinotdfez)** pour visualiser le tout. <!--Si vous clickez sur le métronôme en haut à gauche, $t$ devrait augmenter et un point défiler entre 0 et 1 sur la droite $y=1$, ce point est contrôlé par $p$ (tout en bas des définitions).-->
+
+#### Retour sur les classes
+C'est bon il n'y a plus de maths, on se concentre maintenant sur la programation.  
+La classe `InterpolationLineaire` possède deux méthodes:
+- `.calculer_valeur()`: Un LERP avec `x1 = debut`, `x2 = fin`, `t = t`.
+- `.generateur()`: Renvoie un générateur dont la valeur de retour va de `debut` à `fin` en `nb_iterations` appels.
+
+Les autres classes ont les mêmes méthodes. Chaque méthode est disponible en version statique (avec pour suffixe `_s`) et en version non statique, pour les versions non statiques, la version non statique prend les valeurs passées à l'objet avec le constructeur.

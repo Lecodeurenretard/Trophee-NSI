@@ -6,7 +6,7 @@ sys.path.insert(0, str(next(Path(__file__).parent.parent.glob('sources/'))))
 
 
 
-# VsCode n'aime pas la magie noire, il reporte 4 erreurs
+# VsCode n'aime pas la magie noire, il reporte 5 erreurs
 import pygame
 from Jeu                            import Jeu, verifier_pour_quitter
 from Constantes.Couleurs            import BLANC, NOIR, BLEU_CLAIR, BLEU, ROUGE, VERT, GRIS
@@ -15,7 +15,7 @@ from classes_utiles.EasingConstants import FADE
 from classes_utiles.Pos import Pos
 
 
-diamant_gen = MultiDeplacement(
+diamant_gen = MultiDeplacement.generateur_s(
 	[
 		Pos(Jeu.pourcentage_largeur(25), Jeu.pourcentage_hauteur(50)),
 		Pos(Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(25)),
@@ -28,9 +28,13 @@ diamant_gen = MultiDeplacement(
 		1/2,
 		3/4
 	],
-).generateur(Jeu.framerate * 3, easing=FADE, loop=True)		# On crée un générateur pour facilement pouvoir animer à l'infini
+	Jeu.framerate * 3,
+	easing=FADE,
+	loop=True,
+)		# On crée un générateur pour facilement pouvoir animer à l'infini
 															# On aurait aussi pu faire avec .caluler_valeur()
 
+# on pourrat aussi faire comme en haut et utiliser generateur_s() (les temps ne seraient plus falcutatifs)
 couleur_gen = MultiGradient(
 	[
 		GRIS,

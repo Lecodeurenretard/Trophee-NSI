@@ -49,7 +49,7 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
             continue
         
         if event.key == pygame.K_BACKSPACE:
-            texte = texte[:-1]
+            texte = texte[:-1]  # on enlève le dernier caractère
             continue
         
         # On vérifie que la lettre soit correcte.
@@ -60,6 +60,10 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
             texte += event.unicode
             continue
         
+    if texte == ' ':    # le nom ne peut pas être composé exclusivement d'espaces
+        texte = ''
+    if len(texte) >= 2 and texte[-2].isspace() and texte[-1].isspace(): # jamais deux caractères blancs à coté
+        texte = texte[:-1]                                              # les espaces, nouvelles lignes, tabs...
     return (texte, continuer)
 
 # TODO: J'aime pas le fait que ce soit hardcodé
