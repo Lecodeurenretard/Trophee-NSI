@@ -3,10 +3,11 @@ from fonctions_etats import (
     ecran_titre,
     credits,
     preparation,
-    attente_nouveau_combat,
+    attente_prochaine_etape,
     choix_attaque,
     affichage_attaques,
     game_over,
+    shop,
 )
 
 
@@ -24,8 +25,11 @@ def jeu() -> None:
             case Jeu.Etat.PREPARATION:
                 preparation()
             
-            case Jeu.Etat.ATTENTE_NOUVEAU_COMBAT:
-                attente_nouveau_combat()
+            case Jeu.Etat.ATTENTE_PROCHAINE_ETAPE:
+                attente_prochaine_etape()
+            
+            case Jeu.Etat.SHOP:
+                shop()
             
             case Jeu.Etat.CHOIX_ATTAQUE:
                 choix_attaque()

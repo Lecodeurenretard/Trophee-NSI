@@ -1,14 +1,16 @@
 from Attaque import *
+from Item import Item
 
 class Joueur:
     _STATS_DE_BASE : Stat = Stat(45, 35, 35, 20, 30, 50, 1.2, 1).reset_vie()
     DIMENSIONS_SPRITE : tuple[int, int] = (160, 160)
     
-    def __init__(self, moveset : dict[str, Attaque], chemin_vers_sprite : Optional[str] = None) -> None:
+    def __init__(self, moveset : dict[str, Attaque], chemin_vers_sprite : Optional[str] = None, inventaire : list[Item] = []) -> None:
         # on assumera par la suite que _stats et _base_stats sont initialisés
         self._stats   : Stat               = Joueur._STATS_DE_BASE
         self._pseudo  : str                = ""
         self._moveset : dict[str, Attaque] = moveset
+        self._inventaire : list[Item]      = inventaire
         
         self.afficher : bool = True
         
@@ -73,7 +75,7 @@ class Joueur:
     
     def recoit_degats(self, degats_recu : int) -> None:
         """Prend en charge les dégats prits et retourne si un crit est retourné."""
-        if bool(param.joueur_invincible) and degats_recu >= 0:   # joueur_invincible n'empèche pas les soins
+        if bool(params.joueur_invincible) and degats_recu >= 0:   # joueur_invincible n'empèche pas les soins
             return
         
         self._stats.baisser_vie(degats_recu)
@@ -108,7 +110,7 @@ class Joueur:
         self._moveset[clef_attaque].enregister_lancement(self._id, id_cible)
     
     def dessiner(self, surface : Surface) -> None:
-        if param.mode_debug.case_cochee:
+        if params.mode_debug.case_cochee:
             boite_de_contours = (Jeu.largeur // 4, Jeu.pourcentage_hauteur(75) - 100, 100, 100)
             pygame.draw.rect(surface, BLEU, boite_de_contours, 0)
             return
@@ -127,10 +129,23 @@ class Joueur:
     
     def dessine_prochaine_frame_UI(self, surface : Surface) -> None:
         self.dessine_barre_de_vie(surface, Jeu.pourcentage_largeur(70), Jeu.pourcentage_hauteur(65))
+    
+    def prendre_item(self, item : Item) -> bool:
+        """Ajoute un item à l'inventaire s'il n'y était pas déjà. Renvoie si l'item à été ajouté."""
+        if item not in self._inventaire:
+            self._inventaire.append(item)
+            return True
+        return False
+    def lacher_item(self, item : Item) -> bool:
+        """Enlève un item à l'inventaire s'il y était. Renvoie si l'item à été enlevé."""
+        if item in self._inventaire:
+            self._inventaire.remove(item)
+            return True
+        return False
 
 joueur : Joueur = Joueur({
     "heal":     ATTAQUES_DISPONIBLES["heal"],
     "physique": ATTAQUES_DISPONIBLES["physique"],
     "magie":    ATTAQUES_DISPONIBLES["magie"],
     "skip":     ATTAQUES_DISPONIBLES["skip"],
-}, chemin_vers_sprite=f"{Constantes.Chemins.DOSSIER_IMG}/joueur.png")
+}, chemin_vers_sprite=f"{Constantes.Chemins.IMG}/joueur.png")

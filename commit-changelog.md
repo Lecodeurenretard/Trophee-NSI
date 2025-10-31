@@ -23,7 +23,7 @@ format:
 ## 
 + Changements majeurs
 + Sur plusieurs fichiers
-+ Structure de fichier
++ Structure de fichiers
 + READMEs et documentation
 + Interactions joueur/testeur
 + Correction de bugs
@@ -35,17 +35,39 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Fin de la documentation (pour l'instant).
+## Ajout d'un shop primitif
 + Changements majeurs
-	- Ajout titre et section "Retour sur les classes" dans [Jeu.md](doc/Jeu.md)
+	- Ajout du fichier pour objets [items.json](data/items.json).
+	- Ajout d'une classe `Item`.
+		* Ajout du fichier [Item.py](sources/Item.py).
+	- Ajout état `shop`.
 + Sur plusieurs fichiers
-+ Structure de fichier
+	- Renommage de l'état `attente_nouveau_combat` vers `attente_prochaine_etape`.
++ Structure de fichiers
+	- Ajout des sprites des items id [1](data/img/items/placeholder1.png), [2](data/img/items/placeholder2.png) et [3](data/img/items/placeholder3.png).
+	- Ajout des images de boutons [croix.png](data/img/croix.png) et [retour.png](data/img/retour.png).
 + READMEs et documentation
 + Interactions joueur/testeur
-	- Le texte du haut de fenètre change suivant la partie du jeu dans lequel le joueur se trouve.
-	- Les pseudo ne peuvent plus être que des espaces ou contenir deux caractères blancs côte à côtes.
+	- Ajout d'une image de croix au lieu du X.
+	- Ajout la touche 'p' skip jusqu'au prochain shop.
+	- Ajout d'un shop tous les 5 combats (un shop ne peut pas être le dernier combat).
+	- Le dernier combat est le 10<sup>me</sup>
 + Correction de bugs
-+ [Animation.py](sources/classes_utiles/Animation.py)
-	- Ajout à toutes les classes de méthodes statiquess ou non pour qu'elles aie toutes un constructeur, un `.__repr__()`, et les méthodes `generateur_s()`, `calculer_valeur_s()`, `.generateur()`, `.calculer_valeur()`.
-		* Modification de [ex_anim.py](exemples/ex_anim.py) pour inclure les nouvelles méthodes.
-	- Regroupement de la logique des méthodes `.generateur()` dans la fonction `_generer_generateur()` (et `_generer_generateur_multi()`).
++ [Chemins.py](sources/Constantes/Chemins.py)
+	- Suppression du préfixe `DOSSIER_` sur les constantes de chemin.
++ [Touches.py](sources/Constantes/Touches.py)
+	- Ajout de la constante `DBG_SHOP`.
++ `Button`
+	- Modification de la classe pour qu'elle supporte l'affichage d'image.
++ [fonctions_vrac.py](sources/fonctions_vrac.py)
+	- Ajout des paramètres `centrer_x` et `centrer_y` à tous les _overloads_ de `centrer_pos()`.
+	- Ajout de `dessiner_texte()` qui permet d'afficher du texte avec du _line wrapping_.
++ `Jeu`
+	- Ajout variable `DECISION_SHOP`.
+	- Ajout méthode `reset_etat()`.
+	- Ajout méthode `display_flip()` pour que `menu_surf` soit toujours render.
++ `Joueur`
+	- Ajout d'un inventaire.
+		* Ajout attribut `._inventaire[]` et méthodes `.prendre_item()` et `.lacher_item()`.
++ `Stat`
+	- Ajout méthode `depuis_dictionnaire_json()` permettant de transformer un dictionnaire en objet `Stat`.

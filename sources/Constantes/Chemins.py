@@ -2,9 +2,11 @@ import logging
 from os import getcwd
 
 RACINE : str
-DOSSIER_IMG  : str
-DOSSIER_SAVE : str
-DOSSIER_ETC  : str
+DATA   : str
+IMG    : str
+SAVE   : str
+ANIM : str
+ETC    : str
 
 RACINE = ''
 if getcwd().endswith("sources"):
@@ -14,7 +16,8 @@ elif getcwd().endswith("Constantes"):
 else:
     logging.warning("Le dossier n'est pas reconnu, on suppose que l'on est à la racine.")
 
-DOSSIER_IMG  = f"{RACINE}data/img"
-DOSSIER_SAVE = f"{RACINE}data/save"
-DOSSIER_ANIM = f"{RACINE}data/anim"
-DOSSIER_ETC  = f"{RACINE}data/etc"
+DATA = f"{RACINE}data"
+IMG  = f"{RACINE}data/img"
+SAVE = f"{RACINE}data/save"
+ANIM = f"{RACINE}data/anim"
+ETC  = f"{RACINE}data/etc"

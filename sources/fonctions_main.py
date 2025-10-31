@@ -43,7 +43,7 @@ def initialiser_nouveau_combat(numero_combat : int, reset_joueur : bool = False)
         joueur.reset_vie()
 
 def reagir_appui_touche(ev) -> Optional[Interruption]:
-    import Constantes as c  #nécéssaire pour les match... case
+    import Constantes as c  # Nécessaire pour les match... case
     
     assert(ev.type == pygame.KEYDOWN), "L'évènement passé à reagir_appui_touche() n'est pas un appui de bouton."
     match ev.key:        # Un event ne peut être qu'une seule touche à la fois
@@ -53,7 +53,7 @@ def reagir_appui_touche(ev) -> Optional[Interruption]:
         case c.Touches.SETTINGS:
             return menu_parametres()
     
-    if not param.mode_debug.case_cochee:
+    if not params.mode_debug.case_cochee:
         return
     match ev.key:
         case c.Touches.DBG_CRIT:    # encore un moment où python ne fait sens: https://stackoverflow.com/questions/77164443/why-does-my-match-case-statement-not-work-for-class-members
@@ -75,7 +75,7 @@ def reagir_appui_touche(ev) -> Optional[Interruption]:
             if Jeu.num_combat < 1: 
                 Jeu.num_combat = Jeu.MAX_COMBAT
             
-            Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
+            Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
             return
         
         case c.Touches.DBG_PROCHAIN_COMBAT:
@@ -83,5 +83,19 @@ def reagir_appui_touche(ev) -> Optional[Interruption]:
             if Jeu.num_combat > Jeu.MAX_COMBAT: 
                 Jeu.num_combat = 1
             
-            Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
+            Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
+            return
+        
+        case c.Touches.DBG_SHOP:
+            for i in range(Jeu.num_combat, Jeu.MAX_COMBAT):
+                if Jeu.DECISION_SHOP(i):
+                    Jeu.num_combat = i
+                    break
+            else:   # for... else, si jamis le break n'est jamais atteint
+                logging.error("Le dernier shop a été dépassé.")
+                return
+            
+            
+            logging.info(f"Skip jusqu'au combat {Jeu.num_combat}.")
+            Jeu.changer_etat(Jeu.Etat.SHOP)
             return

@@ -1,4 +1,4 @@
-from imports import dataclass, overload, Vecteur, Generator
+from imports import dataclass, overload, Vecteur
 
 @dataclass
 class Pos:
@@ -47,6 +47,10 @@ class Pos:
         
         raise TypeError("On ne peut ajouter un objet pos qu'a un vecteur (de pygame) ou une autre instance de Pos.")
     
+    # à NE PAS définir: le signe, la multiplication et division (scalaire ou pos), l'exponentiation.
+    # La raison est simple: les positions ne sont pas des vecteurs
+    # Si l'addition et la soustraction sont permis, c'est pour avoir moins à écrire.
+    
     @staticmethod
     def milieu(p1 : 'Pos|Vecteur', p2 : 'Pos|Vecteur') -> 'Pos':
         """Retourne le milieu du segment allant de p1 à p2."""
@@ -57,10 +61,6 @@ class Pos:
         
         assert(type(p1) is Vecteur and type(p2) is Vecteur) # on réassure le type checker
         return Pos((p1 + p2) / 2)
-    
-    # à NE PAS définir: le signe, la multiplication et division (scalaire ou pos), l'exponentiation.
-    # La raison est simple: les positions ne sont pas des vecteurs
-    # Si l'addition et la soustraction sont permis, c'est pour avoir moins à écrire.
     
     @property
     def tuple(self) -> tuple[int, int]:

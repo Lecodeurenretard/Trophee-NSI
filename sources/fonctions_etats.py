@@ -4,9 +4,11 @@ Chaque fonction éponyme à une valeur de `EtatJeu` sera une boucle stournant ta
 """
 
 from fonctions_main import *
+from Item import Item
+from Bouton import Button
 
-def attente_nouveau_combat() -> None:
-    logging.debug(f"Activation de l'état {Jeu.Etat.ATTENTE_NOUVEAU_COMBAT.name}.")
+def attente_prochaine_etape() -> None:
+    logging.debug(f"Activation de l'état {Jeu.Etat.ATTENTE_PROCHAINE_ETAPE.name}.")
     
     initialiser_nouveau_combat(Jeu.num_combat)
     ecran_gen : Generator[Surface, None, None] = ecran_nombre_combat()
@@ -20,7 +22,11 @@ def attente_nouveau_combat() -> None:
             Jeu.fenetre.blit(next(ecran_gen), (0, 0))
         except StopIteration:
             break
-        pygame.display.flip()
+        Jeu.display_flip()
+    
+    if Jeu.DECISION_SHOP(Jeu.num_combat):
+        Jeu.changer_etat(Jeu.Etat.SHOP)
+        return
     
     Jeu.changer_etat(Jeu.Etat.CHOIX_ATTAQUE)
 
@@ -36,7 +42,7 @@ def choix_attaque() -> None:
         if interruption_gen is not None:
             try:
                 Jeu.fenetre.blit(next(interruption_gen), (0, 0))
-                pygame.display.flip()
+                Jeu.display_flip()
             except StopIteration:
                 interruption_gen = None
             continue
@@ -80,7 +86,7 @@ def affichage_attaques() -> None:
     if len(Monstre.monstres_en_vie) == 0:
         if not joueur_gagne():
             Jeu.num_combat += 1
-            Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
+            Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
             return
         
         Jeu.a_gagne = True
@@ -116,7 +122,7 @@ def ecran_titre() -> None:
     
     dessiner_fond_ecran = dessiner_gif(
         Jeu.fenetre,
-        f"{Constantes.Chemins.DOSSIER_ANIM}/fond/frame *.png",
+        f"{Constantes.Chemins.ANIM}/fond/frame *.png",
         Duree(s=.1), Pos(Jeu.centre_fenetre), loop=True, scale=True
     )
     while Jeu.etat == Jeu.Etat.ECRAN_TITRE:
@@ -135,7 +141,7 @@ def ecran_titre() -> None:
             bouton.draw(Jeu.fenetre)
         
         ButtonCursor.draw_cursors(Jeu.fenetre)
-        pygame.display.flip()
+        Jeu.display_flip()
     
     if Jeu.etat != Jeu.Etat.CREDITS:
         Jeu.changer_etat(Jeu.Etat.PREPARATION)
@@ -163,7 +169,7 @@ def credits(duree : Duree = Duree(s=5)) -> None:
         blit_centre(Jeu.fenetre, texte_credits , pos.tuple)
         blit_centre(Jeu.fenetre, texte_credits2, (pos + Vecteur(0, 30)).tuple)
         
-        pygame.display.flip()
+        Jeu.display_flip()
     Jeu.changer_etat(Jeu.precedent_etat)
 
 def game_over() -> None:
@@ -183,9 +189,9 @@ def game_over() -> None:
             Jeu.fenetre.blit(next(ecran_gen), (0, 0))
         except StopIteration:
             break
-        pygame.display.flip()
+        Jeu.display_flip()
     
-    if bool(param.fermer_a_la_fin):
+    if bool(params.fermer_a_la_fin):
         quit()
     
     joueur.reset_vie()
@@ -195,7 +201,7 @@ def game_over() -> None:
 def preparation() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.PREPARATION.name}.")
     
-    if not bool(param.mode_debug):
+    if not bool(params.mode_debug):
         # exception au principe de la boucle principale dans l'état
         # C'est juste plus simple et propre de faire comme ça ici
         Jeu.set_texte_fenetre("Who am I?")
@@ -207,4 +213,68 @@ def preparation() -> None:
         joueur.pseudo = "Testeur"
     
     Jeu.set_texte_fenetre("Combat!")
-    Jeu.changer_etat(Jeu.Etat.ATTENTE_NOUVEAU_COMBAT)
+    Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
+
+def shop() -> None:
+    logging.debug(f"Activation de l'état {Jeu.Etat.SHOP.name}.")
+    Jeu.set_texte_fenetre("I like shopping")
+    
+    sensibilite_scroll : float = 1
+    
+    # nombre d'éléments -> listes des abscisses
+    ABSCISSES_ITEMS : dict[int, tuple[int, ...]] = {
+        0: (),
+        1: (Jeu.pourcentage_largeur(50),),
+        2: (Jeu.pourcentage_largeur(33), Jeu.pourcentage_largeur(66)),
+        3: (Jeu.pourcentage_largeur(20), Jeu.pourcentage_largeur(50), Jeu.pourcentage_largeur(80)),
+    }
+    
+    # choisit 2 ou 3 items au hasard
+    items : list[Item] = [Item.item_aleatoire() for _ in range(random.randint(2, 3))]
+    
+    bouton_sortie : Button = Button(
+        (20, 20, Jeu.pourcentage_largeur(6), Jeu.pourcentage_largeur(6)),
+        img=f"{Constantes.Chemins.IMG}/retour.png",
+        action=Jeu.reset_etat,
+    )
+    
+    while Jeu.etat == Jeu.Etat.SHOP:
+        for ev in pygame.event.get():
+            verifier_pour_quitter(ev)
+            
+            # Changement d'item en mode débug
+            if ev.type == pygame.MOUSEWHEEL and bool(params.mode_debug):
+                index = Item.item_survole(items, ABSCISSES_ITEMS[len(items)])
+                if index is None: continue
+                
+                changement : int = round(ev.precise_y * sensibilite_scroll)
+                items[index] = Item(items[index].id + changement, permissif=True)
+                continue
+            
+            if ev.type == pygame.MOUSEBUTTONDOWN:
+                if ev.button in (4, 5): # empèche le scroll de compter pour un click
+                    continue
+                
+                if bouton_sortie.check_click(pygame.mouse.get_pos()):
+                    break
+                
+                index = Item.item_survole(items, ABSCISSES_ITEMS[len(items)])
+                if index is None: continue
+                
+                if joueur.prendre_item(items[index]):
+                    items.pop(index)
+        
+        Jeu.fenetre.fill(BLANC)
+        
+        bouton_sortie.draw(Jeu.menus_surf)
+        for item, abscisse in zip(items, ABSCISSES_ITEMS[len(items)]):
+            item.dessiner(Jeu.fenetre, round(abscisse))
+        
+        Jeu.display_flip()
+    
+    Jeu.num_combat += 1
+    Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
+
+#TODO: continuer le shop:
+#    - introduire monnaie
+#    - implémenter pour de vrai les items

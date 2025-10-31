@@ -1,4 +1,4 @@
-import parametres_vars as param
+import parametres_vars as params
 
 from Parametres import Parametre, TypeParametre
 from Stats      import Stat

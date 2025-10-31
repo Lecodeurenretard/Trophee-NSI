@@ -48,7 +48,7 @@ class Attaque:
     _DUREE_ENTRE_ATTAQUES : Duree = Duree(s=.5)
     
     CRIT_IMG : Surface = pygame.transform.scale(
-        pygame.image.load(f"{Constantes.Chemins.DOSSIER_IMG}/crit.png"),
+        pygame.image.load(f"{Constantes.Chemins.IMG}/crit.png"),
         (40, 40)
     )
     
@@ -108,7 +108,7 @@ class Attaque:
     
     @staticmethod
     def lancer_toutes_les_attaques_gen(surface: Surface) -> Generator[None, Optional[bool], None]:
-        if param.mode_debug.case_cochee:
+        if params.mode_debug.case_cochee:
             logging.debug("Début du lancement des attaques.")
         
         while not Attaque.attaques_du_tour.empty():
@@ -116,7 +116,7 @@ class Attaque:
             if attaque._lanceur.est_mort:
                 break
             
-            if param.mode_debug.case_cochee:
+            if params.mode_debug.case_cochee:
                 logging.debug(f"{attaque._lanceur.dbg_nom} (id: {attaque._lanceur.id}) utilise {attaque._nom} sur {attaque._cible.dbg_nom}.")
             
             debut_attaque : Duree = copy(Jeu.duree_execution)
@@ -144,7 +144,7 @@ class Attaque:
                     break
         
         
-        if bool(param.mode_debug):
+        if bool(params.mode_debug):
             logging.debug("Fin du lancement des attaques.")
             logging.debug("")
     

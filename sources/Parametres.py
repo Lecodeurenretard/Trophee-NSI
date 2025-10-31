@@ -270,6 +270,8 @@ class Parametre:
         match(self._categorie):
             case TypeParametre.CASE_A_COCHER:
                 if ev.type == pygame.MOUSEBUTTONDOWN and self._hitbox_globale.collidepoint(ev.pos):
+                    if ev.button in (4, 5): # empèche le scroll de compter pour un click
+                        return
                     self._valeur = not self._valeur
                     
                     if self._changement_utilisateur is not None:

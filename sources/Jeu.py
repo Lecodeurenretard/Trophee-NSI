@@ -1,6 +1,7 @@
 from imports import *
 from classes_utiles import Duree
 from Constantes import Touches
+from Constantes.Couleurs import TRANSPARENT
 
 def staticclass(cls : type) -> type:
     """Empèche les classes d'avoir un constructeur, on les force à être 'statiques'."""
@@ -27,7 +28,8 @@ class Jeu:
     """
     largeur : int = 800 ;   hauteur : int = 600
     centre_fenetre : tuple[int, int] = (largeur // 2, hauteur // 2)
-    MAX_COMBAT : int = 5
+    MAX_COMBAT : int = 10
+    DECISION_SHOP : Callable[[int], bool] = lambda num_combat: num_combat % 5 == 0 and num_combat != Jeu.MAX_COMBAT
     
     fenetre    : Surface = pygame.display.set_mode((largeur, hauteur))
     menus_surf : Surface = Surface((largeur, hauteur), pygame.SRCALPHA)
@@ -44,10 +46,11 @@ class Jeu:
     # Graphe des états: http://graphonline.top/fr/?graph=OMlRPwRCzhQxYjcl
     class Etat(Enum):
         DECISION_ETAT          = auto()
-        ATTENTE_NOUVEAU_COMBAT = auto()
+        ATTENTE_PROCHAINE_ETAPE = auto()
         CHOIX_ATTAQUE          = auto()
         AFFICHAGE_ATTAQUES     = auto()
         GAME_OVER              = auto()
+        SHOP                   = auto()
         
         ECRAN_TITRE            = auto()
         CREDITS                = auto()
@@ -70,6 +73,10 @@ class Jeu:
     def set_texte_fenetre(val : str) -> None:
         pygame.display.set_caption(val)
     
+    @classmethod
+    def reset_etat(cls) -> None:
+        """Indique que l'état du jeu doit être changé sous peu."""
+        Jeu.changer_etat(Jeu.Etat.DECISION_ETAT)
     @classmethod
     def changer_etat(cls, nouvel_etat : Etat) -> None:
         """Change l'état du jeu vers `nouvel_etat`."""
@@ -101,6 +108,15 @@ class Jeu:
         
         Jeu.largeur, Jeu.hauteur = nouvelle_taille
         Jeu.centre_fenetre = (Jeu.largeur // 2, Jeu.hauteur // 2)
+    
+    @staticmethod
+    def display_flip(reset_menu : bool = True) -> None:
+        """Met à jour le display et si `reset_menu` est actif, remplit `menus_surf` avec de la transparence."""
+        Jeu.fenetre.blit(Jeu.menus_surf, (0, 0))
+        pygame.display.flip()
+        
+        if reset_menu:
+            Jeu.menus_surf.fill(TRANSPARENT)
 
 
 # Le système d'overload est à la fois une bénédiction pour la fonctionnalité

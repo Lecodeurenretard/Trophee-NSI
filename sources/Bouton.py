@@ -3,12 +3,17 @@ from Curseur import *
 class Button:
     def __init__(
         self,
-        text : str, dim : tuple[int, int, int, int],
+        dim : tuple[int, int, int, int],
+        text : str = '', img : Optional[str] = None,
         action : Callable[[], None] | None = None,
         line_thickness : int = 1, bg_color : color = GRIS, line_color : color = NOIR
     ):
-        self._rect : Rect = Rect(*dim)
-        self._text : str = text
+        self._rect  : Rect = Rect(*dim)
+        self._text  : str  = text
+        self._image : Optional[Surface] = None
+        if img is not None:
+            self._image = pygame.image.load(img)
+            self._image = pygame.transform.scale(self._image, (dim[2], dim[3]))
         
         self._line_color : rgba = color_to_rgba(line_color)
         self._bg_color   : rgba = color_to_rgba(bg_color)
@@ -22,15 +27,17 @@ class Button:
         if self._line_size > 0:
             pygame.draw.rect(surface, self._line_color, self._rect, width=self._line_size)
         
-        text_surf : Surface = Constantes.Polices.FOURRE_TOUT.render(self._text, True, BLANC)
-        text_rect : Rect = text_surf.get_rect(center=self._rect.center)
-        
-        surface.blit(text_surf, text_rect)
+        surf : Surface; rect : Rect
+        if self._image is not None:
+            surface.blit(self._image, self._rect)
+        else:
+            surf = Constantes.Polices.FOURRE_TOUT.render(self._text, True, BLANC)
+            surface.blit(surf, surf.get_rect(center=self._rect.center))
     
     def check_click(self, pos_click : Pos|tuple[int, int]) -> bool:
         if type(pos_click) is Pos:
             pos_click = pos_click.tuple
-        if self._rect.collidepoint(pos_click) and self._action is not None:  #type:ignore
+        if self._rect.collidepoint(pos_click) and self._action is not None:  #type: ignore
             self._action()
             return True
         return False
@@ -61,7 +68,7 @@ class ButtonCursor(Button):
             - `group_name`: the group's name, if the group doesn't exists creates it
             - `group_color`: defines the color of the group's cursor (ignored if `group` already exists)
         """
-        super().__init__(text, dim, action=action, line_thickness=line_thickness, line_color=line_color, bg_color=bg_color)
+        super().__init__(dim, text=text, action=action, line_thickness=line_thickness, line_color=line_color, bg_color=bg_color)
         self._group_name = group_name
         
         cursor_pos : Pos = Pos(

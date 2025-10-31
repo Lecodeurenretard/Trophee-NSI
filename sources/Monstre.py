@@ -21,9 +21,9 @@ class TypeMonstre(Enum):
         """Renvoie le chemin vers le sprite du type de monstre correspondant."""
         match self:
             case TypeMonstre.Blob:
-                return f"{Constantes.Chemins.DOSSIER_IMG}/blob.png"
+                return f"{Constantes.Chemins.IMG}/blob.png"
             case TypeMonstre.Sorcier:
-                return f"{Constantes.Chemins.DOSSIER_IMG}/sorcier.png"
+                return f"{Constantes.Chemins.IMG}/sorcier.png"
             
             case _:
                 raise NotImplementedError("Type de monstre non implémenté.")
@@ -219,7 +219,7 @@ class Monstre:
         attaque.enregister_lancement(self._id, id_cible)
     
     def recoit_degats(self, dommages : int) -> None:
-        if bool(param.monstre_invincible) and dommages >= 0:
+        if bool(params.monstre_invincible) and dommages >= 0:
             return
         
         self._stats.baisser_vie(dommages)
@@ -229,12 +229,12 @@ class Monstre:
         return round(ratio * Constantes.UI_LONGUEUR_BARRE_DE_VIE)
     
     def dessiner(self, surface : Surface, pos_x : int, pos_y : int) -> None:
-        if param.mode_debug.case_cochee and self._couleur is not None:
+        if params.mode_debug.case_cochee and self._couleur is not None:
             boite_de_contours = (pos_x, pos_y, 100, 100)
             pygame.draw.rect(surface, self._couleur, boite_de_contours, 0)
             return
         
-        if not param.mode_debug.case_cochee and self._sprite is not None:
+        if not params.mode_debug.case_cochee and self._sprite is not None:
             blit_centre(surface, self._sprite, (pos_x, pos_y))
     
     def dessiner_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int):

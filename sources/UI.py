@@ -118,7 +118,6 @@ def dessiner_boutons_attaques() -> None:
         butt.draw(Jeu.menus_surf)
     ButtonCursor.draw_cursors(Jeu.menus_surf)
 
-# TODO: faire de ça une interruption
 def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> Interruption:
     LONGUEUR_BARRE : int = 700
     ratio_barre : float = 0
@@ -154,14 +153,21 @@ def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> I
 
 def ecran_nombre_combat() -> Generator[Surface, None, None]:
     texte_combat : Surface = Constantes.Polices.TITRE.render(f"Combat n°{Jeu.num_combat}", True, NOIR)
-    
-    image = Surface(Jeu.fenetre.get_size())
-    image.fill(BLANC)
-    blit_centre(image, texte_combat, Jeu.centre_fenetre)
+    texte_shop   : Surface = Constantes.Polices.TITRE.render(f"Shop", True, NOIR)
+    image : Surface = Surface(Jeu.fenetre.get_size())
     
     logging.info("")
     logging.info("")
-    logging.info(f"Début combat numéro {Jeu.num_combat}")
+    if Jeu.DECISION_SHOP(Jeu.num_combat):
+        image.fill(CYAN)
+        blit_centre(image, texte_shop, Jeu.centre_fenetre)
+        
+        logging.info(f"Entrée dans le shop de la zone {Jeu.num_combat}.")
+    else:
+        image.fill(BLANC)
+        blit_centre(image, texte_combat, Jeu.centre_fenetre)
+        
+        logging.info(f"Début combat numéro {Jeu.num_combat}.")
     return image_vers_generateur(image, Duree(s=2), gerer_evenements=True)
 
 
@@ -202,8 +208,5 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     # ...
     dessiner_boutons_attaques()
     
-    # On oublie pas d'intégrer les menus
-    Jeu.fenetre.blit(Jeu.menus_surf, (0, 0))
-    
     # Mettre à jour l'affichage
-    pygame.display.flip()
+    Jeu.display_flip()

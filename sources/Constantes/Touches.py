@@ -16,6 +16,8 @@ DBG_PROCHAIN_COMBAT   : int = pygame.K_z
 DBG_PREDECENT_MONSTRE : int = pygame.K_q
 DBG_PROCHAIN_MONSTRE  : int = pygame.K_d
 
+DBG_SHOP              : int = pygame.K_p
+
 INFOS                 : int = pygame.K_i
 SETTINGS              : int = pygame.K_TAB
 

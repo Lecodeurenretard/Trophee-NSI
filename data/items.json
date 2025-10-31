@@ -1,0 +1,56 @@
+[
+    {
+        "nom": "exemple",
+        "description": "Cet objet n'est pas fait pour être utilisé, il sert à montrer ce qu'il est possible de faire.",
+        "effets": {
+            "message utilisateur": "Le message indiquant au joueur les effets de l'item.",
+            "stats": {
+                "vie_max"        : 0,
+                "force"          : 0,
+                "defense"        : 0,
+                "magie"          : 0,
+                "defense_magique": 0,
+                "vitesse"        : 0,
+                "crit_puissance" : 0,
+                "crit_resitance" : 0,
+                "vie"            : 0
+            }
+        },
+        "sprite": "Le chemin de l'image à partir de /data/img/item/ ."
+    },
+    {
+        "nom": "Teto maigre",
+        "description": "Cet objet te rappelles de ta propre mortalité. Le chéchir ne t'apportera rien d'autre que de la détermination.",
+        "effets": {
+            "message utilisateur": "force augmentée",
+            "stats": {
+                "force": 10
+            }
+        },
+        "sprite": "placeholder1.png"
+    },
+    {
+        "nom": "Peluche d'Hornet",
+        "description": "Le pouvoir de faire crash les serveurs de Steam... entre tes main....",
+        "effets": {
+            "message utilisateur": "force, magie et puissance des crits augmentées.",
+            "stats": {
+                "force": 30,
+                "magie": 30,
+                "crit_puissance": 20
+            }
+        },
+        "sprite": "placeholder2.png"
+    },
+    {
+        "nom": "Le masque de pierre",
+        "description": "Tu sentirais presque une sorte de sang fantôme dessus.",
+        "effets": {
+            "message utilisateur": "Régénération",
+            "stats": {
+                "regen": true
+            }
+        },
+        "sprite": "placeholder3.png"
+    }
+]
