@@ -16,7 +16,8 @@
                 "vie"            : 0
             }
         },
-        "sprite": "Le chemin de l'image à partir de /data/img/item/ ."
+        "sprite": "Le chemin de l'image à partir de /data/img/item/ .",
+        "prix": null
     },
     {
         "nom": "Teto maigre",
@@ -27,7 +28,8 @@
                 "force": 10
             }
         },
-        "sprite": "placeholder1.png"
+        "sprite": "placeholder1.png",
+        "prix": 3
     },
     {
         "nom": "Peluche d'Hornet",
@@ -40,7 +42,8 @@
                 "crit_puissance": 20
             }
         },
-        "sprite": "placeholder2.png"
+        "sprite": "placeholder2.png",
+        "prix": 7
     },
     {
         "nom": "Le masque de pierre",
@@ -51,6 +54,7 @@
                 "regen": true
             }
         },
-        "sprite": "placeholder3.png"
+        "sprite": "placeholder3.png",
+        "prix": 10
     }
 ]

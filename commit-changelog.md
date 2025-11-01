@@ -35,39 +35,41 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Ajout d'un shop primitif
+## Ajout du capitalisme
 + Changements majeurs
-	- Ajout du fichier pour objets [items.json](data/items.json).
-	- Ajout d'une classe `Item`.
-		* Ajout du fichier [Item.py](sources/Item.py).
-	- Ajout état `shop`.
+	- Ajout d'un système d'argent (pièces).
+		* Ajout attribut `._nombre_pieces` et propriété `.nb_pieces`.
+		* Ajout des méthodes `.gagner_pieces()` et `.paiement()`.
+	- Les objets ont maintenant un prix.
+		* Ajout de l'attribut `prix` aux instances de `Item`.
+	- Les monstres ont maintenant une hierarchie;
+		* Ajout de la propriété `.classe()` à `TypeMonstre` (pour l'instant ne sert qu'aux nombre de pièces lachées mais obtiendra un rôle dans le spawn).
 + Sur plusieurs fichiers
-	- Renommage de l'état `attente_nouveau_combat` vers `attente_prochaine_etape`.
 + Structure de fichiers
-	- Ajout des sprites des items id [1](data/img/items/placeholder1.png), [2](data/img/items/placeholder2.png) et [3](data/img/items/placeholder3.png).
-	- Ajout des images de boutons [croix.png](data/img/croix.png) et [retour.png](data/img/retour.png).
 + READMEs et documentation
+	- Les touches ont été mises à jour dans le [README](sources/README.md) de [sources/](sources/).
 + Interactions joueur/testeur
-	- Ajout d'une image de croix au lieu du X.
-	- Ajout la touche 'p' skip jusqu'au prochain shop.
-	- Ajout d'un shop tous les 5 combats (un shop ne peut pas être le dernier combat).
-	- Le dernier combat est le 10<sup>me</sup>
+	- Ajout d'une animation pour indiqué que le joueur à gagné des pièces.
+	- Le shop à maintenant un cadre montrant les objets et l'argent du joueur.
+	- Nouveau paramètre de triche: argent illimité.
 + Correction de bugs
-+ [Chemins.py](sources/Constantes/Chemins.py)
-	- Suppression du préfixe `DOSSIER_` sur les constantes de chemin.
-+ [Touches.py](sources/Constantes/Touches.py)
-	- Ajout de la constante `DBG_SHOP`.
-+ `Button`
-	- Modification de la classe pour qu'elle supporte l'affichage d'image.
-+ [fonctions_vrac.py](sources/fonctions_vrac.py)
-	- Ajout des paramètres `centrer_x` et `centrer_y` à tous les _overloads_ de `centrer_pos()`.
-	- Ajout de `dessiner_texte()` qui permet d'afficher du texte avec du _line wrapping_.
+	- `MultiInterpolation.calculer_valeur()` et implémentations ne crashent plus quand `t=1`.
+		* Amélioration du message d'erreur si `t > 1`.
+	- Les hitbox pour interagir avec les objets dans le shop sont maintenant correctes.
++ [Animation.py](sources/classes_utiles/Animation.py)
+	- Les méthodes `.generateur()` finissent maintenant par `t=1`.
+	- Ajout de paramètres `easing_funs[]` sur les méthodes `.generateur()`.
+	- Renommage des paramètres `easing` en `easing_fun` sur les méthodes `.generateur()`.
++ [EasingConstants.py](sources/classes_utiles/EasingConstants.py)
+	- Ajout de variantes `*_IN` et `*_OUT` à toutes les constantes.
++ [Couleurs.py](sources/Constantes/Couleurs.py)
+	- Ajout de la constante `JAUNE_PIECE`.
++ [fonctions_main.py](sources/fonctions_main.py)
+	- Ajout de l'interruption `animation_argent_gagne()`.
+	- Ajout des fonctions `gerer_evenement_shop()` et `dessine_nombre_pieces()` pour éviter de trop encombrer `shop()`.
+	- Séparation de `reagir_appui_touche()` en deux: la partie générale (`reagir_appui_touche()`) et celle spécifique à `choix_attaque()` (`reagir_appui_touche_choix_attaque()`).
 + `Jeu`
-	- Ajout variable `DECISION_SHOP`.
-	- Ajout méthode `reset_etat()`.
-	- Ajout méthode `display_flip()` pour que `menu_surf` soit toujours render.
+	- Ajout de `decision_etat_en_cours()`.
+	- `reset_etat()` ne modifie plus `precedent_etat`.
 + `Joueur`
-	- Ajout d'un inventaire.
-		* Ajout attribut `._inventaire[]` et méthodes `.prendre_item()` et `.lacher_item()`.
-+ `Stat`
-	- Ajout méthode `depuis_dictionnaire_json()` permettant de transformer un dictionnaire en objet `Stat`.
+	- Ajout de la propriété `.inventaire[]`.

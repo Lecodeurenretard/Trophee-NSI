@@ -152,22 +152,22 @@ def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> I
 
 
 def ecran_nombre_combat() -> Generator[Surface, None, None]:
-    texte_combat : Surface = Constantes.Polices.TITRE.render(f"Combat n°{Jeu.num_combat}", True, NOIR)
+    texte_combat : Surface = Constantes.Polices.TITRE.render(f"Combat n°{Jeu.num_etape}", True, NOIR)
     texte_shop   : Surface = Constantes.Polices.TITRE.render(f"Shop", True, NOIR)
     image : Surface = Surface(Jeu.fenetre.get_size())
     
     logging.info("")
     logging.info("")
-    if Jeu.DECISION_SHOP(Jeu.num_combat):
+    if Jeu.DECISION_SHOP(Jeu.num_etape):
         image.fill(CYAN)
         blit_centre(image, texte_shop, Jeu.centre_fenetre)
         
-        logging.info(f"Entrée dans le shop de la zone {Jeu.num_combat}.")
+        logging.info(f"Entrée dans le shop de la zone {Jeu.num_etape}.")
     else:
         image.fill(BLANC)
         blit_centre(image, texte_combat, Jeu.centre_fenetre)
         
-        logging.info(f"Début combat numéro {Jeu.num_combat}.")
+        logging.info(f"Début combat numéro {Jeu.num_etape}.")
     return image_vers_generateur(image, Duree(s=2), gerer_evenements=True)
 
 

@@ -8,6 +8,7 @@ class Item:
     nom            : str
     description    : str
     sprite         : Surface
+    prix           : int
     effet_affiche  : str
     stats_changees : Stat
     
@@ -32,9 +33,13 @@ class Item:
         self.description = item["description"]
         self.sprite      = pygame.image.load(f"{Constantes.Chemins.IMG}/items/{item["sprite"]}")
         self.sprite      = pygame.transform.scale(self.sprite, self.DIMENSIONS_SPRITES)
+        self.prix        = item["prix"] if item["prix"] is not None else 0
         
         self.effet_affiche  = item["effets"]["message utilisateur"]
         self.stats_changees = Stat.depuis_dictionnaire_json(item["effets"]["stats"], valeur_par_defaut=0)   # sera ajouté/enlevé aux stats correspondantes du joueur.
+    
+    def __str__(self):
+        return self.nom
     
     def __eq__(self, value : 'Item'):
         return self.id == value.id
@@ -69,7 +74,10 @@ class Item:
     def item_survole(liste_item : 'list[Item]|tuple[Item, ...]', abscisses : list[int]|tuple[int, ...]) -> Optional[int]:
         """Renvoie l'index de l'item survolé ou None si aucun ne l'est."""
         for i, item in enumerate(liste_item):
-            decalage = Vecteur(abscisses[i] - Item.DIMENSIONS_SPRITES[0]//2, Item.ORDONEE_SPRITE)
+            decalage = Vecteur(
+                abscisses[i]        - Item.DIMENSIONS_SPRITES[0]//2,
+                Item.ORDONEE_SPRITE - Item.DIMENSIONS_SPRITES[1]//2
+            )
             hitbox = translation(item.sprite.get_bounding_rect(), decalage)
             
             if hitbox.collidepoint(pygame.mouse.get_pos()):
@@ -77,31 +85,40 @@ class Item:
         return None
     
     def dessiner(self, surface : Surface, abscisses : int, centre : bool = True) -> None:
+        LARGEUR_SPRITE : int = self.sprite.get_bounding_rect().width
+        HAUTEUR_SPRITE : int = self.sprite.get_bounding_rect().height
+        
+        nom  : Surface = Constantes.Polices.TITRE.render(self.nom, True, NOIR)
+        prix : Surface = Constantes.Polices.TEXTE.render(f"{self.prix} pieces", True, JAUNE_PIECE)
+        
         pos_sprite : tuple[int, int] = (abscisses, Item.ORDONEE_SPRITE)
         pos_nom    : tuple[int, int] = (abscisses, Jeu.pourcentage_hauteur(50))
+        pos_prix   : tuple[int, int] = (
+            abscisses + LARGEUR_SPRITE - prix.get_bounding_rect().width + 25,
+            Item.ORDONEE_SPRITE - HAUTEUR_SPRITE // 2
+        )
         rect_effet : tuple[int, int, int, int] = (
             abscisses, Jeu.pourcentage_hauteur(53),
-            self.sprite.get_bounding_rect().width, Jeu.pourcentage_hauteur(5)
+            LARGEUR_SPRITE, Jeu.pourcentage_hauteur(5)
         )
         rect_desc  : tuple[int, int, int, int] = (
             abscisses, Jeu.pourcentage_hauteur(60),
-            self.sprite.get_bounding_rect().width, Jeu.pourcentage_hauteur(40)
+            LARGEUR_SPRITE, Jeu.pourcentage_hauteur(40)
         )
         
-        
-        nom : Surface = Constantes.Polices.TITRE.render(self.nom, True, NOIR)
         if centre:
             blit_centre(surface, self.sprite, pos_sprite)
             blit_centre(surface, nom, pos_nom)
+            blit_centre(surface, prix, pos_prix)
             
             dessiner_texte(surface, self.effet_affiche, NOIR, centrer_pos(rect_effet, centrer_y=False), Constantes.Polices.TEXTE)
             dessiner_texte(surface, self.description  , NOIR, centrer_pos(rect_desc , centrer_y=False), Constantes.Polices.TEXTE)
         else:
             surface.blit(self.sprite, pos_sprite)
             surface.blit(nom, pos_nom)
+            surface.blit(prix, pos_prix)
             
             dessiner_texte(surface, self.effet_affiche, NOIR, rect_effet, Constantes.Polices.TEXTE)
             dessiner_texte(surface, self.description, NOIR, rect_desc, Constantes.Polices.TEXTE)
 
 Item.actualiser_items()
-print(Item.item_aleatoire())

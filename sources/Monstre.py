@@ -46,6 +46,17 @@ class TypeMonstre(Enum):
             case _:
                 raise NotImplementedError("Type de monstre non implémenté.")
     
+    @property
+    def classe(self) -> int:
+        """Une mesure arbitraire pour indiquer à quel point le monstre est fort."""
+        match self:
+            case TypeMonstre.Blob:
+                return 0
+            case TypeMonstre.Sorcier:
+                return 0
+            case _:
+                raise NotImplementedError("Type de monstre non implémenté.")
+    
     def type_precedent(self) -> 'TypeMonstre':
         if self.value == 1:     # minimum value
             return TypeMonstre(len(TypeMonstre))
@@ -141,10 +152,18 @@ class Monstre:
         logging.warning("La fonction Monstre._enlever_monstre_a_liste() à été appellée sur un monstre pas dans la liste dans Monstre.monstres_en_vie[].")
     
     @staticmethod
-    def tuer_les_monstres_morts() -> None:
+    def tuer_les_monstres_morts() -> list['Monstre']:
+        """
+        Appelle la méthode `.meurt()` sur les monstres dont la propriété `.est_mort` est True.
+        Renvoie la liste des monstres morts.
+        """
+        echafaud : list[Monstre] = []   # Quand les monstres seront enlevés de la liste, ils seront "exécutés" par le rammasse-miette
         for monstre in Monstre.monstres_en_vie:
             if monstre.est_mort:
                 monstre.meurt()
+                echafaud.append(monstre)
+        
+        return echafaud
     
     @staticmethod
     def spawn(proba : Optional[dict[TypeMonstre, float]] = None) -> 'Monstre':
@@ -187,6 +206,12 @@ class Monstre:
     @property
     def pos_curseur(self) -> Pos:
         return Pos(0, 0)
+    
+    @property
+    def classe(self) -> Optional[int]:
+        if self._type is not None:
+            return self._type.classe
+        return None
     
     # même raisonnement que dans Joueur
     def meurt(self) -> None:

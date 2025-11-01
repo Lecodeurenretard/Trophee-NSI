@@ -32,7 +32,7 @@ mode_debug : Parametre = Parametre(
     menu_h.send(TypeParametre.CASE_A_COCHER.hauteur),
     TypeParametre.CASE_A_COCHER,
     False,
-    on_change=_on_mode_debug_change # type: ignore # on est certain que la valeur passée est un booléen
+    on_change=_on_mode_debug_change, # type: ignore # on est certain que la valeur passée est un booléen
 )
 _on_mode_debug_change(bool(mode_debug))
 
@@ -44,13 +44,20 @@ joueur_invincible = Parametre(
     "joueur invicible",
     menu_h.send(TypeParametre.CASE_A_COCHER.hauteur),
     TypeParametre.CASE_A_COCHER,
-    False
+    False,
 )
 monstre_invincible = Parametre(
     "monstre invicible",
     menu_h.send(TypeParametre.CASE_A_COCHER.hauteur),
     TypeParametre.CASE_A_COCHER,
-    False
+    False,
+)
+
+argent_infini = Parametre(
+    "Argent illimité",
+    menu_h.send(TypeParametre.CASE_A_COCHER.hauteur),
+    TypeParametre.CASE_A_COCHER,
+    False,
 )
 
 
@@ -64,4 +71,5 @@ PARAMETRES_NORMAUX : list[Parametre] = [
 PARAMETRES_TRICHE : list[Parametre] = [
     joueur_invincible,
     monstre_invincible,
+    argent_infini,
 ]

@@ -13,6 +13,8 @@ Touches qui marchent dans tous les modes:
 ___
 Touches qui marchent seulement en mode débug:
 - Crits garantis: c
+- Skip jusqu'à un shop: p
+- Changer les items du shop: scroll de la molette
 - Skip les temps d'attente:
 	+ espace
 - Changer de combat:

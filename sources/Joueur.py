@@ -10,7 +10,8 @@ class Joueur:
         self._stats   : Stat               = Joueur._STATS_DE_BASE
         self._pseudo  : str                = ""
         self._moveset : dict[str, Attaque] = moveset
-        self._inventaire : list[Item]      = inventaire
+        self._inventaire    : list[Item]   = inventaire
+        self._nombre_pieces : int          = 0
         
         self.afficher : bool = True
         
@@ -49,6 +50,14 @@ class Joueur:
     @property
     def stats(self) -> Stat:
         return copy(self._stats)
+    
+    @property
+    def nb_pieces(self) -> int:
+        return self._nombre_pieces
+    
+    @property
+    def inventaire(self) -> list[Item]:
+        return copy(self._inventaire)
     
     @property
     def moveset_clefs(self) -> tuple[str, ...]:
@@ -142,6 +151,31 @@ class Joueur:
             self._inventaire.remove(item)
             return True
         return False
+    
+    def gagner_pieces(self, gagne : int) -> None:
+        """Donne `gagne` pieces au joueur peu importe les options de triches."""
+        self._nombre_pieces += gagne
+        self._nombre_pieces = max(0, self._nombre_pieces)
+    def paiement(self, prelevement : int, payer_max : bool = True) -> int:
+        """
+        `gagner_pieces()` mais enlève des pièces et respecte les paramètres de triches.
+        Si `payer_max` est n'est pas actif, aucune piece ne sera enlevé au porte-monnaie du joueur s'il ne peut pas payer.
+        Si le paramètre "argent infini" est actif, le joueur ne perd pas d'argent et la fonction renvoie 0.
+        Renvoie Le nombre de pieces restantes à payer.
+        """
+        if params.argent_infini.case_cochee:
+            return 0
+        
+        apres_payement : int = self._nombre_pieces - prelevement
+        if apres_payement < 0 and not payer_max:
+            return prelevement
+        if apres_payement < 0:
+            self._nombre_pieces = 0
+            return -apres_payement
+        
+        self._nombre_pieces = apres_payement
+        return 0
+
 
 joueur : Joueur = Joueur({
     "heal":     ATTAQUES_DISPONIBLES["heal"],

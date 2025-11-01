@@ -34,7 +34,7 @@ class Jeu:
     fenetre    : Surface = pygame.display.set_mode((largeur, hauteur))
     menus_surf : Surface = Surface((largeur, hauteur), pygame.SRCALPHA)
     
-    num_combat          : int   = 1
+    num_etape          : int   = 1
     a_gagne             : bool = False
     
     duree_execution     : Duree = Duree()
@@ -74,9 +74,12 @@ class Jeu:
         pygame.display.set_caption(val)
     
     @classmethod
+    def decision_etat_en_cours(cls) -> bool:
+        return Jeu.etat == Jeu.Etat.DECISION_ETAT
+    @classmethod
     def reset_etat(cls) -> None:
         """Indique que l'état du jeu doit être changé sous peu."""
-        Jeu.changer_etat(Jeu.Etat.DECISION_ETAT)
+        Jeu.etat = Jeu.Etat.DECISION_ETAT   # on ne veut pas enregistrer DECISION_ETAT dans precedent_etat
     @classmethod
     def changer_etat(cls, nouvel_etat : Etat) -> None:
         """Change l'état du jeu vers `nouvel_etat`."""

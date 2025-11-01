@@ -20,6 +20,8 @@ JAUNE      : rgb = (255, 255, 0)
 TRANSPARENT : rgba = (0, 0, 0, 0)
 
 
+JAUNE_PIECE : rgb = (230, 226, 0)
+
 
 def rgb_to_rgba(couleur : rgb, nouvelle_transparence : int = 255) -> rgba:
     """Convertit une couleur RGB en RGBA. La transparence a donner à la nouvelle couleur est `nouvelle_transparence`."""

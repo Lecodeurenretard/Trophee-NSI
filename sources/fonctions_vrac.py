@@ -145,6 +145,7 @@ def dessiner_texte(
             aa : bool = False,
             ecart_entre_lignes : int = -2,
             arriere_plan : Optional[color] = None,
+            dessiner_boite : bool = False,
     ) -> str:
     """
     Dessine le texter `surface` en le gardant dans `rect`. Il sera de couleur `couleur` et de police `police`. Si le texte est trop long ou est trop grand, ne blit que le début.
@@ -189,6 +190,9 @@ def dessiner_texte(
         
         # Enlève le texte que l'on vient de dessiner
         texte = texte[dernier_index_a_render:]
+    
+    if dessiner_boite:
+        pygame.draw.rect(surface, ROUGE, espace_ecriture, 2)
     
     return texte
 

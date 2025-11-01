@@ -10,7 +10,7 @@ from Bouton import Button
 def attente_prochaine_etape() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.ATTENTE_PROCHAINE_ETAPE.name}.")
     
-    initialiser_nouveau_combat(Jeu.num_combat)
+    initialiser_nouveau_combat(Jeu.num_etape)
     ecran_gen : Generator[Surface, None, None] = ecran_nombre_combat()
    
     while True:
@@ -24,7 +24,7 @@ def attente_prochaine_etape() -> None:
             break
         Jeu.display_flip()
     
-    if Jeu.DECISION_SHOP(Jeu.num_combat):
+    if Jeu.DECISION_SHOP(Jeu.num_etape):
         Jeu.changer_etat(Jeu.Etat.SHOP)
         return
     
@@ -34,41 +34,32 @@ def choix_attaque() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.CHOIX_ATTAQUE.name}.")
     
     ButtonCursor.enable_drawing("Attaques")
-    interruption_gen : Optional[Interruption] = None
+    interruption : Optional[Interruption] = None
     
-    finir : bool = False
-    while not finir:
+    while Jeu.etat == Jeu.Etat.CHOIX_ATTAQUE:
         Jeu.commencer_frame()
-        if interruption_gen is not None:
-            try:
-                Jeu.fenetre.blit(next(interruption_gen), (0, 0))
-                Jeu.display_flip()
-            except StopIteration:
-                interruption_gen = None
-            continue
+        if interruption is not None:
+            terminer_interruption(interruption)
         
         for event in pygame.event.get():
             verifier_pour_quitter(event)
+            interruption = reagir_appui_touche_choix_attaque(event)
+            if interruption is not None: break
+            
             if event.type != pygame.KEYDOWN and event.type != pygame.MOUSEBUTTONDOWN:
                 continue
             
             # Si le joueur attaque...
             if ButtonCursor.handle_inputs(boutons_attaques, event):
                 monstres_attaquent()
-                finir = True
+                Jeu.reset_etat()
                 break
-            
-            if event.type == pygame.KEYDOWN:
-                interruption_gen = reagir_appui_touche(event)
-                if Jeu.etat != Jeu.Etat.CHOIX_ATTAQUE:
-                    ButtonCursor.disable_drawing("Attaques")
-                    return
-                continue
         
         rafraichir_ecran()
     
     ButtonCursor.disable_drawing("Attaques")
-    Jeu.changer_etat(Jeu.Etat.AFFICHAGE_ATTAQUES)
+    if Jeu.decision_etat_en_cours():
+        Jeu.changer_etat(Jeu.Etat.AFFICHAGE_ATTAQUES)
 
 def affichage_attaques() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.AFFICHAGE_ATTAQUES.name}.")
@@ -81,20 +72,28 @@ def affichage_attaques() -> None:
         
         rafraichir_ecran(attaque_gen, to_send_dessin=skip)
     
-    # Check pour les monstres morts
-    Monstre.tuer_les_monstres_morts()
+    if joueur.est_mort:
+        Jeu.a_gagne = False
+        Jeu.changer_etat(Jeu.Etat.GAME_OVER)
+        return
+    
+    pieces_gagnees : int = 0
+    for monstre in Monstre.tuer_les_monstres_morts():
+        assert(monstre.classe is not None), "Le monstre n'avait aucun type."
+        pieces_gagnees += 2**monstre.classe + random.randint(1, 4)  # Dites non au décalage de bit et exponentiez
+    
+    if pieces_gagnees != 0:
+        terminer_interruption(animation_argent_gagne(pieces_gagnees))
+        joueur.gagner_pieces(pieces_gagnees)
+    
     if len(Monstre.monstres_en_vie) == 0:
-        if not joueur_gagne():
-            Jeu.num_combat += 1
+        # Changement de combat
+        if not victoire_joueur():
+            Jeu.num_etape += 1
             Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
             return
         
         Jeu.a_gagne = True
-        Jeu.changer_etat(Jeu.Etat.GAME_OVER)
-        return
-    
-    if joueur.est_mort:
-        Jeu.a_gagne = False
         Jeu.changer_etat(Jeu.Etat.GAME_OVER)
         return
     
@@ -195,7 +194,7 @@ def game_over() -> None:
         quit()
     
     joueur.reset_vie()
-    Jeu.num_combat = 1
+    Jeu.num_etape = 1
     Jeu.changer_etat(Jeu.Etat.ECRAN_TITRE)
 
 def preparation() -> None:
@@ -219,14 +218,29 @@ def shop() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.SHOP.name}.")
     Jeu.set_texte_fenetre("I like shopping")
     
-    sensibilite_scroll : float = 1
+    INVENTAIRE_EPAISSEUR_TRAIT : int = 2
+    INVENTAIRE_LARGEUR : int = 100 + INVENTAIRE_EPAISSEUR_TRAIT
+    INVENTAIRE_BOITE : Rect = Rect(
+        Jeu.largeur - INVENTAIRE_LARGEUR + INVENTAIRE_EPAISSEUR_TRAIT,
+        -INVENTAIRE_EPAISSEUR_TRAIT,
+        INVENTAIRE_LARGEUR,
+        Jeu.hauteur + INVENTAIRE_EPAISSEUR_TRAIT * 2
+    )
     
-    # nombre d'éléments -> listes des abscisses
-    ABSCISSES_ITEMS : dict[int, tuple[int, ...]] = {
+    # nombre d'éléments -> listes des abscisses (pour une fenêtre de dimension 100x100)
+    ABSCISSES_RELATIVE_ITEMS : dict[int, tuple[float, ...]] = {
         0: (),
-        1: (Jeu.pourcentage_largeur(50),),
-        2: (Jeu.pourcentage_largeur(33), Jeu.pourcentage_largeur(66)),
-        3: (Jeu.pourcentage_largeur(20), Jeu.pourcentage_largeur(50), Jeu.pourcentage_largeur(80)),
+        1: (50,),
+        2: (33, 66),
+        3: (20, 50, 80),
+    }
+    # nombre d'éléments -> listes des abscisses (avec les dimensions de la fenêtre)
+    ABSCISSES_ITEMS : dict[int, tuple[int, ...]] = {
+        nb_elements: tuple([
+            round(pc_abcisse * (Jeu.largeur - INVENTAIRE_BOITE.width) / 100)  # Convertit les pourcentages en vraies valeurs
+            for pc_abcisse in liste_abscisses   # pc pour pourcentage
+        ])                                                               # (prend en compte la taille de l'inventaire)
+        for nb_elements, liste_abscisses in ABSCISSES_RELATIVE_ITEMS.items()
     }
     
     # choisit 2 ou 3 items au hasard
@@ -238,43 +252,49 @@ def shop() -> None:
         action=Jeu.reset_etat,
     )
     
+    interruption : Optional[Interruption] = None
     while Jeu.etat == Jeu.Etat.SHOP:
-        for ev in pygame.event.get():
-            verifier_pour_quitter(ev)
-            
-            # Changement d'item en mode débug
-            if ev.type == pygame.MOUSEWHEEL and bool(params.mode_debug):
-                index = Item.item_survole(items, ABSCISSES_ITEMS[len(items)])
-                if index is None: continue
-                
-                changement : int = round(ev.precise_y * sensibilite_scroll)
-                items[index] = Item(items[index].id + changement, permissif=True)
-                continue
-            
-            if ev.type == pygame.MOUSEBUTTONDOWN:
-                if ev.button in (4, 5): # empèche le scroll de compter pour un click
-                    continue
-                
-                if bouton_sortie.check_click(pygame.mouse.get_pos()):
-                    break
-                
-                index = Item.item_survole(items, ABSCISSES_ITEMS[len(items)])
-                if index is None: continue
-                
-                if joueur.prendre_item(items[index]):
-                    items.pop(index)
+        Jeu.commencer_frame()
+        if interruption is not None:
+            terminer_interruption(interruption)
+        gerer_evenement_shop(items, bouton_sortie, ABSCISSES_ITEMS[len(items)])
+        
         
         Jeu.fenetre.fill(BLANC)
         
+        # Dessine l'inventaire du joueur
+        dessiner_rect(
+            Jeu.fenetre,
+            INVENTAIRE_BOITE.topleft, INVENTAIRE_BOITE.size,
+            couleur_remplissage=GRIS, couleur_bords=NOIR,
+            epaisseur_trait=INVENTAIRE_EPAISSEUR_TRAIT
+        )
+        
+        # Dessine l'argent du joueur
+        dessine_nombre_pieces(INVENTAIRE_BOITE)
+        
+        # Dessine des items dans l'inventaire
+        y : int = Jeu.pourcentage_hauteur(5) + 55
+        for item in joueur.inventaire:
+            icone : Surface = pygame.transform.scale_by(
+                item.sprite,
+                (INVENTAIRE_BOITE.width - 20) / item.sprite.get_rect().width
+            )
+            Jeu.menus_surf.blit(
+                icone,
+                (INVENTAIRE_BOITE.left, y)
+            )
+            y += icone.get_bounding_rect().height + 10
+        
         bouton_sortie.draw(Jeu.menus_surf)
-        for item, abscisse in zip(items, ABSCISSES_ITEMS[len(items)]):
-            item.dessiner(Jeu.fenetre, round(abscisse))
+        for item, pourcentage_abscisse in zip(items, ABSCISSES_ITEMS[len(items)]):
+            item.dessiner(Jeu.fenetre, pourcentage_abscisse)
         
         Jeu.display_flip()
     
-    Jeu.num_combat += 1
-    Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
+    Jeu.num_etape += 1
+    if Jeu.decision_etat_en_cours():
+        Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
 
 #TODO: continuer le shop:
-#    - introduire monnaie
 #    - implémenter pour de vrai les items
