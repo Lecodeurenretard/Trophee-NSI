@@ -188,7 +188,7 @@ def gerer_evenement_shop(items : list[Item], bouton_sortie : Button, abcisses : 
                 items.pop(index)
 
 
-def dessine_nombre_pieces(boite_inventaire : Rect, ordonnees : int = Jeu.pourcentage_hauteur(5)) -> None:
+def dessiner_nombre_pieces(boite_inventaire : Rect, ordonnees : int = Jeu.pourcentage_hauteur(5)) -> None:
     if params.argent_infini.case_cochee:
         dessiner_texte(
             Jeu.menus_surf,

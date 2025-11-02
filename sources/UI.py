@@ -171,7 +171,48 @@ def ecran_nombre_combat() -> Generator[Surface, None, None]:
     return image_vers_generateur(image, Duree(s=2), gerer_evenements=True)
 
 
+def dessiner_descriptions_entites(surface : Surface) -> None:
+    """Dessine les infos quand on appuie sur F9."""
+    for i, entite in enumerate(globales.entites_vivantes):
+        dessiner_texte(
+            surface,
+            entite.decrire(),
+            rgb_to_rgba(GRIS_CLAIR, transparence=128),
+            (
+                Jeu.pourcentage_largeur(33) * i,
+                0,
+                Jeu.pourcentage_largeur(33),
+                Jeu.hauteur
+            ),
+            Constantes.Polices.TEXTE,
+            aa=True,
+            ecart_entre_lignes=5
+        )
+def dessiner_diff_stats_joueur(surface : Surface) -> None:
+    """Dessine les gains/pertes par rapport aux stats de bases."""
+    differences : dict[str, float] = {
+        "vie maximum"        : joueur.stats.vie_max        - Joueur.STATS_DE_BASE.vie_max,
+        "force"              : joueur.stats.force          - Joueur.STATS_DE_BASE.force,
+        "défense"            : joueur.stats.defense        - Joueur.STATS_DE_BASE.defense,
+        "magie"              : joueur.stats.magie          - Joueur.STATS_DE_BASE.magie,
+        "défense magique"   : joueur.stats.defense_magique - Joueur.STATS_DE_BASE.defense_magique,
+        "vitesse"            : joueur.stats.vitesse        - Joueur.STATS_DE_BASE.vitesse,
+        "puissance des crits": joueur.stats.crit_puissance - Joueur.STATS_DE_BASE.crit_puissance,
+        "resitance aux crits": joueur.stats.crit_resitance - Joueur.STATS_DE_BASE.crit_resitance,
+    }
+    
+    y = 0
+    for stat, diff in differences.items():
+        coul  = GRIS_CLAIR
+        if diff < 0: coul = ROUGE
+        if diff > 0: coul = VERT
+        
+        txt = Constantes.Polices.TEXTE.render(f"{stat}: {int(diff):+d}", True, coul)
+        surface.blit(txt, (10, y))
+        y += txt.get_rect().height + 5
+
 def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = [], to_send_dessin : Any = None, to_send_UI : Any = None) -> None:
+
     # Effacer l'écran en redessinant l'arrière-plan
     Jeu.fenetre.fill(BLANC)
     Jeu.menus_surf.fill(TRANSPARENT)
@@ -207,6 +248,12 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     
     # ...
     dessiner_boutons_attaques()
+    
+    # Si les bonnes touches sont appuyées, affiche les infos ou les diffs
+    if pygame.key.get_pressed()[Constantes.Touches.DIFFS]:
+        dessiner_diff_stats_joueur(Jeu.menus_surf)
+    elif pygame.key.get_pressed()[Constantes.Touches.DBG_INFOS_ENTITES] and bool(params.mode_debug):
+        dessiner_descriptions_entites(Jeu.menus_surf)
     
     # Mettre à jour l'affichage
     Jeu.display_flip()

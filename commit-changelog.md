@@ -35,41 +35,20 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Ajout du capitalisme
+## Ajout de boutons pour voir les stats
 + Changements majeurs
-	- Ajout d'un système d'argent (pièces).
-		* Ajout attribut `._nombre_pieces` et propriété `.nb_pieces`.
-		* Ajout des méthodes `.gagner_pieces()` et `.paiement()`.
-	- Les objets ont maintenant un prix.
-		* Ajout de l'attribut `prix` aux instances de `Item`.
-	- Les monstres ont maintenant une hierarchie;
-		* Ajout de la propriété `.classe()` à `TypeMonstre` (pour l'instant ne sert qu'aux nombre de pièces lachées mais obtiendra un rôle dans le spawn).
+	- Ajout de constantes `Constantes.Touches.DIFFS` et `Constantes.Touches.DBG_INFOS_ENTITES`.
+	- Ajout méthodes `ecran_nombre_combat()` et `dessiner_descriptions_entites()`.
 + Sur plusieurs fichiers
 + Structure de fichiers
 + READMEs et documentation
-	- Les touches ont été mises à jour dans le [README](sources/README.md) de [sources/](sources/).
 + Interactions joueur/testeur
-	- Ajout d'une animation pour indiqué que le joueur à gagné des pièces.
-	- Le shop à maintenant un cadre montrant les objets et l'argent du joueur.
-	- Nouveau paramètre de triche: argent illimité.
 + Correction de bugs
-	- `MultiInterpolation.calculer_valeur()` et implémentations ne crashent plus quand `t=1`.
-		* Amélioration du message d'erreur si `t > 1`.
-	- Les hitbox pour interagir avec les objets dans le shop sont maintenant correctes.
-+ [Animation.py](sources/classes_utiles/Animation.py)
-	- Les méthodes `.generateur()` finissent maintenant par `t=1`.
-	- Ajout de paramètres `easing_funs[]` sur les méthodes `.generateur()`.
-	- Renommage des paramètres `easing` en `easing_fun` sur les méthodes `.generateur()`.
-+ [EasingConstants.py](sources/classes_utiles/EasingConstants.py)
-	- Ajout de variantes `*_IN` et `*_OUT` à toutes les constantes.
-+ [Couleurs.py](sources/Constantes/Couleurs.py)
-	- Ajout de la constante `JAUNE_PIECE`.
-+ [fonctions_main.py](sources/fonctions_main.py)
-	- Ajout de l'interruption `animation_argent_gagne()`.
-	- Ajout des fonctions `gerer_evenement_shop()` et `dessine_nombre_pieces()` pour éviter de trop encombrer `shop()`.
-	- Séparation de `reagir_appui_touche()` en deux: la partie générale (`reagir_appui_touche()`) et celle spécifique à `choix_attaque()` (`reagir_appui_touche_choix_attaque()`).
-+ `Jeu`
-	- Ajout de `decision_etat_en_cours()`.
-	- `reset_etat()` ne modifie plus `precedent_etat`.
-+ `Joueur`
-	- Ajout de la propriété `.inventaire[]`.
++ entités:
+	- Ajout de la méthode `.decrire()`.
++ [fonctions_vrac.py](sources/fonctions_vrac.py)
+	- `dessiner_texte()` prend maintenant en compte les sauts de lignes.
++ `Attaque`
+	- Ajout de la propriété `.nom`.
+_____
+Ce commit n'a pas eu beaucoup de temps pour être testé, il y a sûrment quelques bugs.

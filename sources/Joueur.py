@@ -2,15 +2,15 @@ from Attaque import *
 from Item import Item
 
 class Joueur:
-    _STATS_DE_BASE : Stat = Stat(45, 35, 35, 20, 30, 50, 1.2, 1).reset_vie()
+    STATS_DE_BASE : Stat = Stat(45, 35, 35, 20, 30, 50, 1.2, 1).reset_vie()
     DIMENSIONS_SPRITE : tuple[int, int] = (160, 160)
     
     def __init__(self, moveset : dict[str, Attaque], chemin_vers_sprite : Optional[str] = None, inventaire : list[Item] = []) -> None:
         # on assumera par la suite que _stats et _base_stats sont initialisés
-        self._stats   : Stat               = Joueur._STATS_DE_BASE
+        self._stats   : Stat               = copy(Joueur.STATS_DE_BASE)
         self._pseudo  : str                = ""
-        self._moveset : dict[str, Attaque] = moveset
-        self._inventaire    : list[Item]   = inventaire
+        self._moveset : dict[str, Attaque] = copy(moveset)
+        self._inventaire    : list[Item]   = copy(inventaire)
         self._nombre_pieces : int          = 0
         
         self.afficher : bool = True
@@ -175,6 +175,17 @@ class Joueur:
         
         self._nombre_pieces = apres_payement
         return 0
+    
+    def decrire(self) -> str:
+        """Décrit l'objet dans une string."""
+        return (
+            f"ID d'entité: {self._id}\n"
+            f"Statistiques: {self._stats}\n"
+            f"Moveset: {[attaque.nom for attaque in self._moveset.values()]}\n"
+            f"Inventaire: {[item.nom for item in self._inventaire]}\n"
+            f"ID d'entité: {self._id}\n"
+            f"Argent récolté: {self._nombre_pieces}\n"
+        )
 
 
 joueur : Joueur = Joueur({

@@ -175,6 +175,10 @@ class Attaque:
         )
     
     @property
+    def nom(self) -> str:
+        return self._nom
+    
+    @property
     def puissance(self) -> float:
         return self._puissance
     

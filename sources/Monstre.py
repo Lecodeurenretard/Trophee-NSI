@@ -288,3 +288,13 @@ class Monstre:
         
         self._vers_type(self._type.type_suivant())
         return True
+    
+    def decrire(self) -> str:
+        """Décrit l'objet dans une string."""
+        return (
+            f"ID d'entité: {self._id}\n"
+            f"Type: {self._type}\n"
+            f"Classe: {self.classe}\n"
+            f"Moveset: {[att.nom for att in self._moveset]}\n"
+            f"Statistiques: {self._stats}\n"
+        )

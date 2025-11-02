@@ -271,7 +271,7 @@ def shop() -> None:
         )
         
         # Dessine l'argent du joueur
-        dessine_nombre_pieces(INVENTAIRE_BOITE)
+        dessiner_nombre_pieces(INVENTAIRE_BOITE)
         
         # Dessine des items dans l'inventaire
         y : int = Jeu.pourcentage_hauteur(5) + 55

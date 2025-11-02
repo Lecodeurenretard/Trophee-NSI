@@ -169,20 +169,27 @@ def dessiner_texte(
         if y + hauteur_police > rect.bottom:
             break
         
+        # Vérifie s'il y a un saut de ligne dans le texte
+        position_saut = texte.find("\n")
+        
         # Détermine la longueur maximum de la ligne
         while police.size(texte[:dernier_index_a_render])[0] < rect.width and dernier_index_a_render < len(texte):
             dernier_index_a_render += 1
         
+        # Si on trouve un \n avant la fin de la ligne, on coupe là
+        if position_saut != -1 and position_saut < dernier_index_a_render:
+            dernier_index_a_render = position_saut + 1
         # Si on a bien wrap le texte, on fini la ligne au dernier mot
-        if dernier_index_a_render < len(texte): 
+        elif dernier_index_a_render < len(texte): 
             dernier_index_a_render = texte.rfind(" ", 0, dernier_index_a_render) + 1
         
-        # Render la ligne
+        # Render la ligne (sans le \n)
+        ligne_a_render = texte[:dernier_index_a_render].rstrip("\n")
         if arriere_plan is not None:
-            image = police.render(texte[:dernier_index_a_render], True, couleur, arriere_plan)
+            image = police.render(ligne_a_render, True, couleur, arriere_plan)
             image.set_colorkey(arriere_plan)
         else:
-            image = police.render(texte[:dernier_index_a_render], aa, couleur)
+            image = police.render(ligne_a_render, aa, couleur)
         
         # Dessine la ligne sur la surface
         surface.blit(image, (rect.left, y))
