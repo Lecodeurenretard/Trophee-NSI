@@ -13,17 +13,17 @@ class Item:
     stats_changees : Stat
     
     ORDONEE_SPRITE     : int = Jeu.pourcentage_hauteur(32)
-    DIMENSIONS_SPRITES : tuple[int, int] = (200, 200)
+    DIMENSIONS_SPRITES : tuple[int, int] = (160, 160)
     
     
-    def __init__(self, id : int, permissif : bool = False, interdire_0 : bool = True):
+    def __init__(self, id : int, permissif : bool = False, interdire_exemple : bool = True):
         """Si `permissif` est actif, corrige l'id."""
         if permissif:
-            id = max(1, id) if interdire_0 else max(0, id)
+            id = max(1, id) if interdire_exemple else max(0, id)
             id = min(len(Item.TOUT_LES_ITEMS)-1, id)
         elif not (0 <= id < len(Item.TOUT_LES_ITEMS)):
             raise OverflowError("id soit négatif, soit trop grand.")
-        elif interdire_0 and id == 0:
+        elif interdire_exemple and id == 0:
             raise ValueError("L'item d'indice 0 (l'exemple) n'est pas autorisé par défaut par le constructeur de Item.")
         
         item : dict = Item.TOUT_LES_ITEMS[id]
@@ -31,7 +31,7 @@ class Item:
         self.id          = id
         self.nom         = item["nom"]
         self.description = item["description"]
-        self.sprite      = pygame.image.load(f"{Constantes.Chemins.IMG}/items/{item["sprite"]}")
+        self.sprite      = pygame.image.load(f"{Constantes.Chemins.IMG}/items/{item['sprite']}")
         self.sprite      = pygame.transform.scale(self.sprite, self.DIMENSIONS_SPRITES)
         self.prix        = item["prix"] if item["prix"] is not None else 0
         
@@ -49,7 +49,6 @@ class Item:
         """Ouvre item.json et prend tous les objets trouvés."""
         with open(f"{Constantes.Chemins.DATA}/items.json", 'r', encoding='utf-8') as fichier:
             Item.TOUT_LES_ITEMS = json.load(fichier)
-            fichier.seek(0)
     
     @staticmethod
     def depuis_nom(nom_item : str) -> 'Item':
@@ -84,9 +83,11 @@ class Item:
                 return i
         return None
     
-    def dessiner(self, surface : Surface, abscisses : int, centre : bool = True) -> None:
+    def dessiner(self, surface : Surface, abscisses : int, centre : bool = True, afficher_avertissements : bool = True) -> None:
         LARGEUR_SPRITE : int = self.sprite.get_bounding_rect().width
         HAUTEUR_SPRITE : int = self.sprite.get_bounding_rect().height
+        LARGEUR_EFFET  : int = LARGEUR_SPRITE + 80
+        LARGEUR_DESC   : int = LARGEUR_SPRITE + 70
         
         nom  : Surface = Constantes.Polices.TITRE.render(self.nom, True, NOIR)
         prix : Surface = Constantes.Polices.TEXTE.render(f"{self.prix} pieces", True, JAUNE_PIECE)
@@ -94,31 +95,38 @@ class Item:
         pos_sprite : tuple[int, int] = (abscisses, Item.ORDONEE_SPRITE)
         pos_nom    : tuple[int, int] = (abscisses, Jeu.pourcentage_hauteur(50))
         pos_prix   : tuple[int, int] = (
-            abscisses + LARGEUR_SPRITE - prix.get_bounding_rect().width + 25,
+            abscisses + LARGEUR_SPRITE - prix.get_bounding_rect().width + 40,
             Item.ORDONEE_SPRITE - HAUTEUR_SPRITE // 2
         )
         rect_effet : tuple[int, int, int, int] = (
             abscisses, Jeu.pourcentage_hauteur(53),
-            LARGEUR_SPRITE, Jeu.pourcentage_hauteur(5)
+            LARGEUR_EFFET, Jeu.pourcentage_hauteur(5)
         )
         rect_desc  : tuple[int, int, int, int] = (
             abscisses, Jeu.pourcentage_hauteur(60),
-            LARGEUR_SPRITE, Jeu.pourcentage_hauteur(40)
+            LARGEUR_DESC, Jeu.pourcentage_hauteur(42)
         )
         
+        texte_non_dessine_effet : str = ''
+        texte_non_dessine_desc  : str = ''
         if centre:
             blit_centre(surface, self.sprite, pos_sprite)
             blit_centre(surface, nom, pos_nom)
             blit_centre(surface, prix, pos_prix)
             
-            dessiner_texte(surface, self.effet_affiche, NOIR, centrer_pos(rect_effet, centrer_y=False), Constantes.Polices.TEXTE)
-            dessiner_texte(surface, self.description  , NOIR, centrer_pos(rect_desc , centrer_y=False), Constantes.Polices.TEXTE)
+            texte_non_dessine_effet += dessiner_texte(surface, self.effet_affiche, NOIR, centrer_pos(rect_effet, centrer_y=False), Constantes.Polices.TEXTE)
+            texte_non_dessine_desc += dessiner_texte(surface, self.description  , NOIR, centrer_pos(rect_desc , centrer_y=False), Constantes.Polices.TEXTE)
         else:
             surface.blit(self.sprite, pos_sprite)
             surface.blit(nom, pos_nom)
             surface.blit(prix, pos_prix)
             
-            dessiner_texte(surface, self.effet_affiche, NOIR, rect_effet, Constantes.Polices.TEXTE)
-            dessiner_texte(surface, self.description, NOIR, rect_desc, Constantes.Polices.TEXTE)
+            texte_non_dessine_effet += dessiner_texte(surface, self.effet_affiche, NOIR, rect_effet, Constantes.Polices.TEXTE)
+            texte_non_dessine_desc += dessiner_texte(surface, self.description, NOIR, rect_desc, Constantes.Polices.TEXTE)
+        
+        if afficher_avertissements and texte_non_dessine_effet != '':
+            logging.debug(f"Le texte suivant n'a pas pu être dessiné (effet d'un  item trop long): {texte_non_dessine_effet}")
+        if afficher_avertissements and texte_non_dessine_desc != '':
+            logging.debug(f"Le texte suivant n'a pas pu être dessiné (description d'un  item trop longue): {texte_non_dessine_desc}")
 
 Item.actualiser_items()

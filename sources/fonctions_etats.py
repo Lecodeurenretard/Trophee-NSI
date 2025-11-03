@@ -22,6 +22,8 @@ def attente_prochaine_etape() -> None:
             Jeu.fenetre.blit(next(ecran_gen), (0, 0))
         except StopIteration:
             break
+        
+        dessiner_infos()
         Jeu.display_flip()
     
     if Jeu.DECISION_SHOP(Jeu.num_etape):
@@ -193,7 +195,7 @@ def game_over() -> None:
     if bool(params.fermer_a_la_fin):
         quit()
     
-    joueur.reset_vie()
+    joueur.reset()
     Jeu.num_etape = 1
     Jeu.changer_etat(Jeu.Etat.ECRAN_TITRE)
 
@@ -228,20 +230,20 @@ def shop() -> None:
     )
     
     # nombre d'éléments -> listes des abscisses (pour une fenêtre de dimension 100x100)
-    ABSCISSES_RELATIVE_ITEMS : dict[int, tuple[float, ...]] = {
-        0: (),
-        1: (50,),
-        2: (33, 66),
-        3: (20, 50, 80),
-    }
+    ABSCISSES_RELATIVE_ITEMS : tuple[tuple[float, ...], ...] = (
+        (),
+        (50,),
+        (30, 70),
+        (18, 50, 82),
+    )
     # nombre d'éléments -> listes des abscisses (avec les dimensions de la fenêtre)
-    ABSCISSES_ITEMS : dict[int, tuple[int, ...]] = {
-        nb_elements: tuple([
+    ABSCISSES_ITEMS : tuple[tuple[int, ...], ...] = tuple([
+        tuple([
             round(pc_abcisse * (Jeu.largeur - INVENTAIRE_BOITE.width) / 100)  # Convertit les pourcentages en vraies valeurs
             for pc_abcisse in liste_abscisses   # pc pour pourcentage
-        ])                                                               # (prend en compte la taille de l'inventaire)
-        for nb_elements, liste_abscisses in ABSCISSES_RELATIVE_ITEMS.items()
-    }
+        ])
+        for liste_abscisses in ABSCISSES_RELATIVE_ITEMS
+    ])
     
     # choisit 2 ou 3 items au hasard
     items : list[Item] = [Item.item_aleatoire() for _ in range(random.randint(2, 3))]
@@ -252,12 +254,32 @@ def shop() -> None:
         action=Jeu.reset_etat,
     )
     
+    premiere_frame : bool = True
     interruption : Optional[Interruption] = None
+    
     while Jeu.etat == Jeu.Etat.SHOP:
         Jeu.commencer_frame()
         if interruption is not None:
             terminer_interruption(interruption)
-        gerer_evenement_shop(items, bouton_sortie, ABSCISSES_ITEMS[len(items)])
+        
+        for ev in pygame.event.get():
+            verifier_pour_quitter(ev)
+            
+            interruption = reagir_appui_touche(ev)
+            if interruption is not None:
+                break
+            
+            if ev.type == pygame.MOUSEWHEEL and bool(params.mode_debug):
+                dbg_shop_scroll(ev, items, ABSCISSES_ITEMS[len(items)])
+            
+            if ev.type == pygame.MOUSEBUTTONDOWN:
+                shop_click(ev, items, bouton_sortie, ABSCISSES_ITEMS[len(items)])
+            
+            if ev.type == pygame.KEYDOWN and bool(params.mode_debug):
+                if ev.key in Constantes.Touches.DBG_SHOP_AJOUT_ITEM and len(items) < len(ABSCISSES_ITEMS) - 1:
+                    items.append(Item.item_aleatoire())
+                elif ev.key in Constantes.Touches.DBG_SHOP_SUPPRESSION_ITEM and len(items) > 0:
+                    items.pop()
         
         
         Jeu.fenetre.fill(BLANC)
@@ -270,31 +292,18 @@ def shop() -> None:
             epaisseur_trait=INVENTAIRE_EPAISSEUR_TRAIT
         )
         
-        # Dessine l'argent du joueur
         dessiner_nombre_pieces(INVENTAIRE_BOITE)
+        dessiner_inventaire(Jeu.fenetre, INVENTAIRE_BOITE)
         
-        # Dessine des items dans l'inventaire
-        y : int = Jeu.pourcentage_hauteur(5) + 55
-        for item in joueur.inventaire:
-            icone : Surface = pygame.transform.scale_by(
-                item.sprite,
-                (INVENTAIRE_BOITE.width - 20) / item.sprite.get_rect().width
-            )
-            Jeu.menus_surf.blit(
-                icone,
-                (INVENTAIRE_BOITE.left, y)
-            )
-            y += icone.get_bounding_rect().height + 10
+        dessiner_infos()
         
         bouton_sortie.draw(Jeu.menus_surf)
         for item, pourcentage_abscisse in zip(items, ABSCISSES_ITEMS[len(items)]):
-            item.dessiner(Jeu.fenetre, pourcentage_abscisse)
+            item.dessiner(Jeu.fenetre, pourcentage_abscisse, afficher_avertissements=premiere_frame)
         
         Jeu.display_flip()
+        premiere_frame = False
     
     Jeu.num_etape += 1
     if Jeu.decision_etat_en_cours():
         Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
-
-#TODO: continuer le shop:
-#    - implémenter pour de vrai les items

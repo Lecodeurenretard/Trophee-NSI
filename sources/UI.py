@@ -85,7 +85,7 @@ def trouve_attaque_a_partir_du_curseur() -> Attaque:
     
     raise ValueError("Il y a au moins un cas non pris en charge dans trouve_attaque_a_partir_du_curseur().")
 
-def afficher_info() -> Interruption:
+def afficher_infos() -> Interruption:
     logging.debug(f"→ Interruption: affichage des informations d'une attaque.")
     
     texte_puissance   : Surface
@@ -211,8 +211,15 @@ def dessiner_diff_stats_joueur(surface : Surface) -> None:
         surface.blit(txt, (10, y))
         y += txt.get_rect().height + 5
 
-def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = [], to_send_dessin : Any = None, to_send_UI : Any = None) -> None:
+def dessiner_infos() -> None:
+    """Dessine les infos Si les bonnes touches sont pressées."""
+    if pygame.key.get_pressed()[Constantes.Touches.DIFFS]:
+        dessiner_diff_stats_joueur(Jeu.infos_surf)
+    
+    elif pygame.key.get_pressed()[Constantes.Touches.DBG_INFOS_ENTITES] and bool(params.mode_debug):
+        dessiner_descriptions_entites(Jeu.infos_surf)
 
+def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = [], to_send_dessin : Any = None, to_send_UI : Any = None) -> None:
     # Effacer l'écran en redessinant l'arrière-plan
     Jeu.fenetre.fill(BLANC)
     Jeu.menus_surf.fill(TRANSPARENT)
@@ -250,10 +257,7 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     dessiner_boutons_attaques()
     
     # Si les bonnes touches sont appuyées, affiche les infos ou les diffs
-    if pygame.key.get_pressed()[Constantes.Touches.DIFFS]:
-        dessiner_diff_stats_joueur(Jeu.menus_surf)
-    elif pygame.key.get_pressed()[Constantes.Touches.DBG_INFOS_ENTITES] and bool(params.mode_debug):
-        dessiner_descriptions_entites(Jeu.menus_surf)
+    dessiner_infos()
     
     # Mettre à jour l'affichage
     Jeu.display_flip()

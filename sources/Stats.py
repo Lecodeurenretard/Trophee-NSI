@@ -46,6 +46,30 @@ class Stat:
                     case "vie"            : resultat.vie             = valeur
         return resultat
     
+    def additionner(self, delta : 'Stat', ajouter_vie : bool = False) -> None:
+        """Ajoute les attributs deux à deux. Si `ajouter_vie` est active, ajoute aussi les vies."""
+        self.vie_max         += delta.vie_max
+        self.force           += delta.force
+        self.defense         += delta.defense
+        self.magie           += delta.magie
+        self.defense_magique += delta.defense_magique
+        self.vitesse         += delta.vitesse
+        self.crit_puissance  += delta.crit_puissance
+        self.crit_resitance  += delta.crit_resitance
+        if ajouter_vie:
+            self.vie += delta.vie
+    def soustraire(self, delta : 'Stat', ajouter_vie : bool = False) -> None:
+        """Soustraire les attributs deux à deux. Si `ajouter_vie` est active, ajoute aussi les vies."""
+        self.vie_max         -= delta.vie_max
+        self.force           -= delta.force
+        self.defense         -= delta.defense
+        self.magie           -= delta.magie
+        self.defense_magique -= delta.defense_magique
+        self.vitesse         -= delta.vitesse
+        self.crit_puissance  -= delta.crit_puissance
+        self.crit_resitance  -= delta.crit_resitance
+        if ajouter_vie:
+            self.vie -= delta.vie
     
     @property
     def est_mort(self) -> bool:

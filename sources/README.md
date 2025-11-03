@@ -25,3 +25,7 @@ Touches qui marchent seulement en mode débug:
 - Changer d'adversaire:
 	+ q (précédent)
 	+ d (suivant)
+- Plus d'items dans le shop:
+	+ \+ (clavier et pavé numérique)
+- Moins d'items dans le shop:
+	+ \- (clavier et pavé numérique)

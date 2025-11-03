@@ -21,9 +21,9 @@
     },
     {
         "nom": "Teto maigre",
-        "description": "Cet objet te rappelles de ta propre mortalité. Le chéchir ne t'apportera rien d'autre que de la détermination.",
+        "description": "Cette peluche te rappelles ta propre mortalité. La chéchir ne t'apportera rien d'autre qu'un un peu de détermination.",
         "effets": {
-            "message utilisateur": "force augmentée",
+            "message utilisateur": "Force augmentée",
             "stats": {
                 "force": 10
             }
@@ -35,7 +35,7 @@
         "nom": "Peluche d'Hornet",
         "description": "Le pouvoir de faire crash les serveurs de Steam... entre tes main....",
         "effets": {
-            "message utilisateur": "force, magie et puissance des crits augmentées.",
+            "message utilisateur": "Offense augmentée.",
             "stats": {
                 "force": 30,
                 "magie": 30,

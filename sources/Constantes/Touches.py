@@ -1,5 +1,13 @@
 import pygame
 
+DBG_SHOP_AJOUT_ITEM : tuple[int, ...] = (
+    pygame.K_PLUS,
+    pygame.K_KP_PLUS,
+)
+DBG_SHOP_SUPPRESSION_ITEM : tuple[int, ...] = (
+    pygame.K_MINUS,
+    pygame.K_KP_MINUS,
+)
 DBG_SKIP : tuple[int, ...] = (
     pygame.K_SPACE,
 )

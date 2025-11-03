@@ -107,8 +107,9 @@ class Joueur:
         
         return self._moveset[clef_attaque].peut_attaquer_adversaires
     
-    def reset_vie(self) -> None:
+    def reset(self) -> None:
         self._stats.vie = self._stats.vie_max
+        self._stats = copy(Joueur.STATS_DE_BASE)
     
     def attaquer(self, id_cible : int, clef_attaque : str) -> None:
         assert(clef_attaque in self.moveset_clefs)
@@ -143,12 +144,14 @@ class Joueur:
         """Ajoute un item à l'inventaire s'il n'y était pas déjà. Renvoie si l'item à été ajouté."""
         if item not in self._inventaire:
             self._inventaire.append(item)
+            self._stats.additionner(item.stats_changees)
             return True
         return False
     def lacher_item(self, item : Item) -> bool:
         """Enlève un item à l'inventaire s'il y était. Renvoie si l'item à été enlevé."""
         if item in self._inventaire:
             self._inventaire.remove(item)
+            self._stats.soustraire(item.stats_changees)
             return True
         return False
     

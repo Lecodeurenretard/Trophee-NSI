@@ -142,7 +142,7 @@ def dessiner_texte(
             couleur : color,
             espace_ecriture : tuple[int, int, int, int]|list[int],
             police : pygame.font.Font,
-            aa : bool = False,
+            aa : bool = True,
             ecart_entre_lignes : int = -2,
             arriere_plan : Optional[color] = None,
             dessiner_boite : bool = False,

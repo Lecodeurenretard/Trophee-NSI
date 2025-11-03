@@ -35,20 +35,28 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Ajout de boutons pour voir les stats
+## Implémentation des stats pour les items (sauf régénération).
 + Changements majeurs
-	- Ajout de constantes `Constantes.Touches.DIFFS` et `Constantes.Touches.DBG_INFOS_ENTITES`.
-	- Ajout méthodes `ecran_nombre_combat()` et `dessiner_descriptions_entites()`.
 + Sur plusieurs fichiers
 + Structure de fichiers
 + READMEs et documentation
 + Interactions joueur/testeur
+	- Ajout de touches pour changer le nombre d'items dans le shop.
+		* Ajout constantes `DBG_SHOP_AJOUT_ITEM` et `DBG_SHOP_SUPPRESSION_ITEM`.
+	- Plus d'antialiasing pour les textes: ils deviennent plus faciles à lire.
+	- Changement du texte d'effets pour la peluche d'Hornet.
+	- Corrections dans le message de Teto maigre.
+	- Changement dans les positions et tailles des items du shop.
 + Correction de bugs
-+ entités:
-	- Ajout de la méthode `.decrire()`.
-+ [fonctions_vrac.py](sources/fonctions_vrac.py)
-	- `dessiner_texte()` prend maintenant en compte les sauts de lignes.
-+ `Attaque`
-	- Ajout de la propriété `.nom`.
-_____
-Ce commit n'a pas eu beaucoup de temps pour être testé, il y a sûrment quelques bugs.
++ [fonctions_main.py](sources/fonctions_main.py)
+	- Ajout fonction `dessiner_inventaire()`.
+	- La fonction `gerer_evenement_shop()` a été scindée en deux fonctions plus petites: `dbg_shop_scroll()` et `shop_click()`.
++ `Item`
+	- `.dessiner()` lance des avertissements quand du texte n'est pas affiché.
++ `Jeu`
+	- Ajout de `infos_surf` pour que les textes d'informations soient dessinés en dernier.
++ `Joueur`
+	- Renommage `.reset_vie()` en `.reset()`, la fonction reset aussi les stats maintenant.
+	- `.prendre_item()` et `.lacher_item()` modifient les stats.
++ `Stat`
+	- Ajout des méthodes `.additionner()` et `.soustraire()`.

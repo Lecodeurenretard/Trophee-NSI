@@ -41,7 +41,7 @@ def initialiser_nouveau_combat(numero_combat : int, reset_joueur : bool = False)
     
     reset_monstre()
     if reset_joueur:
-        joueur.reset_vie()
+        joueur.reset()
 
 def reagir_appui_touche(ev : pygame.event.Event) -> Optional[Interruption]:
     if ev.type != pygame.KEYDOWN:
@@ -84,7 +84,7 @@ def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Inter
     
     match ev.key:        # Un event ne peut être qu'une seule touche à la fois
         case Constantes.Touches.INFOS:
-            return afficher_info()
+            return afficher_infos()
     
     if not params.mode_debug.case_cochee:
         return
@@ -153,40 +153,35 @@ def animation_argent_gagne(montant : int, arriere_plan : Surface = Jeu.fenetre, 
         except GeneratorExit:
             break
 
-def gerer_evenement_shop(items : list[Item], bouton_sortie : Button, abcisses : tuple[int, ...]) -> None:
+def dbg_shop_scroll(ev : pygame.event.Event, items : list[Item], abcisses : tuple[int, ...]) -> None:
+    """Fonction à appeler quand le testeur scroll dans le shop."""
     sensibilite_scroll : float = 1
     
-    for ev in pygame.event.get():
-        verifier_pour_quitter(ev)
-        interruption = reagir_appui_touche(ev)
-        if interruption is not None:
-            break
-        
-        # Changement d'item en mode débug
-        if ev.type == pygame.MOUSEWHEEL and bool(params.mode_debug):
-            index = Item.item_survole(items, abcisses)
-            if index is None: continue
-            
-            changement : int = round(ev.precise_y * sensibilite_scroll)
-            items[index] = Item(items[index].id + changement, permissif=True)
-            continue
-        
-        if ev.type == pygame.MOUSEBUTTONDOWN:
-            if ev.button in (4, 5): # empèche le scroll de compter pour un click
-                continue
-            
-            if bouton_sortie.check_click(pygame.mouse.get_pos()):
-                break
-            
-            index = Item.item_survole(items, abcisses)
-            if index is None: continue
-            
-            if joueur.paiement(items[index].prix, payer_max=False) > 0:
-                pass    # Ajouter animation
-                continue
-            if joueur.prendre_item(items[index]):
-                items.pop(index)
+    index = Item.item_survole(items, abcisses)
+    if index is None:
+        return
+    
+    changement : int = round(ev.precise_y * sensibilite_scroll)
+    items[index] = Item(items[index].id + changement, permissif=True)
 
+def shop_click(ev : pygame.event.Event, items : list[Item], bouton_sortie : Button, abcisses : tuple[int, ...]):
+    """Fonction à appeler quand le joueur/testeur clique dans le shop."""
+    if ev.button in (4, 5): # empèche le scroll de compter pour un click
+        return
+    
+    if bouton_sortie.check_click(pygame.mouse.get_pos()):
+        return
+    
+    index = Item.item_survole(items, abcisses)
+    if index is None:
+        return
+    
+    if joueur.paiement(items[index].prix, payer_max=False) > 0:
+        pass    # Ajouter animation
+        return
+    
+    if joueur.prendre_item(items[index]):
+        items.pop(index)
 
 def dessiner_nombre_pieces(boite_inventaire : Rect, ordonnees : int = Jeu.pourcentage_hauteur(5)) -> None:
     if params.argent_infini.case_cochee:
@@ -210,3 +205,17 @@ def dessiner_nombre_pieces(boite_inventaire : Rect, ordonnees : int = Jeu.pource
             boite_inventaire.left + boite_inventaire.width // 2,
             ordonnees,
         ))
+
+def dessiner_inventaire(surface : Surface, boite_inventaire : Rect) -> None:
+    y : int = Jeu.pourcentage_hauteur(5) + 55
+    for item in joueur.inventaire:
+        icone : Surface = pygame.transform.scale_by(
+            item.sprite,
+            (boite_inventaire.width - 20) / item.sprite.get_rect().width
+        )
+        
+        surface.blit(
+            icone,
+            (boite_inventaire.left, y)
+        )
+        y += icone.get_bounding_rect().height + 10

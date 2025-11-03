@@ -33,6 +33,7 @@ class Jeu:
     
     fenetre    : Surface = pygame.display.set_mode((largeur, hauteur))
     menus_surf : Surface = Surface((largeur, hauteur), pygame.SRCALPHA)
+    infos_surf : Surface = Surface((largeur, hauteur), pygame.SRCALPHA)
     
     num_etape          : int   = 1
     a_gagne             : bool = False
@@ -113,13 +114,16 @@ class Jeu:
         Jeu.centre_fenetre = (Jeu.largeur // 2, Jeu.hauteur // 2)
     
     @staticmethod
-    def display_flip(reset_menu : bool = True) -> None:
+    def display_flip(reset_menu : bool = True, reset_infos : bool = True) -> None:
         """Met à jour le display et si `reset_menu` est actif, remplit `menus_surf` avec de la transparence."""
         Jeu.fenetre.blit(Jeu.menus_surf, (0, 0))
+        Jeu.fenetre.blit(Jeu.infos_surf, (0, 0))
         pygame.display.flip()
         
         if reset_menu:
             Jeu.menus_surf.fill(TRANSPARENT)
+        if reset_infos:
+            Jeu.infos_surf.fill(TRANSPARENT)
 
 
 # Le système d'overload est à la fois une bénédiction pour la fonctionnalité
