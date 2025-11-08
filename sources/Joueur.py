@@ -5,12 +5,12 @@ class Joueur:
     STATS_DE_BASE : Stat = Stat(45, 37, 37, 22, 32, 50, 1.3, 1).reset_vie()
     DIMENSIONS_SPRITE : tuple[int, int] = (160, 160)
     
-    def __init__(self, moveset : dict[str, Attaque], chemin_vers_sprite : Optional[str] = None, inventaire : list[Item] = []) -> None:
-        self._stats   : Stat               = copy(Joueur.STATS_DE_BASE)
-        self._pseudo  : str                = ""
-        self._moveset : dict[str, Attaque] = copy(moveset)
-        self._inventaire    : list[Item]   = copy(inventaire)
-        self._nombre_pieces : int          = 0
+    def __init__(self, moveset : list[str]|tuple[str, ...], chemin_vers_sprite : Optional[str] = None, inventaire : list[Item] = []) -> None:
+        self._stats   : Stat             = copy(Joueur.STATS_DE_BASE)
+        self._pseudo  : str              = ""
+        self._moveset : list[str]        = list(moveset)
+        self._inventaire    : list[Item] = copy(inventaire)
+        self._nombre_pieces : int        = 0
         
         self.afficher : bool = True
         
@@ -63,8 +63,8 @@ class Joueur:
         return copy(self._inventaire)
     
     @property
-    def moveset_clefs(self) -> tuple[str, ...]:
-        return tuple(self._moveset.keys())
+    def noms_attaques(self) -> tuple[str, ...]:
+        return tuple(self._moveset)
     
     @property
     def longueur_barre_de_vie(self) -> int:
@@ -96,31 +96,36 @@ class Joueur:
         globales.entites_vivantes[self._id] = None
         self._id = -1
     
-    def get_attaque_surface(self, clef_attaque : str) -> Surface:
-        assert(clef_attaque in self.moveset_clefs)
-        return self._moveset[clef_attaque].nom_surface
-    
-    def attaque_peut_toucher_allies(self, clef_attaque : str) -> bool:
-        assert(clef_attaque in self.moveset_clefs), "Attaque pas inclue dans moveset dans attaque_peut_toucher_allies()."
+    def get_attaque_surface(self, nom_attaque : str) -> Surface:
+        if nom_attaque not in self.noms_attaques:
+            raise ValueError(f"Le nom {nom_attaque} n'est pas dans `_moveset[]`.")
         
-        return self._moveset[clef_attaque].peut_attaquer_allies
+        return Attaque.avec_nom(nom_attaque).nom_surface
     
-    def attaque_peut_toucher_ennemis(self, clef_attaque : str) -> bool:
-        assert(clef_attaque in self.moveset_clefs), "Attaque pas inclue dans moveset dans attaque_peut_toucher_ennemis()."
+    def attaque_peut_toucher_lanceur(self, nom_attaque : str) -> bool:
+        if nom_attaque not in self.noms_attaques:
+            raise ValueError(f"Le nom {nom_attaque} n'est pas dans `_moveset[]`.")
         
-        return self._moveset[clef_attaque].peut_attaquer_adversaires
+        return Attaque.avec_nom(nom_attaque).peut_attaquer_lanceur
+    
+    def attaque_peut_toucher_ennemis(self, nom_attaque : str) -> bool:
+        if nom_attaque not in self.noms_attaques:
+            raise ValueError(f"Le nom {nom_attaque} n'est pas dans `_moveset[]`.")
+        
+        return Attaque.avec_nom(nom_attaque).peut_attaquer_adversaires
     
     def reset(self) -> None:
         self._stats.vie = self._stats.vie_max
         self._stats = copy(Joueur.STATS_DE_BASE)
     
-    def attaquer(self, id_cible : int, clef_attaque : str) -> None:
-        assert(clef_attaque in self.moveset_clefs)
+    def attaquer(self, id_cible : int, nom_attaque : str) -> None:
+        if nom_attaque not in self.noms_attaques:
+            raise ValueError(f"Le nom {nom_attaque} n'est pas dans `_moveset[]`.")
         
-        if self._moveset[clef_attaque].peut_attaquer_allies:
+        if self.attaque_peut_toucher_lanceur(nom_attaque):
             id_cible = self.id
         
-        self._moveset[clef_attaque].enregister_lancement(self._id, id_cible)
+        Attaque.avec_nom(nom_attaque).enregister_lancement(self._id, id_cible)
     
     def dessiner(self, surface : Surface) -> None:
         blit_centre(surface, self._sprite, (Jeu.largeur // 4, Jeu.pourcentage_hauteur(60)))
@@ -181,16 +186,16 @@ class Joueur:
         return (
             f"ID d'entité: {self._id}\n"
             f"Statistiques: {self._stats}\n"
-            f"Moveset: {[attaque.nom for attaque in self._moveset.values()]}\n"
+            f"Moveset: {self._moveset}\n"
             f"Inventaire: {[item.nom for item in self._inventaire]}\n"
             f"ID d'entité: {self._id}\n"
             f"Argent récolté: {self._nombre_pieces}\n"
         )
 
 
-joueur : Joueur = Joueur({
-    "heal":     ATTAQUES_DISPONIBLES["heal"],
-    "physique": ATTAQUES_DISPONIBLES["physique"],
-    "magie":    ATTAQUES_DISPONIBLES["magie"],
-    "skip":     ATTAQUES_DISPONIBLES["skip"],
-}, chemin_vers_sprite=f"{Constantes.Chemins.IMG}/joueur.png")
+joueur : Joueur = Joueur([
+    "Soin",
+    "Torgnole",
+    "Magie",
+    "Skip",
+], chemin_vers_sprite=f"{Constantes.Chemins.IMG}/joueur.png")

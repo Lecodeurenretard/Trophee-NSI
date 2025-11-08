@@ -8,6 +8,22 @@ class TypeAttaque(Enum):
     CHARGE   = auto(),
     DIVERS   = auto(),
     
+    @staticmethod
+    def depuis_str(s : str) -> 'TypeAttaque':
+        match s.strip().lower():
+            case "physique":
+                return TypeAttaque.PHYSIQUE
+            case "magique":
+                return TypeAttaque.MAGIQUE
+            case "soin":
+                return TypeAttaque.SOIN
+            case "charge":
+                return TypeAttaque.CHARGE
+            case "divers":
+                return TypeAttaque.DIVERS
+            case _:
+                raise ValueError(f'La valeur "{s}" ne renvoie à aucun type d\'attaque.')
+    
     @property
     def couleur(self) -> rgb:
         match self:
@@ -32,21 +48,44 @@ class TypeAttaque(Enum):
 class EffetAttaque:
     pass        # TODO: définir les effets des attaques (poison, confus, ...) (un jour)
 
-class AttaqueFlags(Flag):
+class AttaqueFlag(Flag):
     """Des particularités que pourraient avoir les attaques"""
     AUCUN               = 0
+    IGNORE_DEFENSE      = auto()
     IGNORE_STATS        = auto()
     
     ATTAQUE_LANCEUR     = auto()
-    ATTAQUE_ALLIES      = auto()
     ATTAQUE_ENNEMIS     = auto()
-    ATTAQUE_EQUIPE = ATTAQUE_LANCEUR | ATTAQUE_ALLIES
+    
+    @staticmethod
+    def depuis_liste(lst : list[str]) -> 'AttaqueFlag':
+        res : AttaqueFlag = AttaqueFlag.AUCUN
+        for flag in lst:
+            match flag.strip().lower():
+                case "ignore defense":
+                    res |= AttaqueFlag.IGNORE_DEFENSE
+                case "ignore stats":
+                    res |= AttaqueFlag.IGNORE_STATS
+                case "cible lanceur":
+                    res |= AttaqueFlag.ATTAQUE_LANCEUR
+                case "cible ennemis" | "cible adversaire":
+                    res |= AttaqueFlag.ATTAQUE_ENNEMIS
+                case _:
+                    raise ValueError(f'Drapeau inconnu "{flag}".')
+        
+        return res
 
 class Attaque:
     _PUISSANCE_CRIT       : float = 1.3
     _DUREE_ANIMATION      : Duree = Duree(s=1)
     _DUREE_ENTRE_ATTAQUES : Duree = Duree(s=.5)
     
+    _ajustements : TypeAlias = Callable[[float, bool], int]
+    _AJUSTEMENTS : dict[str, _ajustements] = {
+        "base": (lambda degats, crit: round(degats)),
+    }
+    
+    LISTE : list['Attaque']
     CRIT_IMG : Surface = pygame.transform.scale(
         pygame.image.load(f"{Constantes.Chemins.IMG}/crit.png"),
         (40, 40)
@@ -64,8 +103,8 @@ class Attaque:
             vitesse : int,
             type_attaque : TypeAttaque,
             crit_proba : float = .1,
-            flags : AttaqueFlags = AttaqueFlags.ATTAQUE_ENNEMIS,
-            ajustement_degats : Callable[[float, bool], int] = (lambda degats, crit: round(degats)),
+            flags : AttaqueFlag = AttaqueFlag.ATTAQUE_ENNEMIS,
+            ajustement_degats : _ajustements = _AJUSTEMENTS["base"],
             glisser : bool = True,
         ):
         self._nom    : str = nom
@@ -105,6 +144,31 @@ class Attaque:
             + f"Jouer animation: {self._animation}"
             + ")"
         )
+    @staticmethod
+    def _depuis_json_dict(json_dict : dict) -> 'Attaque':
+        """Renvoie l'objet Attaque correpondant à `json_dict[]`."""
+        ajustement : Attaque._ajustements = Attaque._AJUSTEMENTS[
+            json_dict.get("nom_ajustement", "base")
+        ]
+        return Attaque(
+            json_dict["nom"],
+            json_dict["description"],
+            json_dict["puissance"],
+            json_dict["vitesse"],
+            TypeAttaque.depuis_str(json_dict["type"]),
+            
+            crit_proba=json_dict.get("probabilité_crit", .1),
+            flags=AttaqueFlag.depuis_liste(json_dict.get("flags", ["cible ennemis"])),
+            ajustement_degats=ajustement,
+            glisser=json_dict.get("animer", True),
+        )
+    
+    @staticmethod
+    def actualiser_liste() -> None:
+        """Actualise LISTE_ATTAQUE[]."""
+        with open(f"{Constantes.Chemins.DATA}/attaques.json") as fichier:
+            attaques : list[dict] = json.load(fichier)[1:]      # On prend tout le fichier sauf l'exemple
+            Attaque.LISTE = [Attaque._depuis_json_dict(dico) for dico in attaques]
     
     @staticmethod
     def lancer_toutes_les_attaques_gen(surface: Surface) -> Generator[None, Optional[bool], None]:
@@ -116,6 +180,7 @@ class Attaque:
             logging.debug("Début du lancement des attaques.")
         
         while not Attaque.attaques_du_tour.empty():
+            # préparation
             attaque : Attaque = Attaque.attaques_du_tour.get_nowait().attaque
             if attaque._lanceur.est_mort:
                 break
@@ -123,9 +188,11 @@ class Attaque:
             if params.mode_debug.case_cochee:
                 logging.debug(f"{attaque._lanceur.dbg_nom} (id: {attaque._lanceur.id}) utilise {attaque._nom} sur {attaque._cible.dbg_nom}.")
             
+            # temps de début et de fin
             debut_attaque : Duree = copy(Jeu.duree_execution)
             fin_attaque   : Duree = debut_attaque + Attaque._DUREE_ANIMATION
             
+            # animation
             skip_attaque : bool = False
             while Jeu.duree_execution < fin_attaque and not skip_attaque:
                 if Jeu.duree_execution - debut_attaque == 0:
@@ -141,16 +208,23 @@ class Attaque:
             
             attaque.appliquer()
             
-            # Pas de attendre() ici, on ne veut pas interrompre la boucle de l'état
+            # attente de la prochaine frame
             peut_sortir = pause(Attaque._DUREE_ENTRE_ATTAQUES)
             while not next(peut_sortir) and not skip_attaque:
-                if (yield):   # None est "falsy", ça veut dire que çaa donnera le même résultat si `sent` est none que s'il était False.
+                if (yield):   # None est "falsy", ça a le même effet que si l'utilisateur envoie `False`.
                     break
         
         
         if bool(params.mode_debug):
             logging.debug("Fin du lancement des attaques.")
             logging.debug("")
+    
+    @staticmethod
+    def avec_nom(nom : str) -> 'Attaque':
+        """Cherche l'attaque avec le nom correspondant dans LISTE."""
+        return Attaque.LISTE[
+            [att.nom for att in Attaque.LISTE].index(nom)   # Recherche le nom
+        ]
     
     @property
     def _couleur(self) -> rgb:
@@ -199,12 +273,13 @@ class Attaque:
         return Constantes.Polices.TITRE.render(self._nom, True, BLANC)
     
     @property
-    def peut_attaquer_allies(self) -> bool:
-        return AttaqueFlags.ATTAQUE_EQUIPE in self._drapeaux
+    def peut_attaquer_lanceur(self) -> bool:
+        return AttaqueFlag.ATTAQUE_LANCEUR in self._drapeaux
     
     @property
     def peut_attaquer_adversaires(self) -> bool:
-        return AttaqueFlags.ATTAQUE_ENNEMIS in self._drapeaux
+        return AttaqueFlag.ATTAQUE_ENNEMIS in self._drapeaux
+    
     
     def _dessiner(self, surface : Surface, position : Pos) -> None:
         RECT_LARGEUR = 200
@@ -223,11 +298,14 @@ class Attaque:
             )
     
     def _calcul_attaque_defense(self, puissance_attaquant : int, defense_cible : int, def_min : float) -> tuple[float, float]:
-        if AttaqueFlags.IGNORE_STATS in self._drapeaux:
+        if AttaqueFlag.IGNORE_STATS in self._drapeaux:
             return (self._puissance, 1)
         
         attaque : float = self._puissance * puissance_attaquant
         defense : float = max(def_min, defense_cible)
+        
+        if AttaqueFlag.IGNORE_DEFENSE in self._drapeaux:
+            return (attaque, 1)
         return (attaque, defense)
     
     def pos_anim_attaque(self, t : float) -> Pos:
@@ -278,19 +356,16 @@ class Attaque:
         return self._ajustement_degats(degats, self._crit)
     
     def appliquer(self) -> None:
-        self._effet     #TODO: faire quelque chose avec
-        
-        if AttaqueFlags.ATTAQUE_LANCEUR not in self._drapeaux and self._lanceur_id == self._cible_id:
+        if AttaqueFlag.ATTAQUE_LANCEUR not in self._drapeaux and self._lanceur_id == self._cible_id:
             return
-        elif AttaqueFlags.ATTAQUE_ALLIES in self._drapeaux and type(self._lanceur) != type(self._cible) and self._lanceur_id != self._cible_id:
+        elif AttaqueFlag.ATTAQUE_ENNEMIS in self._drapeaux and type(self._lanceur) == type(self._cible):
             return
-        elif AttaqueFlags.ATTAQUE_ENNEMIS in self._drapeaux and type(self._lanceur) == type(self._cible):
-            return
-        elif AttaqueFlags.ATTAQUE_LANCEUR not in self._drapeaux and AttaqueFlags.ATTAQUE_ALLIES not in self._drapeaux and AttaqueFlags.ATTAQUE_ENNEMIS not in self._drapeaux:
+        elif AttaqueFlag.ATTAQUE_LANCEUR not in self._drapeaux and AttaqueFlag.ATTAQUE_ENNEMIS not in self._drapeaux:
             return
         self._cible.recoit_degats(self.calculer_degats())
     
-    def enregister_lancement(self, id_lanceur : int, id_cible : int, flags_a_ajouter : AttaqueFlags = AttaqueFlags.AUCUN) -> None:
+    def enregister_lancement(self, id_lanceur : int, id_cible : int, flags_a_ajouter : AttaqueFlag = AttaqueFlag.AUCUN) -> None:
+        """Pousse une copie de l'attaque sur `attaques_du_tour[]`. Ne modifie PAS l'objet originel."""
         copie : Attaque = copy(self)
         copie._cible_id = id_cible
         copie._lanceur_id = id_lanceur
@@ -300,18 +375,17 @@ class Attaque:
         
         Attaque.attaques_du_tour.put_nowait(AttaquePriorisee(copie, self._lanceur.stats.vitesse))
 
+@total_ordering
 class AttaquePriorisee:
     """Classe permettant de classer les attaques pour pouvoir déterminer leur ordre d'application."""
     def __init__(self, attaque : Attaque, vitesse_lanceur : float):
         self.attaque = attaque
         self._score = AttaquePriorisee._calcul_score(attaque.vitesse, vitesse_lanceur)
-    
-    # les opérateurs strictement inférieur et strictement supérieur à
-    # Ils sont surchargés pour que l'objet soit classé dans PriorityQueue
-    def __lt__(self, other : 'AttaquePriorisee') -> bool:
+     
+    def __lt__(self, other : 'AttaquePriorisee'):
         return self._score < other._score
-    def __gt__(self, other : 'AttaquePriorisee') -> bool:
-        return self._score > other._score
+    def __eq__(self, other : 'AttaquePriorisee'):
+        return self._score == other._score
     
     @staticmethod
     def _calcul_score(vitesse_attaque : float, vitesse_lanceur : float) -> float:
@@ -324,33 +398,4 @@ class AttaquePriorisee:
         return -clamp(score_vitesse, 0, Stat.VITESSE_MAX)
 
 
-#TODO: mettre ça dans un module ou un truc du genre
-ATTAQUES_DISPONIBLES : dict[str, Attaque] = {
-    "heal": Attaque(
-        "Soin", "Soignez-vous de quelques PV",
-        1.5,
-        1000,
-        TypeAttaque.SOIN,
-        crit_proba=.2, flags=AttaqueFlags.ATTAQUE_EQUIPE
-    ),
-    "magie": Attaque(
-        "Att. magique", "Infligez des dégâts magique à l'adversaire",
-        25,
-        20,
-        TypeAttaque.MAGIQUE
-    ),
-    "physique": Attaque(
-        "Torgnole", "Infligez des dégâts physiques à l'adversaire",
-        20,
-        30,
-        TypeAttaque.PHYSIQUE
-    ),
-    "skip": Attaque(
-        "Passer", "Passez votre tour.",
-        0,
-        0,
-        TypeAttaque.DIVERS,
-        crit_proba=.5, flags=AttaqueFlags.AUCUN,   # ça sert à rien d'augmenter la chance de crit mais ¯\_(ツ)_/¯ funny
-        glisser=False,
-    ),
-}
+Attaque.actualiser_liste()

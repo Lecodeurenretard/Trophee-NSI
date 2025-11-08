@@ -6,9 +6,16 @@
 			"nom Attaque1",
 			"nom Attaque2"
 		],
-		"rang": 0,
+		"rang": null,
 		"stats": {
-			
+			"vie_max"			: null,
+			"force"				: null,
+			"defense"			: null,
+			"magie"				: null,
+			"defense_magique"	: null,
+			"vitesse"			: null,
+			"crit_puissance"	: null,
+			"crit_resitance"	: null
 		}
 	},
 	{
@@ -16,7 +23,7 @@
 		"sprite": "blob.png",
 		"rang": 0,
 		"moveset": [
-			"physique"
+			"Torgnole"
 		],
 		"stats": {
 			"vie_max"			: 40,
@@ -33,7 +40,7 @@
 		"nom": "Sorcier",
 		"sprite" : "sorcier.png",
 		"moveset": [
-			"magie"
+			"Magie"
 		],
 		"rang": 1,
 		"stats": {

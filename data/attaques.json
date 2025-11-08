@@ -1,0 +1,45 @@
+[
+	{
+		"nom"				: "exemple",
+		"description"		: "Objet d'exemple",
+		"puissance"			: null,
+		"vitesse"			: null,
+		"type"				: "V. doc pour la liste des types",
+		"probabilité_crit"	: ["Une liste de AttaqueFlag.", "v. doc..."],
+		"flags"				: null,
+		"nom_ajustement"	: "clef de Attaque._AJUSTEMENTS",
+		"animer"			: null
+	},
+	{
+		"nom"				: "Soin",
+		"description"		: "Soignez-vous de quelques PV.",
+		"puissance"			: 1.5,
+		"vitesse"			: 1000,
+		"type"				: "soin",
+		"probabilité_crit"	: 0.2,
+		"flags"				: ["cible lanceur"]
+	},
+	{
+		"nom"				: "Magie",
+		"description"		: "Infligez des dégâts magique à l'adversaire.",
+		"puissance"			: 25,
+		"vitesse"			: 20,
+		"type"				: "magique"
+	},
+	{
+		"nom"				: "Torgnole",
+		"description"		: "Infligez des dégâts physiques à l'adversaire.",
+		"puissance"			: 20,
+		"vitesse"			: 30,
+		"type"				: "physique"
+	},
+	{
+		"nom"				: "Skip",
+		"description"		: "Passez votre tour.",
+		"puissance"			: 0,
+		"vitesse"			: 0,
+		"type"				: "divers",
+		"flags"				: [],
+		"animer"			: false
+	}
+]

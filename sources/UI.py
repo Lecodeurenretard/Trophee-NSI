@@ -1,5 +1,5 @@
 from liste_boutons import *
-from Attaque import Attaque, ATTAQUES_DISPONIBLES
+from Attaque import Attaque
 
 def demander_pseudo(surface : Surface) -> Interruption:
     logging.debug(f"→ Interruption: demande du pseudo.")
@@ -66,24 +66,25 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
         texte = texte[:-1]                                              # les espaces, nouvelles lignes, tabs...
     return (texte, continuer)
 
-# TODO: J'aime pas le fait que ce soit hardcodé
-# Il faudra changer ça avec l'ajout du système de cartes
 def trouve_attaque_a_partir_du_curseur() -> Attaque:
-    curseur_pos : Pos = boutons_attaques[0].cursor.position_dans_positions   # Ce qui est important, c'est que le bouton soit dans le groupe Attaques
+    # Ce qui est important, c'est que le bouton soit dans le groupe Attaques
+    curseur_pos : Pos = boutons_attaques[0].cursor.position_dans_positions
     
+    # TODO: J'aime pas le fait que ce soit hardcodé
+    # Il faudra changer ça avec l'ajout du système de cartes
     if curseur_pos == Pos(0, 0):
-        return ATTAQUES_DISPONIBLES['heal']
+        return Attaque.avec_nom('Soin')
     
     if curseur_pos == Pos(1, 0):
-        return ATTAQUES_DISPONIBLES['magie']
+        return Attaque.avec_nom('Magie')
     
     if curseur_pos == Pos(0, 1):
-        return ATTAQUES_DISPONIBLES['physique']
+        return Attaque.avec_nom('Physique')
     
     if curseur_pos == Pos(1, 1):
-        return ATTAQUES_DISPONIBLES['skip']
+        return Attaque.avec_nom('Skip')
     
-    raise ValueError("Il y a au moins un cas non pris en charge dans trouve_attaque_a_partir_du_curseur().")
+    raise RuntimeError(f"Le curseur est à une position innatendue: {curseur_pos}.")
 
 def afficher_infos() -> Interruption:
     logging.debug(f"→ Interruption: affichage des informations d'une attaque.")
@@ -179,7 +180,7 @@ def dessiner_descriptions_entites(surface : Surface) -> None:
             entite.decrire(),
             rgb_to_rgba(GRIS_CLAIR, transparence=128),
             (
-                Jeu.pourcentage_largeur(33) * i,
+                Jeu.pourcentage_largeur(33) * i + 2,
                 0,
                 Jeu.pourcentage_largeur(33),
                 Jeu.hauteur
@@ -188,6 +189,13 @@ def dessiner_descriptions_entites(surface : Surface) -> None:
             aa=True,
             ecart_entre_lignes=5
         )
+        pygame.draw.line(
+            surface,
+            GRIS_CLAIR,
+            (Jeu.pourcentage_largeur(33) * i, 0),
+            (Jeu.pourcentage_largeur(33) * i, Jeu.hauteur)
+        )
+
 def dessiner_diff_stats_joueur(surface : Surface) -> None:
     """Dessine les gains/pertes par rapport aux stats de bases."""
     differences : dict[str, float] = {

@@ -11,7 +11,7 @@ class Stat:
     crit_puissance  : float
     crit_resitance  : float
     vie             : int = -0xFFFF
-    VITESSE_MAX : int = 10**9
+    VITESSE_MAX : int = field(default=10**9, repr=False)
     
     @staticmethod
     def depuis_dictionnaire_json(json_dict : dict, valeur_par_defaut : int = -1000) -> 'Stat':

@@ -35,29 +35,25 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Les monstres ont leur JSON.
+## Les attaques ont leur JSON.
 + Changements majeurs
-	- Ajout de [TypeMonstres.json](data/TypesMonstre.json).
-	- Ajout de `MonstreJSON` pour parse le JSON.
-		* La classe reprend les méthodes `.type_precedent()` et `.type_suivant()`.
-		* Suppression de `TypeMonstre`.
+	- Ajout de [attaques.json](data/attaques.json).
+	- Ajout de `_depuis_json_dict()`, `actualiser_liste()`
 + Sur plusieurs fichiers
 + Structure de fichiers
-	- _blob.png_ et _sorcier.png_ ont été déplacés dans le dossier [monstres/](data/img/monstres/).
-	- Ajout d'une [image d'erreur](data/img/erreur.png).
 + READMEs et documentation
+	- Corrections et ajouts de nouvelles fonctionnalités dans [fight-system.md](doc/fight-system.md).
 + Interactions joueur/testeur
-	- Les carrés pour les persos en mode débug sont enlevés et remplacés par un indicateur en haut à droit de l'écran.
-	- Changement des messages des items "Teto maigre" et "Peluche d'Hornet".
-	- _Tweak_ des stats des monstres, joueur et de la constante pour la puissance des crits.
-	- Un crit ne peut plus baisser les dégats de l'attaque, les dégats serons (sauf cas exceptionnel) toujours augmentés par un facteur d'au moins `PUISSANCE_CRIT` ($1.3$ pour l'insant).
+	- Les monstres n'affichent plus que l'ID de leurs types dans l'écran des informations.
+	- Ajout de lignes pour séparer les informations des entités.
 + Correction de bugs
-	- L'étoile s'affiche quand un crit est lancé.
-+ [fonctions_vrac.py](sources/fonctions_vrac.py)
-	- Ajout de `clamp()` (2 overloads) en raccourcit.
-+ `Item`
-	- Renommage de la constante statique `TOUT_LES_ITEMS[]` en `DONNEES_ITEMS[]`.
-+ [Monstre.py](sources/Monstre.py)
-	- Renommage de `Monstre.dimensions_sprites[]` en `Monstre.SPRITE_DIM`.
-	- `Monstre.spawn()` pioche dans tous les types du JSON sauf l'exemple.
-	- On ne parle plus de la "classe" d'un monstre mais de son "rang".
++ [Attaque.py](sources/Attaque.py)
+	- Ajout de méthodes `.depuis_str()` aux classes `TypeAttaque` et `AttaqueFlag`.
+	- Ajout de `IGNORER_DEFENSE` à `AttaqueFlag`.
+	- Ajout de `.avec_nom()` à `Attaque`
+	- Suppression de `ATTAQUE_ALLIES` et `ATTAQUE_EQUIPE` dans `AttaqueFlag`.
+		* Renommage de `Attaque.peut_attaquer_allies()` en `Attaque.peut_attaquer_lanceur()`.
++ entités
+	- `moveset[]` est maintenant une liste de noms d'attaques.
++ `Stat`
+	- `.VITESSE_MAX` n'est plus dans le `.__repr__()`.

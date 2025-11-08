@@ -9,7 +9,7 @@ class MonstreJSON:
     nom     : str
     sprite  : str
     rang    : int
-    moveset : tuple[Attaque, ...]
+    moveset : tuple[str, ...]
     stats   : Stat
     
     def __init__(self, id_type : int, autoriser_exemple : bool = False):
@@ -25,10 +25,7 @@ class MonstreJSON:
         self.sprite = f"{Constantes.Chemins.IMG}/monstres/{donnees['sprite']}"
         
         self.rang = donnees["rang"]
-        self.moveset = tuple([
-            ATTAQUES_DISPONIBLES[nom_att]
-            for nom_att in donnees["moveset"]
-        ])
+        self.moveset = tuple(donnees["moveset"])
         self.stats = Stat.depuis_dictionnaire_json(donnees["stats"]).reset_vie()
     
     @staticmethod
@@ -63,15 +60,15 @@ class Monstre:
             self,
             nom           : str,
             stats         : Stat,
-            attaques      : tuple[Attaque, ...],
+            attaques      : tuple[str, ...],
             chemin_sprite : Optional[str]         = None,
-            type_calque   : Optional[MonstreJSON] = None,
+            type       : Optional[MonstreJSON] = None,
         ):
         
         self._nom = nom
         self._stats = stats
         self._moveset = attaques
-        self._type = type_calque
+        self._type = type
         
         if chemin_sprite is None:
             chemin_sprite = f"{Constantes.Chemins.IMG}/erreur.png"
@@ -98,14 +95,14 @@ class Monstre:
             self.meurt()
     
     @staticmethod
-    def nouveau_monstre(type : MonstreJSON) -> 'Monstre':
+    def nouveau_monstre(type_json : MonstreJSON) -> 'Monstre':
         """Crée un nouveau monstre suivant son type"""
         return Monstre(
-            type.nom,
-            copy(type.stats),    # Si pas de copie, tous les monstres suivants auront leurs vie à 0
-            tuple(type.moveset),
-            chemin_sprite=type.sprite,
-            type_calque=type
+            type_json.nom,
+            copy(type_json.stats),    # Si pas de copie, tous les monstres suivants auront leurs vie à 0
+            tuple(type_json.moveset),
+            chemin_sprite=type_json.sprite,
+            type=type_json
         )
     
     @staticmethod
@@ -154,7 +151,6 @@ class Monstre:
             MonstreJSON(random.choices(id_types, weights=poids)[0])
         )
     
-    
     @property
     def id(self) -> int:
         return self._id
@@ -173,7 +169,6 @@ class Monstre:
     @property
     def stats(self) -> Stat:
         return copy(self._stats)
-    
     @property
     def pos_attaque(self) -> Pos:
         return Monstre.POSITION
@@ -208,14 +203,16 @@ class Monstre:
         self._type = nouveau_type
     
     def choisir_attaque(self) -> Attaque:
-        return random.choice(self._moveset)
+        return Attaque.avec_nom(
+            random.choice(self._moveset)
+        )
     
-    def attaquer(self, id_cible : int, attaque : Attaque) -> None:
+    def attaquer(self, id_cible : int, nom_attaque : str) -> None:
         """Attaque la cible et retourne si elle a été tuée."""
-        assert(globales.entites_vivantes[id_cible] is not None), "La cible est une case vide de globales.entites_vivantes[] dans Monstre.attaquer()."
-        assert(attaque in self._moveset), "L'attaque demandée dans Monstre.attaquer() n'est pas dans le moveset du monstre."
+        assert(globales.entites_vivantes[id_cible] is not None), "La cible est une case vide de globales.entites_vivantes[] dans Monstre.attaquer() (index invalide)."
+        assert(nom_attaque in self._moveset), f"L'attaque {nom_attaque} n'est pas dans le moveset du monstre d'identifiant {self.id}."
         
-        attaque.enregister_lancement(self._id, id_cible)
+        Attaque.avec_nom(nom_attaque).enregister_lancement(self._id, id_cible)
     
     def recoit_degats(self, dommages : int) -> None:
         if bool(params.monstre_invincible) and dommages >= 0:
@@ -261,8 +258,8 @@ class Monstre:
         """Décrit l'objet dans une string."""
         return (
             f"ID d'entité: {self._id}\n"
-            f"Type: {self._type}\n"
+            f"ID du type: {self._type.id if self._type is not None else -1}\n"
             f"Rang: {self.rang}\n"
-            f"Moveset: {[att.nom for att in self._moveset]}\n"
+            f"Moveset: {self._moveset}\n"
             f"Statistiques: {self._stats}\n"
         )
