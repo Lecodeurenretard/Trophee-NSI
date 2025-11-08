@@ -1,7 +1,8 @@
 from imports import *
 from classes_utiles import Duree
 from Constantes import Touches
-from Constantes.Couleurs import TRANSPARENT
+from Constantes.Couleurs import TRANSPARENT, ROUGE
+from Constantes.Polices import FOURRE_TOUT
 
 def staticclass(cls : type) -> type:
     """Empèche les classes d'avoir un constructeur, on les force à être 'statiques'."""
@@ -116,6 +117,14 @@ class Jeu:
     @staticmethod
     def display_flip(reset_menu : bool = True, reset_infos : bool = True) -> None:
         """Met à jour le display et si `reset_menu` est actif, remplit `menus_surf` avec de la transparence."""
+        import parametres_vars as p
+        if bool(p.mode_debug):
+            surf : Surface = FOURRE_TOUT.render("Débug", True, ROUGE)
+            Jeu.infos_surf.blit(
+                surf,
+                (Jeu.largeur - surf.get_rect().width, 0)
+            )
+        
         Jeu.fenetre.blit(Jeu.menus_surf, (0, 0))
         Jeu.fenetre.blit(Jeu.infos_surf, (0, 0))
         pygame.display.flip()

@@ -81,8 +81,8 @@ def affichage_attaques() -> None:
     
     pieces_gagnees : int = 0
     for monstre in Monstre.tuer_les_monstres_morts():
-        assert(monstre.classe is not None), "Le monstre n'avait aucun type."
-        pieces_gagnees += 2**monstre.classe + random.randint(1, 4)  # Dites non au décalage de bit et exponentiez
+        assert(monstre.rang is not None), "Le monstre n'avait aucun type."
+        pieces_gagnees += 2**monstre.rang + random.randint(1, 4)  # Dites non au décalage de bit et exponentiez
     
     if pieces_gagnees != 0:
         terminer_interruption(animation_argent_gagne(pieces_gagnees))

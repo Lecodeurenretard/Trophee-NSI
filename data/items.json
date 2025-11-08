@@ -23,7 +23,7 @@
         "nom": "Teto maigre",
         "description": "Cette peluche te rappelles ta propre mortalité. La chéchir ne t'apportera rien d'autre qu'un un peu de détermination.",
         "effets": {
-            "message utilisateur": "Force augmentée",
+            "message utilisateur": "force +",
             "stats": {
                 "force": 10
             }
@@ -35,7 +35,7 @@
         "nom": "Peluche d'Hornet",
         "description": "Le pouvoir de faire crash les serveurs de Steam... entre tes main....",
         "effets": {
-            "message utilisateur": "Offense augmentée.",
+            "message utilisateur": "offense +",
             "stats": {
                 "force": 30,
                 "magie": 30,

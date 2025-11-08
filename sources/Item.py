@@ -3,7 +3,7 @@ from import_local import *
 @dataclass
 class Item:
     """Un item parsé de items.json."""
-    TOUT_LES_ITEMS   : list[dict] = field(repr=False)
+    DONNEES_ITEMS   : list[dict] = field(repr=False)
     
     nom            : str
     description    : str
@@ -19,20 +19,30 @@ class Item:
     def __init__(self, id : int, permissif : bool = False, interdire_exemple : bool = True):
         """Si `permissif` est actif, corrige l'id."""
         if permissif:
-            id = max(1, id) if interdire_exemple else max(0, id)
-            id = min(len(Item.TOUT_LES_ITEMS)-1, id)
-        elif not (0 <= id < len(Item.TOUT_LES_ITEMS)):
+            id = clamp(  # type: ignore # les types checkers sont bien quand ils marchent
+                    id,
+                    int(interdire_exemple), # 1 if interdire_exemple else 0,
+                    len(Item.DONNEES_ITEMS) - 1
+                )
+        elif not (0 <= id < len(Item.DONNEES_ITEMS)):
             raise OverflowError("id soit négatif, soit trop grand.")
         elif interdire_exemple and id == 0:
             raise ValueError("L'item d'indice 0 (l'exemple) n'est pas autorisé par défaut par le constructeur de Item.")
         
-        item : dict = Item.TOUT_LES_ITEMS[id]
+        item : dict = Item.DONNEES_ITEMS[id]
         
         self.id          = id
         self.nom         = item["nom"]
         self.description = item["description"]
-        self.sprite      = pygame.image.load(f"{Constantes.Chemins.IMG}/items/{item['sprite']}")
+        
+        chemin : str = f"{Constantes.Chemins.IMG}/"
+        if item['sprite'] is None:
+            chemin += "erreur.png"
+        else:
+            chemin += f"items/{item['sprite']}"
+        self.sprite      = pygame.image.load(chemin)
         self.sprite      = pygame.transform.scale(self.sprite, self.DIMENSIONS_SPRITES)
+        
         self.prix        = item["prix"] if item["prix"] is not None else 0
         
         self.effet_affiche  = item["effets"]["message utilisateur"]
@@ -48,19 +58,19 @@ class Item:
     def actualiser_items() -> None:
         """Ouvre item.json et prend tous les objets trouvés."""
         with open(f"{Constantes.Chemins.DATA}/items.json", 'r', encoding='utf-8') as fichier:
-            Item.TOUT_LES_ITEMS = json.load(fichier)
+            Item.DONNEES_ITEMS = json.load(fichier)
     
     @staticmethod
     def depuis_nom(nom_item : str) -> 'Item':
         """Initialise un objet Item avec les attributs de l'objet ayant le même nom dans le JSON."""
-        for id, item in enumerate(Item.TOUT_LES_ITEMS):
+        for id, item in enumerate(Item.DONNEES_ITEMS):
             if nom_item == item["nom"]:
                 return Item(id)
         raise ValueError(f"Le nom \"{nom_item}\" n'a pas été trouvé.")
     
     @staticmethod
     def item_aleatoire() -> 'Item':
-        return Item(random.randint(1, len(Item.TOUT_LES_ITEMS) - 1))
+        return Item(random.randint(1, len(Item.DONNEES_ITEMS) - 1))
     @staticmethod
     def generateur_items() -> 'Generator[Item, None, None]':
         while True:
@@ -86,7 +96,7 @@ class Item:
     def dessiner(self, surface : Surface, abscisses : int, centre : bool = True, afficher_avertissements : bool = True) -> None:
         LARGEUR_SPRITE : int = self.sprite.get_bounding_rect().width
         HAUTEUR_SPRITE : int = self.sprite.get_bounding_rect().height
-        LARGEUR_EFFET  : int = LARGEUR_SPRITE + 80
+        LARGEUR_EFFET  : int = LARGEUR_SPRITE + 50
         LARGEUR_DESC   : int = LARGEUR_SPRITE + 70
         
         nom  : Surface = Constantes.Polices.TITRE.render(self.nom, True, NOIR)

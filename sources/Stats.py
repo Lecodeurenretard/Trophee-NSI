@@ -20,14 +20,15 @@ class Stat:
         Si une valeur n'est pas présente, `valeur_par_defaut` est utilisé.
         """
         attributs_decode : dict[str, bool] = {
-            "vie_max"       : False,
-            "force"         : False,
-            "defense"       : False,
-            "magie"         : False,
-            "vitesse"       : False,
-            "crit_puissance": False,
-            "crit_resitance": False,
-            "vie"           : False,
+            "vie_max"         : False,
+            "force"           : False,
+            "defense"         : False,
+            "magie"           : False,
+            "defense_magique" : False,
+            "vitesse"         : False,
+            "crit_puissance"  : False,
+            "crit_resitance"  : False,
+            "vie"             : False,
         }
         
         resultat : Stat = Stat(*([valeur_par_defaut] * 9))   # Initialise l'objet Stat avec tous les attributs à -100 sauf .VITESSE_MAX

@@ -1,0 +1,50 @@
+[
+	{
+		"nom": "Exemple",
+		"sprite" : "Chemin vers le sprite depuis /sources/data/img/monstres/",
+		"moveset": [
+			"nom Attaque1",
+			"nom Attaque2"
+		],
+		"rang": 0,
+		"stats": {
+			
+		}
+	},
+	{
+		"nom": "Blob",
+		"sprite": "blob.png",
+		"rang": 0,
+		"moveset": [
+			"physique"
+		],
+		"stats": {
+			"vie_max"			: 40,
+			"force"				: 25,
+			"defense"			: 50,
+			"magie"				: 0,
+			"defense_magique"	: 19,
+			"vitesse"			: 30,
+			"crit_puissance"	: 1.8,
+			"crit_resitance"	: 1.3
+		}
+	},
+	{
+		"nom": "Sorcier",
+		"sprite" : "sorcier.png",
+		"moveset": [
+			"magie"
+		],
+		"rang": 1,
+		"stats": {
+			"vie_max"			: 50,
+			"force"				: 10,
+			"defense"			: 35,
+			"magie"				: 26,
+			"defense_magique"	: 40,
+			"vitesse"			: 60,
+			"crit_puissance"	: 1.3,
+			"crit_resitance"	: 1.5
+		}
+	}
+]

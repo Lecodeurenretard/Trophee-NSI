@@ -43,7 +43,7 @@ class AttaqueFlags(Flag):
     ATTAQUE_EQUIPE = ATTAQUE_LANCEUR | ATTAQUE_ALLIES
 
 class Attaque:
-    _PUISSANCE_CRIT       : float = 1.5
+    _PUISSANCE_CRIT       : float = 1.3
     _DUREE_ANIMATION      : Duree = Duree(s=1)
     _DUREE_ENTRE_ATTAQUES : Duree = Duree(s=.5)
     
@@ -108,6 +108,10 @@ class Attaque:
     
     @staticmethod
     def lancer_toutes_les_attaques_gen(surface: Surface) -> Generator[None, Optional[bool], None]:
+        """
+        Renvoie un générateur qui affiche et applique toutes les attaques unes à unes.
+        Si l'on envoie `True`, l'attaque qui est affichée sera passée.
+        """
         if params.mode_debug.case_cochee:
             logging.debug("Début du lancement des attaques.")
         
@@ -266,9 +270,9 @@ class Attaque:
             case _:
                 raise ValueError("type_degat n'est pas un membre de TypeAttaque dans Attaque.calculer_degats.")
         
-        self._crit = Attaque.toujours_crits or random.random() < self._prob_crit
         if self._crit:
             crit_facteur : float = stats_attaquant.crit_puissance / stats_victime.crit_resitance
+            crit_facteur = max(1, crit_facteur) # un crit ne doit jamais baisser les dégats de l'attaque
             degats *= Attaque._PUISSANCE_CRIT * crit_facteur
         
         return self._ajustement_degats(degats, self._crit)
@@ -292,6 +296,8 @@ class Attaque:
         copie._lanceur_id = id_lanceur
         copie._drapeaux |= flags_a_ajouter
         
+        copie._crit = Attaque.toujours_crits or random.random() < self._prob_crit
+        
         Attaque.attaques_du_tour.put_nowait(AttaquePriorisee(copie, self._lanceur.stats.vitesse))
 
 class AttaquePriorisee:
@@ -314,7 +320,8 @@ class AttaquePriorisee:
         
         # Visualisez et essayez les modification de la formule ici: https://www.desmos.com/3D/332drqdeup
         # Les seules restrictions sont que la fonction doit être strictement décroissante pour vitesse_attaque et vitesse_joueur.
-        return -max(0, min(Stat.VITESSE_MAX, 1.2 * vitesse_attaque + 1.0 * vitesse_lanceur))
+        score_vitesse = 1.2 * vitesse_attaque + 1.0 * vitesse_lanceur
+        return -clamp(score_vitesse, 0, Stat.VITESSE_MAX)
 
 
 #TODO: mettre ça dans un module ou un truc du genre

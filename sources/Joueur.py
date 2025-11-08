@@ -2,11 +2,10 @@ from Attaque import *
 from Item import Item
 
 class Joueur:
-    STATS_DE_BASE : Stat = Stat(45, 35, 35, 20, 30, 50, 1.2, 1).reset_vie()
+    STATS_DE_BASE : Stat = Stat(45, 37, 37, 22, 32, 50, 1.3, 1).reset_vie()
     DIMENSIONS_SPRITE : tuple[int, int] = (160, 160)
     
     def __init__(self, moveset : dict[str, Attaque], chemin_vers_sprite : Optional[str] = None, inventaire : list[Item] = []) -> None:
-        # on assumera par la suite que _stats et _base_stats sont initialisés
         self._stats   : Stat               = copy(Joueur.STATS_DE_BASE)
         self._pseudo  : str                = ""
         self._moveset : dict[str, Attaque] = copy(moveset)
@@ -15,9 +14,13 @@ class Joueur:
         
         self.afficher : bool = True
         
-        self._sprite : Optional[Surface] = None
-        if chemin_vers_sprite is not None:
-            self._sprite = pygame.transform.scale(pygame.image.load(chemin_vers_sprite), Joueur.DIMENSIONS_SPRITE)
+        if chemin_vers_sprite is None:
+            chemin_vers_sprite = f"{Constantes.Chemins.IMG}/erreur.png"
+        
+        self._sprite : Surface = pygame.transform.scale(
+            pygame.image.load(chemin_vers_sprite),
+            Joueur.DIMENSIONS_SPRITE
+        )
         
         self._id : int = premier_indice_libre_de_entites_vivantes()
         if self._id >= 0:
@@ -120,13 +123,7 @@ class Joueur:
         self._moveset[clef_attaque].enregister_lancement(self._id, id_cible)
     
     def dessiner(self, surface : Surface) -> None:
-        if params.mode_debug.case_cochee:
-            boite_de_contours = (Jeu.largeur // 4, Jeu.pourcentage_hauteur(75) - 100, 100, 100)
-            pygame.draw.rect(surface, BLEU, boite_de_contours, 0)
-            return
-        
-        if self._sprite is not None:
-            blit_centre(surface, self._sprite, (Jeu.largeur // 4, Jeu.pourcentage_hauteur(60)))
+        blit_centre(surface, self._sprite, (Jeu.largeur // 4, Jeu.pourcentage_hauteur(60)))
     
     def dessine_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int) -> None:
         dessiner_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie)

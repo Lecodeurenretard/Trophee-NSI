@@ -35,28 +35,29 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Implémentation des stats pour les items (sauf régénération).
+## Les monstres ont leur JSON.
 + Changements majeurs
+	- Ajout de [TypeMonstres.json](data/TypesMonstre.json).
+	- Ajout de `MonstreJSON` pour parse le JSON.
+		* La classe reprend les méthodes `.type_precedent()` et `.type_suivant()`.
+		* Suppression de `TypeMonstre`.
 + Sur plusieurs fichiers
 + Structure de fichiers
+	- _blob.png_ et _sorcier.png_ ont été déplacés dans le dossier [monstres/](data/img/monstres/).
+	- Ajout d'une [image d'erreur](data/img/erreur.png).
 + READMEs et documentation
 + Interactions joueur/testeur
-	- Ajout de touches pour changer le nombre d'items dans le shop.
-		* Ajout constantes `DBG_SHOP_AJOUT_ITEM` et `DBG_SHOP_SUPPRESSION_ITEM`.
-	- Plus d'antialiasing pour les textes: ils deviennent plus faciles à lire.
-	- Changement du texte d'effets pour la peluche d'Hornet.
-	- Corrections dans le message de Teto maigre.
-	- Changement dans les positions et tailles des items du shop.
+	- Les carrés pour les persos en mode débug sont enlevés et remplacés par un indicateur en haut à droit de l'écran.
+	- Changement des messages des items "Teto maigre" et "Peluche d'Hornet".
+	- _Tweak_ des stats des monstres, joueur et de la constante pour la puissance des crits.
+	- Un crit ne peut plus baisser les dégats de l'attaque, les dégats serons (sauf cas exceptionnel) toujours augmentés par un facteur d'au moins `PUISSANCE_CRIT` ($1.3$ pour l'insant).
 + Correction de bugs
-+ [fonctions_main.py](sources/fonctions_main.py)
-	- Ajout fonction `dessiner_inventaire()`.
-	- La fonction `gerer_evenement_shop()` a été scindée en deux fonctions plus petites: `dbg_shop_scroll()` et `shop_click()`.
+	- L'étoile s'affiche quand un crit est lancé.
++ [fonctions_vrac.py](sources/fonctions_vrac.py)
+	- Ajout de `clamp()` (2 overloads) en raccourcit.
 + `Item`
-	- `.dessiner()` lance des avertissements quand du texte n'est pas affiché.
-+ `Jeu`
-	- Ajout de `infos_surf` pour que les textes d'informations soient dessinés en dernier.
-+ `Joueur`
-	- Renommage `.reset_vie()` en `.reset()`, la fonction reset aussi les stats maintenant.
-	- `.prendre_item()` et `.lacher_item()` modifient les stats.
-+ `Stat`
-	- Ajout des méthodes `.additionner()` et `.soustraire()`.
+	- Renommage de la constante statique `TOUT_LES_ITEMS[]` en `DONNEES_ITEMS[]`.
++ [Monstre.py](sources/Monstre.py)
+	- Renommage de `Monstre.dimensions_sprites[]` en `Monstre.SPRITE_DIM`.
+	- `Monstre.spawn()` pioche dans tous les types du JSON sauf l'exemple.
+	- On ne parle plus de la "classe" d'un monstre mais de son "rang".
