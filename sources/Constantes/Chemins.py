@@ -17,7 +17,8 @@ else:
     logging.warning("Le dossier n'est pas reconnu, on suppose que l'on est à la racine.")
 
 DATA = f"{RACINE}data"
-IMG  = f"{RACINE}data/img"
-SAVE = f"{RACINE}data/save"
-ANIM = f"{RACINE}data/anim"
-ETC  = f"{RACINE}data/etc"
+ANIM = f"{DATA}/anim"
+ETC  = f"{DATA}/etc"
+IMG  = f"{DATA}/img"
+SAVE = f"{DATA}/save"
+SFX  = f"{DATA}/sfx"

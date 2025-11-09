@@ -176,10 +176,12 @@ def shop_click(ev : pygame.event.Event, items : list[Item], bouton_sortie : Butt
     if index is None:
         return
     
-    if joueur.paiement(items[index].prix, payer_max=False) > 0:
+    if items[index] in joueur.inventaire or joueur.paiement(items[index].prix, payer_max=False) > 0:
         pass    # Ajouter animation
         return
     
+    son_paiment = Sound(f"{Constantes.Chemins.SFX}/argent2.wav")
+    son_paiment.play()
     if joueur.prendre_item(items[index]):
         items.pop(index)
 

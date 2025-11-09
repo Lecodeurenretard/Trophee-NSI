@@ -21,6 +21,7 @@ from sys         import exit
 
 from pygame.surface import Surface
 from pygame.rect    import Rect
+from pygame.mixer   import Sound
 
 from pygame.math import Vector2 as Vecteur
 

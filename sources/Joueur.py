@@ -161,6 +161,10 @@ class Joueur:
         """Donne `gagne` pieces au joueur peu importe les options de triches."""
         self._nombre_pieces += gagne
         self._nombre_pieces = max(0, self._nombre_pieces)
+        if gagne > 0:
+            son_pieces = Sound(f"{Constantes.Chemins.SFX}/argent.wav")
+            son_pieces.play()
+    
     def paiement(self, prelevement : int, payer_max : bool = True) -> int:
         """
         `gagner_pieces()` mais enlève des pièces et respecte les paramètres de triches.

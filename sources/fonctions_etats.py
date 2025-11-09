@@ -73,6 +73,7 @@ def affichage_attaques() -> None:
         skip : bool = testeur_skip_ou_quitte()
         
         rafraichir_ecran(attaque_gen, to_send_dessin=skip)
+    rafraichir_ecran(attaque_gen)
     
     if joueur.est_mort:
         Jeu.a_gagne = False
@@ -85,11 +86,10 @@ def affichage_attaques() -> None:
         pieces_gagnees += 2**monstre.rang + random.randint(1, 4)  # Dites non au décalage de bit et exponentiez
     
     if pieces_gagnees != 0:
-        terminer_interruption(animation_argent_gagne(pieces_gagnees))
         joueur.gagner_pieces(pieces_gagnees)
+        terminer_interruption(animation_argent_gagne(pieces_gagnees))
     
     if len(Monstre.monstres_en_vie) == 0:
-        # Changement de combat
         if not victoire_joueur():
             Jeu.num_etape += 1
             Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
@@ -181,9 +181,12 @@ def game_over() -> None:
     ecran_gen : Generator[Surface, None, None] = fin_partie(Jeu.a_gagne)
     if Jeu.a_gagne:
         Jeu.set_texte_fenetre("yay!")
+        pygame.mixer.music.load(f"{Constantes.Chemins.SFX}/victoire.wav")
     else:
         Jeu.set_texte_fenetre("...")
+        pygame.mixer.music.load(f"{Constantes.Chemins.SFX}/defaite.wav")
     
+    pygame.mixer.music.play()
     while not testeur_skip_ou_quitte():
         Jeu.commencer_frame()
         try:

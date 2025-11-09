@@ -1,6 +1,8 @@
 from Curseur import *
 
 class Button:
+    SON_APPUI : Sound = Sound(f"{Constantes.Chemins.SFX}/select.mp3")
+    
     def __init__(
         self,
         dim : tuple[int, int, int, int],
@@ -34,16 +36,22 @@ class Button:
             surf = Constantes.Polices.FOURRE_TOUT.render(self._text, True, BLANC)
             surface.blit(surf, surf.get_rect(center=self._rect.center))
     
-    def check_click(self, pos_click : Pos|tuple[int, int]) -> bool:
+    def check_click(self, pos_click : Pos|tuple[int, int], jouer_son : bool = True) -> bool:
         if type(pos_click) is Pos:
             pos_click = pos_click.tuple
         if self._rect.collidepoint(pos_click) and self._action is not None:  #type: ignore
+            if jouer_son:
+                self.jouer_sfx()
+            
             self._action()
             return True
         return False
     
     def in_butt_hit(self, pos_mouse : tuple[int, int]) -> bool: # peak naming
         return self._rect.collidepoint(pos_mouse)
+    
+    def jouer_sfx(self) -> None:
+        Button.SON_APPUI.play()
 
 class ButtonCursor(Button):
     _CURSOR_OFFSET : int = 10
@@ -139,6 +147,7 @@ class ButtonCursor(Button):
                 groups_having_moved_cursor.append(butt._group_name)
             
             if Constantes.Touches.utilisateur_valide_menu(ev) and butt._do_cursor_select_button:
+                butt.jouer_sfx()
                 if butt._action is None:
                     continue
                 

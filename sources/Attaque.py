@@ -85,6 +85,10 @@ class Attaque:
         "base": (lambda degats, crit: round(degats)),
     }
     
+    SON_COUP : Sound = Sound(f"{Constantes.Chemins.SFX}/hit.mp3")
+    SON_HEAL : Sound = Sound(f"{Constantes.Chemins.SFX}/heal.mp3")
+    SON_CRIT : Sound = Sound(f"{Constantes.Chemins.SFX}/smash-crit.wav")
+    
     LISTE : list['Attaque']
     CRIT_IMG : Surface = pygame.transform.scale(
         pygame.image.load(f"{Constantes.Chemins.IMG}/crit.png"),
@@ -206,6 +210,7 @@ class Attaque:
                 attaque._dessiner(surface, pos)
                 skip_attaque = bool((yield))
             
+            attaque.jouer_sfx()
             attaque.appliquer()
             
             # attente de la prochaine frame
@@ -374,6 +379,14 @@ class Attaque:
         copie._crit = Attaque.toujours_crits or random.random() < self._prob_crit
         
         Attaque.attaques_du_tour.put_nowait(AttaquePriorisee(copie, self._lanceur.stats.vitesse))
+    
+    def jouer_sfx(self) -> None:
+        if self._crit:
+            Attaque.SON_CRIT.play()
+        elif self._type == TypeAttaque.SOIN:
+            Attaque.SON_HEAL.play()
+        else:
+            Attaque.SON_COUP.play()
 
 @total_ordering
 class AttaquePriorisee:

@@ -35,25 +35,29 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Les attaques ont leur JSON.
+## Ajout de sound effects.
 + Changements majeurs
-	- Ajout de [attaques.json](data/attaques.json).
-	- Ajout de `_depuis_json_dict()`, `actualiser_liste()`
+	- Des SFX ont été ajoutés pour:
+		* Les boutons
+		* Les attaques
+		* Le gain/la perte d'argent
+	- Ajout de dossier [sfx/](data/sfx/) dans [data/](data/).
+		* Ajout da la constante `SFX` dans [Chemins.py](sources/Constantes/Chemins.py).
 + Sur plusieurs fichiers
 + Structure de fichiers
 + READMEs et documentation
-	- Corrections et ajouts de nouvelles fonctionnalités dans [fight-system.md](doc/fight-system.md).
 + Interactions joueur/testeur
-	- Les monstres n'affichent plus que l'ID de leurs types dans l'écran des informations.
-	- Ajout de lignes pour séparer les informations des entités.
+	- Quand l'attaque fatale pour le monstre est skip, la barre de vie est bien actualisée.
+	- On ne peut plus payer si l'item est déjà dans l'inventaire.
 + Correction de bugs
-+ [Attaque.py](sources/Attaque.py)
-	- Ajout de méthodes `.depuis_str()` aux classes `TypeAttaque` et `AttaqueFlag`.
-	- Ajout de `IGNORER_DEFENSE` à `AttaqueFlag`.
-	- Ajout de `.avec_nom()` à `Attaque`
-	- Suppression de `ATTAQUE_ALLIES` et `ATTAQUE_EQUIPE` dans `AttaqueFlag`.
-		* Renommage de `Attaque.peut_attaquer_allies()` en `Attaque.peut_attaquer_lanceur()`.
-+ entités
-	- `moveset[]` est maintenant une liste de noms d'attaques.
-+ `Stat`
-	- `.VITESSE_MAX` n'est plus dans le `.__repr__()`.
++ `Attaque`
+	- Ajout des constantes statiques `SON_COUP`, `SON_HEAL` et `SON_CRIT`.
+	- Ajout de la méthode `.jouer_sfx()`.
++ `Button`
+	- Ajout de la constante statique `SON_APPUI`.
+	- Ajout de la méthode `.jouer_sfx()`.
+
+
+
+_______
+Il faudra changer les SFX plus tard.

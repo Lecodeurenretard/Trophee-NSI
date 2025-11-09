@@ -1,0 +1,41 @@
+[
+	{
+		"sound_url": "https://tuna.voicemod.net/sound/857f0429-784c-4b1d-a35c-074eccda04ef",
+		"file": "hit.mp3",
+		"modified": false
+	},
+	{
+		"sound_url": "https://tuna.voicemod.net/sound/60174cce-1d73-467a-8b39-a1e4155fb129",
+		"file": "heal.mp3",
+		"modified": false
+	},
+	{
+		"sound_url": "https://www.myinstants.com/en/instant/pokemon-plink-50024/",
+		"file": "select.mp3",
+		"modified": false
+	},
+	{
+		"sound_url": "https://www.youtube.com/watch?v=B_Zqr7crXp0",
+		"files": [
+			"victoire.wav",
+			"defaite.wav"
+		],
+		"modified": false
+	},
+	{
+		"sound_url": "https://freesound.org/people/el_boss/sounds/817813/",
+		"sound_name": "Treasure Collected Coin Tinkle Game Sound Effect",
+		"author_url": "https://freesound.org/people/el_boss/",
+		"author_name": "el_boss",
+		"license_url": "http://creativecommons.org/publicdomain/zero/1.0/",
+		"license_name": "Creative Commons 0",
+		"file": "argent.wav",
+		"modified": false
+	},
+	{
+		"sound_url": null,
+		"file": "argent2",
+		"modified": false,
+		"comment": "Nils l'a enregistré."
+	}
+]
