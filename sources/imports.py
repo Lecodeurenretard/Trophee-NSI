@@ -1,8 +1,8 @@
 """imports externes et de modules."""
 
+import logging
 import pygame
 import random
-import logging
 import math
 import json
 
@@ -23,6 +23,7 @@ from pygame.surface import Surface
 from pygame.rect    import Rect
 from pygame.mixer   import Sound
 
-from pygame.math import Vector2 as Vecteur
+from tkinter.messagebox import showerror as afficher_erreur
+from pygame.math        import Vector2   as Vecteur
 
 pygame.init()

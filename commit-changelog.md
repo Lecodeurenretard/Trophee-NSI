@@ -35,29 +35,20 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Ajout de sound effects.
+## Ajout de radio + pop up quand le programme s'arrête dû à une erreur
 + Changements majeurs
-	- Des SFX ont été ajoutés pour:
-		* Les boutons
-		* Les attaques
-		* Le gain/la perte d'argent
-	- Ajout de dossier [sfx/](data/sfx/) dans [data/](data/).
-		* Ajout da la constante `SFX` dans [Chemins.py](sources/Constantes/Chemins.py).
+	- Le shop boucle sur des musiques random.
+	- Le jeu ouvre une fenêtre Tkinter avec le message d'erreur qi le joueur n'est pas dans le mode débug.
 + Sur plusieurs fichiers
 + Structure de fichiers
+	- Ajout des musiques dans [data/musique/radio/](data/musique/radio/).
+		* Ajout des constantes `MUSIQUE` et `RADIO` dans [Chemins.py](sources/Constantes/Chemins.py).
 + READMEs et documentation
 + Interactions joueur/testeur
-	- Quand l'attaque fatale pour le monstre est skip, la barre de vie est bien actualisée.
-	- On ne peut plus payer si l'item est déjà dans l'inventaire.
 + Correction de bugs
-+ `Attaque`
-	- Ajout des constantes statiques `SON_COUP`, `SON_HEAL` et `SON_CRIT`.
-	- Ajout de la méthode `.jouer_sfx()`.
-+ `Button`
-	- Ajout de la constante statique `SON_APPUI`.
-	- Ajout de la méthode `.jouer_sfx()`.
-
-
++ `Jeu`
+	- Ajout de la variable `volume_musique`.
+	- Ajout des méthodes `jouer_musique()` et `interrompre_musique()`.
 
 _______
-Il faudra changer les SFX plus tard.
+Musiques qûrement copyright, il faudra les changer.

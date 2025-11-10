@@ -260,6 +260,7 @@ def shop() -> None:
     premiere_frame : bool = True
     interruption : Optional[Interruption] = None
     
+    musiques_disponibles : list[str] = glob(f"{Constantes.Chemins.RADIO}/*.mp3")
     while Jeu.etat == Jeu.Etat.SHOP:
         Jeu.commencer_frame()
         if interruption is not None:
@@ -284,6 +285,13 @@ def shop() -> None:
                 elif ev.key in Constantes.Touches.DBG_SHOP_SUPPRESSION_ITEM and len(items) > 0:
                     items.pop()
         
+        
+        # Si il n'y a plus de musique, en charge une aléatoire.
+        if not pygame.mixer.music.get_busy():
+            Jeu.jouer_musique(
+                random.choice(musiques_disponibles),
+                .2
+            )
         
         Jeu.fenetre.fill(BLANC)
         
@@ -310,3 +318,5 @@ def shop() -> None:
     Jeu.num_etape += 1
     if Jeu.decision_etat_en_cours():
         Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
+    
+    Jeu.interrompre_musique()

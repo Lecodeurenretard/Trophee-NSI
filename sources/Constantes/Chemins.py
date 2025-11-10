@@ -5,8 +5,11 @@ RACINE : str
 DATA   : str
 IMG    : str
 SAVE   : str
-ANIM : str
+ANIM   : str
 ETC    : str
+
+MUSIQUE : str
+RADIO   : str
 
 RACINE = ''
 if getcwd().endswith("sources"):
@@ -22,3 +25,6 @@ ETC  = f"{DATA}/etc"
 IMG  = f"{DATA}/img"
 SAVE = f"{DATA}/save"
 SFX  = f"{DATA}/sfx"
+
+MUSIQUE = f"{DATA}/musique"
+RADIO   = f"{MUSIQUE}/radio"

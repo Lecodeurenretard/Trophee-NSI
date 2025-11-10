@@ -1,4 +1,7 @@
+import parametres_vars as params
+from imports import afficher_erreur, NoReturn
 from Jeu import Jeu
+
 from fonctions_etats import (
     ecran_titre,
     credits,
@@ -11,9 +14,8 @@ from fonctions_etats import (
 )
 
 
-def jeu() -> None:
+def jeu() -> NoReturn:
     Jeu.changer_etat(Jeu.Etat.ECRAN_TITRE)
-    
     while True:
         match Jeu.etat:
             case Jeu.Etat.ECRAN_TITRE:
@@ -45,4 +47,17 @@ def jeu() -> None:
 
 # N'exécute le programme que si on le lance depuis ce fichier
 if __name__ == "__main__":
-    jeu()
+    try:
+        jeu()
+    
+    except (ValueError, NotImplementedError, RuntimeError, AssertionError) as err:
+        # Erreurs suseptibles d'être élevées par les développeurs.
+        if not bool(params.mode_debug):
+            afficher_erreur("Une erreur est survenue.", f"{type(err).__name__}: {err.args[0]}")
+        raise err
+    
+    except Exception as err:
+        # Erreurs suseptibles d'être élevées par Python directement.
+        if not bool(params.mode_debug):
+            afficher_erreur("oups", "Le jeu est cassé, contactez un développeur.\nSi vous en êtes un, regardez la console.")
+        raise err   # Comme ça la console à toutes les infos

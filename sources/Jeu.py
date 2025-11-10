@@ -43,6 +43,8 @@ class Jeu:
     clock               : pygame.time.Clock = pygame.time.Clock()
     framerate           : int = 60
     
+    volume_musique : float = 1
+    
     
     
     # Graphe des états: http://graphonline.top/fr/?graph=OMlRPwRCzhQxYjcl
@@ -133,6 +135,21 @@ class Jeu:
             Jeu.menus_surf.fill(TRANSPARENT)
         if reset_infos:
             Jeu.infos_surf.fill(TRANSPARENT)
+    
+    @staticmethod
+    def jouer_musique(fichier : str, volume : Optional[float] = None) -> None:
+        pygame.mixer.music.load(fichier)
+        
+        pygame.mixer.music.set_volume(
+            volume
+            if volume is not None
+            else Jeu.volume_musique
+        )
+        pygame.mixer.music.play()
+    
+    @staticmethod
+    def interrompre_musique() -> None:
+        pygame.mixer.music.stop()
 
 
 # Le système d'overload est à la fois une bénédiction pour la fonctionnalité
