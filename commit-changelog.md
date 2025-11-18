@@ -35,20 +35,10 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Ajout de radio + pop up quand le programme s'arrête dû à une erreur
+## J'en ai marre, je branch
 + Changements majeurs
-	- Le shop boucle sur des musiques random.
-	- Le jeu ouvre une fenêtre Tkinter avec le message d'erreur qi le joueur n'est pas dans le mode débug.
 + Sur plusieurs fichiers
 + Structure de fichiers
-	- Ajout des musiques dans [data/musique/radio/](data/musique/radio/).
-		* Ajout des constantes `MUSIQUE` et `RADIO` dans [Chemins.py](sources/Constantes/Chemins.py).
 + READMEs et documentation
 + Interactions joueur/testeur
 + Correction de bugs
-+ `Jeu`
-	- Ajout de la variable `volume_musique`.
-	- Ajout des méthodes `jouer_musique()` et `interrompre_musique()`.
-
-_______
-Musiques qûrement copyright, il faudra les changer.

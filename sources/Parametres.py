@@ -1,9 +1,9 @@
 from import_var import *
 from dessin import dessiner_rect
-from fonctions_vrac import blit_centre
+from fonctions_vrac import blit_centre, clamp
 
 # les catégories que peut prendre Parametre.valeur
-categorie_valeur_parametre : TypeAlias = None|bool#|int|float|str|list[str]
+categorie_valeur_parametre : TypeAlias = None|bool|float#|int|str|list[str]
 
 # Ces catégories pourrons potentiellements être ajoutés plus tard
 # en fonction des paramètres qui serons implémentés plus tard
@@ -18,23 +18,48 @@ class TypeParametre(Enum):
     FLOAT            = auto()
     
     @staticmethod
-    def dessiner(surface : Surface, categ : 'TypeParametre', position : Pos, dimensions : tuple[int, int]|list[int], valeur : categorie_valeur_parametre) -> None:
+    def dessiner(surface : Surface, categ : 'TypeParametre', position : Pos, dimensions : tuple[int, int]|list[int]|Vecteur, valeur : categorie_valeur_parametre) -> None:
+        dimensions = Vecteur(dimensions)
+        
         match(categ):
             case TypeParametre.CASE_A_COCHER:
+                assert(type(valeur) is bool), "valeur n'est pas un booléen."
                 dessiner_rect(
                     surface,
                     position, dimensions,
                     BLEU if valeur else BLANC,
-                    epaisseur_trait=2, couleur_bords=GRIS
+                    epaisseur_trait=2, couleur_bords=GRIS,
                 )
             case TypeParametre.RADIO:
                 pass
             case TypeParametre.CHECKBOXES:
                 pass
             case TypeParametre.SLIDERF:
-                pass
+                assert(type(valeur) is float), "valeur n'est pas une float."
+                
+                dessiner_rect(
+                    surface,
+                    position, dimensions,
+                    GRIS,
+                    epaisseur_trait=0,
+                )
+                
+                pos_cercle = Pos(
+                    position.x + round(valeur * dimensions.x),
+                    position.y + round(dimensions.y / 2)
+                )
+                pygame.draw.circle(
+                    surface,
+                    BLEU_CLAIR,
+                    pos_cercle.tuple,
+                    dimensions.y * 1.7 / 2, # on divise par 2 car la fonction a besoin du rayon
+                )
             case TypeParametre.SLIDERI:
-                pass
+                TypeParametre.dessiner(
+                    surface, TypeParametre.SLIDERF,
+                    position, dimensions,
+                    valeur,
+                )
             case TypeParametre.TEXTE:
                 pass
             case TypeParametre.INT:
@@ -121,12 +146,16 @@ class Parametre:
         ):
         self._nom_affichage = nom_affichage
         self._position : Pos = Pos(Jeu.pourcentage_largeur(50) + Parametre._ECART_NOM_VALEUR // 2, hauteur)
-        
         self._categorie = categ
         self._valeur_par_defaut = valeur_par_defaut
         self._valeur            = self._valeur_par_defaut
         
         self._changement_utilisateur = on_change
+        
+        self._position = Pos(
+            self._position.x + round(self._categorie.dimensions[0] / 2),
+            self._position.y
+        )
         
         self._valeurs_autorisees : Optional[list[str]] = None
         if self._possibilites_finies:
@@ -175,9 +204,9 @@ class Parametre:
             case TypeParametre.SLIDERF:
                 pass
             case TypeParametre.SLIDERI:
-                pass
+                ...
             case TypeParametre.TEXTE:
-                pass
+                ...
             case TypeParametre.INT:
                 pass
             case TypeParametre.FLOAT:
@@ -200,7 +229,7 @@ class Parametre:
             case TypeParametre.CHECKBOXES:
                 pass
             case TypeParametre.SLIDERF:
-                pass
+                ...
             case TypeParametre.SLIDERI:
                 pass
             case TypeParametre.TEXTE:
@@ -213,7 +242,7 @@ class Parametre:
                 raise NotImplementedError(f"Catégorie '{self._type.name}' non implémenté dans `Setting._hitbox_globale`.")
         
         # implémentation par défaut, les cas avec des points de suspensions l'implémentent
-        position : Pos = self._position - Vecteur(*self._categorie.dimensions) // 2
+        position : Pos = Pos(self._position)
         position.x += Parametre._ECART_NOM_VALEUR // 2
         
         return Rect(position.tuple, self._categorie.dimensions)
@@ -282,7 +311,16 @@ class Parametre:
             case TypeParametre.CHECKBOXES:
                 pass
             case TypeParametre.SLIDERF:
-                pass
+                pos_clic : Pos = Pos(pygame.mouse.get_pos())
+                if pygame.mouse.get_pressed()[0] and self._hitbox_globale.top <= pos_clic.y <= self._hitbox_globale.bottom:
+                    ancienne_val = self._valeur
+                    
+                    self._valeur = (pos_clic.x - self._hitbox_globale.x) / (self._hitbox_globale.width)
+                    self._valeur = clamp(self._valeur, 0.0, 1.0)
+                    
+                    if self._changement_utilisateur is not None and ancienne_val != self._valeur:
+                        self._changement_utilisateur(self._valeur)
+                
             case TypeParametre.SLIDERI:
                 pass
             case TypeParametre.TEXTE:
@@ -294,4 +332,3 @@ class Parametre:
             
             case _:
                 raise NotImplementedError(f"catégorie '{self._categorie.name}' non implémenté dans `Setting.prendre_input()`.")
-        self._categorie

@@ -44,7 +44,8 @@ class Jeu:
     framerate           : int = 60
     
     volume_musique : float = 1
-    
+    volume_sfx     : float = 1
+    volume_global  : float = 1
     
     
     # Graphe des états: http://graphonline.top/fr/?graph=OMlRPwRCzhQxYjcl

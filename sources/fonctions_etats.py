@@ -186,6 +186,7 @@ def game_over() -> None:
         Jeu.set_texte_fenetre("...")
         pygame.mixer.music.load(f"{Constantes.Chemins.SFX}/defaite.wav")
     
+    pygame.mixer.music.set_volume(Jeu.volume_sfx * Jeu.volume_global)
     pygame.mixer.music.play()
     while not testeur_skip_ou_quitte():
         Jeu.commencer_frame()

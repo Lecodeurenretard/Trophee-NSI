@@ -4,7 +4,7 @@ from fonctions_vrac import blit_centre
 
 def dessiner_rect(
         surface : Surface,
-        position : tuple[int, int]|Pos, dimensions : tuple[int, int]|list[int],
+        position : tuple[int, int]|Pos, dimensions : tuple[int, int]|list[int]|Vecteur,
         couleur_remplissage : color = ROUGE, couleur_bords : color = NOIR,
         epaisseur_trait : int = 1, dessiner_interieur : bool = True,
         centre_x : bool = False, centre_y : bool = False,
@@ -12,6 +12,10 @@ def dessiner_rect(
     if type(position) is tuple:
         position = Pos(position)
     assert(type(position) is Pos)   # c'est censé être sûr mais Pylance ne le pense pas
+    
+    if type(dimensions) is Vecteur:
+        dimensions = Pos(dimensions).tuple
+    assert(type(dimensions) is tuple or type(dimensions) is list)
     
     if centre_x:
         position.x -= dimensions[0] // 2

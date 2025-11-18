@@ -13,19 +13,32 @@ def _generer_menu_pos() -> Generator[int, int, NoReturn]:
 menu_h = _generer_menu_pos()
 next(menu_h)    # https://stackoverflow.com/questions/19892204/send-method-using-generator-still-trying-to-understand-the-send-method-and-quir
 
+def _on_mode_debug_change(nouvelle_valeur : bool) -> None:
+    if nouvelle_valeur:
+        logging.basicConfig(level=logging.DEBUG, force=True)
+    else:
+        logging.basicConfig(level=logging.INFO, force=True)
+
+def _on_volume_change(nouvelle_valeur : float) -> None:
+    Jeu.volume_global = nouvelle_valeur
+    logging.debug(f"Changement du volume global à {Jeu.volume_global:.2%}.")    # affichage en pourcents avec 2 décimales
+
 # paramètres normaux
+volume : Parametre = Parametre(
+    "Volume",
+    menu_h.send(TypeParametre.SLIDERF.hauteur),
+    TypeParametre.SLIDERF,
+    1.0,
+    on_change=_on_volume_change, # type: ignore # on est certain que la valeur passée est un float
+)
+
+
 fermer_a_la_fin : Parametre = Parametre(
     "Fermeture automatique",
     menu_h.send(TypeParametre.CASE_A_COCHER.hauteur),
     TypeParametre.CASE_A_COCHER,
     False,
 )
-
-def _on_mode_debug_change(nouvelle_valeur : bool) -> None:
-    if nouvelle_valeur:
-        logging.basicConfig(level=logging.DEBUG, force=True)
-    else:
-        logging.basicConfig(level=logging.INFO, force=True)
 
 mode_debug : Parametre = Parametre(
     "Mode développeur",
@@ -64,6 +77,7 @@ argent_infini = Parametre(
 
 
 PARAMETRES_NORMAUX : list[Parametre] = [
+    volume,
     fermer_a_la_fin,
     mode_debug,
 ]

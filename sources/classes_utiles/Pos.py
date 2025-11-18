@@ -11,10 +11,17 @@ class Pos:
     def __init__(self, x_ou_pos : tuple[int, int]|list[int]): ...
     @overload
     def __init__(self, x_ou_pos : Vecteur): ...
+    @overload
+    def __init__(self, x_ou_pos : 'Pos'): """Copie l'objet en paramètre."""
     
-    def __init__(self, x_ou_pos : int|tuple[int, int]|list[int]|Vecteur, y : int = -1):
+    def __init__(self, x_ou_pos : 'int|tuple[int, int]|list[int]|Vecteur|Pos', y : int = -1):
         # J'ai déja dit à quel point je n'aime pas ce système de surchargement des fonctions?
         self.x : int; self.y : int
+        
+        if type(x_ou_pos) is Pos:
+            self.x, self.y = x_ou_pos.x, x_ou_pos.y
+            return
+        
         if type(x_ou_pos) is int:
             self.x = x_ou_pos; self.y = y
             return
