@@ -17,11 +17,11 @@ from classes_utiles.Pos import Pos
 
 diamant_gen = MultiDeplacement.generateur_s(
 	[
-		Pos(Jeu.pourcentage_largeur(25), Jeu.pourcentage_hauteur(50)),
-		Pos(Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(25)),
-		Pos(Jeu.pourcentage_largeur(75), Jeu.pourcentage_hauteur(50)),
-		Pos(Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(75)),
-		Pos(Jeu.pourcentage_largeur(25), Jeu.pourcentage_hauteur(50)),
+		Pos(Jeu.pourcentages_coordonees(25, 50)),
+		Pos(Jeu.pourcentages_coordonees(50, 25)),
+		Pos(Jeu.pourcentages_coordonees(75, 50)),
+		Pos(Jeu.pourcentages_coordonees(50, 75)),
+		Pos(Jeu.pourcentages_coordonees(25, 50)),
 	],
 	[	# sur une fenêtre carrée de 100 pixel de côté, le rond atteindra (50, 25) au quart (.25) de l'animation, (75, 50) à la moitié (.50) de l'animation, ...
 		1/4,
@@ -29,7 +29,7 @@ diamant_gen = MultiDeplacement.generateur_s(
 		3/4
 	],
 	Jeu.framerate * 3,
-	easing=FADE,
+	easing_fun=FADE,
 	loop=True,
 )		# On crée un générateur pour facilement pouvoir animer à l'infini
 															# On aurait aussi pu faire avec .caluler_valeur()
@@ -44,7 +44,7 @@ couleur_gen = MultiGradient(
 		GRIS,
 	]
 	# les temps sont facultatifs
-).generateur(Jeu.framerate * 3 , easing=FADE, loop=True)	
+).generateur(Jeu.framerate * 3 , easing_fun=FADE, loop=True)	
 
 # vu qu'on a un générateur on aurait pu mettre une boucle for mais ça aurait été source de confusion
 # for pos_rond in triangle_gen:
@@ -61,10 +61,10 @@ while True:
 		Jeu.fenetre,
 		BLEU_CLAIR,
 		(
-			(Jeu.pourcentage_largeur(25), Jeu.pourcentage_hauteur(50)),
-			(Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(75)),
-			(Jeu.pourcentage_largeur(75), Jeu.pourcentage_hauteur(50)),
-			(Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(25)),
+			Jeu.pourcentages_coordonees(25, 50),
+			Jeu.pourcentages_coordonees(50, 75),
+			Jeu.pourcentages_coordonees(75, 50),
+			Jeu.pourcentages_coordonees(50, 25),
 		),
 		width=2
 	)

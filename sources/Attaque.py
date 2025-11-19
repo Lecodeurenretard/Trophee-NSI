@@ -96,8 +96,7 @@ class Attaque:
     )
     
     toujours_crits : bool = False   # ne pas activer ici, utiliser les touches du mode debug plutôt
-    attaques_du_tour : PriorityQueue['AttaquePriorisee'] = PriorityQueue(Constantes.MAX_ENTITES_SIMULTANEES)
-    
+    attaques_jouees : list['Attaque'] = []
     
     def __init__(
             self,
@@ -124,11 +123,11 @@ class Attaque:
         self._prob_crit : float = crit_proba
         self._crit      : bool = False
         
-        self._effet : EffetAttaque = None   # type: ignore
+        self._effet : EffetAttaque = NotImplemented
         self._drapeaux = flags
         
         self._ajustement_degats = ajustement_degats
-        self._animation = glisser
+        self._autoriser_animation = glisser
     
     def __eq__(self, attaque: 'Attaque') -> bool:
         return self._nom == attaque._nom
@@ -145,7 +144,7 @@ class Attaque:
             + f"ID lanceur: {self._lanceur_id}, "
             + f"ID cible: {self._cible_id}, "
             + f"somme des flags: {self._drapeaux.value}, "
-            + f"Jouer animation: {self._animation}"
+            + f"Jouer animation: {self._autoriser_animation}"
             + ")"
         )
     @staticmethod
@@ -175,56 +174,6 @@ class Attaque:
             Attaque.LISTE = [Attaque._depuis_json_dict(dico) for dico in attaques]
     
     @staticmethod
-    def lancer_toutes_les_attaques_gen(surface: Surface) -> Generator[None, Optional[bool], None]:
-        """
-        Renvoie un générateur qui affiche et applique toutes les attaques unes à unes.
-        Si l'on envoie `True`, l'attaque qui est affichée sera passée.
-        """
-        if params.mode_debug.case_cochee:
-            logging.debug("Début du lancement des attaques.")
-        
-        while not Attaque.attaques_du_tour.empty():
-            # préparation
-            attaque : Attaque = Attaque.attaques_du_tour.get_nowait().attaque
-            if attaque._lanceur.est_mort:
-                break
-            
-            if params.mode_debug.case_cochee:
-                logging.debug(f"{attaque._lanceur.dbg_nom} (id: {attaque._lanceur.id}) utilise {attaque._nom} sur {attaque._cible.dbg_nom}.")
-            
-            # temps de début et de fin
-            debut_attaque : Duree = copy(Jeu.duree_execution)
-            fin_attaque   : Duree = debut_attaque + Attaque._DUREE_ANIMATION
-            
-            # animation
-            skip_attaque : bool = False
-            while Jeu.duree_execution < fin_attaque and not skip_attaque:
-                if Jeu.duree_execution - debut_attaque == 0:
-                    attaque._dessiner(surface, attaque.pos_anim_attaque(0))
-                    skip_attaque = bool((yield))
-                    continue
-                
-                pos : Pos = attaque.pos_anim_attaque(
-                    (Jeu.duree_execution - debut_attaque) / Attaque._DUREE_ANIMATION
-                )
-                attaque._dessiner(surface, pos)
-                skip_attaque = bool((yield))
-            
-            attaque.jouer_sfx()
-            attaque.appliquer()
-            
-            # attente de la prochaine frame
-            peut_sortir = pause(Attaque._DUREE_ENTRE_ATTAQUES)
-            while not next(peut_sortir) and not skip_attaque:
-                if (yield):   # None est "falsy", ça a le même effet que si l'utilisateur envoie `False`.
-                    break
-        
-        
-        if bool(params.mode_debug):
-            logging.debug("Fin du lancement des attaques.")
-            logging.debug("")
-    
-    @staticmethod
     def avec_nom(nom : str) -> 'Attaque':
         """Cherche l'attaque avec le nom correspondant dans LISTE."""
         return Attaque.LISTE[
@@ -250,7 +199,7 @@ class Attaque:
     
     @property
     def _deplacement(self) -> Deplacement:
-        if self._animation:
+        if self._autoriser_animation:
             return Deplacement(self._lanceur.pos_attaque, self._cible.pos_attaque)
         return Deplacement(
             Pos.milieu(self._lanceur.pos_attaque, self._cible.pos_attaque),
@@ -301,6 +250,27 @@ class Attaque:
                     position.y + RECT_HAUTEUR // 2,
                 )
             )
+    
+    def _jouer_animation(self, surface : Surface) -> Generator[None, None, None]:
+        """Joue l'animation et les SFX."""
+        debut_attaque : Duree = copy(Jeu.duree_execution)
+        fin_attaque   : Duree = debut_attaque + Attaque._DUREE_ANIMATION
+        
+        # animation
+        while Jeu.duree_execution < fin_attaque:
+            try                 : yield
+            except GeneratorExit: break
+            
+            if Jeu.duree_execution - debut_attaque == 0:
+                self._dessiner(surface, self.pos_anim_attaque(0))
+                continue
+            
+            pos : Pos = self.pos_anim_attaque(
+                (Jeu.duree_execution - debut_attaque) / Attaque._DUREE_ANIMATION
+            )
+            self._dessiner(surface, pos)
+        
+        self.jouer_sfx()
     
     def _calcul_attaque_defense(self, puissance_attaquant : int, defense_cible : int, def_min : float) -> tuple[float, float]:
         if AttaqueFlag.IGNORE_STATS in self._drapeaux:
@@ -369,16 +339,44 @@ class Attaque:
             return
         self._cible.recoit_degats(self.calculer_degats())
     
+    def lancer(self, surface_dessin : Surface) -> Generator[None, None, None]:
+        """
+        Lance l'attaque et appelle ._animation().
+        Ne modifie PAS l'objet originel.
+        """
+        if self._lanceur.est_mort:
+            return
+        
+        if params.mode_debug.case_cochee:
+            logging.debug(f"{self._lanceur.dbg_nom} (ID {self._lanceur_id}) utilise {self._nom} sur {self._cible.dbg_nom} (ID {self._cible_id}).")
+        
+        # https://stackoverflow.com/questions/9708902/in-practice-what-are-the-main-uses-for-the-yield-from-syntax-in-python-3-3
+        # https://peps.python.org/pep-0380/#formal-semantics
+        skip : bool = False
+        try:
+            yield from self._jouer_animation(surface_dessin)
+        except GeneratorExit:
+            skip = True
+        
+        self.appliquer()
+        if skip:
+            print("skip!")
+            return
+        
+        # attente de la prochaine frame
+        peut_sortir = pause(Attaque._DUREE_ENTRE_ATTAQUES)
+        while not next(peut_sortir) and not (yield):
+            continue
+    
     def enregister_lancement(self, id_lanceur : int, id_cible : int, flags_a_ajouter : AttaqueFlag = AttaqueFlag.AUCUN) -> None:
-        """Pousse une copie de l'attaque sur `attaques_du_tour[]`. Ne modifie PAS l'objet originel."""
         copie : Attaque = copy(self)
-        copie._cible_id = id_cible
+        
         copie._lanceur_id = id_lanceur
-        copie._drapeaux |= flags_a_ajouter
+        copie._cible_id   = id_cible
+        copie._drapeaux  |= flags_a_ajouter
         
         copie._crit = Attaque.toujours_crits or random.random() < self._prob_crit
-        
-        Attaque.attaques_du_tour.put_nowait(AttaquePriorisee(copie, self._lanceur.stats.vitesse))
+        Attaque.attaques_jouees.append(copie)
     
     def jouer_sfx(self) -> None:
         if self._crit:
@@ -387,28 +385,6 @@ class Attaque:
             Attaque.SON_HEAL.play()
         else:
             Attaque.SON_COUP.play()
-
-@total_ordering
-class AttaquePriorisee:
-    """Classe permettant de classer les attaques pour pouvoir déterminer leur ordre d'application."""
-    def __init__(self, attaque : Attaque, vitesse_lanceur : float):
-        self.attaque = attaque
-        self._score = AttaquePriorisee._calcul_score(attaque.vitesse, vitesse_lanceur)
-     
-    def __lt__(self, other : 'AttaquePriorisee'):
-        return self._score < other._score
-    def __eq__(self, other : 'AttaquePriorisee'):
-        return self._score == other._score
-    
-    @staticmethod
-    def _calcul_score(vitesse_attaque : float, vitesse_lanceur : float) -> float:
-        if vitesse_attaque < 0 or vitesse_lanceur < 0:
-            return Stat.VITESSE_MAX
-        
-        # Visualisez et essayez les modification de la formule ici: https://www.desmos.com/3D/332drqdeup
-        # Les seules restrictions sont que la fonction doit être strictement décroissante pour vitesse_attaque et vitesse_joueur.
-        score_vitesse = 1.2 * vitesse_attaque + 1.0 * vitesse_lanceur
-        return -clamp(score_vitesse, 0, Stat.VITESSE_MAX)
 
 
 Attaque.actualiser_liste()

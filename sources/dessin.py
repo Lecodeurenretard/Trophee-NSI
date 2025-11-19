@@ -8,6 +8,9 @@ def dessiner_rect(
         couleur_remplissage : color = ROUGE, couleur_bords : color = NOIR,
         epaisseur_trait : int = 1, dessiner_interieur : bool = True,
         centre_x : bool = False, centre_y : bool = False,
+        border_radius = -1,
+        border_radius_tl = -1, border_radius_tr = -1,
+        border_radius_bl = -1, border_radius_br = -1,
     ) -> None:
     if type(position) is tuple:
         position = Pos(position)
@@ -25,7 +28,12 @@ def dessiner_rect(
             (
                 position.x, position.y,
                 dimensions[0], dimensions[1]
-            )
+            ),
+            border_radius=border_radius,
+            border_top_left_radius=border_radius_tl,
+            border_top_right_radius=border_radius_tr,
+            border_bottom_left_radius=border_radius_bl,
+            border_bottom_right_radius=border_radius_br,
         )
     
     if epaisseur_trait > 0:
@@ -36,7 +44,12 @@ def dessiner_rect(
                 position.x, position.y,
                 dimensions[0], dimensions[1]
             ),
-            width=epaisseur_trait
+            width=epaisseur_trait,
+            border_radius=border_radius,
+            border_top_left_radius=border_radius_tl,
+            border_top_right_radius=border_radius_tr,
+            border_bottom_left_radius=border_radius_bl,
+            border_bottom_right_radius=border_radius_br,
         )
 
 def dessiner_barre_de_vie(surface : Surface, pos_x : int, pos_y : int, ratio_vie : float, longueur_remplissage : int) -> None:

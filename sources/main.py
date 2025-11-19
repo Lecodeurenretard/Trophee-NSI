@@ -8,7 +8,7 @@ from fonctions_etats import (
     preparation,
     attente_prochaine_etape,
     choix_attaque,
-    affichage_attaques,
+    affichage_attaque,
     game_over,
     shop,
 )
@@ -36,8 +36,8 @@ def jeu() -> NoReturn:
             case Jeu.Etat.CHOIX_ATTAQUE:
                 choix_attaque()
             
-            case Jeu.Etat.AFFICHAGE_ATTAQUES:
-                affichage_attaques()
+            case Jeu.Etat.AFFICHAGE_ATTAQUE:
+                affichage_attaque()
             
             case Jeu.Etat.GAME_OVER:
                 game_over()

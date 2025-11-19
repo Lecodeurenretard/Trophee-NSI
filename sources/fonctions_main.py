@@ -39,6 +39,9 @@ def initialiser_nouveau_combat(numero_combat : int, reset_joueur : bool = False)
         raise ValueError(f"`numero_combat` ({numero_combat}) doit être compris dans [1; {Jeu.MAX_COMBAT}].")
     Jeu.num_etape = numero_combat
     
+    Jeu.attaques_restantes_joueur = Jeu.ATTAQUES_PAR_TOUR
+    Attaque.attaques_jouees.clear()
+    
     reset_monstre()
     if reset_joueur:
         joueur.reset()

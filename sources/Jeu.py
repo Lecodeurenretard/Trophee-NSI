@@ -4,40 +4,27 @@ from Constantes import Touches
 from Constantes.Couleurs import TRANSPARENT, ROUGE
 from Constantes.Polices import FOURRE_TOUT
 
-def staticclass(cls : type) -> type:
-    """Empèche les classes d'avoir un constructeur, on les force à être 'statiques'."""
-    def __init__(self, *autre : Any, **autres : Any) -> NoReturn:   # Englobe toutes les fonctions possibles dans Python
-        """Lance une TypeError."""
-        # the humble = delete
-        # the humble not defining constructor => can't create object
-        # J'aime déclarer un décorateur pour une fonctionalité qui devrait être inscrite dans le langage.
-        raise TypeError(f"On ne peut pas instancier d'objet de type `{cls.__name__}` car la classe est déclarée comme statique.")
-    
-    cls.__init__ = __init__
-    return cls
-
 
 Interruption : TypeAlias = Generator[Surface, None, None]
-
-# J'ai commenté le décorateur car il empèche pywright de détecter les membre
-# En principe, Le code devrait marcher même avec le décarateur d'activé.
-# @staticclass
 class Jeu:
     """
     Classe statique gerant le jeu.
     Elle contient les variables globales.
     """
+    MAX_COMBAT        : int = 10
+    ATTAQUES_PAR_TOUR : int = 3
+    DECISION_SHOP : Callable[[int], bool] = lambda num_combat: num_combat % 5 == 0 and num_combat != Jeu.MAX_COMBAT
+    
     largeur : int = 800 ;   hauteur : int = 600
     centre_fenetre : tuple[int, int] = (largeur // 2, hauteur // 2)
-    MAX_COMBAT : int = 10
-    DECISION_SHOP : Callable[[int], bool] = lambda num_combat: num_combat % 5 == 0 and num_combat != Jeu.MAX_COMBAT
     
     fenetre    : Surface = pygame.display.set_mode((largeur, hauteur))
     menus_surf : Surface = Surface((largeur, hauteur), pygame.SRCALPHA)
     infos_surf : Surface = Surface((largeur, hauteur), pygame.SRCALPHA)
     
-    num_etape          : int   = 1
-    a_gagne             : bool = False
+    attaques_restantes_joueur : int  = ATTAQUES_PAR_TOUR
+    num_etape                 : int  = 1
+    a_gagne                   : bool = False
     
     duree_execution     : Duree = Duree()
     clock               : pygame.time.Clock = pygame.time.Clock()
@@ -49,16 +36,16 @@ class Jeu:
     
     # Graphe des états: http://graphonline.top/fr/?graph=OMlRPwRCzhQxYjcl
     class Etat(Enum):
-        DECISION_ETAT          = auto()
+        DECISION_ETAT           = auto()
         ATTENTE_PROCHAINE_ETAPE = auto()
-        CHOIX_ATTAQUE          = auto()
-        AFFICHAGE_ATTAQUES     = auto()
-        GAME_OVER              = auto()
-        SHOP                   = auto()
+        CHOIX_ATTAQUE           = auto()
+        AFFICHAGE_ATTAQUE       = auto()
+        GAME_OVER               = auto()
+        SHOP                    = auto()
         
-        ECRAN_TITRE            = auto()
-        CREDITS                = auto()
-        PREPARATION            = auto()
+        ECRAN_TITRE             = auto()
+        CREDITS                 = auto()
+        PREPARATION             = auto()
     etat           : Etat = Etat.DECISION_ETAT
     precedent_etat : Etat = Etat.DECISION_ETAT
     
@@ -107,6 +94,11 @@ class Jeu:
     def pourcentage_largeur(pourcents : float) -> int:
         """Renvoie pourcentage de la largeur de l'écran en pixels"""
         return round(Jeu.largeur * pourcents / 100)
+    
+    @staticmethod
+    def pourcentages_coordonees(pc_largeur : float, pc_hauteur : float) -> tuple[int, int]:
+        """Raccourcit pour (Jeu.pourcentage_largeur(pc_largeur), Jeu.pourcentage_largeur(pc_hauteur))"""
+        return (Jeu.pourcentage_largeur(pc_largeur), Jeu.pourcentage_hauteur(pc_hauteur))
     
     @staticmethod
     def changer_taille_fenetre(nouvelle_taille : tuple[int, int]) -> None:

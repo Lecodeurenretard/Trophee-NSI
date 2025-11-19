@@ -74,7 +74,7 @@ class Joueur:
     # propriété car la position pourrait changer suivant la position du ou des joueurs
     @property
     def pos_attaque(self) -> Pos:
-        return Pos(Jeu.largeur // 4, Jeu.pourcentage_hauteur(60))
+        return Pos(Jeu.pourcentages_coordonees(25, 60))
     
     @property
     def pos_curseur(self) -> Pos:
@@ -128,7 +128,7 @@ class Joueur:
         Attaque.avec_nom(nom_attaque).enregister_lancement(self._id, id_cible)
     
     def dessiner(self, surface : Surface) -> None:
-        blit_centre(surface, self._sprite, (Jeu.largeur // 4, Jeu.pourcentage_hauteur(60)))
+        blit_centre(surface, self._sprite, Jeu.pourcentages_coordonees(25, 60))
     
     def dessine_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int) -> None:
         dessiner_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie)
@@ -140,7 +140,7 @@ class Joueur:
         self.dessiner(surface)
     
     def dessine_prochaine_frame_UI(self, surface : Surface) -> None:
-        self.dessine_barre_de_vie(surface, Jeu.pourcentage_largeur(70), Jeu.pourcentage_hauteur(65))
+        self.dessine_barre_de_vie(surface, *Jeu.pourcentages_coordonees(70, 65))
     
     def prendre_item(self, item : Item) -> bool:
         """Ajoute un item à l'inventaire s'il n'y était pas déjà. Renvoie si l'item à été ajouté."""

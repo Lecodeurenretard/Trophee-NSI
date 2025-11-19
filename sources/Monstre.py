@@ -48,7 +48,7 @@ MonstreJSON.actualiser_donnees()
 
 
 class Monstre:
-    POSITION : Pos = Pos(Jeu.pourcentage_largeur(70), Jeu.pourcentage_hauteur(15))
+    POSITION : Pos = Pos(Jeu.pourcentages_coordonees(70, 15))
     SPRITE_DIM : tuple[int, int] = (150, 150)
     
     # La liste de tous les monstres en vie

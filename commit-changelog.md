@@ -35,20 +35,24 @@ format:
 Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
 -->
 _____
-## Ajout de radio + pop up quand le programme s'arrête dû à une erreur
+## Les attaques peuvent se jouer plusieurs fois.
 + Changements majeurs
-	- Le shop boucle sur des musiques random.
-	- Le jeu ouvre une fenêtre Tkinter avec le message d'erreur qi le joueur n'est pas dans le mode débug.
+	- La pile d'attaque est remplacée par une liste `attaques_jouees[]`.
+	- `Attaque.lancer_toutes_les_attaques_gen()` est remplacée par la méthode non statique `Attaque.lancer()`
+	- Ajout de `Jeu.ATTAQUES_PAR_TOUR` et `Jeu.attaques_restantes_joueur[]`.
 + Sur plusieurs fichiers
 + Structure de fichiers
-	- Ajout des musiques dans [data/musique/radio/](data/musique/radio/).
-		* Ajout des constantes `MUSIQUE` et `RADIO` dans [Chemins.py](sources/Constantes/Chemins.py).
 + READMEs et documentation
 + Interactions joueur/testeur
+	- Le son de victoire/défaite est toujours au max maintenant.
+	- Un décompte des attaques restantes est affiché en bas à droite.
 + Correction de bugs
-+ `Jeu`
-	- Ajout de la variable `volume_musique`.
-	- Ajout des méthodes `jouer_musique()` et `interrompre_musique()`.
-
-_______
-Musiques qûrement copyright, il faudra les changer.
++ `Attaque`
+	- Ajout de `._jouer_animation()`.
+	- L'attribut `.effet` est maintenant mit à `NotImplemented`.
+	- Renommage de `._animation` en `._autoriser_animation`
++ [dessin.py](sources/dessin.py)
+	- `dessiner_rect()` peut maintenant dessiner des bords ronds.
++ [Jeu.py](sources/Jeu.py)
+	- Ajout de `Jeu.pourcentages_coordonees()`.
+	- Suppression de `@staticclass` car inutilisé (bien qu'utile).

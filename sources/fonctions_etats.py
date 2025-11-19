@@ -43,6 +43,17 @@ def choix_attaque() -> None:
         if interruption is not None:
             terminer_interruption(interruption)
         
+        # Si le joueur ne peut pas jouer
+        if Jeu.attaques_restantes_joueur <= 0:
+            monstres_attaquent()
+            Jeu.reset_etat()
+            verifier_pour_quitter()    # empèche la boucle d'évèvement normale de s'exécuter
+            
+            # Si le monstre n'a plus d'attaques
+            Jeu.attaques_restantes_joueur -= 1
+            if Jeu.attaques_restantes_joueur == -Jeu.ATTAQUES_PAR_TOUR:
+                Jeu.attaques_restantes_joueur = Jeu.ATTAQUES_PAR_TOUR
+        
         for event in pygame.event.get():
             verifier_pour_quitter(event)
             interruption = reagir_appui_touche_choix_attaque(event)
@@ -51,9 +62,10 @@ def choix_attaque() -> None:
             if event.type != pygame.KEYDOWN and event.type != pygame.MOUSEBUTTONDOWN:
                 continue
             
-            # Si le joueur attaque...
+            # Si le joueur attaque
             if ButtonCursor.handle_inputs(boutons_attaques, event):
-                monstres_attaquent()
+                Jeu.attaques_restantes_joueur -= 1
+                logging.debug(f"Il reste {Jeu.attaques_restantes_joueur} attaques au joueur.")
                 Jeu.reset_etat()
                 break
         
@@ -61,19 +73,18 @@ def choix_attaque() -> None:
     
     ButtonCursor.disable_drawing("Attaques")
     if Jeu.decision_etat_en_cours():
-        Jeu.changer_etat(Jeu.Etat.AFFICHAGE_ATTAQUES)
+        Jeu.changer_etat(Jeu.Etat.AFFICHAGE_ATTAQUE)
 
-def affichage_attaques() -> None:
-    logging.debug(f"Activation de l'état {Jeu.Etat.AFFICHAGE_ATTAQUES.name}.")
+def affichage_attaque() -> None:
+    logging.debug(f"Activation de l'état {Jeu.Etat.AFFICHAGE_ATTAQUE.name}.")
     
-    attaque_gen : list[Generator[None, None, None]] = [Attaque.lancer_toutes_les_attaques_gen(Jeu.fenetre)]
+    attaque_gen : list[Generator[None, None, None]] = [Attaque.attaques_jouees[-1].lancer(Jeu.fenetre)]
     attaque_gen[0].send(None)
     while len(attaque_gen) != 0:
         Jeu.commencer_frame()
         skip : bool = testeur_skip_ou_quitte()
         
         rafraichir_ecran(attaque_gen, to_send_dessin=skip)
-    rafraichir_ecran(attaque_gen)
     
     if joueur.est_mort:
         Jeu.a_gagne = False
@@ -186,6 +197,7 @@ def game_over() -> None:
         Jeu.set_texte_fenetre("...")
         pygame.mixer.music.load(f"{Constantes.Chemins.SFX}/defaite.wav")
     
+    pygame.mixer.music.set_volume(1)
     pygame.mixer.music.play()
     while not testeur_skip_ou_quitte():
         Jeu.commencer_frame()
@@ -252,7 +264,7 @@ def shop() -> None:
     items : list[Item] = [Item.item_aleatoire() for _ in range(random.randint(2, 3))]
     
     bouton_sortie : Button = Button(
-        (20, 20, Jeu.pourcentage_largeur(6), Jeu.pourcentage_largeur(6)),
+        (20, 20, *Jeu.pourcentages_coordonees(6, 6)),
         img=f"{Constantes.Chemins.IMG}/retour.png",
         action=Jeu.reset_etat,
     )

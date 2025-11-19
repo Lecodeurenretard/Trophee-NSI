@@ -15,10 +15,10 @@ def demander_pseudo(surface : Surface) -> Interruption:
             break
         
         surface.fill(BLANC)
-        blit_centre(surface, texte, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(45)))
+        blit_centre(surface, texte, Jeu.pourcentages_coordonees(50, 45))
         
         pseudo_affiche : Surface = Constantes.Polices.FOURRE_TOUT.render(pseudo, True, BLEU)
-        blit_centre(surface, pseudo_affiche, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(50)))
+        blit_centre(surface, pseudo_affiche, Jeu.centre_fenetre)
         yield surface
     
     joueur.pseudo = pseudo
@@ -102,9 +102,9 @@ def afficher_infos() -> Interruption:
     texte_vitesse     = Constantes.Polices.TITRE.render(f"Vitesse: {attaque.vitesse}"    , True, NOIR)
     texte_description = Constantes.Polices.TITRE.render(attaque.desc                     , True, NOIR)
     
-    blit_centre(image, texte_puissance  , (Jeu.pourcentage_largeur(33), Jeu.pourcentage_hauteur(50)))
-    blit_centre(image, texte_vitesse    , (Jeu.pourcentage_largeur(66), Jeu.pourcentage_hauteur(50)))
-    blit_centre(image, texte_description, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(57)))
+    blit_centre(image, texte_puissance  , Jeu.pourcentages_coordonees(33, 50))
+    blit_centre(image, texte_vitesse    , Jeu.pourcentages_coordonees(66, 50))
+    blit_centre(image, texte_description, Jeu.pourcentages_coordonees(50, 57))
     
     return image_vers_generateur(
         image,
@@ -131,7 +131,7 @@ def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> I
         surface.fill(BLANC)
         dessiner_rect(
             surface,
-            (Jeu.pourcentage_largeur(6.25), Jeu.pourcentage_hauteur(50)),
+            Jeu.pourcentages_coordonees(6.25, 50),
             (round(ratio_barre * LONGUEUR_BARRE), 50),
             
             couleur_remplissage=gradient.calculer_valeur(ratio_barre),
@@ -139,14 +139,14 @@ def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> I
         )
         dessiner_rect(
             surface,
-            (Jeu.pourcentage_largeur(6.25), Jeu.pourcentage_hauteur(50)),
+            Jeu.pourcentages_coordonees(6.25, 50),
             (LONGUEUR_BARRE, 50),
             couleur_bords=NOIR, dessiner_interieur=False,
             epaisseur_trait=5,
         )
         
         texte_chargement : Surface = Constantes.Polices.TITRE.render("Chargement...", True, NOIR)
-        blit_centre(surface, texte_chargement, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(45)))
+        blit_centre(surface, texte_chargement, Jeu.pourcentages_coordonees(50, 45))
         
         ratio_barre += delta.secondes / duree_totale.secondes
         yield surface
@@ -239,23 +239,45 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     
     # Dessiner les monstres
     for monstre in Monstre.monstres_en_vie:
-        monstre.dessiner(Jeu.fenetre, Jeu.pourcentage_largeur(70), Jeu.pourcentage_hauteur(15))  # ils sont tous à la même position pour l'instant
+        monstre.dessiner(Jeu.fenetre, *Jeu.pourcentages_coordonees(70, 15))  # ils sont tous à la même position pour l'instant
         monstre.dessiner_barre_de_vie(Jeu.fenetre, 50, 50)
         Jeu.menus_surf.blit(Constantes.Polices.TITRE.render(monstre.nom, True, NOIR), (49, 20))
     
     # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:
-        blit_centre(Jeu.fenetre, Attaque.CRIT_IMG, (Jeu.pourcentage_largeur(80), Jeu.pourcentage_hauteur(60)))
+        blit_centre(Jeu.menus_surf, Attaque.CRIT_IMG, Jeu.pourcentages_coordonees(80, 60))
     
     # Dessiner le fond de l'interface
     pygame.draw.rect(Jeu.fenetre, NOIR, (0, Jeu.pourcentage_hauteur(75), 800, 600), 0)
     
     # Dessiner le curseur du menu de combat
-    ButtonCursor.draw_cursors(Jeu.fenetre)
+    ButtonCursor.draw_cursors(Jeu.menus_surf)
+    
+    # Dessiner le nombre de coups restant
+    dessiner_rect(
+        Jeu.menus_surf,
+        Jeu.pourcentages_coordonees(85, 87),
+        (150, 50),
+        couleur_remplissage=GRIS_CLAIR,
+        couleur_bords=BLANC,
+        centre_x=True,
+        centre_y=True,
+        border_radius=3,
+    )
+    txt_coups = Constantes.Polices.FOURRE_TOUT.render(
+        f"{abs(Jeu.attaques_restantes_joueur)}",
+        True,
+        Constantes.Couleurs.ROUGE
+    )
+    blit_centre(
+        Jeu.menus_surf,
+        txt_coups,
+        Jeu.pourcentages_coordonees(85, 87),
+    )
     
     # Dessiner le texte
-    blit_centre(Jeu.fenetre, Constantes.Polices.TEXTE.render("ESPACE : utiliser", True, BLANC), (Jeu.pourcentage_largeur(85), Jeu.pourcentage_hauteur(81)))
-    blit_centre(Jeu.fenetre, Constantes.Polices.TEXTE.render("I : info"         , True, BLANC), (Jeu.pourcentage_largeur(85), Jeu.pourcentage_hauteur(84)))
+    blit_centre(Jeu.fenetre, Constantes.Polices.TEXTE.render("ESPACE : utiliser", True, BLANC), Jeu.pourcentages_coordonees(85, 81))
+    blit_centre(Jeu.fenetre, Constantes.Polices.TEXTE.render("I : info"         , True, BLANC), Jeu.pourcentages_coordonees(85, 84))
     
     # Dessin supplémentaire
     avancer_generateurs(generateurs_dessin, to_send_dessin)

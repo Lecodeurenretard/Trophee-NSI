@@ -31,7 +31,7 @@ def menu_parametres() -> Interruption:
         image : Surface = Surface((Jeu.largeur, Jeu.hauteur))
         image.fill(BLANC)
         
-        blit_centre(image, TITRE_PARAMS, (Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(10)))
+        blit_centre(image, TITRE_PARAMS, Jeu.pourcentages_coordonees(50, 10))
         fin_params : int = Parametre.dessiner_groupe(image, PARAMETRES_NORMAUX)
         
         if params.mode_debug.case_cochee:
