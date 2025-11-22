@@ -1,31 +1,66 @@
 from UI import *
+from import_local import *
+
+
+def _rafraichir_donnees() -> None:
+    from Attaque import Attaque
+    from Item    import Item
+    from Monstre import MonstreJSON
+    
+    logging.debug("Actualisation des attaques...")
+    Attaque.actualiser_liste()
+    
+    logging.debug("Actualisation des items...")
+    Item.actualiser_items()
+    
+    logging.debug("Actualisation des monstres...")
+    MonstreJSON.actualiser_donnees()
+    
+    logging.debug("fini!")
+
+
+def _evenements_parametres(bouton_sortie : Button, bouton_actualiser : Button) -> bool:
+    """la boucle des évènements de `menu_paramètre()`. Renvoie si l'interruption s'arrête."""
+    for ev in pygame.event.get():
+        verifier_pour_quitter(ev)
+        
+        for parametre in PARAMETRES_NORMAUX:
+            parametre.prendre_input(ev)
+        
+        if params.mode_debug.case_cochee:
+            for parametre in PARAMETRES_TRICHE:
+                parametre.prendre_input(ev)
+        
+        
+        if ev.type == pygame.KEYDOWN and ev.key == Constantes.Touches.SETTINGS:
+            return True
+        
+        if ev.type != pygame.MOUSEBUTTONDOWN:
+            continue
+        
+        if bool(params.mode_debug):
+            bouton_actualiser.check_click(ev.pos)
+        
+        if bouton_sortie.check_click(ev.pos):
+            return True
+    return False
 
 def menu_parametres() -> Interruption:
     logging.debug("→ Interruption: Paramètres")
+    
     bouton_sortir : Button = Button((10, 10, 50, 50), img=f"{Constantes.Chemins.IMG}/croix.png")
+    pos_dim_bouton_actualisation = (
+        Jeu.centre_fenetre[0], 50,
+        340, 50
+    )
+    butt_actualisation = Button(pos_dim_bouton_actualisation, "actualiser données", action=_rafraichir_donnees)
+    
     
     TITRE_PARAMS : Surface = Constantes.Polices.TITRE.render("Options de jeu"   , True, NOIR)
     TITRE_TRICHE : Surface = Constantes.Polices.TITRE.render("Options de triche", True, NOIR)
     
     while True:
-        continuer : bool = True
-        for ev in pygame.event.get():
-            verifier_pour_quitter(ev)
-            
-            for parametre in PARAMETRES_NORMAUX:
-                parametre.prendre_input(ev)
-            
-            if params.mode_debug.case_cochee:
-                for parametre in PARAMETRES_TRICHE:
-                    parametre.prendre_input(ev)
-            
-            if (
-                ev.type == pygame.MOUSEBUTTONDOWN and bouton_sortir.in_butt_hit(ev.pos)
-                or ev.type == pygame.KEYDOWN and ev.key == Constantes.Touches.SETTINGS
-            ):
-                continuer = False
-                break
-        if not continuer:
+        if _evenements_parametres(bouton_sortir, butt_actualisation):
             break
         
         image : Surface = Surface((Jeu.largeur, Jeu.hauteur))
@@ -35,8 +70,19 @@ def menu_parametres() -> Interruption:
         fin_params : int = Parametre.dessiner_groupe(image, PARAMETRES_NORMAUX)
         
         if params.mode_debug.case_cochee:
-            blit_centre(image, TITRE_TRICHE, (Jeu.pourcentage_largeur(50), fin_params + 40))
-            Parametre.dessiner_groupe(image, PARAMETRES_TRICHE)
+            fin_params += 40
+            blit_centre(image, TITRE_TRICHE, (Jeu.pourcentage_largeur(50), fin_params))
+            fin_params = Parametre.dessiner_groupe(image, PARAMETRES_TRICHE)
+            
+            fin_params += 40
+            pos_bouton : Pos = centrer_pos(
+                Pos(Jeu.centre_fenetre[0], fin_params),
+                butt_actualisation.rect.size,
+                centrer_y=False,
+            )
+            
+            butt_actualisation.change_pos(pos_bouton)
+            butt_actualisation.draw(Jeu.menus_surf)
         
         bouton_sortir.draw(image)
         

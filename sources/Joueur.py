@@ -1,8 +1,8 @@
 from Attaque import *
-from Item import Item
+from Item    import Item
 
 class Joueur:
-    STATS_DE_BASE : Stat = Stat(45, 37, 37, 22, 32, 50, 1.3, 1).reset_vie()
+    STATS_DE_BASE : Stat = Stat(45, 32, 37, 22, 32, 50, 1.3, 1).reset_vie()
     DIMENSIONS_SPRITE : tuple[int, int] = (160, 160)
     
     def __init__(self, moveset : list[str]|tuple[str, ...], chemin_vers_sprite : Optional[str] = None, inventaire : list[Item] = []) -> None:
@@ -51,8 +51,11 @@ class Joueur:
         return self._id
     
     @property
-    def stats(self) -> Stat:
-        return copy(self._stats)
+    def stats_totales(self) -> Stat:
+        copie = copy(self._stats)
+        for item in self._inventaire:
+            copie.additionner(item.stats_changees)
+        return copie
     
     @property
     def nb_pieces(self) -> int:
@@ -117,6 +120,7 @@ class Joueur:
     def reset(self) -> None:
         self._stats.vie = self._stats.vie_max
         self._stats = copy(Joueur.STATS_DE_BASE)
+        self._inventaire.clear()
     
     def attaquer(self, id_cible : int, nom_attaque : str) -> None:
         if nom_attaque not in self.noms_attaques:
@@ -142,13 +146,9 @@ class Joueur:
     def dessine_prochaine_frame_UI(self, surface : Surface) -> None:
         self.dessine_barre_de_vie(surface, *Jeu.pourcentages_coordonees(70, 65))
     
-    def prendre_item(self, item : Item) -> bool:
+    def prendre_item(self, item : Item) -> None:
         """Ajoute un item à l'inventaire s'il n'y était pas déjà. Renvoie si l'item à été ajouté."""
-        if item not in self._inventaire:
-            self._inventaire.append(item)
-            self._stats.additionner(item.stats_changees)
-            return True
-        return False
+        self._inventaire.append(item)
     def lacher_item(self, item : Item) -> bool:
         """Enlève un item à l'inventaire s'il y était. Renvoie si l'item à été enlevé."""
         if item in self._inventaire:

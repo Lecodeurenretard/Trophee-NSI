@@ -25,7 +25,7 @@
         "effets": {
             "message utilisateur": "force +",
             "stats": {
-                "force": 10
+                "force": 7
             }
         },
         "sprite": "placeholder1.png",
@@ -37,9 +37,9 @@
         "effets": {
             "message utilisateur": "offense +",
             "stats": {
-                "force": 30,
-                "magie": 30,
-                "crit_puissance": 20
+                "force": 6,
+                "magie": 6,
+                "crit_puissance": 1.1
             }
         },
         "sprite": "placeholder2.png",
@@ -51,7 +51,7 @@
         "effets": {
             "message utilisateur": "Régénération",
             "stats": {
-                "regen": true
+                "regen": 5
             }
         },
         "sprite": "placeholder3.png",

@@ -115,9 +115,9 @@ def centrer_pos(
     ) -> tuple[int, int, int, int]|tuple[int, int]|Pos:
     if type(pos) is Pos:
         assert(dim is not None), "Il y a un bug dans les overloads"
-        return centrer_pos(pos, dim, centrer_x=centrer_x, centrer_y=centrer_y)
+        return Pos(centrer_pos(pos.tuple, dim, centrer_x=centrer_x, centrer_y=centrer_y))
     
-    assert(type(pos) is tuple)  # reassuring the type checker
+    assert(type(pos) is tuple)  # rassure le type checker
     if len(pos) == 4:
         return (
             pos[0] - pos[2] // 2 if centrer_x else pos[0] ,

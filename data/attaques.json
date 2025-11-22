@@ -13,7 +13,7 @@
 	{
 		"nom"				: "Soin",
 		"description"		: "Soignez-vous de quelques PV.",
-		"puissance"			: 1.5,
+		"puissance"			: 1.0,
 		"vitesse"			: 1000,
 		"type"				: "soin",
 		"probabilité_crit"	: 0.2,
@@ -22,14 +22,14 @@
 	{
 		"nom"				: "Magie",
 		"description"		: "Infligez des dégâts magique à l'adversaire.",
-		"puissance"			: 25,
+		"puissance"			: 12,
 		"vitesse"			: 20,
 		"type"				: "magique"
 	},
 	{
 		"nom"				: "Torgnole",
 		"description"		: "Infligez des dégâts physiques à l'adversaire.",
-		"puissance"			: 20,
+		"puissance"			: 10,
 		"vitesse"			: 30,
 		"type"				: "physique"
 	},

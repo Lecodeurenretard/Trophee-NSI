@@ -167,7 +167,7 @@ class Monstre:
         return self.nom
     
     @property
-    def stats(self) -> Stat:
+    def stats_totales(self) -> Stat:
         return copy(self._stats)
     @property
     def pos_attaque(self) -> Pos:

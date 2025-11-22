@@ -179,14 +179,15 @@ def shop_click(ev : pygame.event.Event, items : list[Item], bouton_sortie : Butt
     if index is None:
         return
     
-    if items[index] in joueur.inventaire or joueur.paiement(items[index].prix, payer_max=False) > 0:
+    if joueur.paiement(items[index].prix, payer_max=False) > 0:
         pass    # Ajouter animation
         return
     
     son_paiment = Sound(f"{Constantes.Chemins.SFX}/argent2.wav")
     son_paiment.play()
-    if joueur.prendre_item(items[index]):
-        items.pop(index)
+    
+    joueur.prendre_item(items[index])
+    items.pop(index)
 
 def dessiner_nombre_pieces(boite_inventaire : Rect, ordonnees : int = Jeu.pourcentage_hauteur(5)) -> None:
     if params.argent_infini.case_cochee:

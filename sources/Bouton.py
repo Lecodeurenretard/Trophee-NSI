@@ -1,14 +1,18 @@
-from Curseur import *
+from import_var import *
+from Curseur    import Curseur
 
 class Button:
     SON_APPUI : Sound = Sound(f"{Constantes.Chemins.SFX}/select.mp3")
     
     def __init__(
-        self,
-        dim : tuple[int, int, int, int],
-        text : str = '', img : Optional[str] = None,
-        action : Callable[[], None] | None = None,
-        line_thickness : int = 1, bg_color : color = GRIS, line_color : color = NOIR
+            self,
+            dim            : tuple[int, int, int, int],
+            text           : str                       = '',
+            img            : Optional[str]             = None,
+            action         : Callable[[], None] | None = None,
+            line_thickness : int                       = 1,
+            bg_color       : color                     = GRIS,
+            line_color     : color                     = NOIR
     ):
         self._rect  : Rect = Rect(*dim)
         self._text  : str  = text
@@ -24,6 +28,10 @@ class Button:
         
         self._action : Callable[[], None] | None = action
     
+    @property
+    def rect(self) -> Rect:
+        return self._rect
+    
     def draw(self, surface : Surface) -> None:
         pygame.draw.rect(surface, self._bg_color, self._rect)
         if self._line_size > 0:
@@ -37,21 +45,29 @@ class Button:
             surface.blit(surf, surf.get_rect(center=self._rect.center))
     
     def check_click(self, pos_click : Pos|tuple[int, int], jouer_son : bool = True) -> bool:
+        """Vérifie si le clic était dans le bouton, si oui joue le son et appelle le callback et return true."""
         if type(pos_click) is Pos:
             pos_click = pos_click.tuple
-        if self._rect.collidepoint(pos_click) and self._action is not None:  #type: ignore
+        assert(type(pos_click) is tuple)    # pywright...
+        
+        if self.mouse_on_butt(pos_click):
             if jouer_son:
                 self.jouer_sfx()
             
-            self._action()
+            if self._action is not None:
+                self._action()
             return True
         return False
     
-    def in_butt_hit(self, pos_mouse : tuple[int, int]) -> bool: # peak naming
+    def mouse_on_butt(self, pos_mouse : tuple[int, int]) -> bool: # peak naming
+        """Vérifie que la souris est dans la hitbox du bouton ("sur" le bouton)."""
         return self._rect.collidepoint(pos_mouse)
     
     def jouer_sfx(self) -> None:
         Button.SON_APPUI.play()
+    
+    def change_pos(self, new_pos : Pos) -> None:
+        self._rect = Rect(new_pos.tuple, self._rect.size)
 
 class ButtonCursor(Button):
     _CURSOR_OFFSET : int = 10
@@ -190,3 +206,8 @@ class ButtonCursor(Button):
     def disable_drawing(group_name : str) -> None:
         assert(group_name in ButtonCursor._static_group_is_drawn.keys()), "Mauvais nom de groupe."
         ButtonCursor._static_group_is_drawn[group_name] = False
+    
+    def change_pos(self, new_pos : Pos) -> None:
+        # La méthode demanderait de modifier la position dans le groupe aussi
+        # (donc la position des autres membres), je laisse ça à plus tard.
+        raise NotImplementedError("La méthode `.change_pos()` n'est pas implémentée pour la classe ButtonCursor.")

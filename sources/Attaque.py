@@ -168,7 +168,7 @@ class Attaque:
     
     @staticmethod
     def actualiser_liste() -> None:
-        """Actualise LISTE_ATTAQUE[]."""
+        """Ouvre le JSON et actualise LISTE_ATTAQUE[]."""
         with open(f"{Constantes.Chemins.DATA}/attaques.json") as fichier:
             attaques : list[dict] = json.load(fichier)[1:]      # On prend tout le fichier sauf l'exemple
             Attaque.LISTE = [Attaque._depuis_json_dict(dico) for dico in attaques]
@@ -292,8 +292,8 @@ class Attaque:
         Calcule les dégats qu'aurait causé l'attaque pour les paramètres donnés.  
         Renvoie une tuple contenant les dégats infligés et si un crit s'est passé.
         """
-        stats_attaquant : Stat = self._lanceur.stats
-        stats_victime : Stat = self._cible.stats
+        stats_attaquant : Stat = self._lanceur.stats_totales
+        stats_victime : Stat = self._cible.stats_totales
         
         degats : float = random.uniform(0.85, 1.0)
         match self._type:
@@ -385,6 +385,27 @@ class Attaque:
             Attaque.SON_HEAL.play()
         else:
             Attaque.SON_COUP.play()
+    
+    def actualiser(self) -> None:
+        """Actualise l'objet pour qu'il respecte les valeurs dans le dictionnaire."""
+        a_copier = Attaque.avec_nom(self._nom)
+        
+        self._nom          = a_copier._nom
+        self._desc         = a_copier._desc
+        self._puissance    = a_copier._puissance
+        self._vitesse      = a_copier._vitesse
+        
+        self._type         = a_copier._type
+        # Le lanceur et la cible sont inchangés
+        
+        self._prob_crit    = a_copier._prob_crit
+        # crit reste aussi
+        
+        self._effet        = a_copier._effet
+        self._drapeaux     = a_copier._drapeaux
+        
+        self._ajustement_degats   = a_copier._ajustement_degats
+        self._autoriser_animation = a_copier._autoriser_animation
 
 
 Attaque.actualiser_liste()

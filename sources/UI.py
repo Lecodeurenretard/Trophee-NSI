@@ -1,3 +1,4 @@
+from import_local  import *
 from liste_boutons import *
 from Attaque import Attaque
 
@@ -60,7 +61,7 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
             texte += event.unicode
             continue
         
-    if texte == ' ':    # le nom ne peut pas être composé exclusivement d'espaces
+    if texte.isspace():    # le nom ne peut pas être composé exclusivement de whitespaces
         texte = ''
     if len(texte) >= 2 and texte[-2].isspace() and texte[-1].isspace(): # jamais deux caractères blancs à coté
         texte = texte[:-1]                                              # les espaces, nouvelles lignes, tabs...
@@ -199,14 +200,14 @@ def dessiner_descriptions_entites(surface : Surface) -> None:
 def dessiner_diff_stats_joueur(surface : Surface) -> None:
     """Dessine les gains/pertes par rapport aux stats de bases."""
     differences : dict[str, float] = {
-        "vie maximum"        : joueur.stats.vie_max        - Joueur.STATS_DE_BASE.vie_max,
-        "force"              : joueur.stats.force          - Joueur.STATS_DE_BASE.force,
-        "défense"            : joueur.stats.defense        - Joueur.STATS_DE_BASE.defense,
-        "magie"              : joueur.stats.magie          - Joueur.STATS_DE_BASE.magie,
-        "défense magique"   : joueur.stats.defense_magique - Joueur.STATS_DE_BASE.defense_magique,
-        "vitesse"            : joueur.stats.vitesse        - Joueur.STATS_DE_BASE.vitesse,
-        "puissance des crits": joueur.stats.crit_puissance - Joueur.STATS_DE_BASE.crit_puissance,
-        "resitance aux crits": joueur.stats.crit_resitance - Joueur.STATS_DE_BASE.crit_resitance,
+        "vie maximum"        : joueur.stats_totales.vie_max         - Joueur.STATS_DE_BASE.vie_max,
+        "force"              : joueur.stats_totales.force           - Joueur.STATS_DE_BASE.force,
+        "défense"            : joueur.stats_totales.defense         - Joueur.STATS_DE_BASE.defense,
+        "magie"              : joueur.stats_totales.magie           - Joueur.STATS_DE_BASE.magie,
+        "défense magique"    : joueur.stats_totales.defense_magique - Joueur.STATS_DE_BASE.defense_magique,
+        "vitesse"            : joueur.stats_totales.vitesse         - Joueur.STATS_DE_BASE.vitesse,
+        "puissance des crits": joueur.stats_totales.crit_puissance  - Joueur.STATS_DE_BASE.crit_puissance,
+        "resitance aux crits": joueur.stats_totales.crit_resitance  - Joueur.STATS_DE_BASE.crit_resitance,
     }
     
     y = 0
