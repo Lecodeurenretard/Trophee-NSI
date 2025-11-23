@@ -6,6 +6,7 @@ Chaque fonction éponyme à une valeur de `EtatJeu` sera une boucle stournant ta
 from fonctions_main import *
 from Item import Item
 from Bouton import Button
+from Carte import Carte
 
 def attente_prochaine_etape() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.ATTENTE_PROCHAINE_ETAPE.name}.")
@@ -27,9 +28,11 @@ def attente_prochaine_etape() -> None:
         Jeu.display_flip()
     
     if Jeu.DECISION_SHOP(Jeu.num_etape):
+        Jeu.set_texte_fenetre("I like shopping")
         Jeu.changer_etat(Jeu.Etat.SHOP)
         return
     
+    Jeu.set_texte_fenetre("Combat!")
     Jeu.changer_etat(Jeu.Etat.CHOIX_ATTAQUE)
 
 def choix_attaque() -> None:
@@ -47,12 +50,12 @@ def choix_attaque() -> None:
         if Jeu.attaques_restantes_joueur <= 0:
             monstres_attaquent()
             Jeu.reset_etat()
-            verifier_pour_quitter()    # empèche la boucle d'évèvement normale de s'exécuter
             
             # Si le monstre n'a plus d'attaques
             Jeu.attaques_restantes_joueur -= 1
             if Jeu.attaques_restantes_joueur == -Jeu.ATTAQUES_PAR_TOUR:
                 Jeu.attaques_restantes_joueur = Jeu.ATTAQUES_PAR_TOUR
+            continue
         
         for event in pygame.event.get():
             verifier_pour_quitter(event)
@@ -78,7 +81,10 @@ def choix_attaque() -> None:
 def affichage_attaque() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.AFFICHAGE_ATTAQUE.name}.")
     
-    attaque_gen : list[Generator[None, None, None]] = [Attaque.attaques_jouees[-1].lancer(Jeu.fenetre)]
+    if Carte.derniere_enregistree is None:
+        raise RuntimeError("Il n'y a aucune dernière attaque alors que l'état AFFICHAGE_ATTAQUE est actif.")
+    
+    attaque_gen : list[Generator[None, None, None]] = [Carte.derniere_enregistree.jouer(Jeu.fenetre)]
     attaque_gen[0].send(None)
     while len(attaque_gen) != 0:
         Jeu.commencer_frame()
@@ -228,12 +234,10 @@ def preparation() -> None:
     else:
         joueur.pseudo = "Testeur"
     
-    Jeu.set_texte_fenetre("Combat!")
     Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
 
 def shop() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.SHOP.name}.")
-    Jeu.set_texte_fenetre("I like shopping")
     
     INVENTAIRE_EPAISSEUR_TRAIT : int = 2
     INVENTAIRE_LARGEUR : int = 100 + INVENTAIRE_EPAISSEUR_TRAIT
@@ -264,7 +268,7 @@ def shop() -> None:
     items : list[Item] = [Item.item_aleatoire() for _ in range(random.randint(2, 3))]
     
     bouton_sortie : Button = Button(
-        (20, 20, *Jeu.pourcentages_coordonees(6, 6)),
+        (20, 20, 48, 48),
         img=f"{Constantes.Chemins.IMG}/retour.png",
         action=Jeu.reset_etat,
     )

@@ -1,4 +1,4 @@
-from Attaque import *
+from Carte import *
 from Item    import Item
 
 class Joueur:
@@ -66,7 +66,7 @@ class Joueur:
         return copy(self._inventaire)
     
     @property
-    def noms_attaques(self) -> tuple[str, ...]:
+    def noms_cartes(self) -> tuple[str, ...]:
         return tuple(self._moveset)
     
     @property
@@ -77,7 +77,7 @@ class Joueur:
     # propriété car la position pourrait changer suivant la position du ou des joueurs
     @property
     def pos_attaque(self) -> Pos:
-        return Pos(Jeu.pourcentages_coordonees(25, 60))
+        return Pos(Jeu.pourcentages_coordonees(16, 46))
     
     @property
     def pos_curseur(self) -> Pos:
@@ -99,37 +99,21 @@ class Joueur:
         globales.entites_vivantes[self._id] = None
         self._id = -1
     
-    def get_attaque_surface(self, nom_attaque : str) -> Surface:
-        if nom_attaque not in self.noms_attaques:
-            raise ValueError(f"Le nom {nom_attaque} n'est pas dans `_moveset[]`.")
-        
-        return Attaque.avec_nom(nom_attaque).nom_surface
-    
-    def attaque_peut_toucher_lanceur(self, nom_attaque : str) -> bool:
-        if nom_attaque not in self.noms_attaques:
-            raise ValueError(f"Le nom {nom_attaque} n'est pas dans `_moveset[]`.")
-        
-        return Attaque.avec_nom(nom_attaque).peut_attaquer_lanceur
-    
-    def attaque_peut_toucher_ennemis(self, nom_attaque : str) -> bool:
-        if nom_attaque not in self.noms_attaques:
-            raise ValueError(f"Le nom {nom_attaque} n'est pas dans `_moveset[]`.")
-        
-        return Attaque.avec_nom(nom_attaque).peut_attaquer_adversaires
     
     def reset(self) -> None:
         self._stats.vie = self._stats.vie_max
         self._stats = copy(Joueur.STATS_DE_BASE)
         self._inventaire.clear()
     
-    def attaquer(self, id_cible : int, nom_attaque : str) -> None:
-        if nom_attaque not in self.noms_attaques:
-            raise ValueError(f"Le nom {nom_attaque} n'est pas dans `_moveset[]`.")
+    def attaquer(self, id_cible : int, nom_carte : str) -> None:
+        if nom_carte not in self._moveset:
+            raise ValueError(f"Le nom {nom_carte} n'est pas dans `_moveset[]`.")
         
-        if self.attaque_peut_toucher_lanceur(nom_attaque):
+        carte = Carte(nom_carte)
+        if carte.peut_attaquer_lanceur:
             id_cible = self.id
         
-        Attaque.avec_nom(nom_attaque).enregister_lancement(self._id, id_cible)
+        carte.enregister_lancement(self._id, id_cible)
     
     def dessiner(self, surface : Surface) -> None:
         blit_centre(surface, self._sprite, Jeu.pourcentages_coordonees(25, 60))

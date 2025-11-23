@@ -3,12 +3,12 @@ from import_local import *
 
 
 def _rafraichir_donnees() -> None:
-    from Attaque import Attaque
+    from Carte  import Carte
     from Item    import Item
     from Monstre import MonstreJSON
     
-    logging.debug("Actualisation des attaques...")
-    Attaque.actualiser_liste()
+    logging.debug("Actualisation des cartes...")
+    Carte.actualiser_donnees()
     
     logging.debug("Actualisation des items...")
     Item.actualiser_items()

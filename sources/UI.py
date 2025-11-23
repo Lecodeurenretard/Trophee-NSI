@@ -1,18 +1,17 @@
 from import_local  import *
 from liste_boutons import *
-from Attaque import Attaque
+from Carte import Attaque, Carte
 
 def demander_pseudo(surface : Surface) -> Interruption:
     logging.debug(f"→ Interruption: demande du pseudo.")
     
     pseudo : str  = ""
-    saisie : bool = True
     texte : Surface = Constantes.Polices.TITRE.render("Entrez votre pseudo :", True, NOIR)
-    while saisie:
+    while True:
         Jeu.commencer_frame()
         
         pseudo, continuer = texte_entree_event(pseudo)
-        if not continuer:
+        if not continuer and pseudo != '':
             break
         
         surface.fill(BLANC)
@@ -67,23 +66,23 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
         texte = texte[:-1]                                              # les espaces, nouvelles lignes, tabs...
     return (texte, continuer)
 
-def trouve_attaque_a_partir_du_curseur() -> Attaque:
+def trouve_carte_a_partir_du_curseur() -> Carte:
     # Ce qui est important, c'est que le bouton soit dans le groupe Attaques
     curseur_pos : Pos = boutons_attaques[0].cursor.position_dans_positions
     
     # TODO: J'aime pas le fait que ce soit hardcodé
     # Il faudra changer ça avec l'ajout du système de cartes
     if curseur_pos == Pos(0, 0):
-        return Attaque.avec_nom('Soin')
+        return Carte('Soin')
     
     if curseur_pos == Pos(1, 0):
-        return Attaque.avec_nom('Magie')
+        return Carte('Magie')
     
     if curseur_pos == Pos(0, 1):
-        return Attaque.avec_nom('Physique')
+        return Carte('Physique')
     
     if curseur_pos == Pos(1, 1):
-        return Attaque.avec_nom('Skip')
+        return Carte('Skip')
     
     raise RuntimeError(f"Le curseur est à une position innatendue: {curseur_pos}.")
 
@@ -98,13 +97,11 @@ def afficher_infos() -> Interruption:
     
     image.fill(BLANC)
     
-    attaque : Attaque = trouve_attaque_a_partir_du_curseur()
-    texte_puissance   = Constantes.Polices.TITRE.render(f"Puissance: {attaque.puissance}", True, NOIR)
-    texte_vitesse     = Constantes.Polices.TITRE.render(f"Vitesse: {attaque.vitesse}"    , True, NOIR)
-    texte_description = Constantes.Polices.TITRE.render(attaque.desc                     , True, NOIR)
+    carte : Carte = trouve_carte_a_partir_du_curseur()
+    texte_puissance   = Constantes.Polices.TITRE.render(f"Puissance: {carte.puissance}", True, NOIR)
+    texte_description = Constantes.Polices.TITRE.render(carte.description              , True, NOIR)
     
-    blit_centre(image, texte_puissance  , Jeu.pourcentages_coordonees(33, 50))
-    blit_centre(image, texte_vitesse    , Jeu.pourcentages_coordonees(66, 50))
+    blit_centre(image, texte_puissance  , Jeu.pourcentages_coordonees(50, 50))
     blit_centre(image, texte_description, Jeu.pourcentages_coordonees(50, 57))
     
     return image_vers_generateur(
@@ -246,7 +243,7 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     
     # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:
-        blit_centre(Jeu.menus_surf, Attaque.CRIT_IMG, Jeu.pourcentages_coordonees(80, 60))
+        blit_centre(Jeu.menus_surf, Carte.CRIT_IMG, Jeu.pourcentages_coordonees(80, 60))
     
     # Dessiner le fond de l'interface
     pygame.draw.rect(Jeu.fenetre, NOIR, (0, Jeu.pourcentage_hauteur(75), 800, 600), 0)

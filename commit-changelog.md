@@ -31,37 +31,63 @@ format:
 	- 
 ------------------------------------
 -->
-<!--
-Nils: J'utilise l'ordre Ajout, Renommage, Déplacement, Modification, Effacement/Destruction, Autre.
--->
 _____
-## Ajustements
+## Implémentation (incomplète) des cartes.
 + Changements majeurs
-	- Le joueur peut prendre plusieurs fois le même item, l'effet sera amplifié à chaque doublon.
-	- Nouveau bouton "actualiser données" qui évite de tout le temps ouvrir/fermer le jeu lors d'un équilibrage.
-	- Equilibrage
-		* Les attaques "Soin", "Magie" et "Torgbole" ont leurs puissances fortement baissées.
-		* L'objet "Teto maigre" a été nerf.
-		* L'objet "Peluche d'Hornet" a été fortement nerf.
-		* Les blobs sont plus résistants face à la magie.
-		* Les sorciers ont leur défense (physique et magique) nerf. Leur résistance aux crit baissée aussi.
+	- Des cartes sont jetées à la place des rectangles de couleur.
+	- Ajout des sprites de cartes.
+	- Beaucoup de changements dans le fichier [Attaque.py](sources/Attaque.py) (v. puce dédiée).
+	- Ajout de la classe `Carte` (donc du fichier [Carte.py](sources/Carte.py)).
+	- Réorganisation de [attaques.json](data/cartes.json) avec un objet "attaque" qui contiendra toutes les infos passées aux objets `Attaque` (le reste l'étant aux instances de `Carte`).
 + Sur plusieurs fichiers
 + Structure de fichiers
+	- Renommage de /data/attaques.json en [/data/cartes.json](data/cartes.json).
 + READMEs et documentation
 + Interactions joueur/testeur
-	- Le nom d'utilisateur ne peut plus être juste des caractère blancs.
+	- Le bouton de sortie du shop est maintenant carré.
+	- Ajustement du point de départ/d'arrivée des cartes.
+	- La stat de "vitesse" n'existe plus.
 + Correction de bugs
-+ `Attaque`
-	- Nouvelle méthode `.actualiser()`.
-+ `Button`
-	- Nouvelle propriété `.rect`.
-	- Nouvelle méthode `.change_pos()`.
-		* Elève une `NotImplementedError` dans la version de `ButtonCursor`.
-	- Renommage de `.in_butt_hit()` en `.mouse_on_butt()`.
-	- `.check_click()` joue un son et renvoie `True` même s'il n'y a pas de callback.
-+ [fonctions_boutons.py](sources/fonctions_boutons.py)
-	- La boucle d'évènement de `menu_parametres()` a été déplacée dans sa fonction `_evenements_parametres()`.
+	- Le texte de fenêtre se remet à "Combat!" après être partit du shop.
+	- Le curseur n'apparait plus pendant une frame entre les attaques.
+	- Les pseudos vides ne sont plus acceptés.
++ [Attaque.py](sources/Attaque.py)
+	- Le fichier est plus court de 150 lignes.
+	- Ajout des constantes `Attaque._DEFAUT_PROB_CRIT`, `Attaque._DEFAUT_FLAGS` et `Attaque._DEFAUT_AJUSTEMENT`.
+	- Ajout des propriétés `Attaque.id`.
+	- Ajout de la méthode `Attaque.decider_crit()`.
+	- Déplacement des membres suivants (de `Attaque`) vers `Carte`:
+		* `_DUREE_ANIMATION`,
+		* `_DUREE_ENTRE_ATTAQUES`,
+		* `SON_COUP`,
+		* `SON_HEAL`,
+		* `SON_CRIT`,
+		* `._desc`,
+		* `._autoriser_animation`,
+		* `._deplacement`,
+		* `._dessiner()`,
+		* `._jouer_animation()`,
+		* `pos_anim_attaque()`,
+		* `.lancer()` (renommé en `.jouer()`),
+		* `.enregister_lancement()`,
+		* `.jouer_sfx()`,
+	- Renommage de `_ajustements` en `_ajustements_t` pour mieux le différencier avec la constante.
+	- Renommage et changement de type de `Attaque.LISTE` en  `Attaque._liste`. <!--Bateau de Thésée?-->
+	- Réécriture du constructeur de `Attaque` pour qu'il aille chercher ses données directment dans `Attaque._liste` au lien de devoir passer par une fonction intermédiaire.
+		* Suprression de `Attaque._depuis_json_dict().`
+	- Remplacement de `Attaque.actualiser_liste()` par `Attaque.set_liste()`.
+	- Les propriétés `Attaque.lanceur` et `Attaque.cible` sont maintenant publiques.
+	- Suppression de `Attaque._vitesse`.
+		* Suppression de `Attaque.vitesse`.
+	- Suppression de `TypeAttaque.couleur`.
+		- Suppression de `Attaque._couleur`.
 + [fonctions_vrac.py](sources/fonctions_vrac.py)
-	- La boucle infinie dans `centrer_pos()` n'est plus.
-+ Entitées
-	- La propriété `.stats` est remplacée par `.stats_totales` qui prend en compte les objets de l'inventaire.
+	* Ajout d'une variable de type générique `T`.
+	* Ajout de la fonction `valeur_par_defaut()`.
++ `Joueur`
+	- Renommage de `.noms_attaques` en `.noms_cartes`.
+	- Suppression de `.get_attaque_surface()`, `.attaque_peut_toucher_lanceur()` et de `.attaque_peut_toucher_ennemis()`
++ `Monstre`
+	- Renommage de `.choisir_attaque()`en `.choisir_carte()`.
++ [UI.py](sources/UI.py)
+	- `trouve_attaque_a_partir_du_curseur()` renvoie maintenant une carte et est renommé `trouve_carte_a_partir_du_curseur()`.

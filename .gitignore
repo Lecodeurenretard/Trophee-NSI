@@ -7,7 +7,9 @@
 # "*.txt" empèche le commit de tous les fichiers .txt
 # "**/Jacob.jpeg" empèche le commit des fichiers Jacob.jpeg peu importe le sous-dossier
 
-test.py
 **/__pycache__
 data/save
 .vscode
+
+test.py
+*.piskel

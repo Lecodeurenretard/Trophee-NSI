@@ -3,6 +3,9 @@ from import_var import *
 from Jeu import Jeu
 from classes_utiles.Animation import valeurs_regulieres_entre_01
 
+T = TypeVar('T')    # utile pour les génériques
+
+
 def premier_indice_libre_de_entites_vivantes() -> int:
     """Retourne le premier indice disponible dans globales.entites_vivantes[] ou -1 s'il n'y en a pas."""
     assert(len(globales.entites_vivantes) <= Constantes.MAX_ENTITES_SIMULTANEES), "Trop d'entitées sont dans le combat."
@@ -217,3 +220,14 @@ def clamp(x : int, a : int, b : int) -> int:
 def clamp(x : float, a : float, b : float) -> float|int:
     """Si x < a, renvoie a; si b < x, renvoie b; sinon renvoie x."""
     return min(max(x, a), b)
+
+def valeur_par_defaut(a_tester : Optional[T], renvoi_si_none : T, renvoi_si_non_none : Optional[T] = None) -> T:
+    """
+    Renvoie renvoi_si_non_none si a_tester n'est pas None, sinon renvoie renvoi_si_none.
+    Si renvoi_si_non_none n'est pas fourni, utilise a_tester.
+    Evite la syntaxe de la ternaire (long) et la syntaxe avec or (pas forcément compréhensible).
+    """
+    if renvoi_si_non_none is None:
+        renvoi_si_non_none = a_tester
+    
+    return renvoi_si_none if a_tester is None else renvoi_si_non_none   # type: ignore

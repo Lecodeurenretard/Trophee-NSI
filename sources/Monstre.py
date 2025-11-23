@@ -1,4 +1,4 @@
-from Attaque import *
+from Carte import *
 
 @dataclass
 class MonstreJSON:
@@ -171,7 +171,7 @@ class Monstre:
         return copy(self._stats)
     @property
     def pos_attaque(self) -> Pos:
-        return Monstre.POSITION
+        return centrer_pos(Monstre.POSITION, Monstre.SPRITE_DIM)
     
     @property
     def pos_curseur(self) -> Pos:
@@ -202,8 +202,8 @@ class Monstre:
         self._sprite = pygame.transform.scale(pygame.image.load(nouveau_type.sprite), Monstre.SPRITE_DIM)
         self._type = nouveau_type
     
-    def choisir_attaque(self) -> Attaque:
-        return Attaque.avec_nom(
+    def choisir_carte(self) -> Carte:
+        return Carte(
             random.choice(self._moveset)
         )
     
@@ -212,7 +212,7 @@ class Monstre:
         assert(globales.entites_vivantes[id_cible] is not None), "La cible est une case vide de globales.entites_vivantes[] dans Monstre.attaquer() (index invalide)."
         assert(nom_attaque in self._moveset), f"L'attaque {nom_attaque} n'est pas dans le moveset du monstre d'identifiant {self.id}."
         
-        Attaque.avec_nom(nom_attaque).enregister_lancement(self._id, id_cible)
+        Carte(nom_attaque).enregister_lancement(self._id, id_cible)
     
     def recoit_degats(self, dommages : int) -> None:
         if bool(params.monstre_invincible) and dommages >= 0:

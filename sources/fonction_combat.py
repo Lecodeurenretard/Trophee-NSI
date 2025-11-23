@@ -9,4 +9,4 @@ def joueur_attaque(clef_attaque : str, cible : Monstre|Joueur) -> None:
 
 def monstres_attaquent() -> None:
     for monstre in Monstre.monstres_en_vie:
-        monstre.attaquer(joueur.id, monstre.choisir_attaque().nom)
+        monstre.attaquer(joueur.id, monstre.choisir_carte().nom)

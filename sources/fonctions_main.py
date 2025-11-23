@@ -1,6 +1,7 @@
 """Fonctions seulements utilisées dans fonctions_etat.py."""
 from fonctions_boutons import *
 from Item import Item
+from Carte import Carte
 
 def quit(exit_code : int = 0) -> NoReturn:
     pygame.quit()
@@ -40,6 +41,8 @@ def initialiser_nouveau_combat(numero_combat : int, reset_joueur : bool = False)
     Jeu.num_etape = numero_combat
     
     Jeu.attaques_restantes_joueur = Jeu.ATTAQUES_PAR_TOUR
+    
+    Carte.derniere_enregistree = None
     Attaque.attaques_jouees.clear()
     
     reset_monstre()
