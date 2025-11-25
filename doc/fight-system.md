@@ -71,9 +71,8 @@ Pour le moment il y a sept stats:
 - `.defense`: La défense pour les attaques physiques.
 - `.magie`: La puissance d'attaque magiques.
 - `.defense_magique`: La défense pour les attaques magiques.
-- `.vitesse`: influera sur l'ordre des attaques (non implémenté).
 - `.crit_puissance`: Une valeur ajoutée au coups critiques.
-- `.crit_resistance`: Une résitance aux dégats critiques..
+- `.crit_resistance`: Une résitance aux dégats critiques.
 
 `Stat` est une dataclasse, ce qui veut dire que l'encapsulation ne s'applique pas dessus.  
 Du fait de l'absence de constructeur manuellement définit, `.vie` sera initialisé à un nombre négatif, pour y remédier, utiliser `.reset_vie()`.
@@ -84,7 +83,6 @@ attributs:
 + `._nom`: Le nom de l'attaque.
 + `._desc`: Une courte description à montrer à l'utilisateur.
 + `._puissance`: La puissance de l'attaque, sera utilisé pour calculer les dégats causés par l'attaque avec les stats du lanceur et de la victime.
-+ `._vitesse`: La vitesse de l'attaque, sera combinée avec celle du lanceur lors du classement.
 + `._type`: Le type de dommages causés par l'attaque (sera détaillé plus en bas).
 + `._lanceur_id` et `._cible_id`: Les IDs du lanceur et de la cible, sont changés lors de la copie, par défaut sont à `-1`.
 + `._prob_crit`: La chance de faire un coup critique, doit être sur $[0; 1]$.
@@ -105,7 +103,6 @@ propriétés:
 + `._lanceur` et `._cible`: Le lanceur et la cible de l'attaque, leur existance est vérifiée par `assert()`.
 + getters:
 	- `.puissance`
-	- `.vitesse`
 	- `.desc`
 - `.nom_surface`: Une surface contenant le nom du monstre _rendered_ avec la bonne police de texte.
 + `.friendly_fire`: Si l'attaque peut toucher le lanceur.
