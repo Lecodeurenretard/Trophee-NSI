@@ -79,8 +79,9 @@ class Attaque:
         donnees_attaque : dict = Attaque._liste[id]
         
         # Définitions des valeurs non null dans le JSON
+        self._nom       : str   = donnees_attaque["nom"]
         self._puissance : float = donnees_attaque["puissance"]
-        self._type : TypeAttaque = TypeAttaque.depuis_str(
+        self._type      : TypeAttaque = TypeAttaque.depuis_str(
             donnees_attaque["type"]
         )
         

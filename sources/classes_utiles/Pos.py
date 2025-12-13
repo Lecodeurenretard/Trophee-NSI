@@ -1,4 +1,4 @@
-from imports import dataclass, overload, Vecteur
+from imports import dataclass, overload, Vecteur, TypeAlias
 
 @dataclass
 class Pos:
@@ -30,6 +30,8 @@ class Pos:
         self.x, self.y = x_ou_pos[0], x_ou_pos[1]
     
     def __repr__(self):
+        return f"Pos({self.x}; {self.y})"
+    def __str__(self):
         return f"({self.x}; {self.y})"
     
     def __add__(self, other : 'Pos|Vecteur') -> 'Pos':
@@ -69,3 +71,17 @@ class Pos:
     @property
     def vecteur(self) -> Vecteur:
         return Vecteur(self.x, self.y)
+
+pos_pygame : TypeAlias = tuple[int, int]|list[int]
+pos_t      : TypeAlias = Pos|pos_pygame
+
+def pos_t_vers_Pos(p : pos_t) -> Pos:
+    from copy import copy
+    
+    if type(p) is Pos:
+        return copy(p)
+    
+    assert(type(p) is tuple or type(p) is list) # I love pywright--------------------
+    return Pos(p)
+def pos_t_vers_tuple(p : pos_t) -> tuple[int, int]:
+    return pos_t_vers_Pos(p).tuple

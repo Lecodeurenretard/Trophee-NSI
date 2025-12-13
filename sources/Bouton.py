@@ -44,12 +44,8 @@ class Button:
             surf = Constantes.Polices.FOURRE_TOUT.render(self._text, True, BLANC)
             surface.blit(surf, surf.get_rect(center=self._rect.center))
     
-    def check_click(self, pos_click : Pos|tuple[int, int], jouer_son : bool = True) -> bool:
+    def check_click(self, pos_click : pos_t, jouer_son : bool = True) -> bool:
         """Vérifie si le clic était dans le bouton, si oui joue le son et appelle le callback et return true."""
-        if type(pos_click) is Pos:
-            pos_click = pos_click.tuple
-        assert(type(pos_click) is tuple)    # pywright...
-        
         if self.mouse_on_butt(pos_click):
             if jouer_son:
                 self.jouer_sfx()
@@ -59,9 +55,9 @@ class Button:
             return True
         return False
     
-    def mouse_on_butt(self, pos_mouse : tuple[int, int]) -> bool: # peak naming
+    def mouse_on_butt(self, pos_mouse : pos_t) -> bool: # peak naming
         """Vérifie que la souris est dans la hitbox du bouton ("sur" le bouton)."""
-        return self._rect.collidepoint(pos_mouse)
+        return self._rect.collidepoint(pos_t_vers_tuple(pos_mouse))
     
     def jouer_sfx(self) -> None:
         Button.SON_APPUI.play()

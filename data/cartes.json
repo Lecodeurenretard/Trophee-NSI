@@ -3,7 +3,6 @@
 		"nom"			: "exemple",
 		"description"	: "Objet d'exemple",
 		"sprite"		: "Le sprite à partir de /data/img/cartes/",
-		"animer"		: null,
 		"attaque"		: {
 			"puissance"			: null,
 			"type"				: "V. doc pour la liste des types",
@@ -16,7 +15,6 @@
 		"nom"			: "Soin",
 		"description"	: "Soignez-vous de quelques PV.",
 		"sprite"		: "soin1.png",
-		"animer"		: null,
 		"attaque"		: {
 			"puissance"			: 1.0,
 			"type"				: "soin",
@@ -29,7 +27,6 @@
 		"nom"			: "Magie",
 		"description"	: "Infligez des dégâts magique à l'adversaire.",
 		"sprite"		: "magie1.png",
-		"animer"		: null,
 		"attaque"		: {
 			"puissance"			: 12,
 			"type"				: "magique",
@@ -42,7 +39,6 @@
 		"nom"			: "Torgnole",
 		"description"	: "Infligez des dégâts physiques à l'adversaire.",
 		"sprite"		: "torgnole1.png",
-		"animer"		: null,
 		"attaque"		: {
 			"puissance"			: 10,
 			"type"				: "physique",
@@ -55,7 +51,6 @@
 		"nom"			: "Skip",
 		"description"	: "Passez votre tour.",
 		"sprite"		: "skip1.png",
-		"animer"		: false,
 		"attaque": {
 			"puissance"			: 0,
 			"type"				: "divers",

@@ -4,9 +4,10 @@ Chaque fonction éponyme à une valeur de `EtatJeu` sera une boucle stournant ta
 """
 
 from fonctions_main import *
-from Item import Item
-from Bouton import Button
-from Carte import Carte
+from Item           import Item
+from Bouton         import Button
+from Carte          import Carte
+from Joueur         import joueur
 
 def attente_prochaine_etape() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.ATTENTE_PROCHAINE_ETAPE.name}.")
@@ -37,8 +38,8 @@ def attente_prochaine_etape() -> None:
 
 def choix_attaque() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.CHOIX_ATTAQUE.name}.")
+    joueur.piocher()
     
-    ButtonCursor.enable_drawing("Attaques")
     interruption : Optional[Interruption] = None
     
     while Jeu.etat == Jeu.Etat.CHOIX_ATTAQUE:
@@ -53,20 +54,28 @@ def choix_attaque() -> None:
             
             # Si le monstre n'a plus d'attaques
             Jeu.attaques_restantes_joueur -= 1
-            if Jeu.attaques_restantes_joueur == -Jeu.ATTAQUES_PAR_TOUR:
+            if Jeu.attaques_restantes_joueur <= -Jeu.ATTAQUES_PAR_TOUR:
                 Jeu.attaques_restantes_joueur = Jeu.ATTAQUES_PAR_TOUR
             continue
         
         for event in pygame.event.get():
             verifier_pour_quitter(event)
+            
             interruption = reagir_appui_touche_choix_attaque(event)
-            if interruption is not None: break
+            if interruption is not None:
+                break
             
             if event.type != pygame.KEYDOWN and event.type != pygame.MOUSEBUTTONDOWN:
                 continue
             
-            # Si le joueur attaque
-            if ButtonCursor.handle_inputs(boutons_attaques, event):
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                index_carte : Optional[int] = joueur.verifier_pour_attaquer(event)
+                if index_carte is None:
+                    continue
+                
+                joueur.attaquer(1, index_carte)        # TODO: Ewww!
+                
+                continue    # on empèche ça pour l'instant
                 Jeu.attaques_restantes_joueur -= 1
                 logging.debug(f"Il reste {Jeu.attaques_restantes_joueur} attaques au joueur.")
                 Jeu.reset_etat()
@@ -74,7 +83,6 @@ def choix_attaque() -> None:
         
         rafraichir_ecran()
     
-    ButtonCursor.disable_drawing("Attaques")
     if Jeu.decision_etat_en_cours():
         Jeu.changer_etat(Jeu.Etat.AFFICHAGE_ATTAQUE)
 
@@ -84,7 +92,7 @@ def affichage_attaque() -> None:
     if Carte.derniere_enregistree is None:
         raise RuntimeError("Il n'y a aucune dernière attaque alors que l'état AFFICHAGE_ATTAQUE est actif.")
     
-    attaque_gen : list[Generator[None, None, None]] = [Carte.derniere_enregistree.jouer(Jeu.fenetre)]
+    attaque_gen : list[Generator[None, None, None]] = [Carte.derniere_enregistree.jouer_animation(Jeu.fenetre)]
     attaque_gen[0].send(None)
     while len(attaque_gen) != 0:
         Jeu.commencer_frame()

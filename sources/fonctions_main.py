@@ -95,6 +95,9 @@ def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Inter
     if not params.mode_debug.case_cochee:
         return
     match ev.key:
+        case Constantes.Touches.DBG_REROLL_CARTES:
+            joueur.repiocher_tout()
+        
         case Constantes.Touches.DBG_PREDECENT_MONSTRE:
             if not Monstre.monstres_en_vie[0].vers_type_precedent():
                 logging.warning("Le monstre n'a pas de type!")

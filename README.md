@@ -6,6 +6,8 @@ Ce fichier est un [fichier markdown](https://www.markdownguide.org/basic-syntax/
 + [Python 3.10](https://www.python.org/downloads/release/python-31018/) ou plus récent
 + [pygame 2.6](https://www.pygame.org/news) ou plus récent
 
+Pas de configuration minimum pour les composants du PC à moins que ce soit littéralement une patate.
+
 ## Télécharger la dernière version du jeu
 Dans la section Code, en haut à droite des fichier, vous pouvez télécharger le .zip.  
 Pour avoir un projet (repo) Git de configuré exécutez la commande suivante dans la console Git.
@@ -19,7 +21,7 @@ L'architecture du projet suit celui qu'il faut faire pour les trophées de NSI (
 - [docs](docs/): Les documentations dans le dossier [doc](doc/).
 - [data](data/): Toutes les données qui seront lues ou écrites par le projets.
 	+ [img](data/img/): Les images dans le jeu.
-	+ [save](data/save/): Les données de sauvegarde. Ce n'est pas forcément de la sauvegarde classique, toutes les données de jeu y vont (ex: transférer l'inventaire d'un ficher Python à un autre).
+	+ [save](data/save/): Les données de sauvegarde.
 	+ [etc](data/etc/): Les données temporaires qui ne rentrent pas dans les catégories ci-dessus va dans ce fichier.
 
 _note: Certains dossiers peuvent ne pas apparaitre sur Github, c'est parce que Git n'envoie que les dossiers contenant des fichiers. Les répertoires vides ne serons donc pas envoyés._
@@ -32,13 +34,6 @@ Le fichier est [requirements.txt](requirements.txt).
 Voyez ce qui doit être fait à plus court terme dans le [projet Github](https://github.com/users/Lecodeurenretard/projects/5/).
 
 ## Les modes d'utilisateurs
-Il y a deux modes pour deux types d'utilisateurs:
-
-|               |                     Débug (testeurs/devs)                    | Normal (juste un joueur normal) |
-|:--------------|:------------------------------------------------------------:|:-------------------------------:|
-| **Affichage** |          Simple (pas de sprites, moins de couleurs)          |      Détaillé, Animations*      |
-|  **Actions**  |        Attaquer, pouvoir skip les temps d'attente, choisir si le coup est crit, choisir le monstre, pouvoir choisir le numéro de combat*, obtenir les cheats     |       Attaquer, paramètres basiques        |
-
-\*à faire
+Il y a deux modes pour deux types d'utilisateurs: le mode normal (par défaut) et le mode débug. Le mode débug est comme le mode normal mais à accès aux paramètres de triche.
 
 Les touches sont dans le [README](sources/README.md) du répertoire [sources](sources/).

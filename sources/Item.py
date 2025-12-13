@@ -43,7 +43,7 @@ class Item:
         self.sprite      = pygame.image.load(chemin)
         self.sprite      = pygame.transform.scale(self.sprite, self.DIMENSIONS_SPRITES)
         
-        self.prix        = item["prix"] if item["prix"] is not None else 0
+        self.prix        = valeur_par_defaut(item["prix"], 0)
         
         self.effet_affiche  = item["effets"]["message utilisateur"]
         self.stats_changees = Stat.depuis_dictionnaire_json(item["effets"]["stats"], valeur_par_defaut=0)   # sera ajouté/enlevé aux stats correspondantes du joueur.

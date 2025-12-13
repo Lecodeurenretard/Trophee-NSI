@@ -231,3 +231,22 @@ def valeur_par_defaut(a_tester : Optional[T], renvoi_si_none : T, renvoi_si_non_
         renvoi_si_non_none = a_tester
     
     return renvoi_si_none if a_tester is None else renvoi_si_non_none   # type: ignore
+
+def etirer_garder_ratio(surface : Surface, *, longueur : Optional[int] = None, hauteur : Optional[int] = None) -> Surface:
+    """
+    Etire l'image de façon à ce qu'elle ait, si fournies, une longueur `longueur` et une hauteur `hauteur`.
+    Si seulement l'un des deux est fournit, garde les proprtions de l'image.
+    """
+    ratio : float = surface.get_rect().width / surface.get_rect().height
+    dim : tuple[int, int]
+    
+    if longueur is None and hauteur is None:
+        return copy(surface)
+    elif longueur is not None and hauteur is not None:
+        dim = (longueur, hauteur)
+    elif longueur is not None:
+        dim = (longueur, round(longueur / ratio))
+    elif hauteur is not None:
+        dim = (round(hauteur / ratio), hauteur)
+    
+    return pygame.transform.scale(surface, dim)

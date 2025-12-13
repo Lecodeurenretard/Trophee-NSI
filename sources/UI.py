@@ -1,6 +1,8 @@
-from import_local  import *
-from liste_boutons import *
-from Carte import Attaque, Carte
+from import_local import *
+from Joueur       import Joueur, joueur
+from Monstre      import Monstre
+from Carte        import Carte
+from Carte        import Attaque, Carte
 
 def demander_pseudo(surface : Surface) -> Interruption:
     logging.debug(f"→ Interruption: demande du pseudo.")
@@ -15,7 +17,7 @@ def demander_pseudo(surface : Surface) -> Interruption:
             break
         
         surface.fill(BLANC)
-        blit_centre(surface, texte, Jeu.pourcentages_coordonees(50, 45))
+        blit_centre(surface, texte, Jeu.pourcentages_coordonees(50, 45, ret_pos=False))
         
         pseudo_affiche : Surface = Constantes.Polices.FOURRE_TOUT.render(pseudo, True, BLEU)
         blit_centre(surface, pseudo_affiche, Jeu.centre_fenetre)
@@ -67,8 +69,10 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
     return (texte, continuer)
 
 def trouve_carte_a_partir_du_curseur() -> Carte:
+    raise AssertionError("Cette fonction est cassée, elle sera réparée sous peu.")
+    
     # Ce qui est important, c'est que le bouton soit dans le groupe Attaques
-    curseur_pos : Pos = boutons_attaques[0].cursor.position_dans_positions
+    curseur_pos : Pos = Pos(0, 0)
     
     # TODO: J'aime pas le fait que ce soit hardcodé
     # Il faudra changer ça avec l'ajout du système de cartes
@@ -101,8 +105,8 @@ def afficher_infos() -> Interruption:
     texte_puissance   = Constantes.Polices.TITRE.render(f"Puissance: {carte.puissance}", True, NOIR)
     texte_description = Constantes.Polices.TITRE.render(carte.description              , True, NOIR)
     
-    blit_centre(image, texte_puissance  , Jeu.pourcentages_coordonees(50, 50))
-    blit_centre(image, texte_description, Jeu.pourcentages_coordonees(50, 57))
+    blit_centre(image, texte_puissance  , Jeu.pourcentages_coordonees(50, 50, ret_pos=False))
+    blit_centre(image, texte_description, Jeu.pourcentages_coordonees(50, 57, ret_pos=False))
     
     return image_vers_generateur(
         image,
@@ -110,12 +114,6 @@ def afficher_infos() -> Interruption:
         gerer_evenements=True,
         derniere_etape=lambda: logging.debug(f"← Fin interruption (infos d'une attaque).")
     )
-
-
-def dessiner_boutons_attaques() -> None:
-    for butt in boutons_attaques:
-        butt.draw(Jeu.menus_surf)
-    ButtonCursor.draw_cursors(Jeu.menus_surf)
 
 def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> Interruption:
     LONGUEUR_BARRE : int = 700
@@ -144,7 +142,7 @@ def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> I
         )
         
         texte_chargement : Surface = Constantes.Polices.TITRE.render("Chargement...", True, NOIR)
-        blit_centre(surface, texte_chargement, Jeu.pourcentages_coordonees(50, 45))
+        blit_centre(surface, texte_chargement, Jeu.pourcentages_coordonees(50, 45, ret_pos=False))
         
         ratio_barre += delta.secondes / duree_totale.secondes
         yield surface
@@ -232,24 +230,20 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     
     # Dessiner le joueur
     joueur.dessiner(Jeu.fenetre)
-    joueur.dessine_barre_de_vie(Jeu.fenetre, 500, 400)
+    joueur.dessiner_main(Jeu.fenetre)
+    
+    joueur.dessine_barre_de_vie(Jeu.fenetre, Pos(500, 400))
     Jeu.menus_surf.blit(Constantes.Polices.TITRE.render(joueur.pseudo, True, NOIR), (499, 370))
     
     # Dessiner les monstres
     for monstre in Monstre.monstres_en_vie:
-        monstre.dessiner(Jeu.fenetre, *Jeu.pourcentages_coordonees(70, 15))  # ils sont tous à la même position pour l'instant
-        monstre.dessiner_barre_de_vie(Jeu.fenetre, 50, 50)
+        monstre.dessiner(Jeu.fenetre, *Jeu.pourcentages_coordonees(70, 15, ret_pos=False))  # ils sont tous à la même position pour l'instant
+        monstre.dessiner_barre_de_vie(Jeu.fenetre, Pos(50, 50))
         Jeu.menus_surf.blit(Constantes.Polices.TITRE.render(monstre.nom, True, NOIR), (49, 20))
     
     # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:
-        blit_centre(Jeu.menus_surf, Carte.CRIT_IMG, Jeu.pourcentages_coordonees(80, 60))
-    
-    # Dessiner le fond de l'interface
-    pygame.draw.rect(Jeu.fenetre, NOIR, (0, Jeu.pourcentage_hauteur(75), 800, 600), 0)
-    
-    # Dessiner le curseur du menu de combat
-    ButtonCursor.draw_cursors(Jeu.menus_surf)
+        blit_centre(Jeu.menus_surf, Carte.CRIT_IMG, Jeu.pourcentages_coordonees(80, 60, ret_pos=False))
     
     # Dessiner le nombre de coups restant
     dessiner_rect(
@@ -270,19 +264,16 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     blit_centre(
         Jeu.menus_surf,
         txt_coups,
-        Jeu.pourcentages_coordonees(85, 87),
+        Jeu.pourcentages_coordonees(85, 87, ret_pos=False),
     )
     
     # Dessiner le texte
-    blit_centre(Jeu.fenetre, Constantes.Polices.TEXTE.render("ESPACE : utiliser", True, BLANC), Jeu.pourcentages_coordonees(85, 81))
-    blit_centre(Jeu.fenetre, Constantes.Polices.TEXTE.render("I : info"         , True, BLANC), Jeu.pourcentages_coordonees(85, 84))
+    blit_centre(Jeu.fenetre, Constantes.Polices.TEXTE.render("ESPACE : utiliser", True, BLANC), Jeu.pourcentages_coordonees(85, 81, ret_pos=False))
+    blit_centre(Jeu.fenetre, Constantes.Polices.TEXTE.render("I : info"         , True, BLANC), Jeu.pourcentages_coordonees(85, 84, ret_pos=False))
     
     # Dessin supplémentaire
     avancer_generateurs(generateurs_dessin, to_send_dessin)
     avancer_generateurs(generateurs_UI,     to_send_UI)
-    
-    # ...
-    dessiner_boutons_attaques()
     
     # Si les bonnes touches sont appuyées, affiche les infos ou les diffs
     dessiner_infos()

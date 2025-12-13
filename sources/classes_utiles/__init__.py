@@ -1,8 +1,9 @@
 from .      import EasingConstants as Easing
 from .Duree import Duree
-from .Pos   import Pos
+from .Pos   import Pos, pos_t, pos_t_vers_Pos, pos_t_vers_tuple
 
 from .Animation import (
+    SensLecture,
     InterpolationLineaire, MultiInterpolation,
     Gradient             , MultiGradient,
     Deplacement          , MultiDeplacement,

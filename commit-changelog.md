@@ -32,62 +32,86 @@ format:
 ------------------------------------
 -->
 _____
-## Implémentation (incomplète) des cartes.
+## $2^\text{me}$ étape de l'implémentation des cartes (injouable).
 + Changements majeurs
-	- Des cartes sont jetées à la place des rectangles de couleur.
-	- Ajout des sprites de cartes.
-	- Beaucoup de changements dans le fichier [Attaque.py](sources/Attaque.py) (v. puce dédiée).
-	- Ajout de la classe `Carte` (donc du fichier [Carte.py](sources/Carte.py)).
-	- Réorganisation de [attaques.json](data/cartes.json) avec un objet "attaque" qui contiendra toutes les infos passées aux objets `Attaque` (le reste l'étant aux instances de `Carte`).
+	- Pleins de changements dans `Carte` (v. section correspondante) pour les animer (fonctionnalités non testées ni utilisées).
+	- Pleins de changements dans `Joueur`(v. section correspondante) pour afficher les cartes de la main.
+		* Ajout de la notion de "deck" et de "main".
 + Sur plusieurs fichiers
 + Structure de fichiers
-	- Renommage de /data/attaques.json en [/data/cartes.json](data/cartes.json).
 + READMEs et documentation
+	- Suppression du tableau dans le [README de la racine](README.md).
+	- Petits changements dans le [README de source/](sources/README.md).
 + Interactions joueur/testeur
-	- Le bouton de sortie du shop est maintenant carré.
-	- Ajustement du point de départ/d'arrivée des cartes.
-	- La stat de "vitesse" n'existe plus.
+	- Ajout d'une touche (dans le mode débug) pour reroll les cartes.
+		* Ajout de la constante `DBG_REROLL_CARTES`.
+	- Le jeu ne change les cartes mais ne permet pas d'attaquer.
 + Correction de bugs
-	- Le texte de fenêtre se remet à "Combat!" après être partit du shop.
-	- Le curseur n'apparait plus pendant une frame entre les attaques.
-	- Les pseudos vides ne sont plus acceptés.
-+ [Attaque.py](sources/Attaque.py)
-	- Le fichier est plus court de 150 lignes.
-	- Ajout des constantes `Attaque._DEFAUT_PROB_CRIT`, `Attaque._DEFAUT_FLAGS` et `Attaque._DEFAUT_AJUSTEMENT`.
-	- Ajout des propriétés `Attaque.id`.
-	- Ajout de la méthode `Attaque.decider_crit()`.
-	- Déplacement des membres suivants (de `Attaque`) vers `Carte`:
-		* `_DUREE_ANIMATION`,
-		* `_DUREE_ENTRE_ATTAQUES`,
-		* `SON_COUP`,
-		* `SON_HEAL`,
-		* `SON_CRIT`,
-		* `._desc`,
-		* `._autoriser_animation`,
-		* `._deplacement`,
-		* `._dessiner()`,
-		* `._jouer_animation()`,
-		* `pos_anim_attaque()`,
-		* `.lancer()` (renommé en `.jouer()`),
-		* `.enregister_lancement()`,
-		* `.jouer_sfx()`,
-	- Renommage de `_ajustements` en `_ajustements_t` pour mieux le différencier avec la constante.
-	- Renommage et changement de type de `Attaque.LISTE` en  `Attaque._liste`. <!--Bateau de Thésée?-->
-	- Réécriture du constructeur de `Attaque` pour qu'il aille chercher ses données directment dans `Attaque._liste` au lien de devoir passer par une fonction intermédiaire.
-		* Suprression de `Attaque._depuis_json_dict().`
-	- Remplacement de `Attaque.actualiser_liste()` par `Attaque.set_liste()`.
-	- Les propriétés `Attaque.lanceur` et `Attaque.cible` sont maintenant publiques.
-	- Suppression de `Attaque._vitesse`.
-		* Suppression de `Attaque.vitesse`.
-	- Suppression de `TypeAttaque.couleur`.
-		- Suppression de `Attaque._couleur`.
-+ [fonctions_vrac.py](sources/fonctions_vrac.py)
-	* Ajout d'une variable de type générique `T`.
-	* Ajout de la fonction `valeur_par_defaut()`.
++ [Animation.py](sources/classes_utiles/Animation.py)
+	- Ajout de l'énum `SensLecture`.
+	- Ajout d'options pour jouer les animations à l'envers.
++ [Pos.py](sources/classes_utiles/Pos.py)
+	- Ajout de `.__str__()`.
+	- Ajout alias `pos_t` et `pos_pygame` (le second n'est pas importé dans les autres fichiers).
+		* Ajout de fonctions pour convertir les types entre eux. 	
++ `Attaque`
+	- Les instances stockent maintenant le nom de l'attaque.
++ `Carte`
+	- Ajout des constantes statiques suivantes:
+		* `_SURVOL_DECALAGE`,
+		* `_ANIM_GARDER_POS`,
+		* `_ANIM_CHANGER_POS`,
+		* `_ANIM_DICO[]`,
+		* `_SPRITE_DOS`
+	- Ajout des attributs non statiques:
+		* `._pos_defaut`,
+			+ Ajout du paramètre `pos_defaut` à tous les overloads du constructeur.
+		* `._pos`,
+		* `._anim_nom`,
+		* `._anim_sens`,
+		* `._TAILLE_SPRITE`
+	- Ajout d'un `.__repr__()`.
+	- Ajout des propriétés (en lecture seule):
+		* `._hitbox`,
+		* `._anim_destination`,
+		* `._anim_duree`,
+		* `._anim_easing`,
+		* `.pos_defaut`,
+		* `.souris_survole`,
+		* `.anim_nom` (lecture-écriture)
+	- Ajout de la méthode `._set_deplacement()`.
+	- Ajout de la méthode `.decaler_pos_defaut()`.
+	- Remplacement de `._jouer_animation()` par `.jouer_animation()`.
+	- Renommage de `_DUREE_INTER_ANIMATION` en `_DUREE_INTER_JEU`.
+	- la méthode `._dessiner()` devient publique.
+	- Suppression de l'attribut `._autoriser_animation`
+	- Suppression de `.jouer()`.
+		- Suppression de `.pos_anim_attaque()`.
++ [fonctions_combats](sources/fonction_combat.py)
+	- Suppression de `joueur_attaque()`.
++ [fonctions_vrac](sources/fonctions_vrac.py)
+	- Ajout de `etirer_garder_ratio()`.
++ [imports.py](sources/imports.py)
+	- Définition des vecteurs `v_x` et `v_y`.
++ `Jeu`
+	- Ajout d'overload/argument à `pourcentages_coordonees()`. Si ret_pos est vrai, renvoieun objet `Pos` sinon une tuple.
 + `Joueur`
-	- Renommage de `.noms_attaques` en `.noms_cartes`.
-	- Suppression de `.get_attaque_surface()`, `.attaque_peut_toucher_lanceur()` et de `.attaque_peut_toucher_ennemis()`
-+ `Monstre`
-	- Renommage de `.choisir_attaque()`en `.choisir_carte()`.
+	- Ajout des constantes statiques `_CARTE_MAIN_PREMIERE_POS` et `_CARTES_MAIN_ESPACEMENT`.
+	- Ajout de l'attribut statique `_nom_derniere_carte_piochee`.
+	- Ajout des attributs non statiques `._max_cartes_main` et `._cartes_main[]`.
+		* Ajouts de getters et/ou setters.
+	- Ajout de la notion de "deck" et de "main".
+		* Ajout de `.dessiner_main()`.
+		* Renommage de `noms_cartes` en `noms_cartes_deck`.
+	- Ajout de `.piocher()` et `.repiocher_tout()`.
+	- Ajout de `.verifier_pour_attaquer()`.
+	- Le chemin vers le sprite n'est plus argument du constructeur.
+	- Suppression de `.dessine_prochaine_frame()` et `.dessine_prochaine_frame_UI()`.
+
 + [UI.py](sources/UI.py)
-	- `trouve_attaque_a_partir_du_curseur()` renvoie maintenant une carte et est renommé `trouve_carte_a_partir_du_curseur()`.
+	- Suppression de `dessiner_boutons_attaques()`.
+______
+Plus jamais je fais de commit aussi gros.
+
+Impossible de passer à l'état `AFFICHAGE_ATTAQUES` pour l'instant.
+J'ai aussi l'impression qu'il y a un lag pour cliquer sur les cartes TOFIX?

@@ -1,5 +1,5 @@
 from imports import *
-from classes_utiles import Duree
+from classes_utiles import Duree, Pos, pos_t
 from Constantes import Touches
 from Constantes.Couleurs import TRANSPARENT, ROUGE
 from Constantes.Polices import FOURRE_TOUT
@@ -95,9 +95,20 @@ class Jeu:
         """Renvoie pourcentage de la largeur de l'écran en pixels"""
         return round(Jeu.largeur * pourcents / 100)
     
+    @overload
     @staticmethod
-    def pourcentages_coordonees(pc_largeur : float, pc_hauteur : float) -> tuple[int, int]:
+    def pourcentages_coordonees(pc_largeur : float, pc_hauteur : float, ret_pos : Literal[True] = True) -> Pos:
+        """Raccourcit pour Pos(Jeu.pourcentage_largeur(pc_largeur), Jeu.pourcentage_largeur(pc_hauteur))"""
+    
+    @overload
+    @staticmethod
+    def pourcentages_coordonees(pc_largeur : float, pc_hauteur : float, ret_pos : Literal[False]) -> tuple[int, int]:
         """Raccourcit pour (Jeu.pourcentage_largeur(pc_largeur), Jeu.pourcentage_largeur(pc_hauteur))"""
+    
+    @staticmethod
+    def pourcentages_coordonees(pc_largeur : float, pc_hauteur : float, ret_pos : bool = True) -> pos_t:
+        if ret_pos:
+            return Pos(Jeu.pourcentages_coordonees(pc_largeur, pc_hauteur, ret_pos=False))
         return (Jeu.pourcentage_largeur(pc_largeur), Jeu.pourcentage_hauteur(pc_hauteur))
     
     @staticmethod

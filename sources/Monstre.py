@@ -48,7 +48,7 @@ MonstreJSON.actualiser_donnees()
 
 
 class Monstre:
-    POSITION : Pos = Pos(Jeu.pourcentages_coordonees(70, 15))
+    POSITION : Pos = Jeu.pourcentages_coordonees(70, 15)
     SPRITE_DIM : tuple[int, int] = (150, 150)
     
     # La liste de tous les monstres en vie
@@ -204,7 +204,7 @@ class Monstre:
     
     def choisir_carte(self) -> Carte:
         return Carte(
-            random.choice(self._moveset)
+            random.choice(self._moveset),
         )
     
     def attaquer(self, id_cible : int, nom_attaque : str) -> None:
@@ -227,16 +227,8 @@ class Monstre:
     def dessiner(self, surface : Surface, pos_x : int, pos_y : int) -> None:
         blit_centre(surface, self._sprite, (pos_x, pos_y))
     
-    def dessiner_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int):
-        dessiner_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
-       
-    def dessine_prochaine_frame(self, surface : Surface) -> None:
-        if not self.afficher:
-            return
-        self.dessiner(surface, Monstre.POSITION.x, Monstre.POSITION.y)
-    
-    def dessine_prochaine_frame_UI(self, surface : Surface) -> None:
-        pass
+    def dessiner_barre_de_vie(self, surface : Surface, pos : Pos):
+        dessiner_barre_de_vie(surface, pos, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
     
     def vers_type_precedent(self) -> bool:
         """Si le monstre à un type, change le type du monstre vers le précédent et renvoie True, sinon renvoie False et ne fait rien."""

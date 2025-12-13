@@ -29,8 +29,6 @@
 + [Joueur](../sources/Joueur.py) contient:
 	- `Joueur` (classe): explications dans la [section correspondante](#joueur).
 	- `joueur` (objet `Joueur`): Le joueur dans les combats.
-+ [liste_boutons](../sources/liste_boutons.py) contient:
-	- Des listes de boutons pour les menus.
 + [main](../sources/main.py) a pour but:
 	- D'être le point de départ du programme pour le mode boss rush.
 	- Itèrer parmis les combats

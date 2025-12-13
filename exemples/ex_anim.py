@@ -17,11 +17,11 @@ from classes_utiles.Pos import Pos
 
 diamant_gen = MultiDeplacement.generateur_s(
 	[
-		Pos(Jeu.pourcentages_coordonees(25, 50)),
-		Pos(Jeu.pourcentages_coordonees(50, 25)),
-		Pos(Jeu.pourcentages_coordonees(75, 50)),
-		Pos(Jeu.pourcentages_coordonees(50, 75)),
-		Pos(Jeu.pourcentages_coordonees(25, 50)),
+		Jeu.pourcentages_coordonees(25, 50),
+		Jeu.pourcentages_coordonees(50, 25),
+		Jeu.pourcentages_coordonees(75, 50),
+		Jeu.pourcentages_coordonees(50, 75),
+		Jeu.pourcentages_coordonees(25, 50),
 	],
 	[	# sur une fenêtre carrée de 100 pixel de côté, le rond atteindra (50, 25) au quart (.25) de l'animation, (75, 50) à la moitié (.50) de l'animation, ...
 		1/4,
@@ -61,10 +61,10 @@ while True:
 		Jeu.fenetre,
 		BLEU_CLAIR,
 		(
-			Jeu.pourcentages_coordonees(25, 50),
-			Jeu.pourcentages_coordonees(50, 75),
-			Jeu.pourcentages_coordonees(75, 50),
-			Jeu.pourcentages_coordonees(50, 25),
+			Jeu.pourcentages_coordonees(25, 50, ret_pos=False),
+			Jeu.pourcentages_coordonees(50, 75, ret_pos=False),
+			Jeu.pourcentages_coordonees(75, 50, ret_pos=False),
+			Jeu.pourcentages_coordonees(50, 25, ret_pos=False),
 		),
 		width=2
 	)

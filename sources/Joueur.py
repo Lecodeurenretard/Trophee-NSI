@@ -1,24 +1,29 @@
 from Carte import *
-from Item    import Item
+from Item  import Item
 
 class Joueur:
-    STATS_DE_BASE : Stat = Stat(45, 32, 37, 22, 32, 50, 1.3, 1).reset_vie()
-    DIMENSIONS_SPRITE : tuple[int, int] = (160, 160)
+    _CARTE_MAIN_PREMIERE_POS : Pos = Jeu.pourcentages_coordonees(24, 60)
+    _CARTES_MAIN_ESPACEMENT  : Vecteur = Vecteur(30, 0)
     
-    def __init__(self, moveset : list[str]|tuple[str, ...], chemin_vers_sprite : Optional[str] = None, inventaire : list[Item] = []) -> None:
-        self._stats   : Stat             = copy(Joueur.STATS_DE_BASE)
-        self._pseudo  : str              = ""
-        self._moveset : list[str]        = list(moveset)
-        self._inventaire    : list[Item] = copy(inventaire)
-        self._nombre_pieces : int        = 0
+    STATS_DE_BASE : Stat = Stat(45, 32, 37, 22, 32, 50, 1.3, 1).reset_vie()
+    DIMENSIONS_SPRITE : tuple[int, int] = (200, 200)
+    
+    _nom_derniere_carte_piochee : str = ''
+    
+    
+    def __init__(self, moveset : list[str]|tuple[str, ...], inventaire : list[Item] = []) -> None:
+        self._stats           : Stat        = copy(Joueur.STATS_DE_BASE)
+        self._pseudo          : str         = ""
+        self._moveset         : list[str]   = list(moveset)
+        self._inventaire      : list[Item]  = copy(inventaire)
+        self._nombre_pieces   : int         = 0
+        self._max_cartes_main : int         = 6
+        self._cartes_main     : list[str] = []
         
         self.afficher : bool = True
         
-        if chemin_vers_sprite is None:
-            chemin_vers_sprite = f"{Constantes.Chemins.IMG}/erreur.png"
-        
         self._sprite : Surface = pygame.transform.scale(
-            pygame.image.load(chemin_vers_sprite),
+            pygame.image.load(f"{Constantes.Chemins.IMG}/joueur.png"),
             Joueur.DIMENSIONS_SPRITE
         )
         
@@ -34,6 +39,13 @@ class Joueur:
         # Appelé quand l'objet est détruit (plus utilisé ou détruit avec del())
         if self._id > 0 and globales.entites_vivantes is not None:
             self.meurt()
+    
+    @property
+    def _deck(self) -> list[Carte]:
+        return [
+            Carte(nom, Joueur._CARTE_MAIN_PREMIERE_POS + i * Joueur._CARTES_MAIN_ESPACEMENT)
+            for i, nom in enumerate(self._moveset)
+        ]
     
     @property
     def est_mort(self) -> bool:
@@ -66,8 +78,12 @@ class Joueur:
         return copy(self._inventaire)
     
     @property
-    def noms_cartes(self) -> tuple[str, ...]:
+    def noms_cartes_deck(self) -> tuple[str, ...]:
         return tuple(self._moveset)
+    
+    @property
+    def max_cartes_main(self) -> int:
+        return self._max_cartes_main
     
     @property
     def longueur_barre_de_vie(self) -> int:
@@ -77,7 +93,7 @@ class Joueur:
     # propriété car la position pourrait changer suivant la position du ou des joueurs
     @property
     def pos_attaque(self) -> Pos:
-        return Pos(Jeu.pourcentages_coordonees(16, 46))
+        return Jeu.pourcentages_coordonees(16, 46)
     
     @property
     def pos_curseur(self) -> Pos:
@@ -87,10 +103,50 @@ class Joueur:
     def pseudo(self, value : str) -> None:
         self._pseudo = value
     
+    @max_cartes_main.setter
+    def max_cartes_main(self, value : int) -> None:
+        self.max_cartes_main = value
+    
+    # J'ai essayé de faire une fonction qui groupe les cartes par nom mais elle ne fonctionne pas
+    # #def _inserer_carte_main(self, nom_carte : str) -> None:
+    # #    assert(nom_carte in self._moveset), f"La carte \"{nom_carte}\" n'est pas dans le deck."
+    # #    
+    # #    print('\n')
+    # #    if len(self._cartes_main) == 0:
+    # #        self._cartes_main.append(Carte(
+    # #            nom_carte,
+    # #            Joueur._CARTE_POS
+    # #        ))
+    # #        return
+    # #    
+    # #    i : int     # On déclare i dans le scope de la fonction
+    # #                # On peut faire sans en Python mais C mieux ainsi
+    # #    for i, c in enumerate(self._cartes_main):
+    # #        if nom_carte == c.nom:
+    # #            break
+    # #    i += 1
+    # #    
+    # #    print(i, self._cartes_main[i - 1].pos_defaut)
+    # #    pos_carte = Joueur._CARTE_POS
+    # #    if i - 1 >= 0:
+    # #        pos_carte = self._cartes_main[i - 1].pos_defaut + Joueur._CARTE_ESPACEMENT
+    # #    
+    # #    for c in self._cartes_main[i:]:
+    # #        c.decaler_pos_defaut(Joueur._CARTE_ESPACEMENT)
+    # #    self._cartes_main.insert(i, Carte(nom_carte, pos_carte))
+    # #
+    # #    for c in self._cartes_main[:]:
+    # #        print(c)
+    
+    def _get_carte_main(self, index : int) -> Carte:
+        if not 0 <= index < len(self._cartes_main):
+            raise IndexError(f"L'index {index} n'est pas dans main du joueur.")
+        return Carte(self._cartes_main[index], Joueur._CARTE_MAIN_PREMIERE_POS + index * Joueur._CARTES_MAIN_ESPACEMENT)   # suite arithmétique j(°o°)l
     
     def recoit_degats(self, degats_recu : int) -> None:
         """Prend en charge les dégats prits et retourne si un crit est retourné."""
-        if bool(params.joueur_invincible) and degats_recu >= 0:   # joueur_invincible n'empèche pas les soins
+        # joueur_invincible n'empèche pas les soins
+        if bool(params.joueur_invincible) and degats_recu >= 0:
             return
         
         self._stats.baisser_vie(degats_recu)
@@ -105,30 +161,65 @@ class Joueur:
         self._stats = copy(Joueur.STATS_DE_BASE)
         self._inventaire.clear()
     
-    def attaquer(self, id_cible : int, nom_carte : str) -> None:
-        if nom_carte not in self._moveset:
-            raise ValueError(f"Le nom {nom_carte} n'est pas dans `_moveset[]`.")
-        
-        carte = Carte(nom_carte)
+    def attaquer(self, id_cible : int, index_carte : int) -> None:
+        carte : Carte = self._get_carte_main(index_carte)
         if carte.peut_attaquer_lanceur:
             id_cible = self.id
         
         carte.enregister_lancement(self._id, id_cible)
+        
+        self._cartes_main.pop(index_carte)
+        self.piocher()  # TODO: à enlever quand les tours serons réimplémentés
+        
+        carte.anim_nom = "jouer"
     
     def dessiner(self, surface : Surface) -> None:
-        blit_centre(surface, self._sprite, Jeu.pourcentages_coordonees(25, 60))
+        blit_centre(surface, self._sprite, Jeu.pourcentages_coordonees(13, 80, ret_pos=False))
     
-    def dessine_barre_de_vie(self, surface : Surface, pos_x : int, pos_y : int) -> None:
-        dessiner_barre_de_vie(surface, pos_x, pos_y, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie)
+    def dessine_barre_de_vie(self, surface : Surface, pos : Pos) -> None:
+        dessiner_barre_de_vie(surface, pos, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie)
     
+    def dessiner_main(self, surface : Surface, de_dos : bool = False) -> None:
+        for i, nom_carte in enumerate(self._cartes_main):
+            self._get_carte_main(i).dessiner(surface, de_dos=de_dos)
     
-    def dessine_prochaine_frame(self, surface : Surface) -> None:
-        if not self.afficher:
+    def piocher(self) -> None:
+        if self.max_cartes_main <= 0:
             return
-        self.dessiner(surface)
+        
+        while len(self._cartes_main) < self._max_cartes_main:
+            choisi = random.choice(self._moveset)
+            
+            if choisi == self._nom_derniere_carte_piochee and len(self._moveset) > 1:
+                continue    # repioche, on évite la surpioche de cartes de même type
+            
+            self._nom_derniere_carte_piochee = choisi
+            self._cartes_main.append(choisi)
     
-    def dessine_prochaine_frame_UI(self, surface : Surface) -> None:
-        self.dessine_barre_de_vie(surface, *Jeu.pourcentages_coordonees(70, 65))
+    def repiocher_tout(self) -> None:
+        self._cartes_main.clear()
+        self._nom_derniere_carte_piochee = ''
+        
+        self.piocher()
+    
+    def verifier_pour_attaquer(self, ev : pygame.event.Event) -> Optional[int]:
+        """Verifie si le joueur veut attaquer."""
+        if ev.type != pygame.MOUSEBUTTONDOWN:
+            return None
+        
+        index_cliquee : Optional[int] = None
+        
+        # ordre inverse de celui de dessin
+        # les cartes dessinées avant sont en dessous
+        iteration_inversee = range(len(self._cartes_main)-1, -1, -1)    # I miss C-style loops
+        for i in iteration_inversee:
+            
+            carte : Carte = self._get_carte_main(i) 
+            if carte.souris_survole:
+                index_cliquee = i
+                break
+        
+        return index_cliquee
     
     def prendre_item(self, item : Item) -> None:
         """Ajoute un item à l'inventaire s'il n'y était pas déjà. Renvoie si l'item à été ajouté."""
@@ -176,8 +267,7 @@ class Joueur:
             f"Statistiques: {self._stats}\n"
             f"Moveset: {self._moveset}\n"
             f"Inventaire: {[item.nom for item in self._inventaire]}\n"
-            f"ID d'entité: {self._id}\n"
-            f"Argent récolté: {self._nombre_pieces}\n"
+            f"Argent: {self._nombre_pieces}\n"
         )
 
 
@@ -186,4 +276,4 @@ joueur : Joueur = Joueur([
     "Torgnole",
     "Magie",
     "Skip",
-], chemin_vers_sprite=f"{Constantes.Chemins.IMG}/joueur.png")
+])

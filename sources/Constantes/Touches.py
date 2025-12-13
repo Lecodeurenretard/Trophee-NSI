@@ -17,6 +17,7 @@ VALIDER : tuple[int, ...] = (
     pygame.K_KP_ENTER,  # entrée du pavé numérique
 )
 
+DBG_REROLL_CARTES     : int = pygame.K_r
 DBG_CRIT              : int = pygame.K_c
 DBG_PRECEDENT_COMBAT  : int = pygame.K_s
 DBG_PROCHAIN_COMBAT   : int = pygame.K_z

@@ -13,18 +13,19 @@ Touches qui marchent dans tous les modes:
 
 ___
 Touches qui marchent seulement en mode débug:
-- Crits garantis: c
-- Skip jusqu'à un shop: p
+- Crits garantis: C
+- Aller jusqu'au prochain shop: P
+- Repiocher les cartes: R
 - Changer les items du shop: scroll de la molette
 - Afficher les informations sur les entités: F9
 - Skip les temps d'attente:
 	+ espace
 - Changer de combat:
-	+ s (précédent)
-	+ z (suivant)
+	+ S (précédent)
+	+ Z (suivant)
 - Changer d'adversaire:
-	+ q (précédent)
-	+ d (suivant)
+	+ Q (précédent)
+	+ D (suivant)
 - Plus d'items dans le shop:
 	+ \+ (clavier et pavé numérique)
 - Moins d'items dans le shop:
