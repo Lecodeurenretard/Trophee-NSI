@@ -15,12 +15,16 @@ class Jeu:
     ATTAQUES_PAR_TOUR : int = 3
     DECISION_SHOP : Callable[[int], bool] = lambda num_combat: num_combat % 5 == 0 and num_combat != Jeu.MAX_COMBAT
     
-    largeur : int = 800 ;   hauteur : int = 600
-    centre_fenetre : tuple[int, int] = (largeur // 2, hauteur // 2)
+    fenetre    : Surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     
-    fenetre    : Surface = pygame.display.set_mode((largeur, hauteur))
+
+    largeur , hauteur = pygame.display.get_surface().get_size()
+    centre_fenetre : tuple[int, int] = (largeur // 2, hauteur // 2)
+
     menus_surf : Surface = Surface((largeur, hauteur), pygame.SRCALPHA)
     infos_surf : Surface = Surface((largeur, hauteur), pygame.SRCALPHA)
+    
+    
     
     attaques_restantes_joueur : int  = ATTAQUES_PAR_TOUR
     num_etape                 : int  = 1
