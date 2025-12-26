@@ -4,7 +4,7 @@ Ce fichier est un [fichier markdown](https://www.markdownguide.org/basic-syntax/
 
 ## Configuration minimum
 + [Python 3.10](https://www.python.org/downloads/release/python-31018/) ou plus récent
-+ [pygame 2.6](https://www.pygame.org/news) ou plus récent
++ [Pygame 2.6](https://www.pygame.org/news) ou plus récent
 
 Pas de configuration minimum pour les composants du PC à moins que ce soit littéralement une patate.
 
@@ -36,4 +36,4 @@ Voyez ce qui doit être fait à plus court terme dans le [projet Github](https:/
 ## Les modes d'utilisateurs
 Il y a deux modes pour deux types d'utilisateurs: le mode normal (par défaut) et le mode débug. Le mode débug est comme le mode normal mais à accès aux paramètres de triche.
 
-Les touches sont dans le [README](sources/README.md) du répertoire [sources](sources/).
+Les touches sont dans [Touches.md](Touches.md).

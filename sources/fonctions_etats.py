@@ -5,7 +5,7 @@ Chaque fonction éponyme à une valeur de `EtatJeu` sera une boucle stournant ta
 
 from fonctions_main import *
 from Item           import Item
-from Bouton         import Button
+from Bouton         import Button, ButtonCursor
 from Carte          import Carte
 from Joueur         import joueur
 
@@ -33,12 +33,12 @@ def attente_prochaine_etape() -> None:
         Jeu.changer_etat(Jeu.Etat.SHOP)
         return
     
+    joueur.piocher()
     Jeu.set_texte_fenetre("Combat!")
     Jeu.changer_etat(Jeu.Etat.CHOIX_ATTAQUE)
 
 def choix_attaque() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.CHOIX_ATTAQUE.name}.")
-    joueur.piocher()
     
     interruption : Optional[Interruption] = None
     
@@ -49,10 +49,12 @@ def choix_attaque() -> None:
         
         # Si le joueur ne peut pas jouer
         if Jeu.attaques_restantes_joueur <= 0:
-            monstres_attaquent()
+            verifier_pour_quitter()
+            
+            monstre = Monstre.monstres_en_vie[0]
+            monstre.attaquer(joueur.id, monstre.choisir_carte().nom)
             Jeu.reset_etat()
             
-            # Si le monstre n'a plus d'attaques
             Jeu.attaques_restantes_joueur -= 1
             if Jeu.attaques_restantes_joueur <= -Jeu.ATTAQUES_PAR_TOUR:
                 Jeu.attaques_restantes_joueur = Jeu.ATTAQUES_PAR_TOUR
@@ -65,7 +67,7 @@ def choix_attaque() -> None:
             if interruption is not None:
                 break
             
-            if event.type != pygame.KEYDOWN and event.type != pygame.MOUSEBUTTONDOWN:
+            if event.type != pygame.MOUSEBUTTONDOWN:
                 continue
             
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -75,7 +77,6 @@ def choix_attaque() -> None:
                 
                 joueur.attaquer(1, index_carte)        # TODO: Ewww!
                 
-                continue    # on empèche ça pour l'instant
                 Jeu.attaques_restantes_joueur -= 1
                 logging.debug(f"Il reste {Jeu.attaques_restantes_joueur} attaques au joueur.")
                 Jeu.reset_etat()
@@ -92,14 +93,14 @@ def affichage_attaque() -> None:
     if Carte.derniere_enregistree is None:
         raise RuntimeError("Il n'y a aucune dernière attaque alors que l'état AFFICHAGE_ATTAQUE est actif.")
     
-    attaque_gen : list[Generator[None, None, None]] = [Carte.derniere_enregistree.jouer_animation(Jeu.fenetre)]
-    attaque_gen[0].send(None)
-    while len(attaque_gen) != 0:
+    while Carte.derniere_enregistree.est_affiche:
         Jeu.commencer_frame()
-        skip : bool = testeur_skip_ou_quitte()
+        if testeur_skip_ou_quitte():
+            Carte.derniere_enregistree.skip_animation()
         
-        rafraichir_ecran(attaque_gen, to_send_dessin=skip)
+        rafraichir_ecran()
     
+    # Vérifie si c'est la fin du combat
     if joueur.est_mort:
         Jeu.a_gagne = False
         Jeu.changer_etat(Jeu.Etat.GAME_OVER)
@@ -148,8 +149,10 @@ def ecran_titre() -> None:
     
     dessiner_fond_ecran = dessiner_gif(
         Jeu.fenetre,
-        f"{Constantes.Chemins.ANIM}/fond/frame *.png",
-        Duree(s=.1), Pos(Jeu.centre_fenetre), loop=True, scale=True
+        f"{Chemins.ANIM}/fond/frame *.png",
+        Duree(s=.1),
+        Pos(Jeu.centre_fenetre),
+        en_boucle=True, etendre=True
     )
     while Jeu.etat == Jeu.Etat.ECRAN_TITRE:
         Jeu.commencer_frame()
@@ -177,7 +180,7 @@ def credits(duree : Duree = Duree(s=5)) -> None:
     if duree == Duree():
         return
     
-    texte_credits  : Surface = Constantes.Polices.FOURRE_TOUT.render("Développé par Jules et Lucas", True, BLANC)
+    texte_credits  : Surface = Polices.FOURRE_TOUT.render("Développé par Jules et Lucas", True, BLANC)
     texte_credits2 : Surface = pygame.font.Font(None, 30).render("et Nils", True, BLANC)
     
     deplacement : Deplacement = Deplacement(
@@ -206,10 +209,10 @@ def game_over() -> None:
     ecran_gen : Generator[Surface, None, None] = fin_partie(Jeu.a_gagne)
     if Jeu.a_gagne:
         Jeu.set_texte_fenetre("yay!")
-        pygame.mixer.music.load(f"{Constantes.Chemins.SFX}/victoire.wav")
+        pygame.mixer.music.load(f"{Chemins.SFX}/victoire.wav")
     else:
         Jeu.set_texte_fenetre("...")
-        pygame.mixer.music.load(f"{Constantes.Chemins.SFX}/defaite.wav")
+        pygame.mixer.music.load(f"{Chemins.SFX}/defaite.wav")
     
     pygame.mixer.music.set_volume(1)
     pygame.mixer.music.play()
@@ -248,15 +251,15 @@ def shop() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.SHOP.name}.")
     
     INVENTAIRE_EPAISSEUR_TRAIT : int = 2
-    INVENTAIRE_LARGEUR : int = 100 + INVENTAIRE_EPAISSEUR_TRAIT
-    INVENTAIRE_BOITE : Rect = Rect(
+    INVENTAIRE_LARGEUR         : int = 100 + INVENTAIRE_EPAISSEUR_TRAIT
+    INVENTAIRE_BOITE           : Rect = Rect(
         Jeu.largeur - INVENTAIRE_LARGEUR + INVENTAIRE_EPAISSEUR_TRAIT,
         -INVENTAIRE_EPAISSEUR_TRAIT,
         INVENTAIRE_LARGEUR,
         Jeu.hauteur + INVENTAIRE_EPAISSEUR_TRAIT * 2
     )
     
-    # nombre d'éléments -> listes des abscisses (pour une fenêtre de dimension 100x100)
+    # nombre d'éléments -> listes des abscisses (en pourcentage de largeur)
     ABSCISSES_RELATIVE_ITEMS : tuple[tuple[float, ...], ...] = (
         (),
         (50,),
@@ -273,70 +276,49 @@ def shop() -> None:
     ])
     
     # choisit 2 ou 3 items au hasard
-    items : list[Item] = [Item.item_aleatoire() for _ in range(random.randint(2, 3))]
+    def nouv_items() -> list[Item]:
+        gen_item = Item.generateur_items(consecutifs_differents=True)
+        return [next(gen_item) for _ in range(random.randint(2, 3))]
+    items : list[Item] = nouv_items()
     
     bouton_sortie : Button = Button(
         (20, 20, 48, 48),
-        img=f"{Constantes.Chemins.IMG}/retour.png",
+        img=f"{Chemins.IMG}/retour.png",
         action=Jeu.reset_etat,
     )
     
     premiere_frame : bool = True
-    interruption : Optional[Interruption] = None
+    interruption : Optional[bool|Interruption] = None
     
-    musiques_disponibles : list[str] = glob(f"{Constantes.Chemins.RADIO}/*.mp3")
+    radio = gerer_radio()
     while Jeu.etat == Jeu.Etat.SHOP:
         Jeu.commencer_frame()
-        if interruption is not None:
-            terminer_interruption(interruption)
         
         for ev in pygame.event.get():
             verifier_pour_quitter(ev)
             
-            interruption = reagir_appui_touche(ev)
+            interruption = reagir_appui_touche_shop(ev, items, (0, len(ABSCISSES_ITEMS) - 1))
             if interruption is not None:
-                break
+                items = nouv_items()
             
             if ev.type == pygame.MOUSEWHEEL and bool(params.mode_debug):
                 dbg_shop_scroll(ev, items, ABSCISSES_ITEMS[len(items)])
             
             if ev.type == pygame.MOUSEBUTTONDOWN:
                 shop_click(ev, items, bouton_sortie, ABSCISSES_ITEMS[len(items)])
-            
-            if ev.type == pygame.KEYDOWN and bool(params.mode_debug):
-                if ev.key in Constantes.Touches.DBG_SHOP_AJOUT_ITEM and len(items) < len(ABSCISSES_ITEMS) - 1:
-                    items.append(Item.item_aleatoire())
-                elif ev.key in Constantes.Touches.DBG_SHOP_SUPPRESSION_ITEM and len(items) > 0:
-                    items.pop()
         
         
         # Si il n'y a plus de musique, en charge une aléatoire.
-        if not pygame.mixer.music.get_busy():
-            Jeu.jouer_musique(
-                random.choice(musiques_disponibles),
-                .2
-            )
+        next(radio)
         
-        Jeu.fenetre.fill(BLANC)
-        
-        # Dessine l'inventaire du joueur
-        dessiner_rect(
-            Jeu.fenetre,
-            INVENTAIRE_BOITE.topleft, INVENTAIRE_BOITE.size,
-            couleur_remplissage=GRIS, couleur_bords=NOIR,
-            epaisseur_trait=INVENTAIRE_EPAISSEUR_TRAIT
+        rafraichir_ecran_shop(
+            items,
+            ABSCISSES_ITEMS[len(items)],
+            INVENTAIRE_BOITE,
+            INVENTAIRE_EPAISSEUR_TRAIT,
+            bouton_sortie,
+            afficher_avertissements=premiere_frame,
         )
-        
-        dessiner_nombre_pieces(INVENTAIRE_BOITE)
-        dessiner_inventaire(Jeu.fenetre, INVENTAIRE_BOITE)
-        
-        dessiner_infos()
-        
-        bouton_sortie.draw(Jeu.menus_surf)
-        for item, pourcentage_abscisse in zip(items, ABSCISSES_ITEMS[len(items)]):
-            item.dessiner(Jeu.fenetre, pourcentage_abscisse, afficher_avertissements=premiere_frame)
-        
-        Jeu.display_flip()
         premiere_frame = False
     
     Jeu.num_etape += 1

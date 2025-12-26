@@ -58,14 +58,14 @@ def dessiner_barre_de_vie(surface : Surface, pos : Pos, ratio_vie : float, longu
         dessiner_rect(  # remplissage
             surface,
             pos,
-            (longueur_remplissage               , Constantes.UI_HAUTEUR_BARRE_DE_VIE),
+            (longueur_remplissage               , UI_HAUTEUR_BARRE_DE_VIE),
             couleur_remplissage=remplissage,
             epaisseur_trait=0,
         )
         dessiner_rect(  # bords
             surface,
             pos,
-            (Constantes.UI_LONGUEUR_BARRE_DE_VIE, Constantes.UI_HAUTEUR_BARRE_DE_VIE),
+            (UI_LONGUEUR_BARRE_DE_VIE, UI_HAUTEUR_BARRE_DE_VIE),
             couleur_bords=NOIR,
             epaisseur_trait=2,
             dessiner_interieur=False,
@@ -109,7 +109,7 @@ def image_vers_generateur(
     if derniere_etape is not None:
         derniere_etape()
 
-def dessiner_gif(surface : Surface, pattern : str, duree_affichage : Duree, pos : pos_t, loop : bool = False, scale : bool = False) -> Generator[None, None, None]:
+def dessiner_gif(surface : Surface, pattern : str, duree_affichage : Duree, pos : pos_t, en_boucle : bool = False, etendre : bool = False) -> Generator[None, None, None]:
     """
     Renvoie un générateur qui dessine chaque image du dossier les unes à la suite des autres par ordre alphabétique sur `surface`, chacunes pendant `duree_affichage`. Pour savoir combien de temps s'est écoulé, la fonction utilise l'horloge interne.
     `pattern` est un pattern glob qui est passé sans filtre à `glob()`.
@@ -123,12 +123,12 @@ def dessiner_gif(surface : Surface, pattern : str, duree_affichage : Duree, pos 
         raise FileNotFoundError("Aucun fichier ne respecte le pattern. Vérifiez qu'il soit correct.")
     
     premiere_fois : bool = True
-    while premiere_fois or loop:
+    while premiere_fois or en_boucle:
         premiere_fois = False
         
         for image in images:
             img : Surface = pygame.image.load(image)
-            if scale:
+            if etendre:
                 img = pygame.transform.scale(img, surface.get_size())
             
             img_gen = image_vers_generateur(img, duree_affichage)

@@ -91,7 +91,11 @@ $$
 $$
 Et concrètement, c'est tout ce que fait `InterpolationLineaire.calculer_valeur_s()`,
 à une chose près, la méthode applique ce que l'on appelle des fonctions d'easing.  
+
+#### Les fonctions d'easing
 Les fonctions d'easing permettent d'obtenir une transition plus naturelle au début et à la fin d'un LERP, c'est un concept très difficle à décrire en texte seulement; j'ai donc créé un **[graphique interactif Desmos](https://www.desmos.com/calculator/rrinotdfez)** pour visualiser le tout. <!--Si vous clickez sur le métronôme en haut à gauche, $t$ devrait augmenter et un point défiler entre 0 et 1 sur la droite $y=1$, ce point est contrôlé par $p$ (tout en bas des définitions).-->
+
+Même si ce n'est dans l'absolu pas interdit, je considère que pour tout fonction d'easing $f$ doit respecter $f(0) = 0$ et $f(1) = 1$ sinon la valeur cible ne sera pas atteinte.
 
 #### Retour sur les classes
 C'est bon il n'y a plus de maths, on se concentre maintenant sur la programation.  

@@ -2,7 +2,7 @@ from import_var import *
 from Curseur    import Curseur
 
 class Button:
-    SON_APPUI : Sound = Sound(f"{Constantes.Chemins.SFX}/select.mp3")
+    SON_APPUI : Sound = Sound(f"{Chemins.SFX}/select.mp3")
     
     def __init__(
             self,
@@ -41,7 +41,7 @@ class Button:
         if self._image is not None:
             surface.blit(self._image, self._rect)
         else:
-            surf = Constantes.Polices.FOURRE_TOUT.render(self._text, True, BLANC)
+            surf = Polices.FOURRE_TOUT.render(self._text, True, BLANC)
             surface.blit(surf, surf.get_rect(center=self._rect.center))
     
     def check_click(self, pos_click : pos_t, jouer_son : bool = True) -> bool:
@@ -158,7 +158,7 @@ class ButtonCursor(Button):
                 butt.cursor.deplacement_utilisateur(ev)
                 groups_having_moved_cursor.append(butt._group_name)
             
-            if Constantes.Touches.utilisateur_valide_menu(ev) and butt._do_cursor_select_button:
+            if Touches.utilisateur_valide_menu(ev) and butt._do_cursor_select_button:
                 butt.jouer_sfx()
                 if butt._action is None:
                     continue

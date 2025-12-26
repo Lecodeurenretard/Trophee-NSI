@@ -172,7 +172,7 @@ class Attaque:
     
     @property
     def nom_surface(self) -> Surface:
-        return Constantes.Polices.TITRE.render(self._nom, True, BLANC)
+        return Polices.TITRE.render(self._nom, True, BLANC)
     
     @property
     def peut_attaquer_lanceur(self) -> bool:

@@ -1,14 +1,15 @@
 from import_local import *
 from Joueur       import Joueur, joueur
 from Monstre      import Monstre
-from Carte        import Carte
 from Carte        import Attaque, Carte
+from Item         import Item
+from Bouton       import Button
 
 def demander_pseudo(surface : Surface) -> Interruption:
     logging.debug(f"→ Interruption: demande du pseudo.")
     
     pseudo : str  = ""
-    texte : Surface = Constantes.Polices.TITRE.render("Entrez votre pseudo :", True, NOIR)
+    texte : Surface = Polices.TITRE.render("Entrez votre pseudo :", True, NOIR)
     while True:
         Jeu.commencer_frame()
         
@@ -19,7 +20,7 @@ def demander_pseudo(surface : Surface) -> Interruption:
         surface.fill(BLANC)
         blit_centre(surface, texte, Jeu.pourcentages_coordonees(50, 45, ret_pos=False))
         
-        pseudo_affiche : Surface = Constantes.Polices.FOURRE_TOUT.render(pseudo, True, BLEU)
+        pseudo_affiche : Surface = Polices.FOURRE_TOUT.render(pseudo, True, BLEU)
         blit_centre(surface, pseudo_affiche, Jeu.centre_fenetre)
         yield surface
     
@@ -30,14 +31,14 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
     continuer : bool = True
 
     TOUCHES_A_IGNORER : tuple[int, ...] = (
+        pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN,   # flemme de faire un système de curseur
         pygame.K_LSHIFT, pygame.K_RSHIFT,
         pygame.K_LALT, pygame.K_RALT,
-        pygame.K_LCTRL, pygame.K_CAPSLOCK,
+        pygame.K_LCTRL, pygame.K_RCTRL,
+        pygame.K_PAGEDOWN, pygame.K_PAGEUP,
+        pygame.K_CAPSLOCK, pygame.K_END,
         pygame.K_INSERT, pygame.K_AC_BACK,
         pygame.K_BREAK, pygame.K_CARET,
-        pygame.K_END, 
-        pygame.K_PAGEDOWN, pygame.K_PAGEUP,
-        pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN,   # flemme de faire un système de curseur
         # on s'arrête ici pour l'instant
     )
     for event in pygame.event.get():
@@ -68,13 +69,13 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
         texte = texte[:-1]                                              # les espaces, nouvelles lignes, tabs...
     return (texte, continuer)
 
+# TODO: TOREMOVE
 def trouve_carte_a_partir_du_curseur() -> Carte:
     raise AssertionError("Cette fonction est cassée, elle sera réparée sous peu.")
     
     # Ce qui est important, c'est que le bouton soit dans le groupe Attaques
     curseur_pos : Pos = Pos(0, 0)
     
-    # TODO: J'aime pas le fait que ce soit hardcodé
     # Il faudra changer ça avec l'ajout du système de cartes
     if curseur_pos == Pos(0, 0):
         return Carte('Soin')
@@ -102,8 +103,8 @@ def afficher_infos() -> Interruption:
     image.fill(BLANC)
     
     carte : Carte = trouve_carte_a_partir_du_curseur()
-    texte_puissance   = Constantes.Polices.TITRE.render(f"Puissance: {carte.puissance}", True, NOIR)
-    texte_description = Constantes.Polices.TITRE.render(carte.description              , True, NOIR)
+    texte_puissance   = Polices.TITRE.render(f"Puissance: {carte.puissance}", True, NOIR)
+    texte_description = Polices.TITRE.render(carte.description              , True, NOIR)
     
     blit_centre(image, texte_puissance  , Jeu.pourcentages_coordonees(50, 50, ret_pos=False))
     blit_centre(image, texte_description, Jeu.pourcentages_coordonees(50, 57, ret_pos=False))
@@ -141,7 +142,7 @@ def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> I
             epaisseur_trait=5,
         )
         
-        texte_chargement : Surface = Constantes.Polices.TITRE.render("Chargement...", True, NOIR)
+        texte_chargement : Surface = Polices.TITRE.render("Chargement...", True, NOIR)
         blit_centre(surface, texte_chargement, Jeu.pourcentages_coordonees(50, 45, ret_pos=False))
         
         ratio_barre += delta.secondes / duree_totale.secondes
@@ -149,8 +150,8 @@ def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> I
 
 
 def ecran_nombre_combat() -> Generator[Surface, None, None]:
-    texte_combat : Surface = Constantes.Polices.TITRE.render(f"Combat n°{Jeu.num_etape}", True, NOIR)
-    texte_shop   : Surface = Constantes.Polices.TITRE.render(f"Shop", True, NOIR)
+    texte_combat : Surface = Polices.TITRE.render(f"Combat n°{Jeu.num_etape}", True, NOIR)
+    texte_shop   : Surface = Polices.TITRE.render(f"Shop", True, NOIR)
     image : Surface = Surface(Jeu.fenetre.get_size())
     
     logging.info("")
@@ -181,7 +182,7 @@ def dessiner_descriptions_entites(surface : Surface) -> None:
                 Jeu.pourcentage_largeur(33),
                 Jeu.hauteur
             ),
-            Constantes.Polices.TEXTE,
+            Polices.TEXTE,
             aa=True,
             ecart_entre_lignes=5
         )
@@ -211,16 +212,16 @@ def dessiner_diff_stats_joueur(surface : Surface) -> None:
         if diff < 0: coul = ROUGE
         if diff > 0: coul = VERT
         
-        txt = Constantes.Polices.TEXTE.render(f"{stat}: {int(diff):+d}", True, coul)
+        txt = Polices.TEXTE.render(f"{stat}: {int(diff):+d}", True, coul)
         surface.blit(txt, (10, y))
         y += txt.get_rect().height + 5
 
 def dessiner_infos() -> None:
     """Dessine les infos Si les bonnes touches sont pressées."""
-    if pygame.key.get_pressed()[Constantes.Touches.DIFFS]:
+    if pygame.key.get_pressed()[Touches.DIFFS]:
         dessiner_diff_stats_joueur(Jeu.infos_surf)
     
-    elif pygame.key.get_pressed()[Constantes.Touches.DBG_INFOS_ENTITES] and bool(params.mode_debug):
+    elif pygame.key.get_pressed()[Touches.DBG_INFOS_ENTITES] and bool(params.mode_debug):
         dessiner_descriptions_entites(Jeu.infos_surf)
 
 def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = [], to_send_dessin : Any = None, to_send_UI : Any = None) -> None:
@@ -230,16 +231,27 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     
     # Dessiner le joueur
     joueur.dessiner(Jeu.fenetre)
-    joueur.dessiner_main(Jeu.fenetre)
     
     joueur.dessine_barre_de_vie(Jeu.fenetre, Pos(500, 400))
-    Jeu.menus_surf.blit(Constantes.Polices.TITRE.render(joueur.pseudo, True, NOIR), (499, 370))
+    Jeu.menus_surf.blit(Polices.TITRE.render(joueur.pseudo, True, NOIR), (499, 370))
     
     # Dessiner les monstres
     for monstre in Monstre.monstres_en_vie:
         monstre.dessiner(Jeu.fenetre, *Jeu.pourcentages_coordonees(70, 15, ret_pos=False))  # ils sont tous à la même position pour l'instant
         monstre.dessiner_barre_de_vie(Jeu.fenetre, Pos(50, 50))
-        Jeu.menus_surf.blit(Constantes.Polices.TITRE.render(monstre.nom, True, NOIR), (49, 20))
+        Jeu.menus_surf.blit(Polices.TITRE.render(monstre.nom, True, NOIR), (49, 20))
+    
+    # Avance et dessine l'animation des cartes affichées
+    a_cacher : list[int] = []
+    for i, carte in Carte.cartes_affichees.items():
+        try:
+            next(carte.animation_generateur)   # .items() garde les références donc tout va bien
+        except StopIteration:
+            a_cacher.append(i)
+    
+    # Netoyage de Carte.cartes_affichees_anim[] (ici sinon on enlève des clefs)
+    for index in a_cacher:
+        Carte.cartes_affichees[index].cacher()
     
     # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:
@@ -256,20 +268,16 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
         centre_y=True,
         border_radius=3,
     )
-    txt_coups = Constantes.Polices.FOURRE_TOUT.render(
+    txt_coups = Polices.FOURRE_TOUT.render(
         f"{abs(Jeu.attaques_restantes_joueur)}",
         True,
-        Constantes.Couleurs.ROUGE
+        Couleurs.ROUGE
     )
     blit_centre(
         Jeu.menus_surf,
         txt_coups,
         Jeu.pourcentages_coordonees(85, 87, ret_pos=False),
     )
-    
-    # Dessiner le texte
-    blit_centre(Jeu.fenetre, Constantes.Polices.TEXTE.render("ESPACE : utiliser", True, BLANC), Jeu.pourcentages_coordonees(85, 81, ret_pos=False))
-    blit_centre(Jeu.fenetre, Constantes.Polices.TEXTE.render("I : info"         , True, BLANC), Jeu.pourcentages_coordonees(85, 84, ret_pos=False))
     
     # Dessin supplémentaire
     avancer_generateurs(generateurs_dessin, to_send_dessin)
@@ -279,4 +287,65 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     dessiner_infos()
     
     # Mettre à jour l'affichage
+    Jeu.display_flip()
+
+
+
+def dessiner_nombre_pieces(surface : Surface, boite_inventaire : Rect, ordonnees : int = Jeu.pourcentage_hauteur(5)) -> None:
+    if params.argent_infini.case_cochee:
+        dessiner_texte(
+            surface,
+            "genre, beaucoup de p",
+            JAUNE_PIECE,
+            (
+                boite_inventaire.left + 10, ordonnees,
+                boite_inventaire.width, ordonnees + Jeu.pourcentage_hauteur(5)
+            ),
+            Polices.TEXTE,
+            True,
+        )
+    else:
+        TEXTE_PIECES = Polices.TEXTE.render(
+            f"{joueur.nb_pieces}p",
+            True, JAUNE_PIECE,
+        )
+        surface.blit(TEXTE_PIECES, (
+            boite_inventaire.left + boite_inventaire.width // 2,
+            ordonnees,
+        ))
+
+def dessiner_inventaire(surface : Surface, boite_inventaire : Rect) -> None:
+    y : int = Jeu.pourcentage_hauteur(5) + 55
+    for item in joueur.inventaire:
+        icone : Surface = pygame.transform.scale_by(
+            item.sprite,
+            (boite_inventaire.width - 20) / item.sprite.get_rect().width
+        )
+        
+        surface.blit(
+            icone,
+            (boite_inventaire.left, y)
+        )
+        y += icone.get_bounding_rect().height + 10
+
+def rafraichir_ecran_shop(items : list[Item], abscisses : tuple[int, ...], rect_inventaire : Rect, epaisseur_trait : int, bouton : Button, afficher_avertissements : bool = False) -> None:
+    Jeu.fenetre.fill(BLANC)
+    
+    # Dessine l'inventaire du joueur
+    dessiner_rect(
+        Jeu.fenetre,
+        rect_inventaire.topleft, rect_inventaire.size,
+        couleur_remplissage=GRIS, couleur_bords=NOIR,
+        epaisseur_trait=epaisseur_trait
+    )
+    
+    dessiner_nombre_pieces(Jeu.menus_surf, rect_inventaire)
+    dessiner_inventaire(Jeu.fenetre, rect_inventaire)
+    
+    dessiner_infos()
+    
+    bouton.draw(Jeu.menus_surf)
+    for item, pourcentage_abscisse in zip(items, abscisses):
+        item.dessiner(Jeu.fenetre, pourcentage_abscisse, afficher_avertissements=afficher_avertissements)
+    
     Jeu.display_flip()

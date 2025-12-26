@@ -211,5 +211,6 @@ def testeur_skip_ou_quitte(ev : Optional[pygame.event.Event] = None) -> bool:
     
     for ev in pygame.event.get():
         if testeur_skip_ou_quitte(ev):
+            pygame.event.clear()    # pas de restes
             return True
     return False

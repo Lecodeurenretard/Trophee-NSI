@@ -32,86 +32,61 @@ format:
 ------------------------------------
 -->
 _____
-## $2^\text{me}$ étape de l'implémentation des cartes (injouable).
+## $3^\text{me}$ étape de l'implémentation des cartes (injouable).
 + Changements majeurs
-	- Pleins de changements dans `Carte` (v. section correspondante) pour les animer (fonctionnalités non testées ni utilisées).
-	- Pleins de changements dans `Joueur`(v. section correspondante) pour afficher les cartes de la main.
-		* Ajout de la notion de "deck" et de "main".
+	- Gros changement dans `Carte` (v. section associée).
+		- Ajout d'un système d'animation (une carte peut passer d'une animation A vers une animation B alors que A n'est pas finie).
 + Sur plusieurs fichiers
+	- Plus besoin d'écrire `Constantes.` pour accéder à ses modules.
 + Structure de fichiers
 + READMEs et documentation
-	- Suppression du tableau dans le [README de la racine](README.md).
-	- Petits changements dans le [README de source/](sources/README.md).
+	- La liste des touches à été déplacée dans [Touches.md](Touches.md).
 + Interactions joueur/testeur
-	- Ajout d'une touche (dans le mode débug) pour reroll les cartes.
-		* Ajout de la constante `DBG_REROLL_CARTES`.
-	- Le jeu ne change les cartes mais ne permet pas d'attaquer.
+	- Le testeur peut skip avec les boutons entrée.
+	- Le joueur pioche en début de tour au lieu du début de l'état `CHOIX_ATTAQUE`.
+		* On n'est pas à un piont ou, une différence est faite.
 + Correction de bugs
-+ [Animation.py](sources/classes_utiles/Animation.py)
-	- Ajout de l'énum `SensLecture`.
-	- Ajout d'options pour jouer les animations à l'envers.
-+ [Pos.py](sources/classes_utiles/Pos.py)
-	- Ajout de `.__str__()`.
-	- Ajout alias `pos_t` et `pos_pygame` (le second n'est pas importé dans les autres fichiers).
-		* Ajout de fonctions pour convertir les types entre eux. 	
-+ `Attaque`
-	- Les instances stockent maintenant le nom de l'attaque.
 + `Carte`
-	- Ajout des constantes statiques suivantes:
-		* `_SURVOL_DECALAGE`,
-		* `_ANIM_GARDER_POS`,
-		* `_ANIM_CHANGER_POS`,
-		* `_ANIM_DICO[]`,
-		* `_SPRITE_DOS`
-	- Ajout des attributs non statiques:
-		* `._pos_defaut`,
-			+ Ajout du paramètre `pos_defaut` à tous les overloads du constructeur.
-		* `._pos`,
-		* `._anim_nom`,
-		* `._anim_sens`,
-		* `._TAILLE_SPRITE`
-	- Ajout d'un `.__repr__()`.
-	- Ajout des propriétés (en lecture seule):
-		* `._hitbox`,
-		* `._anim_destination`,
-		* `._anim_duree`,
-		* `._anim_easing`,
-		* `.pos_defaut`,
-		* `.souris_survole`,
-		* `.anim_nom` (lecture-écriture)
-	- Ajout de la méthode `._set_deplacement()`.
-	- Ajout de la méthode `.decaler_pos_defaut()`.
-	- Remplacement de `._jouer_animation()` par `.jouer_animation()`.
-	- Renommage de `_DUREE_INTER_ANIMATION` en `_DUREE_INTER_JEU`.
-	- la méthode `._dessiner()` devient publique.
-	- Suppression de l'attribut `._autoriser_animation`
-	- Suppression de `.jouer()`.
-		- Suppression de `.pos_anim_attaque()`.
-+ [fonctions_combats](sources/fonction_combat.py)
-	- Suppression de `joueur_attaque()`.
-+ [fonctions_vrac](sources/fonctions_vrac.py)
-	- Ajout de `etirer_garder_ratio()`.
-+ [imports.py](sources/imports.py)
-	- Définition des vecteurs `v_x` et `v_y`.
-+ `Jeu`
-	- Ajout d'overload/argument à `pourcentages_coordonees()`. Si ret_pos est vrai, renvoieun objet `Pos` sinon une tuple.
+	- Les cartes dessinées à l'écran sont contenues dans `cartes_affichees[]`.
+		* L' "ID d'affichage" est la clef de l'instance dans le dico.
+	- Nouvelles propriétés pour avoir la vie facile:
+		* `.est_de_dos` (vérifie si la carte doit être dessinée de dos suivant l'animation en cours)
+		* `.est_affiche` (fait un assert en plus)
+		* Quelques autres qui ne font pas grand chose
+	- Ajout d'un système d'animation
+		* générateur pour animations `._animation()` qui centralise les déplacements et dessin de l'instance.
+		* les méthodes `.afficher()` et `.cacher()` qui se cahragent du dessin.
+		* Supression de `.jouer_animation()`.
+	- Les cartes storent leurs animations dans `._anim_gen`.
+	- Renommage de `_ANIM_GARDER_POS` et `_ANIM_CHANGER_POS` en `_ANIM_GARDER` et `_ANIM_CHANGER`.
+	- Renommage `._set_deplacement()` en `._calcul_deplacement()`.
+	- Les animations doivent spécifier aussi si la carte doit être de dos.
+	- Suppression de `.decaler_pos_defaut()` et de `_SPRITE_DOS` car inutiles.
++ [fonctions_etats.py](sources/fonctions_etats.py)
+	- Réduction de la longueur du code de `shop()` (plus un export mais même chose)
+		* La radio est maintenant gérée par un générateur externe.
+		* La génération d'items random est maintenant faite dans une sous fonction.
+		* Déplacemment de code vers `reagir_appui_touche_shop()`.
+		* Tout le code de dessin est à part dans `rafraichir_ecran_shop()`.
++ [fonctions_vrac.py](sources/fonctions_vrac.py)
+	- Remplacement de `premier_indice_libre_de_entites_vivantes()` par `premier_indice_libre()` (2 overloads) qui est plus général.
+	- Inversion des overloads de `clamp()` pour que le _type checker_ s'y retrouve.
++ `Item`
+	- `generateur_items()` admet un nouvel argument `consecutifs_differents` qui permet de limiter le nombre de fois qu'un même item puisse apparaitre.
 + `Joueur`
-	- Ajout des constantes statiques `_CARTE_MAIN_PREMIERE_POS` et `_CARTES_MAIN_ESPACEMENT`.
-	- Ajout de l'attribut statique `_nom_derniere_carte_piochee`.
-	- Ajout des attributs non statiques `._max_cartes_main` et `._cartes_main[]`.
-		* Ajouts de getters et/ou setters.
-	- Ajout de la notion de "deck" et de "main".
-		* Ajout de `.dessiner_main()`.
-		* Renommage de `noms_cartes` en `noms_cartes_deck`.
-	- Ajout de `.piocher()` et `.repiocher_tout()`.
-	- Ajout de `.verifier_pour_attaquer()`.
-	- Le chemin vers le sprite n'est plus argument du constructeur.
-	- Suppression de `.dessine_prochaine_frame()` et `.dessine_prochaine_frame_UI()`.
-
+	- Ajout de `_CARTES_MAIN_MAX_DU_MAX` pour limiter le maximum d ecarte que le joueur puisse avoir en main.
+	- Ajout de méthode pour gérer la main du joueur:
+		* `._recalculer_positions_cartes()`,
+		* `._inserer_carte_main()`,		<!--Qu'est-ce que j'ai souffert sur cette méthode-->
+		* `._enlever_carte_main()`
+	- `._cartes_main[]` est maintenant une liste de cartes.
+		- Suppression de `._get_carte_main()`.
+	- Suppression de `.dessiner_main()` (Les cartes se chargent elles-mêmes de se décider).
 + [UI.py](sources/UI.py)
-	- Suppression de `dessiner_boutons_attaques()`.
-______
-Plus jamais je fais de commit aussi gros.
+	- `rafraichir_ecran()` s'occuppe de dessiner les cartes.
+	- Les fonctions `dessiner_nombre_pieces()` et `dessiner_inventaire()` sont maintenant ici.
+	- Ajout de `rafraichir_ecran_shop()`.
 
-Impossible de passer à l'état `AFFICHAGE_ATTAQUES` pour l'instant.
-J'ai aussi l'impression qu'il y a un lag pour cliquer sur les cartes TOFIX?
+______
+Le monstre ne peut pas encore attaquer.
+Maintenant c'est le lancement de carte qui lag. TOFIX

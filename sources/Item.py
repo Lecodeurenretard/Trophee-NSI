@@ -18,10 +18,11 @@ class Item:
     
     def __init__(self, id : int, permissif : bool = False, interdire_exemple : bool = True):
         """Si `permissif` est actif, corrige l'id."""
+        assert(len(Item.DONNEES_ITEMS) > 0), "Item.DONNEES_ITEMS est vide, il faut appeler Item.actualiser_items() avant de créer un objet."
         if permissif:
-            id = clamp(  # type: ignore # les types checkers sont bien quand ils marchent
+            id = clamp(
                     id,
-                    int(interdire_exemple), # 1 if interdire_exemple else 0,
+                    int(interdire_exemple),     # 1 if interdire_exemple else 0,
                     len(Item.DONNEES_ITEMS) - 1
                 )
         elif not (0 <= id < len(Item.DONNEES_ITEMS)):
@@ -35,18 +36,20 @@ class Item:
         self.nom         = item["nom"]
         self.description = item["description"]
         
-        chemin : str = f"{Constantes.Chemins.IMG}/"
-        if item['sprite'] is None:
-            chemin += "erreur.png"
-        else:
-            chemin += f"items/{item['sprite']}"
+        chemin : str = f"{Chemins.IMG}/"
+        chemin += valeur_par_defaut(
+            item['sprite'],
+            si_non_none=f"items/{item['sprite']}",
+            si_none="erreur.png"
+        )
         self.sprite      = pygame.image.load(chemin)
         self.sprite      = pygame.transform.scale(self.sprite, self.DIMENSIONS_SPRITES)
         
         self.prix        = valeur_par_defaut(item["prix"], 0)
         
         self.effet_affiche  = item["effets"]["message utilisateur"]
-        self.stats_changees = Stat.depuis_dictionnaire_json(item["effets"]["stats"], valeur_par_defaut=0)   # sera ajouté/enlevé aux stats correspondantes du joueur.
+        self.stats_changees = Stat.depuis_dictionnaire_json(item["effets"]["stats"], valeur_par_defaut=0)
+        # .stats_changees sera ajouté/enlevé aux stats correspondantes du joueur.
     
     def __str__(self):
         return self.nom
@@ -57,7 +60,7 @@ class Item:
     @staticmethod
     def actualiser_items() -> None:
         """Ouvre item.json et prend tous les objets trouvés."""
-        with open(f"{Constantes.Chemins.DATA}/items.json", 'r', encoding='utf-8') as fichier:
+        with open(f"{Chemins.DATA}/items.json", 'r', encoding='utf-8') as fichier:
             Item.DONNEES_ITEMS = json.load(fichier)
     
     @staticmethod
@@ -71,13 +74,22 @@ class Item:
     @staticmethod
     def item_aleatoire() -> 'Item':
         return Item(random.randint(1, len(Item.DONNEES_ITEMS) - 1))
+    
     @staticmethod
-    def generateur_items() -> 'Generator[Item, None, None]':
+    def generateur_items(consecutifs_differents : bool = False) -> 'Generator[Item, None, None]':
+        """
+        Génère des items randoms.
+        Si `consecutifs_differents` est coché, ne gènere pas deux fois le même item d'affilée.
+        """
+        dernier_item_id : int = -1
         while True:
-            try:
-                yield Item.item_aleatoire()
-            except GeneratorExit:
-                break
+            res : Item = Item.item_aleatoire()
+            if consecutifs_differents and res.id == dernier_item_id:
+                continue
+            dernier_item_id = res.id
+            
+            try                 : yield res
+            except GeneratorExit: break
     
     @staticmethod
     def item_survole(liste_item : 'list[Item]|tuple[Item, ...]', abscisses : list[int]|tuple[int, ...]) -> Optional[int]:
@@ -99,8 +111,8 @@ class Item:
         LARGEUR_EFFET  : int = LARGEUR_SPRITE + 50
         LARGEUR_DESC   : int = LARGEUR_SPRITE + 70
         
-        nom  : Surface = Constantes.Polices.TITRE.render(self.nom, True, NOIR)
-        prix : Surface = Constantes.Polices.TEXTE.render(f"{self.prix} pieces", True, JAUNE_PIECE)
+        nom  : Surface = Polices.TITRE.render(self.nom, True, NOIR)
+        prix : Surface = Polices.TEXTE.render(f"{self.prix} pieces", True, JAUNE_PIECE)
         
         pos_sprite : tuple[int, int] = (abscisses, Item.ORDONEE_SPRITE)
         pos_nom    : tuple[int, int] = (abscisses, Jeu.pourcentage_hauteur(50))
@@ -124,15 +136,15 @@ class Item:
             blit_centre(surface, nom, pos_nom)
             blit_centre(surface, prix, pos_prix)
             
-            texte_non_dessine_effet += dessiner_texte(surface, self.effet_affiche, NOIR, centrer_pos(rect_effet, centrer_y=False), Constantes.Polices.TEXTE)
-            texte_non_dessine_desc += dessiner_texte(surface, self.description  , NOIR, centrer_pos(rect_desc , centrer_y=False), Constantes.Polices.TEXTE)
+            texte_non_dessine_effet += dessiner_texte(surface, self.effet_affiche, NOIR, centrer_pos(rect_effet, centrer_y=False), Polices.TEXTE)
+            texte_non_dessine_desc += dessiner_texte(surface, self.description  , NOIR, centrer_pos(rect_desc , centrer_y=False), Polices.TEXTE)
         else:
             surface.blit(self.sprite, pos_sprite)
             surface.blit(nom, pos_nom)
             surface.blit(prix, pos_prix)
             
-            texte_non_dessine_effet += dessiner_texte(surface, self.effet_affiche, NOIR, rect_effet, Constantes.Polices.TEXTE)
-            texte_non_dessine_desc += dessiner_texte(surface, self.description, NOIR, rect_desc, Constantes.Polices.TEXTE)
+            texte_non_dessine_effet += dessiner_texte(surface, self.effet_affiche, NOIR, rect_effet, Polices.TEXTE)
+            texte_non_dessine_desc += dessiner_texte(surface, self.description, NOIR, rect_desc, Polices.TEXTE)
         
         if afficher_avertissements and texte_non_dessine_effet != '':
             logging.debug(f"Le texte suivant n'a pas pu être dessiné (effet d'un  item trop long): {texte_non_dessine_effet}")

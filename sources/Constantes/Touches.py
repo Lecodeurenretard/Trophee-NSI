@@ -10,6 +10,8 @@ DBG_SHOP_SUPPRESSION_ITEM : tuple[int, ...] = (
 )
 DBG_SKIP : tuple[int, ...] = (
     pygame.K_SPACE,
+    pygame.K_RETURN,
+    pygame.K_KP_ENTER,
 )
 VALIDER : tuple[int, ...] = (
     pygame.K_SPACE,
@@ -17,7 +19,7 @@ VALIDER : tuple[int, ...] = (
     pygame.K_KP_ENTER,  # entrée du pavé numérique
 )
 
-DBG_REROLL_CARTES     : int = pygame.K_r
+DBG_REROLL            : int = pygame.K_r
 DBG_CRIT              : int = pygame.K_c
 DBG_PRECEDENT_COMBAT  : int = pygame.K_s
 DBG_PROCHAIN_COMBAT   : int = pygame.K_z

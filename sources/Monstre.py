@@ -1,4 +1,5 @@
 from Carte import *
+import globales_variables as v_gobales
 
 @dataclass
 class MonstreJSON:
@@ -21,8 +22,8 @@ class MonstreJSON:
         self.nom = donnees["nom"]
         
         if donnees['sprite'] is None:
-            donnees['sprite'] = f"{Constantes.Chemins.IMG}/erreur.png"
-        self.sprite = f"{Constantes.Chemins.IMG}/monstres/{donnees['sprite']}"
+            donnees['sprite'] = f"{Chemins.IMG}/erreur.png"
+        self.sprite = f"{Chemins.IMG}/monstres/{donnees['sprite']}"
         
         self.rang = donnees["rang"]
         self.moveset = tuple(donnees["moveset"])
@@ -31,7 +32,7 @@ class MonstreJSON:
     @staticmethod
     def actualiser_donnees() -> None:
         """Actualise DONNEES_TYPES[]."""
-        with open(f"{Constantes.Chemins.DATA}/TypesMonstre.json", 'r', encoding='utf-8') as fichier:
+        with open(f"{Chemins.DATA}/TypesMonstre.json", 'r', encoding='utf-8') as fichier:
             MonstreJSON.DONNEES_TYPES = json.load(fichier)
     
     def type_precedent(self, autoriser_exemple : bool = False) -> 'MonstreJSON':
@@ -71,13 +72,13 @@ class Monstre:
         self._type = type
         
         if chemin_sprite is None:
-            chemin_sprite = f"{Constantes.Chemins.IMG}/erreur.png"
+            chemin_sprite = f"{Chemins.IMG}/erreur.png"
         self._sprite  : Surface = pygame.transform.scale(pygame.image.load(chemin_sprite), Monstre.SPRITE_DIM)
         
         Monstre._ajouter_monstre_a_liste(self)
         self.afficher : bool = True
         
-        self._id = premier_indice_libre_de_entites_vivantes()
+        self._id : int = premier_indice_libre(v_gobales.entites_vivantes, None)
         if self._id >= 0:
             globales.entites_vivantes[self._id] = self
             return
@@ -202,7 +203,7 @@ class Monstre:
         self._sprite = pygame.transform.scale(pygame.image.load(nouveau_type.sprite), Monstre.SPRITE_DIM)
         self._type = nouveau_type
     
-    def choisir_carte(self) -> Carte:
+    def choisir_carte(self) -> Carte:   # TODO: TOFIX: implémentation de classe mère
         return Carte(
             random.choice(self._moveset),
         )
@@ -212,7 +213,7 @@ class Monstre:
         assert(globales.entites_vivantes[id_cible] is not None), "La cible est une case vide de globales.entites_vivantes[] dans Monstre.attaquer() (index invalide)."
         assert(nom_attaque in self._moveset), f"L'attaque {nom_attaque} n'est pas dans le moveset du monstre d'identifiant {self.id}."
         
-        Carte(nom_attaque).enregister_lancement(self._id, id_cible)
+        Carte(nom_attaque).enregister_lancement(self._id, id_cible) # TOFIX: pareil
     
     def recoit_degats(self, dommages : int) -> None:
         if bool(params.monstre_invincible) and dommages >= 0:
@@ -222,7 +223,7 @@ class Monstre:
     
     def longueur_barre_de_vie(self) -> int:
         ratio = max(0, self._stats.vie / self._stats.vie_max)
-        return round(ratio * Constantes.UI_LONGUEUR_BARRE_DE_VIE)
+        return round(ratio * UI_LONGUEUR_BARRE_DE_VIE)
     
     def dessiner(self, surface : Surface, pos_x : int, pos_y : int) -> None:
         blit_centre(surface, self._sprite, (pos_x, pos_y))

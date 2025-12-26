@@ -1,9 +1,11 @@
 from Carte import *
 from Item  import Item
+import globales_variables as v_gobales
 
 class Joueur:
-    _CARTE_MAIN_PREMIERE_POS : Pos = Jeu.pourcentages_coordonees(24, 60)
+    _CARTE_MAIN_PREMIERE_POS : Pos     = Jeu.pourcentages_coordonees(24, 60)
     _CARTES_MAIN_ESPACEMENT  : Vecteur = Vecteur(30, 0)
+    _CARTES_MAIN_MAX_DU_MAX  : int     = 10
     
     STATS_DE_BASE : Stat = Stat(45, 32, 37, 22, 32, 50, 1.3, 1).reset_vie()
     DIMENSIONS_SPRITE : tuple[int, int] = (200, 200)
@@ -18,16 +20,16 @@ class Joueur:
         self._inventaire      : list[Item]  = copy(inventaire)
         self._nombre_pieces   : int         = 0
         self._max_cartes_main : int         = 6
-        self._cartes_main     : list[str] = []
+        self._cartes_main     : list[Carte] = []
         
         self.afficher : bool = True
         
         self._sprite : Surface = pygame.transform.scale(
-            pygame.image.load(f"{Constantes.Chemins.IMG}/joueur.png"),
+            pygame.image.load(f"{Chemins.IMG}/joueur.png"),
             Joueur.DIMENSIONS_SPRITE
         )
         
-        self._id : int = premier_indice_libre_de_entites_vivantes()
+        self._id : int = premier_indice_libre(v_gobales.entites_vivantes, None)
         if self._id >= 0:
             globales.entites_vivantes[self._id] = self
             return
@@ -39,6 +41,12 @@ class Joueur:
         # Appelé quand l'objet est détruit (plus utilisé ou détruit avec del())
         if self._id > 0 and globales.entites_vivantes is not None:
             self.meurt()
+    
+    
+    @staticmethod
+    def _calculer_pos_carte(index : int) -> Pos:
+        return Joueur._CARTE_MAIN_PREMIERE_POS + index * Joueur._CARTES_MAIN_ESPACEMENT
+    
     
     @property
     def _deck(self) -> list[Carte]:
@@ -88,7 +96,7 @@ class Joueur:
     @property
     def longueur_barre_de_vie(self) -> int:
         ratio = max(0, self._stats.vie / self._stats.vie_max)
-        return round(ratio * Constantes.UI_LONGUEUR_BARRE_DE_VIE)
+        return round(ratio * UI_LONGUEUR_BARRE_DE_VIE)
     
     # propriété car la position pourrait changer suivant la position du ou des joueurs
     @property
@@ -105,7 +113,31 @@ class Joueur:
     
     @max_cartes_main.setter
     def max_cartes_main(self, value : int) -> None:
-        self.max_cartes_main = value
+        self._max_cartes_main = clamp(value, 0, Joueur._CARTES_MAIN_MAX_DU_MAX)
+    
+    
+    def _recalculer_positions_cartes(self) -> None:
+        for i in range(len(self._cartes_main)):
+            self._cartes_main[i].pos_defaut = Joueur._calculer_pos_carte(i) 
+    
+    def _inserer_carte_main(self, nom_carte : str) -> None:
+        index = len(self._cartes_main)
+        self._cartes_main.append(Carte(
+            nom_carte,
+            Joueur._calculer_pos_carte(index),
+            de_dos=False,
+        ))
+        self._cartes_main[index].afficher(Jeu.fenetre)
+    
+    def _enlever_carte_main(self, index : int) -> Carte:
+        assert(0 <= index < len(self._cartes_main)), f"L'index '{index}' ne correspond a aucune carte dans la main du joueur."
+        
+        enleve : Carte = self._cartes_main.pop(index)
+        self._recalculer_positions_cartes()
+        # il y a maximum 10 cartes, c'est pas grave si
+        # on recalcule des positions plusieurs fois
+        
+        return enleve
     
     # J'ai essayé de faire une fonction qui groupe les cartes par nom mais elle ne fonctionne pas
     # #def _inserer_carte_main(self, nom_carte : str) -> None:
@@ -138,11 +170,6 @@ class Joueur:
     # #    for c in self._cartes_main[:]:
     # #        print(c)
     
-    def _get_carte_main(self, index : int) -> Carte:
-        if not 0 <= index < len(self._cartes_main):
-            raise IndexError(f"L'index {index} n'est pas dans main du joueur.")
-        return Carte(self._cartes_main[index], Joueur._CARTE_MAIN_PREMIERE_POS + index * Joueur._CARTES_MAIN_ESPACEMENT)   # suite arithmétique j(°o°)l
-    
     def recoit_degats(self, degats_recu : int) -> None:
         """Prend en charge les dégats prits et retourne si un crit est retourné."""
         # joueur_invincible n'empèche pas les soins
@@ -162,15 +189,13 @@ class Joueur:
         self._inventaire.clear()
     
     def attaquer(self, id_cible : int, index_carte : int) -> None:
-        carte : Carte = self._get_carte_main(index_carte)
+        carte : Carte = self._cartes_main[index_carte]
         if carte.peut_attaquer_lanceur:
             id_cible = self.id
         
+        self._enlever_carte_main(index_carte)
+        
         carte.enregister_lancement(self._id, id_cible)
-        
-        self._cartes_main.pop(index_carte)
-        self.piocher()  # TODO: à enlever quand les tours serons réimplémentés
-        
         carte.anim_nom = "jouer"
     
     def dessiner(self, surface : Surface) -> None:
@@ -178,10 +203,6 @@ class Joueur:
     
     def dessine_barre_de_vie(self, surface : Surface, pos : Pos) -> None:
         dessiner_barre_de_vie(surface, pos, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie)
-    
-    def dessiner_main(self, surface : Surface, de_dos : bool = False) -> None:
-        for i, nom_carte in enumerate(self._cartes_main):
-            self._get_carte_main(i).dessiner(surface, de_dos=de_dos)
     
     def piocher(self) -> None:
         if self.max_cartes_main <= 0:
@@ -194,7 +215,7 @@ class Joueur:
                 continue    # repioche, on évite la surpioche de cartes de même type
             
             self._nom_derniere_carte_piochee = choisi
-            self._cartes_main.append(choisi)
+            self._inserer_carte_main(choisi)
     
     def repiocher_tout(self) -> None:
         self._cartes_main.clear()
@@ -214,7 +235,7 @@ class Joueur:
         iteration_inversee = range(len(self._cartes_main)-1, -1, -1)    # I miss C-style loops
         for i in iteration_inversee:
             
-            carte : Carte = self._get_carte_main(i) 
+            carte : Carte = self._cartes_main[i]
             if carte.souris_survole:
                 index_cliquee = i
                 break
@@ -237,7 +258,7 @@ class Joueur:
         self._nombre_pieces += gagne
         self._nombre_pieces = max(0, self._nombre_pieces)
         if gagne > 0:
-            son_pieces = Sound(f"{Constantes.Chemins.SFX}/argent.wav")
+            son_pieces = Sound(f"{Chemins.SFX}/argent.wav")
             son_pieces.play()
     
     def paiement(self, prelevement : int, payer_max : bool = True) -> int:

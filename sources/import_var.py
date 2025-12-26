@@ -8,7 +8,7 @@ Jeu.init()
 
 
 
-import Constantes
+from Constantes          import *	# évite d'écrire "Constantes." à chaque fois
 from Constantes.Couleurs import *
 
 from classes_utiles import *

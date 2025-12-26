@@ -12,11 +12,11 @@ def fin_partie(gagne : bool) -> Interruption:
     texte_fin : Surface
     if gagne:
         couleur_fond = VERT
-        texte_fin = Constantes.Polices.TITRE.render("Vous avez gagné !", True, NOIR)
+        texte_fin = Polices.TITRE.render("Vous avez gagné !", True, NOIR)
         logging.info("Vous avez gagné !")
     else:
         couleur_fond = BLEU_CLAIR
-        texte_fin = Constantes.Polices.TITRE.render("Vous avez perdu !", True, NOIR)
+        texte_fin = Polices.TITRE.render("Vous avez perdu !", True, NOIR)
         logging.info("Vous avez perdu...")
     
     image : Surface = Surface((Jeu.largeur, Jeu.hauteur))
@@ -54,17 +54,17 @@ def reagir_appui_touche(ev : pygame.event.Event) -> Optional[Interruption]:
         return
     
     match ev.key:
-        case Constantes.Touches.SETTINGS:
+        case Touches.SETTINGS:
             return menu_parametres()
     
     if not params.mode_debug.case_cochee:
         return
     match ev.key:
-        case Constantes.Touches.DBG_CRIT:
+        case Touches.DBG_CRIT:
             Attaque.toujours_crits = not Attaque.toujours_crits
             return
         
-        case Constantes.Touches.DBG_PRECEDENT_COMBAT:
+        case Touches.DBG_PRECEDENT_COMBAT:
             Jeu.num_etape -= 1
             if Jeu.num_etape < 1: 
                 Jeu.num_etape = Jeu.MAX_COMBAT
@@ -72,7 +72,7 @@ def reagir_appui_touche(ev : pygame.event.Event) -> Optional[Interruption]:
             Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
             return
         
-        case Constantes.Touches.DBG_PROCHAIN_COMBAT:
+        case Touches.DBG_PROCHAIN_COMBAT:
             Jeu.num_etape += 1
             if Jeu.num_etape > Jeu.MAX_COMBAT: 
                 Jeu.num_etape = 1
@@ -84,31 +84,31 @@ def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Inter
     if ev.type != pygame.KEYDOWN:
         return
     
-    potentielle_interruption = reagir_appui_touche(ev)
-    if potentielle_interruption is not None:
-        return potentielle_interruption
+    interruption_potentielle = reagir_appui_touche(ev)
+    if interruption_potentielle is not None:
+        return interruption_potentielle
     
     match ev.key:        # Un event ne peut être qu'une seule touche à la fois
-        case Constantes.Touches.INFOS:
+        case Touches.INFOS:
             return afficher_infos()
     
     if not params.mode_debug.case_cochee:
         return
     match ev.key:
-        case Constantes.Touches.DBG_REROLL_CARTES:
+        case Touches.DBG_REROLL:
             joueur.repiocher_tout()
         
-        case Constantes.Touches.DBG_PREDECENT_MONSTRE:
+        case Touches.DBG_PREDECENT_MONSTRE:
             if not Monstre.monstres_en_vie[0].vers_type_precedent():
                 logging.warning("Le monstre n'a pas de type!")
             return
        
-        case Constantes.Touches.DBG_PROCHAIN_MONSTRE:
+        case Touches.DBG_PROCHAIN_MONSTRE:
             if not Monstre.monstres_en_vie[0].vers_type_suivant():
                 logging.warning("Le monstre n'a pas de type!")
             return
         
-        case Constantes.Touches.DBG_SHOP:
+        case Touches.DBG_SHOP:
             for i in range(Jeu.num_etape, Jeu.MAX_COMBAT):
                 if Jeu.DECISION_SHOP(i):
                     Jeu.num_etape = i
@@ -122,12 +122,35 @@ def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Inter
             Jeu.changer_etat(Jeu.Etat.SHOP)
             return
 
+def reagir_appui_touche_shop(ev : pygame.event.Event, lst_items : list['Item'],  min_max_items : tuple[int, int]) -> Optional[Interruption|bool]:
+    if ev.type != pygame.KEYDOWN:
+        return
+    
+    interruption_potentielle = reagir_appui_touche(ev)
+    if interruption_potentielle is not None:
+        return interruption_potentielle
+    
+    # Les cas sans le debug sont traités dans reagir_appui_touche()
+    ...
+    
+    if not bool(params.mode_debug):
+        return None
+    
+    if ev.key in Touches.DBG_SHOP_AJOUT_ITEM and len(lst_items) < min_max_items[1]:
+        lst_items.append(Item.item_aleatoire())
+    
+    elif ev.key in Touches.DBG_SHOP_SUPPRESSION_ITEM and len(lst_items) > min_max_items[0]:
+        lst_items.pop()
+    
+    elif ev.key == Touches.DBG_REROLL:
+        return True
+
 def animation_argent_gagne(montant : int, arriere_plan : Surface = Jeu.fenetre, duree : Duree = Duree(s=1)) -> Interruption:
     arriere_plan = copy(arriere_plan)
     TEXTE_AFFICHE : str = f"+{montant} pieces"
     
     # il y a plus efficace mais "the only thing better than good is good enough"
-    espacement_bord : int = Constantes.Polices.FOURRE_TOUT.render(TEXTE_AFFICHE, True, JAUNE).get_rect().width + 50    # et c'est "good enough"
+    espacement_bord : int = Polices.FOURRE_TOUT.render(TEXTE_AFFICHE, True, JAUNE).get_rect().width + 50    # et c'est "good enough"
     
     nb_frames : int = round(Jeu.framerate * duree.secondes)
     
@@ -151,7 +174,7 @@ def animation_argent_gagne(montant : int, arriere_plan : Surface = Jeu.fenetre, 
         if testeur_skip_ou_quitte():
             break
         
-        a_dessiner = Constantes.Polices.FOURRE_TOUT.render(TEXTE_AFFICHE, True, JAUNE_PIECE)
+        a_dessiner = Polices.FOURRE_TOUT.render(TEXTE_AFFICHE, True, JAUNE_PIECE)
         a_dessiner.set_alpha(round(alpha))
         
         image = copy(arriere_plan)
@@ -189,45 +212,8 @@ def shop_click(ev : pygame.event.Event, items : list[Item], bouton_sortie : Butt
         pass    # Ajouter animation
         return
     
-    son_paiment = Sound(f"{Constantes.Chemins.SFX}/argent2.wav")
+    son_paiment = Sound(f"{Chemins.SFX}/argent2.wav")
     son_paiment.play()
     
     joueur.prendre_item(items[index])
     items.pop(index)
-
-def dessiner_nombre_pieces(boite_inventaire : Rect, ordonnees : int = Jeu.pourcentage_hauteur(5)) -> None:
-    if params.argent_infini.case_cochee:
-        dessiner_texte(
-            Jeu.menus_surf,
-            "genre, beaucoup de p",
-            JAUNE_PIECE,
-            (
-                boite_inventaire.left + 10, ordonnees,
-                boite_inventaire.width, ordonnees + Jeu.pourcentage_hauteur(5)
-            ),
-            Constantes.Polices.TEXTE,
-            True,
-        )
-    else:
-        TEXTE_PIECES = Constantes.Polices.TEXTE.render(
-            f"{joueur.nb_pieces}p",
-            True, JAUNE_PIECE,
-        )
-        Jeu.menus_surf.blit(TEXTE_PIECES, (
-            boite_inventaire.left + boite_inventaire.width // 2,
-            ordonnees,
-        ))
-
-def dessiner_inventaire(surface : Surface, boite_inventaire : Rect) -> None:
-    y : int = Jeu.pourcentage_hauteur(5) + 55
-    for item in joueur.inventaire:
-        icone : Surface = pygame.transform.scale_by(
-            item.sprite,
-            (boite_inventaire.width - 20) / item.sprite.get_rect().width
-        )
-        
-        surface.blit(
-            icone,
-            (boite_inventaire.left, y)
-        )
-        y += icone.get_bounding_rect().height + 10

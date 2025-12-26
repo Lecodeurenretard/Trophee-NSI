@@ -1,5 +1,6 @@
-from UI import *
+from UI           import *
 from import_local import *
+from Bouton       import Button
 
 
 def _rafraichir_donnees() -> None:
@@ -32,7 +33,7 @@ def _evenements_parametres(bouton_sortie : Button, bouton_actualiser : Button) -
                 parametre.prendre_input(ev)
         
         
-        if ev.type == pygame.KEYDOWN and ev.key == Constantes.Touches.SETTINGS:
+        if ev.type == pygame.KEYDOWN and ev.key == Touches.SETTINGS:
             return True
         
         if ev.type != pygame.MOUSEBUTTONDOWN:
@@ -48,7 +49,7 @@ def _evenements_parametres(bouton_sortie : Button, bouton_actualiser : Button) -
 def menu_parametres() -> Interruption:
     logging.debug("→ Interruption: Paramètres")
     
-    bouton_sortir : Button = Button((10, 10, 50, 50), img=f"{Constantes.Chemins.IMG}/croix.png")
+    bouton_sortir : Button = Button((10, 10, 50, 50), img=f"{Chemins.IMG}/croix.png")
     pos_dim_bouton_actualisation = (
         Jeu.centre_fenetre[0], 50,
         340, 50
@@ -56,8 +57,8 @@ def menu_parametres() -> Interruption:
     butt_actualisation = Button(pos_dim_bouton_actualisation, "actualiser données", action=_rafraichir_donnees)
     
     
-    TITRE_PARAMS : Surface = Constantes.Polices.TITRE.render("Options de jeu"   , True, NOIR)
-    TITRE_TRICHE : Surface = Constantes.Polices.TITRE.render("Options de triche", True, NOIR)
+    TITRE_PARAMS : Surface = Polices.TITRE.render("Options de jeu"   , True, NOIR)
+    TITRE_TRICHE : Surface = Polices.TITRE.render("Options de triche", True, NOIR)
     
     while True:
         if _evenements_parametres(bouton_sortir, butt_actualisation):

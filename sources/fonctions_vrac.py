@@ -4,16 +4,27 @@ from Jeu import Jeu
 from classes_utiles.Animation import valeurs_regulieres_entre_01
 
 T = TypeVar('T')    # utile pour les génériques
+K = TypeVar('K')    # utile pour les génériques (clef d'un dico)
+V = TypeVar('V')    # utile pour les génériques (valeur d'un dico)
 
+@overload
+def premier_indice_libre(cont : Sequence[T], si_vide : T, defaut : int = -1) -> int:
+    """Renvoie le premier indice de libre dans `cont` (un emplacement est vide s'il contient `si_vide`), si tous les emplacements sont pris renvoie `defaut`."""
+@overload
+def premier_indice_libre(cont : dict[int, V], si_vide : Optional[V] = None) -> int:
+    """Renvoie la première clef de libre dans `cont` (un emplacement est vide s'il contient `si_vide` ou s'il n'est pas déjà prit)."""
 
-def premier_indice_libre_de_entites_vivantes() -> int:
-    """Retourne le premier indice disponible dans globales.entites_vivantes[] ou -1 s'il n'y en a pas."""
-    assert(len(globales.entites_vivantes) <= Constantes.MAX_ENTITES_SIMULTANEES), "Trop d'entitées sont dans le combat."
-    for i in range(len(globales.entites_vivantes)):
-        if globales.entites_vivantes[i] is None:
+def premier_indice_libre(cont : Sequence[T]|dict[int, T], si_vide : Optional[T] = None, defaut : int = -1) -> int:
+    if type(cont) is dict:
+        i : int = 0
+        while i in cont.keys() and cont[i] != si_vide:
+            i += 1
+        return i
+    
+    for i, elem in enumerate(cont):
+        if elem == defaut:
             return i
-    return -1
-
+    return defaut
 
 def blit_centre(
         toile : Surface, a_dessiner : Surface,
@@ -211,26 +222,26 @@ def translation(rect : Rect, v : Vecteur) -> Rect:
     return Rect(rect.left + v.x, rect.top + v.y, rect.width, rect.height)
 
 @overload
-def clamp(x : float, a : float, b : float) -> float:
+def clamp(x : int, a : int, b : int) -> int:
     ...
 @overload
-def clamp(x : int, a : int, b : int) -> int:
+def clamp(x : float, a : float, b : float) -> float:
     ...
 
 def clamp(x : float, a : float, b : float) -> float|int:
     """Si x < a, renvoie a; si b < x, renvoie b; sinon renvoie x."""
     return min(max(x, a), b)
 
-def valeur_par_defaut(a_tester : Optional[T], renvoi_si_none : T, renvoi_si_non_none : Optional[T] = None) -> T:
+def valeur_par_defaut(a_tester : Optional[T], si_none : T, si_non_none : Optional[T] = None) -> T:
     """
-    Renvoie renvoi_si_non_none si a_tester n'est pas None, sinon renvoie renvoi_si_none.
-    Si renvoi_si_non_none n'est pas fourni, utilise a_tester.
+    Renvoie si_non_none si a_tester n'est pas None, sinon renvoie si_none.
+    Si si_non_none n'est pas fourni, utilise a_tester.
     Evite la syntaxe de la ternaire (long) et la syntaxe avec or (pas forcément compréhensible).
     """
-    if renvoi_si_non_none is None:
-        renvoi_si_non_none = a_tester
+    if si_non_none is None:
+        si_non_none = a_tester
     
-    return renvoi_si_none if a_tester is None else renvoi_si_non_none   # type: ignore
+    return si_none if a_tester is None else si_non_none   # type: ignore
 
 def etirer_garder_ratio(surface : Surface, *, longueur : Optional[int] = None, hauteur : Optional[int] = None) -> Surface:
     """
@@ -250,3 +261,17 @@ def etirer_garder_ratio(surface : Surface, *, longueur : Optional[int] = None, h
         dim = (round(hauteur / ratio), hauteur)
     
     return pygame.transform.scale(surface, dim)
+
+def gerer_radio() -> Generator[bool, None, None]:
+    """Renvoie un générateur qui gère la radio, il renvoie True s'il changer de musique."""
+    musiques_disponibles : list[str] = glob(f"{Chemins.RADIO}/*.mp3")
+    while True:
+        changement_musique : bool = not pygame.mixer.music.get_busy()
+        if changement_musique:
+            Jeu.jouer_musique(
+                random.choice(musiques_disponibles),
+                .2
+            )
+        
+        try                 : yield changement_musique
+        except GeneratorExit: break
