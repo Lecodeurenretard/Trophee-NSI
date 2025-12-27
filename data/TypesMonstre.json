@@ -53,13 +53,12 @@
 			"crit_puissance"	: 1.3,
 			"crit_resitance"	: 1.4
 		}
-	}
-]
-	"""
-	{"nom": "Secoupe",
+	},
+	{	
+		"nom": "Secoupe",
 		"sprite" : "secoupe.png",
 		"moveset": [
-			"Choc éléctrique"               #attaque a créer
+			"Choc éléctrique"      
 		],
 		"rang": 2,
 		"stats": {
@@ -72,14 +71,14 @@
 			"crit_puissance"	: 1.5,
 			"crit_resitance"	: 1.2
 		}
-	}
+	},
 	{
 		"nom": "Corbobo",
 		"sprite" : "corbobo.png",
 		"moveset": [
-			"Pique"                        #attaque a créer
+			"Pique"                        
 		],
-		"rang": 1,
+		"rang": 0,
 		"stats": {
 			"vie_max"			: 40,
 			"force"				: 15,
@@ -91,4 +90,4 @@
 			"crit_resitance"	: 1.1
 		}
 	}
-	"""
+]

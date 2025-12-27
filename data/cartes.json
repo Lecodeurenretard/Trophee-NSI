@@ -63,5 +63,31 @@
 			"flags"				: [],
 			"nom_ajustement"	: null
 		}
+	},
+    {
+		"nom"			: "Choc éléctrique",
+		"description"	: "Infligez un coup d'éléctriciter a l'adversaire.",
+		"sprite"		: "choc_electrique1.png",
+		"animer"		: null,
+		"attaque": {
+			"puissance"			: 15,
+			"type"				: "magique",
+			"probabilité_crit"	: null,
+			"flags"				: null,
+			"nom_ajustement"	: null
+		}
+	},
+	{
+		"nom"			: "Pique",
+		"description"	: "Infligez un coup de bec a l'adversaire.",
+		"sprite"		: "pique1.png",
+		"animer"		: null,
+		"attaque": {
+			"puissance"			: 8,
+			"type"				: "physique",
+			"probabilité_crit"	: 0.3,
+			"flags"				: null,
+			"nom_ajustement"	: null
+		}
 	}
 ]
