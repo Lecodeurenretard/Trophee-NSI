@@ -72,7 +72,7 @@ class Carte:
     
     @staticmethod
     def actualiser_donnees() -> None:
-        with open(f"{Chemins.DATA}/cartes.json") as fichier:
+        with open(f"{Constantes.Chemins.DATA}/cartes.json", encoding="utf-8") as fichier:
             Carte.donnees_JSON = json.load(fichier)
         
         # Envoie l'objet "attaque" avec le nom rajouté pour les attaques

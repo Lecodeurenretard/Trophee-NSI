@@ -1,0 +1,36 @@
+{
+  "nom": "Secoupe",
+		"sprite" : "secoupe.png",
+		"moveset": [
+			"Choc éléctrique"               #attaque a créer
+		],
+		"rang": 2,
+		"stats": {
+			"vie_max"			: 60,
+			"force"				: 35,
+			"defense"			: 20,
+			"magie"				: 30,
+			"defense_magique"	: 15,
+			"vitesse"			: 80,
+			"crit_puissance"	: 1.5,
+			"crit_resitance"	: 1.2
+		}
+	}
+	{
+		"nom": "Corbobo",
+		"sprite" : "corbobo.png",
+		"moveset": [
+			"Pique"                        #attaque a créer
+		],
+		"rang": 1,
+		"stats": {
+			"vie_max"			: 40,
+			"force"				: 15,
+			"defense"			: 30,
+			"magie"				: 22,
+			"defense_magique"	: 50,
+			"vitesse"			: 70,
+			"crit_puissance"	: 1.4,
+			"crit_resitance"	: 1.1
+		}
+	}
