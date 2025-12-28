@@ -8,9 +8,10 @@ import json
 
 logging.basicConfig(level=logging.INFO)    # Active tous les logs
 
-from typing      import TypeAlias, TypeVar, NoReturn, Any, Generator, Literal, overload						# les pas "ducks types"
 from typing      import Callable, Optional, Iterable, Sequence, MutableSequence, Mapping, MutableMapping	# les "duck types"
+from typing      import TypeAlias, TypeVar, NoReturn, Any, Generator, Literal, overload, override			# les pas "ducks types"
 from functools   import partial, total_ordering
+from abc         import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum        import Enum, Flag, auto
 from copy        import copy, deepcopy

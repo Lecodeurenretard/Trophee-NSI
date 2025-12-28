@@ -7,7 +7,7 @@
 			"nom Attaque2"
 		],
 		"rang": null,
-		"nombre_cartes": null,
+		"nombre_cartes_main": null,
 		"stats": {
 			"vie_max"			: null,
 			"force"				: null,
@@ -23,7 +23,7 @@
 		"nom": "Blob",
 		"sprite": "blob.png",
 		"rang": 0,
-		"nombre_cartes": 1,
+		"nombre_cartes_main": 1,
 		"moveset": [
 			"Torgnole"
 		],
@@ -45,7 +45,7 @@
 			"Magie"
 		],
 		"rang": 1,
-		"nombre_cartes": 1,
+		"nombre_cartes_main": 1,
 		"stats": {
 			"vie_max"			: 50,
 			"force"				: 10,

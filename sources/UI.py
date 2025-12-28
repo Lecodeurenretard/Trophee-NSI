@@ -1,5 +1,5 @@
 from import_local import *
-from Joueur       import Joueur, joueur
+from Joueur       import Entite, Joueur, joueur
 from Monstre      import Monstre
 from Carte        import Attaque, Carte
 from Item         import Item
@@ -24,7 +24,7 @@ def demander_pseudo(surface : Surface) -> Interruption:
         blit_centre(surface, pseudo_affiche, Jeu.centre_fenetre)
         yield surface
     
-    joueur.pseudo = pseudo
+    joueur.nom = pseudo
     logging.debug(f"← Fin interruption (demande du pseudo).")
 
 def texte_entree_event(texte : str) -> tuple[str, bool]:
@@ -171,10 +171,10 @@ def ecran_nombre_combat() -> Generator[Surface, None, None]:
 
 def dessiner_descriptions_entites(surface : Surface) -> None:
     """Dessine les infos quand on appuie sur F9."""
-    for i, entite in enumerate(globales.entites_vivantes):
+    for i, entite in Entite.vivantes.items():
         dessiner_texte(
             surface,
-            entite.decrire(),
+            entite.decrire_stats(),
             rgb_to_rgba(GRIS_CLAIR, transparence=128),
             (
                 Jeu.pourcentage_largeur(33) * i + 2,
@@ -229,27 +229,21 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     Jeu.fenetre.fill(BLANC)
     Jeu.menus_surf.fill(TRANSPARENT)
     
-    # Dessiner le joueur
-    joueur.dessiner(Jeu.fenetre)
-    
-    joueur.dessine_barre_de_vie(Jeu.fenetre, Pos(500, 400))
-    Jeu.menus_surf.blit(Polices.TITRE.render(joueur.pseudo, True, NOIR), (499, 370))
-    
-    # Dessiner les monstres
-    for monstre in Monstre.monstres_en_vie:
-        monstre.dessiner(Jeu.fenetre, *Jeu.pourcentages_coordonees(70, 15, ret_pos=False))  # ils sont tous à la même position pour l'instant
-        monstre.dessiner_barre_de_vie(Jeu.fenetre, Pos(50, 50))
-        Jeu.menus_surf.blit(Polices.TITRE.render(monstre.nom, True, NOIR), (49, 20))
+    # Dessiner les entités
+    for entites in Entite.vivantes.values():
+        entites.dessiner(Jeu.fenetre)
+        entites.dessiner_UI(Jeu.fenetre)
     
     # Avance et dessine l'animation des cartes affichées
     a_cacher : list[int] = []
-    for i, carte in Carte.cartes_affichees.items():
+    liste_carte : list[tuple[int, Carte]]=  list(Carte.cartes_affichees.items())
+    for i, carte in sorted(liste_carte, key=lambda t: t[1].pos_defaut.x):    # dessine les cartes dans l'ordre croissant des abscisses
         try:
             next(carte.animation_generateur)   # .items() garde les références donc tout va bien
         except StopIteration:
             a_cacher.append(i)
     
-    # Netoyage de Carte.cartes_affichees_anim[] (ici sinon on enlève des clefs)
+    # Nettoyage de Carte.cartes_affichees_anim[] (ici sinon on enlève des clefs)
     for index in a_cacher:
         Carte.cartes_affichees[index].cacher()
     

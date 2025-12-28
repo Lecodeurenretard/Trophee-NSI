@@ -1,17 +1,17 @@
-from Carte import *
-import globales_variables as v_gobales
+from Entite import *
 
 @dataclass
 class MonstreJSON:
     """Les propriétés des types des monstres quand ils sont parse de TypesMonstre.json"""
     DONNEES_TYPES : list[dict] = field(repr=False)
     
-    id      : int
-    nom     : str
-    sprite  : str
-    rang    : int
-    moveset : tuple[str, ...]
-    stats   : Stat
+    id             : int
+    nom            : str
+    sprite         : str
+    rang           : int
+    nb_cartes_main : int
+    deck           : tuple[str, ...]
+    stats          : Stat
     
     def __init__(self, id_type : int, autoriser_exemple : bool = False):
         if id_type == 0 and not autoriser_exemple:
@@ -21,12 +21,15 @@ class MonstreJSON:
         self.id = id_type
         self.nom = donnees["nom"]
         
-        if donnees['sprite'] is None:
-            donnees['sprite'] = f"{Chemins.IMG}/erreur.png"
-        self.sprite = f"{Chemins.IMG}/monstres/{donnees['sprite']}"
+        self.sprite = valeur_par_defaut(
+            donnees['sprite'],
+            si_non_none=f"{Chemins.IMG}/monstres/{donnees['sprite']}",
+            si_none=f"{Chemins.IMG}/erreur.png",
+        )
         
         self.rang = donnees["rang"]
-        self.moveset = tuple(donnees["moveset"])
+        self.nb_cartes_main = donnees["nombre_cartes_main"]
+        self.deck = tuple(donnees["moveset"])
         self.stats = Stat.depuis_dictionnaire_json(donnees["stats"]).reset_vie()
     
     @staticmethod
@@ -48,89 +51,28 @@ class MonstreJSON:
 MonstreJSON.actualiser_donnees()
 
 
-class Monstre:
-    POSITION : Pos = Jeu.pourcentages_coordonees(70, 15)
-    SPRITE_DIM : tuple[int, int] = (150, 150)
+class Monstre(Entite):
+    _CACHER_CARTES           : bool    = True
+    _CARTE_MAIN_PREMIERE_POS : Pos = Jeu.pourcentages_coordonees(80, 10)
+    _POS_BARRE_VIE           : Pos = Pos(50, 50)
+    POSITION                 : Pos = Jeu.pourcentages_coordonees(70, 15)
     
-    # La liste de tous les monstres en vie
-    # Peut-être des combats vs plusieurs monstres?
-    monstres_en_vie : list['Monstre'] = []
-    
-    # devrait être utilisé le moins possible, préférer nouveau_monstre()
+    @override
     def __init__(
             self,
-            nom           : str,
-            stats         : Stat,
-            attaques      : tuple[str, ...],
-            chemin_sprite : Optional[str]         = None,
-            type       : Optional[MonstreJSON] = None,
+            type          : MonstreJSON,
+            inventaire    : Sequence[Item] = (),
         ):
-        
-        self._nom = nom
-        self._stats = stats
-        self._moveset = attaques
-        self._type = type
-        
-        if chemin_sprite is None:
-            chemin_sprite = f"{Chemins.IMG}/erreur.png"
-        self._sprite  : Surface = pygame.transform.scale(pygame.image.load(chemin_sprite), Monstre.SPRITE_DIM)
-        
-        Monstre._ajouter_monstre_a_liste(self)
-        self.afficher : bool = True
-        
-        self._id : int = premier_indice_libre(v_gobales.entites_vivantes, None)
-        if self._id >= 0:
-            globales.entites_vivantes[self._id] = self
-            return
-        
-        self._id = len(globales.entites_vivantes)
-        globales.entites_vivantes.append(self)
-    
-    def __del__(self):
-        # Appelé quand l'objet est détruit (quand nous ne pouvons plus accéder à l'objet)
-        if (
-            self._id > 0
-            and globales.entites_vivantes is not None
-            and Monstre.monstres_en_vie is not None
-        ):
-            self.meurt()
-    
-    @staticmethod
-    def nouveau_monstre(type_json : MonstreJSON) -> 'Monstre':
-        """Crée un nouveau monstre suivant son type"""
-        return Monstre(
-            type_json.nom,
-            copy(type_json.stats),    # Si pas de copie, tous les monstres suivants auront leurs vie à 0
-            tuple(type_json.moveset),
-            chemin_sprite=type_json.sprite,
-            type=type_json
+        super().__init__(
+            type.nom,
+            type.stats,
+            type.deck,
+            type.nb_cartes_main,
+            chemin_sprite=type.sprite,
+            inventaire=inventaire,
         )
+        self._type = type
     
-    @staticmethod
-    def _ajouter_monstre_a_liste(monstre : 'Monstre') -> None:
-        Monstre.monstres_en_vie.append(monstre)
-    
-    @staticmethod
-    def _enlever_monstre_a_liste(monstre : 'Monstre') -> None:
-        for i, m in enumerate(Monstre.monstres_en_vie):
-            if monstre._id == m._id:
-                Monstre.monstres_en_vie.pop(i)
-                return
-        logging.warning("La fonction Monstre._enlever_monstre_a_liste() à été appellée sur un monstre pas dans la liste dans Monstre.monstres_en_vie[].")
-    
-    @staticmethod
-    def tuer_les_monstres_morts() -> list['Monstre']:
-        """
-        Appelle la méthode `.meurt()` sur les monstres dont la propriété `.est_mort` est True.
-        Renvoie la liste des monstres morts.
-        """
-        echafaud : list[Monstre] = []   # Quand les monstres seront enlevés de la liste, ils seront "exécutés" par le rammasse-miette
-        for monstre in Monstre.monstres_en_vie:
-            if monstre.est_mort:
-                monstre.meurt()
-                echafaud.append(monstre)
-        
-        return echafaud
     
     @staticmethod
     def spawn(proba : list[float]|tuple[float, ...]|None = None) -> 'Monstre':
@@ -140,7 +82,7 @@ class Monstre:
         """
         poids : Optional[list[float]] = None
         id_types : list[int] = [i for i, _ in enumerate(MonstreJSON.DONNEES_TYPES)]
-        id_types.pop(0)
+        id_types.pop(0)     # l'exemple n'est pas pris en compte
         
         if proba is not None:
             poids = [-1.0] * len(id_types)    # garantit de trouver une clef
@@ -148,47 +90,36 @@ class Monstre:
             for i, type in enumerate(id_types):
                 poids[i] = proba[type]
         
-        return Monstre.nouveau_monstre(
-            MonstreJSON(random.choices(id_types, weights=poids)[0])
+        monstre = Monstre(
+            MonstreJSON(random.choices(id_types, weights=poids)[0]),
         )
+        monstre.piocher()
+        return monstre
+    
+    @staticmethod
+    def vivants() -> list[Monstre]:
+        """Renvoie les monstres en vie."""
+        return [monstre for clef, monstre in Entite.vivantes.items() if clef > 0]   # type: ignore
+    
+    @staticmethod
+    def massacre() -> None:
+        """Tue tous les monstres vivants."""
+        for monstre in Monstre.vivants():
+            monstre.meurt()
+        Entite.tuer_les_entites_mortes()
+    
     
     @property
-    def id(self) -> int:
-        return self._id
-    
-    @property
-    def est_mort(self) -> bool:
-        return self._stats.est_mort
-    
-    @property
-    def nom(self) -> str:
-        return self._nom
-    @property
-    def dbg_nom(self) -> str:
-        return self.nom
-    
-    @property
-    def stats_totales(self) -> Stat:
-        return copy(self._stats)
+    def pos_sprite(self) -> Pos:
+        return centrer_pos(Monstre.POSITION, Monstre.SPRITE_DIM)
     @property
     def pos_attaque(self) -> Pos:
         return centrer_pos(Monstre.POSITION, Monstre.SPRITE_DIM)
     
     @property
-    def pos_curseur(self) -> Pos:
-        return Pos(0, 0)
+    def rang(self) -> int:
+        return self._type.rang
     
-    @property
-    def rang(self) -> Optional[int]:
-        if self._type is not None:
-            return self._type.rang
-        return None
-    
-    # même raisonnement que dans Joueur
-    def meurt(self) -> None:
-        globales.entites_vivantes[self._id] = None
-        Monstre._enlever_monstre_a_liste(self)
-        self._id = -1
     
     def _vers_type(self, nouveau_type : MonstreJSON) -> None:
         self._nom = nouveau_type.nom
@@ -198,61 +129,28 @@ class Monstre:
         self._stats = copy(nouveau_type.stats)
         self._stats.vie = round(self._stats.vie_max * ratio_vie)    # Conserve les proportions
         
-        self._moveset = nouveau_type.moveset
+        self._deck = list(nouveau_type.deck)
         
         self._sprite = pygame.transform.scale(pygame.image.load(nouveau_type.sprite), Monstre.SPRITE_DIM)
         self._type = nouveau_type
     
-    def choisir_carte(self) -> Carte:   # TODO: TOFIX: implémentation de classe mère
-        return Carte(
-            random.choice(self._moveset),
-        )
+    def choisir_index_carte_main(self) -> int:
+        assert(len(self._cartes_main) > 0), f"La main du monstre d'ID {self._id} (un {self._nom}) est vide!"
+        return random.randint(0, len(self._cartes_main)-1)
     
-    def attaquer(self, id_cible : int, nom_attaque : str) -> None:
-        """Attaque la cible et retourne si elle a été tuée."""
-        assert(globales.entites_vivantes[id_cible] is not None), "La cible est une case vide de globales.entites_vivantes[] dans Monstre.attaquer() (index invalide)."
-        assert(nom_attaque in self._moveset), f"L'attaque {nom_attaque} n'est pas dans le moveset du monstre d'identifiant {self.id}."
-        
-        Carte(nom_attaque).enregister_lancement(self._id, id_cible) # TOFIX: pareil
-    
-    def recoit_degats(self, dommages : int) -> None:
-        if bool(params.monstre_invincible) and dommages >= 0:
-            return
-        
-        self._stats.baisser_vie(dommages)
-    
-    def longueur_barre_de_vie(self) -> int:
-        ratio = max(0, self._stats.vie / self._stats.vie_max)
-        return round(ratio * UI_LONGUEUR_BARRE_DE_VIE)
-    
-    def dessiner(self, surface : Surface, pos_x : int, pos_y : int) -> None:
-        blit_centre(surface, self._sprite, (pos_x, pos_y))
-    
-    def dessiner_barre_de_vie(self, surface : Surface, pos : Pos):
-        dessiner_barre_de_vie(surface, pos, self._stats.vie / self._stats.vie_max, self.longueur_barre_de_vie())
-    
-    def vers_type_precedent(self) -> bool:
-        """Si le monstre à un type, change le type du monstre vers le précédent et renvoie True, sinon renvoie False et ne fait rien."""
-        if self._type is None:
-            return False
-        
+    def vers_type_precedent(self) -> None:
+        """Change le type du monstre vers le précédent."""
         self._vers_type(self._type.type_precedent())
-        return True
     
-    def vers_type_suivant(self) -> bool:
-        """Si le monstre à un type, change le type du monstre vers le suivant et renvoie True, sinon renvoie False et ne fait rien."""
-        if self._type is None:
-            return False
-        
+    def vers_type_suivant(self) -> None:
+        """Change le type du monstre vers le suivant."""
         self._vers_type(self._type.type_suivant())
-        return True
     
-    def decrire(self) -> str:
+    @override
+    def decrire_stats(self) -> str:
         """Décrit l'objet dans une string."""
         return (
-            f"ID d'entité: {self._id}\n"
-            f"ID du type: {self._type.id if self._type is not None else -1}\n"
-            f"Rang: {self.rang}\n"
-            f"Moveset: {self._moveset}\n"
-            f"Statistiques: {self._stats}\n"
+            Entite.decrire_stats(self)
+            + f"ID du type: {self._type.id}\n"
+            + f"Rang: {self.rang}\n"
         )

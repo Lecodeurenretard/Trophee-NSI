@@ -26,11 +26,6 @@ def fin_partie(gagne : bool) -> Interruption:
     return image_vers_generateur(image, Duree(s=2), gerer_evenements=True)
 
 
-def reset_monstre() -> None:
-    for monstre in Monstre.monstres_en_vie:
-        monstre.meurt()
-        # monstre sera détruit par le garbage collector
-    Monstre.spawn()
 
 def victoire_joueur() -> bool:
     return Jeu.num_etape >= Jeu.MAX_COMBAT
@@ -45,7 +40,9 @@ def initialiser_nouveau_combat(numero_combat : int, reset_joueur : bool = False)
     Carte.derniere_enregistree = None
     Attaque.attaques_jouees.clear()
     
-    reset_monstre()
+    Monstre.massacre()
+    Monstre.spawn()
+    
     if reset_joueur:
         joueur.reset()
 
@@ -99,12 +96,12 @@ def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Inter
             joueur.repiocher_tout()
         
         case Touches.DBG_PREDECENT_MONSTRE:
-            if not Monstre.monstres_en_vie[0].vers_type_precedent():
+            if not Monstre.vivants()[0].vers_type_precedent():
                 logging.warning("Le monstre n'a pas de type!")
             return
        
         case Touches.DBG_PROCHAIN_MONSTRE:
-            if not Monstre.monstres_en_vie[0].vers_type_suivant():
+            if not Monstre.vivants()[0].vers_type_suivant():
                 logging.warning("Le monstre n'a pas de type!")
             return
         

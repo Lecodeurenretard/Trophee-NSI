@@ -73,6 +73,7 @@ class Item:
     
     @staticmethod
     def item_aleatoire() -> 'Item':
+        assert(len(Item.DONNEES_ITEMS) > 0), "Item.DONNEES_ITEM[] est vide!"
         return Item(random.randint(1, len(Item.DONNEES_ITEMS) - 1))
     
     @staticmethod

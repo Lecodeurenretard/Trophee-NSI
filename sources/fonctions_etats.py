@@ -7,7 +7,7 @@ from fonctions_main import *
 from Item           import Item
 from Bouton         import Button, ButtonCursor
 from Carte          import Carte
-from Joueur         import joueur
+from Joueur         import Entite, joueur
 
 def attente_prochaine_etape() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.ATTENTE_PROCHAINE_ETAPE.name}.")
@@ -33,7 +33,7 @@ def attente_prochaine_etape() -> None:
         Jeu.changer_etat(Jeu.Etat.SHOP)
         return
     
-    joueur.piocher()
+    joueur.repiocher_tout()
     Jeu.set_texte_fenetre("Combat!")
     Jeu.changer_etat(Jeu.Etat.CHOIX_ATTAQUE)
 
@@ -42,6 +42,8 @@ def choix_attaque() -> None:
     
     interruption : Optional[Interruption] = None
     
+    if Jeu.attaques_restantes_joueur == Jeu.ATTAQUES_PAR_TOUR:
+        joueur.piocher()
     while Jeu.etat == Jeu.Etat.CHOIX_ATTAQUE:
         Jeu.commencer_frame()
         if interruption is not None:
@@ -51,8 +53,8 @@ def choix_attaque() -> None:
         if Jeu.attaques_restantes_joueur <= 0:
             verifier_pour_quitter()
             
-            monstre = Monstre.monstres_en_vie[0]
-            monstre.attaquer(joueur.id, monstre.choisir_carte().nom)
+            for monstre in Monstre.vivants():
+                monstre.attaquer(joueur.id, monstre.choisir_index_carte_main())
             Jeu.reset_etat()
             
             Jeu.attaques_restantes_joueur -= 1
@@ -101,13 +103,14 @@ def affichage_attaque() -> None:
         rafraichir_ecran()
     
     # Vérifie si c'est la fin du combat
-    if joueur.est_mort:
+    if joueur.plus_de_vie:
         Jeu.a_gagne = False
         Jeu.changer_etat(Jeu.Etat.GAME_OVER)
         return
     
     pieces_gagnees : int = 0
-    for monstre in Monstre.tuer_les_monstres_morts():
+    for monstre in Entite.tuer_les_entites_mortes():
+        assert(type(monstre) is Monstre)
         assert(monstre.rang is not None), "Le monstre n'avait aucun type."
         pieces_gagnees += 2**monstre.rang + random.randint(1, 4)  # Dites non au décalage de bit et exponentiez
     
@@ -115,7 +118,7 @@ def affichage_attaque() -> None:
         joueur.gagner_pieces(pieces_gagnees)
         terminer_interruption(animation_argent_gagne(pieces_gagnees))
     
-    if len(Monstre.monstres_en_vie) == 0:
+    if len(Monstre.vivants()) == 0:
         if not victoire_joueur():
             Jeu.num_etape += 1
             Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
@@ -234,7 +237,9 @@ def game_over() -> None:
 def preparation() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.PREPARATION.name}.")
     
-    if not bool(params.mode_debug):
+    if bool(params.mode_debug):
+        joueur.nom = "Testeur"
+    else:
         # exception au principe de la boucle principale dans l'état
         # C'est juste plus simple et propre de faire comme ça ici
         Jeu.set_texte_fenetre("Who am I?")
@@ -242,8 +247,6 @@ def preparation() -> None:
         
         Jeu.set_texte_fenetre("Chargement...")
         terminer_interruption(faux_chargement(Jeu.fenetre))
-    else:
-        joueur.pseudo = "Testeur"
     
     Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
 

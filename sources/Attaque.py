@@ -68,8 +68,9 @@ class Attaque:
     _DEFAUT_FLAGS      : AttaqueFlag  = AttaqueFlag.ATTAQUE_ENNEMIS
     _DEFAUT_AJUSTEMENT : _ajustements_t = _AJUSTEMENTS["base"]
     
-    _liste : list[dict] = []
-    toujours_crits : bool = False   # ne pas activer ici, utiliser les touches du mode debug plutôt
+    _liste          : list[dict]      = []
+    _dico_entites   : dict['Entite']  = []      # sera mis à Entite.vivantes[] plus tard  # type: ignore
+    toujours_crits  : bool            = False   # ne pas activer ici, utiliser les touches du mode debug plutôt
     attaques_jouees : list['Attaque'] = []
     
     def __init__(self, id : int):
@@ -132,7 +133,11 @@ class Attaque:
     
     @staticmethod
     def set_liste(lst : list[dict]) -> None:
-        Attaque._liste = lst    
+        Attaque._liste = lst
+    
+    @staticmethod
+    def set_dico_entites(dico : dict[int, 'Entite']) -> None: # pyright: ignore[reportUndefinedVariable]
+        Attaque._dico_entites = dico
     
     @staticmethod
     def avec_nom(nom : str) -> 'Attaque':
@@ -144,15 +149,15 @@ class Attaque:
     @property
     def lanceur(self): # -> Joueur|Monstre
         # https://docs.python.org/3/tutorial/inputoutput.html#formatted-string-literals
-        assert(globales.entites_vivantes[self._lanceur_id] is not None), f"L'ID du lanceur est incorrecte dans la propriété ._lanceur de l'attaque {self!r}."
+        assert(self._lanceur_id in Attaque._dico_entites.keys()), f"L'ID du lanceur est incorrecte dans la propriété ._lanceur de l'attaque {self!r}."
         
-        return globales.entites_vivantes[self._lanceur_id]
+        return Attaque._dico_entites[self._lanceur_id]
     
     @property
     def cible(self): # -> Joueur|Monstre
-        assert(globales.entites_vivantes[self._cible_id] is not None), f"L'ID de la cible est incorrecte dans la propriété ._lanceur de l'attaque {self!r}."
+        assert(Attaque._dico_entites[self._cible_id] is not None), f"L'ID de la cible est incorrecte dans la propriété ._lanceur de l'attaque {self!r}."
         
-        return globales.entites_vivantes[self._cible_id]
+        return Attaque._dico_entites[self._cible_id]
     
     @property
     def id(self) -> int:
@@ -194,7 +199,7 @@ class Attaque:
             return (attaque, 1)
         return (attaque, defense)
     
-    def calculer_degats(self, defense_min = 10) -> int:
+    def calculer_degats(self, defense_min : float = 10) -> int:
         """
         Calcule les dégats qu'aurait causé l'attaque pour les paramètres donnés.  
         Renvoie une tuple contenant les dégats infligés et si un crit s'est passé.

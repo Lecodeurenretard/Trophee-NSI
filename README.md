@@ -3,7 +3,7 @@
 Ce fichier est un [fichier markdown](https://www.markdownguide.org/basic-syntax/) ([guide markdown](https://www.markdownguide.org/getting-started/)) qui explique le fonctionnement du projet, il devrait être automatiquement mis en forme sur Github (sinon il existe pleins d'extentions sur VS code).
 
 ## Configuration minimum
-+ [Python 3.10](https://www.python.org/downloads/release/python-31018/) ou plus récent
++ [Python 3.14.2](https://www.python.org/downloads/release/python-3142/) ou plus récent
 + [Pygame 2.6](https://www.pygame.org/news) ou plus récent
 
 Pas de configuration minimum pour les composants du PC à moins que ce soit littéralement une patate.
