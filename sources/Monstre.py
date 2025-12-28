@@ -52,7 +52,7 @@ MonstreJSON.actualiser_donnees()
 
 
 class Monstre(Entite):
-    _CACHER_CARTES           : bool    = True
+    _CARTES_DE_DOS           : bool    = True
     _CARTE_MAIN_PREMIERE_POS : Pos = Jeu.pourcentages_coordonees(80, 10)
     _POS_BARRE_VIE           : Pos = Pos(50, 50)
     POSITION                 : Pos = Jeu.pourcentages_coordonees(70, 15)

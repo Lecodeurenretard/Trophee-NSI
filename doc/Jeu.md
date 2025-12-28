@@ -20,7 +20,7 @@ Pour notre jeu, c'est la même chose mais un état peut mener à plusieurs suiva
 ### La machine du jeu
 Voici le graphe:  
 ![Le graphe listant les états de `Jeu.Etat`](graphe_etat.svg)  
-_<sub>potentiellement pas à jour, [la version à jour](http://graphonline.top/fr/?graph=OMlRPwRCzhQxYjcl)</sub>_
+_<sub>potentiellement pas à jour, [la version à jour](http://graphonline.top/fr/?graph=nTDvPAgtKQXXaclS)</sub>_
 
 Un comportement typique serait:
 1. Commencement à l'écran-titre
@@ -30,11 +30,16 @@ Un comportement typique serait:
 3. L'écran de nouveau combat apparait pour quelques secondes.
 4. Le joueur combat le premier monstre
 	1. Le joueur choisit son attaque.
-	2. Les attaques sont affichées et appliquées suivant leurs vitesses.
+	2. L'attaque est affichée et appliquée.
 		- Si le monstre meurt et que ce n'est pas le dernier combat, on déclenche un nouveau combat.
 		- Si le joueur meurt ou qu'il a vaincu le dernier monstre, on affiche l'écran de game over.
+	3. Si le joueur à des attaques restante, il choisi de nouveau une attaque...
+	4. pareil pour le monstre...
 4. Un deuxième combat...
 4. ...
+6. Le shop
+	2. Le joueur choisi ou pas d'acheter un ou des objets.
+7. nouveau combat...
 5. L'écran de game over apparait.
 	- Ici "Game Over" veut juste dire que le joueur doit commencer une nouvelle partie pour jouer plus (comme sur les bornes d'arcades), ainsi quand il gagne, il est en game over.
 	- Si le joueur a coché le paramètre `fermeture_automatique`, le jeu se ferme sinon il est redirigé sur l'écran titre.
@@ -43,7 +48,7 @@ Un comportement typique serait:
 La liste des états se trouve dans l'énumération [`Jeu.Etat`](../sources/Jeu.py), les variables globales `Jeu.etat` et `Jeu.precedent_etat` permettent d'accéder à l'état actuel du jeu; par contre pour le changer, il faut utiliser `Jeu.changer_etat()`.  
 Chaque état possède une fonction correspondante (définies dans le fichier [fonctions_etats.py](../sources/fonctions_etats.py)).
 
-Mis à part les états `GAME_OVER`, `CREDITS` et `PREPARATION`, toutes les fonctions respectent le principe que j'appelle celui de _la boucle d'état_ (je ne sais pas s'il a un nom). Dans une application, il existe ce que l'on appelle une _boucle principale_, la nôtre se trouve dans [main.py](../sources/main.py) et se contente de lancer la fonction correspondante à l'état actuel; la boucle d'état est une boucle principale pour un état.
+Mis à part les états `GAME_OVER`, `CREDITS`, `SHOP` et `PREPARATION`, toutes les fonctions respectent le principe que j'appelle celui de _la boucle d'état_ (je ne sais pas s'il a un nom). Dans une application, il existe ce que l'on appelle une _boucle principale_, la nôtre se trouve dans [main.py](../sources/main.py) et se contente de lancer la fonction correspondante à l'état actuel; la boucle d'état est une boucle principale pour un état.
 
 La boucle d'état ne doit pas être interrompue, c'est-à-dire qu'elle ne doit pas appeler une fonction qui empèche le retour à la boucle d'état pour une période longue; la seule exeption est `Jeu.commencer_frame()` qui attend assez de temps pour que le jeu ne tourne pas au-dessus de 60fps.
 

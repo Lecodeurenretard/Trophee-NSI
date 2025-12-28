@@ -17,10 +17,9 @@ class Jeu:
     
     fenetre    : Surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     
-
-    largeur , hauteur = pygame.display.get_surface().get_size()
+    largeur, hauteur = pygame.display.get_surface().get_size()  # type: ignore # la fenêtre à été créée du coup ce n'est jamais None
     centre_fenetre : tuple[int, int] = (largeur // 2, hauteur // 2)
-
+    
     menus_surf : Surface = Surface((largeur, hauteur), pygame.SRCALPHA)
     infos_surf : Surface = Surface((largeur, hauteur), pygame.SRCALPHA)
     

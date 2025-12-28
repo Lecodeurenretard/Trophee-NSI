@@ -34,7 +34,7 @@
     },
     {
         "nom": "Peluche d'Hornet",
-        "description": "Le pouvoir de faire crash les serveurs de Steam... entre tes main....",
+        "description": "Le pouvoir de faire crash les serveurs de Steam, entre tes main....",
         "effets": {
             "message utilisateur": "offense +",
             "stats": {

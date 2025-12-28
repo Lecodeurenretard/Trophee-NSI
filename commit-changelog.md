@@ -32,31 +32,26 @@ format:
 ------------------------------------
 -->
 _____
-## Implémentation de la classe Entite (dernière étape de l'implémentation des cartes).
+## Actualisation de la doc.
 + Changements majeurs
-	- Ajout de la classe `Entite`, mère de `Joueur` et de `Monstre`
-		* Refactorisations
+	- Corrections dans [fight-system.md](doc/fight-system.md), dans [files.md](doc/files.md), dans [Jeu.md](doc/Jeu.md) et dans le [README de doc/](doc/README.md).
 + Sur plusieurs fichiers
+	- Renommage de `Entite._CACHER_CARTES` en `Entite._CARTES_DE_DOS` (donc aussi dans les classes filles)
 + Structure de fichiers
-	- Suppression de globales_variables.py
 + READMEs et documentation
+	- Ajout de la classe `Entite` dans le système de combat.
+	- Ajout du système de cartes et du système d'items passifs.
+	- Tous les fichiers sont maintenant décrits dans [files.md](doc/files.md).
+	- Ajout du shop dans le graphe des états.
+	- Corrections dans [Jeu.md](doc/Jeu.md) et dans le README.
+	- Suppression du contenu inutile.
 + Interactions joueur/testeur
-	- Le joueur a un reset des cartes à chaque début de combat et repioche à chaque début de tour.
-	- On peut enfin jouer!
 + Correction de bugs
-+ `Attaque`
-	- Nouvel attribut statique `_dico_entites[]` pour avoir une référence sur `Entite.vivantes[]` pendan le runtime.
-		* setter `set_dico_entites()`
-+ `Entite` et descendants
-	- Création de la classe abstraite `Entite`.
-		* Toutes les méthodes redondantes entre `Joueur` et `Monstre` y ont été déplacé.
-	- Beaucoups de renommages.
-	- 187 lignes de moins dans [Joueur.py](sources/Joueur.py) et 102 de moins dans [Monstre.py](sources/Monstre.py).
-+ `MonstreJSON`
-	- Ajout d'un attribut oublié: `nb_cartes_main`.
-+ `Stat`
-	- `depuis_dictionnaire_json()` lance une erreur quand elle rencontre une clef inconnue.
-
+	- On peut vraiment jouer cette fois.
+	- Si Tkinter n'est pas installé/installable, une issue de secour est prévue dans la console.
++ [Carte.py](sources/Carte.py)
+	- Déplacement des infos d'animation dans une nouvelle dataclasse `CarteAnimInfo` (c'est maintenant _un peu_ plus propre).
+		- Fusion de `._anim_destination`, `._anim_duree`, `._anim_easing` et `._anim_de_dos` en `._anim_infos`.
 
 _______________
 Tout marche correctement sauf le lancer de carte qui lag toujours.

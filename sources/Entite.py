@@ -5,7 +5,7 @@ class Entite(ABC):
     _CARTE_MAIN_PREMIERE_POS : Pos     = Pos(0, 0)      # à changer dans les classes filles
     _CARTES_MAIN_ESPACEMENT  : Vecteur = Vecteur(30, 0)
     _CARTES_MAIN_MAX_DU_MAX  : int     = 10
-    _CACHER_CARTES           : bool    = True           # à changer dans les classes filles
+    _CARTES_DE_DOS           : bool    = True           # à changer dans les classes filles
     _POS_BARRE_VIE           : Pos     = Pos(0, 0)      # à changer dans les classes filles
     
     SPRITE_DIM : tuple[int, int] = (150, 150)
@@ -69,7 +69,7 @@ class Entite(ABC):
     @property
     def _cartes_deck(self) -> list[Carte]:
         return [
-            Carte(nom, self._calculer_pos_carte(i), de_dos=self.__class__._CACHER_CARTES)
+            Carte(nom, self._calculer_pos_carte(i), de_dos=self.__class__._CARTES_DE_DOS)
             for i, nom in enumerate(self._deck)
         ]
     
@@ -132,6 +132,7 @@ class Entite(ABC):
     def cartes_main_max(self, value : int) -> None:
         self._cartes_main_max = clamp(value, 0, Entite._CARTES_MAIN_MAX_DU_MAX)
     
+    
     def _calculer_pos_carte(self, index : int) -> Pos:
         return self.__class__._CARTE_MAIN_PREMIERE_POS + index * Entite._CARTES_MAIN_ESPACEMENT
     
@@ -144,7 +145,7 @@ class Entite(ABC):
         self._cartes_main.append(Carte(
             nom_carte,
             self._calculer_pos_carte(index),
-            de_dos=self.__class__._CACHER_CARTES,
+            de_dos=self.__class__._CARTES_DE_DOS,
         ))
         self._cartes_main[index].afficher(Jeu.fenetre)
         
@@ -247,6 +248,6 @@ class Entite(ABC):
             f"Main: {self._cartes_main_noms}\n"
             f"Inventaire: {[item.nom for item in self._inventaire]}\n"
         )
-    
+
 Attaque.set_dico_entites(Entite.vivantes) # grâce au passage par référence ça marche
                                           # C'est un hack, certes, mais j'ai pas trouvé mieux

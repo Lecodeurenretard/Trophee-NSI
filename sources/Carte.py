@@ -4,20 +4,27 @@ Tout le côté graphique, animation, effets, etc... se fait ici. Les dégats, et
 """
 from Attaque import *
 
+@dataclass(frozen=True)
+class CarteAnimInfo:
+    GARDER  : int = field(default=-1, init=False)
+    CHANGER : int = field(default=-2, init=False)
+    
+    destination : Pos
+    duree       : Duree
+    easing      : EasingFunction
+    de_dos      : bool|int
+
 class Carte:
     _HAUTEUR_SPRITE  : int     = 200
     _DUREE_INTER_JEU : Duree   = Duree(s=.5)
     _SURVOL_DECALAGE : Vecteur = Vecteur(0, 20)
     
-    _ANIM_GARDER  : int = -1
-    _ANIM_CHANGER : int = -2
-    
     # A chaque nom, associe une tuple contenant:
     # La position d'arrivée de l'animation, la duree de l'animation, la fonction d'easing à utiliser et si la carte dois être de dos
-    _ANIM_DICO : dict[str, tuple[Pos, Duree, EasingFunction, bool|int]] = {       # TODO: mettre dans le JSON
-        "idle"  : (Pos(_ANIM_CHANGER, _ANIM_CHANGER)             , Duree(s=0) , Easing.NO_EASING, _ANIM_GARDER),
-        "survol": (Pos(_ANIM_GARDER, Jeu.pourcentage_hauteur(80)), Duree(s=.5), Easing.FADE     , _ANIM_GARDER),
-        "jouer" : (Pos(_ANIM_CHANGER, _ANIM_CHANGER)             , Duree(s=1) , Easing.FADE_IN  , True),
+    _ANIM_DICO : dict[str, CarteAnimInfo] = {
+        "idle"  : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER)      , Duree(s=0) , Easing.NO_EASING, CarteAnimInfo.GARDER),
+        "survol": CarteAnimInfo(Pos(CarteAnimInfo.GARDER , Jeu.pourcentage_hauteur(80)), Duree(s=.5), Easing.FADE     , CarteAnimInfo.GARDER),
+        "jouer" : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER)      , Duree(s=1) , Easing.FADE_IN  , True),
     }
     
     SON_COUP : Sound = Sound(f"{Chemins.SFX}/hit.mp3")
@@ -72,7 +79,7 @@ class Carte:
     
     @staticmethod
     def actualiser_donnees() -> None:
-        with open(f"{Constantes.Chemins.DATA}/cartes.json", encoding="utf-8") as fichier:
+        with open(f"{Chemins.DATA}/cartes.json", encoding="utf-8") as fichier:
             Carte.donnees_JSON = json.load(fichier)
         
         # Envoie l'objet "attaque" avec le nom rajouté pour les attaques
@@ -89,28 +96,21 @@ class Carte:
         return Rect(self._pos.tuple, self._TAILLE_SPRITE)
     
     @property
-    def _anim_destination(self) -> Pos:
-        return Carte._ANIM_DICO[self._anim_nom][0]
-    @property
-    def _anim_duree(self) -> Duree:
-        return Carte._ANIM_DICO[self._anim_nom][1]
-    @property
-    def _anim_easing(self) -> EasingFunction:
-        return Carte._ANIM_DICO[self._anim_nom][2]
-    @property
-    def _anim_de_dos(self) -> bool|int:
-        return Carte._ANIM_DICO[self._anim_nom][3]
+    def _anim_infos(self) -> CarteAnimInfo:
+        return Carte._ANIM_DICO[self._anim_nom]
     
     @property
     def est_de_dos(self) -> bool:
         """Renvoie si la carte doit être déssinée de dos e prenant en compte l'animation."""
-        if self._anim_de_dos == Carte._ANIM_GARDER:
+        est_de_dos = self._anim_infos.de_dos
+        if est_de_dos == CarteAnimInfo.GARDER:
             return self._de_dos_defaut
-        if self._anim_de_dos == Carte._ANIM_CHANGER:
+        if est_de_dos == CarteAnimInfo.CHANGER:
             raise NotImplementedError("Aucun changement prévu pour si la carte est de dos.")
         
         # c'est une int ssi c'est une des deux valeurs en haut
-        return self._anim_de_dos    # type: ignore
+        assert(type(est_de_dos) is bool), f"CarteAnimInfo.de_dos devrait être un bool mais est un {type(est_de_dos)} à la place."
+        return est_de_dos
     
     @property
     def peut_attaquer_lanceur(self) -> bool:
@@ -180,10 +180,10 @@ class Carte:
     
     def _calcul_deplacement(self) -> Deplacement:
         """Détermine la destination de l'animation."""
-        dest : Pos = copy(self._anim_destination)
+        dest : Pos = copy(self._anim_infos.destination)
         
-        if dest.x == Carte._ANIM_GARDER: dest.x = self._pos.x
-        if dest.y == Carte._ANIM_GARDER: dest.y = self._pos.y
+        if dest.x == CarteAnimInfo.GARDER: dest.x = self._pos.x
+        if dest.y == CarteAnimInfo.GARDER: dest.y = self._pos.y
         
         match(self._anim_nom):
             case "jouer":
@@ -192,8 +192,8 @@ class Carte:
                 dest = self._pos_defaut
         
         assert(
-                dest.x != Carte._ANIM_CHANGER
-            and dest.y != Carte._ANIM_CHANGER
+                dest.x != CarteAnimInfo.CHANGER
+            and dest.y != CarteAnimInfo.CHANGER
         ), f"La destination de l'animation \"{self._anim_nom}\" ({dest}) doit être changée."
         
         return Deplacement(self._pos, dest, sens_lecture=self._anim_sens)
@@ -208,7 +208,7 @@ class Carte:
             
             # Si la durrée est de 0, l'anim est déjà finie
             # (on évite aussi les divisions par 0 en dessous)
-            if self._anim_duree == Duree(s=0):
+            if self._anim_infos.duree == Duree(s=0):
                 self._pos = deplacement.calculer_valeur(1)
                 self.dessiner(surface)
                 
@@ -216,13 +216,13 @@ class Carte:
                 continue
             
             # On joue l'animation
-            while Jeu.duree_execution <= debut_anim + self._anim_duree and not self._finir_anim:
+            while Jeu.duree_execution <= debut_anim + self._anim_infos.duree and not self._finir_anim:
                 if animation_en_cours != self._anim_nom:
                     break   # changement d'animation
                 
-                t = (Jeu.duree_execution - debut_anim) / self._anim_duree
+                t = (Jeu.duree_execution - debut_anim) / self._anim_infos.duree
                 t = clamp(t, 0, 1)
-                self._pos = deplacement.calculer_valeur(t, easing_fun=self._anim_easing)
+                self._pos = deplacement.calculer_valeur(t, easing_fun=self._anim_infos.easing)
                 
                 self.dessiner(surface)
                 yield False

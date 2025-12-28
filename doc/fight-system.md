@@ -2,64 +2,40 @@
 
 Les classes décrites dans ce fichier sont:
 + [`Stat`](../sources/Stats.py): Représente les statistiques d'une entité.
-+ [`Attaque`](../sources/Attaque.py) (ainsi que les enums/_wrappers_ en lien): Toute action qui puisse influer sur cette ou une autre entité.
-+ [`Joueur`](../sources/Joueur.py): 1<sup>er</sup> type d'entité, le personnage que contrôle le joueur.
-+ [`Monstre`](../sources/Monstre.py): 2<sup>nd</sup> type d'entité, tout ennemi au joueur.
++ [`Entite`](../sources/Entite.py) (et descendants): Tout acteur dans un combat, c'est-à-dire le joueur et les monstres.
++ [`Carte`](../sources/Carte.py): Une carte en elle-même.
++ [`Attaque`](../sources/Attaque.py) (ainsi que les enums/_wrappers_ en lien): S'assure du calcul de dégats.
++ [`Item`](../sources/Item.py): Un objet avec un effet passif.
 
 ## Les entités
 Une entité est un personnage indépendant en ce qui concerne le combat et pouvant y prendre part.  
-Toutes les entités sont enregistrées dans la liste globale `entites_vivantes[]` (leurs IDs étant leurs index dans celle-ci).
+Toutes les entités sont enregistrées dans la liste statique `Entite.vivantes[]` (leurs IDs étant leurs index dans celle-ci).
 
 Les entités ont un comportement personnalisé pour l'opérateur:
 + `del()`: Enlève l'entité de `entites_vivantes[]`. <!--Pas vraiment un opérateur mais restons simple.-->
 
-Les entités doivent définir les propriétés suivantes, les niveaux minimum d'accès entre parenthèse (dans l'ordre: lecture seule, lecture-écriture et lecture-écriture-suppression):
-+ `.id` (lecture seule): L'index de l'entité dans `entites_vivantes`.
-+ `.stats` (lecture seule): Les stats de l'entité.
-+ `.dbg_nom` (lecture seule): Les noms des entités utilisés pour le débogage (différent de `.__repr__()` car la méthode désigne tout l'objet et non seulement les noms).
-+ `.pos_attaque_x` et `.pos_attaque_y` (lecture seule): la position du dessin de l'attaque de l'entité.
+Concrètement, une entite est une instance de `Entite` ou d'un de ses classes filles: `Joueur` et `Monstre`.  
+Quand une classe hérite de `Entite`, il faut qu'elle définisse:
+- `_CARTE_MAIN_PREMIERE_POS : Pos` (statique): La postion de la première carte (celle la plus à gauche) de la main de l'entite.
+- `_CARTES_DE_DOS : bool` (statique): Si les cartes de la main doivent être dessinées de dos par défaut.
+- `_POS_BARRE_VIE : Pos` (statique): La position de la barre de vie sur l'écran.
+- `.pos_sprite : Pos` (propriété _getter_): La position du centre du sprite sur l'écran.
+- `.pos_attaque : Pos` (propriété _getter_): La position sur laquelle les attaques devraient arriver.
 
-Chaque entité est attendue d'avoir des méthodes avec ces signatures et respectant les descriptions:
->```Python
-> def attaquer(self, id_cible : int, nom_attaque : str) -> None
->```
-Enregistre l'attaque avec le nom `nom_attaque` dans `Attaque.attaque_du_tour[]`.
-
->```Python
-> def recoit_degats(self, degats_recu : int) -> None
->```
-Baisse la vie de l'entité, peu importe sa défense.
-
-> ```Python
-> def dessiner(self, surface : pygame.Surface, pos_x : int, pos_y : int) -> None
-> ```
-Dessine l'objet sur `surface` aux positions indiquées.
-
->```Python
-> def dessiner_barre_de_vie(self, surface : pygame.Surface, pos_x : int, pos_y : int) -> None
->```
-Dessine la barre de vie à la position demandée.
-
->```Python
->def est_mort(self) -> bool:
->```
-Renvoie si l'entité ne peut plus combattre.
+### `Entite`
+C'est la classe mère pour toutes les entités.
 
 ### `Joueur`
-Il n'y a qu'un seul objet joueur, c'est la variable `joueur` (déclarée dans [Joueur.py](../sources/Joueur.py)).  
-Il n'y a pas besoin d'appeler de fonction pour l'ajouter ou l'enlever de `entites_vivantes[]` car le constructeur et le destructeur (`__init__()` et `__del__()`) s'en chargent automatiquement.
+Il n'y a qu'un seul objet joueur, c'est la variable `joueur` (déclarée dans [Joueur.py](../sources/Joueur.py)), admis comme étant d'ID 0.
 
 ### `Monstre`
-Tous les monstres sont automatiquement ajoutés et enlevés des listes `Monstre.monstres_en_vie[]` et `entites_vivantes[]`.
-
 Les monstres fonctionnent par types, un type de monstre est un monstre préfait: il aura ses stats et ses attaques propres.  
 Voici les types implémentés:
 + Blob (attaque physique)
 + Sorcier (attaque magique)
 
-Tous les types de monstres sont définis dans le fichier [TypesMonstre.json](../data/TypesMonstre.json). Chaque type à aussi un "rang", c'est une mesure arbitraire utilisée pour estimer rapidement la puissance d'un monstre; pour l'instant ce n'est utilisé que pour le calcul des pièces gagnées.
-
-Il est préférable de créer les nouveaux monstres par `Monstre.nouveau_monstre()` pour initialiser l'instance à un type.
+Tous les types de monstres sont définis dans le fichier [TypesMonstre.json](../data/TypesMonstre.json).  
+Chaque type à aussi un "rang", c'est une mesure arbitraire utilisée pour estimer rapidement la puissance d'un monstre; pour l'instant ce n'est utilisé que pour le calcul des pièces gagnées.
 
 ## Les stats
 Pour représenter les stats d'une entités, on utilise une instance de `Stat` (classe définie dans [Stat.py](../sources/Stats.py)).
@@ -77,36 +53,22 @@ Pour le moment il y a sept stats:
 `Stat` est une dataclasse, ce qui veut dire que l'encapsulation ne s'applique pas dessus.  
 Du fait de l'absence de constructeur manuellement définit, `.vie` sera initialisé à un nombre négatif, pour y remédier, utiliser `.reset_vie()`.
 
+## Les cartes
+Une instance de `Carte` correspond à une carte dans le jeu.  
+Chaque carte est directement prise dans [cartes.json](../data/cartes.json). Comme chaque carte contient un objet Attaque, chaque objet JSON de carte contient aussi les informations de l'attaque correspondante, ces informations sont utilisées par la classe `Attaque`.
+
+### Le système d'animation
+La classe détient un dictionnaire statique `_ANIM_DICO[]` qui associe à chaque nom d'animation une instance de `CarteAnimInfo` qui contient les informations de l'animation:
+- La destination (ou position à la fin)
+- La durée (une durée de 0s indique que l'animation est instantanément finie et on considère que t=1).
+- La fonction d'easing.
+- Si la carte doit être dessinée de dos. Est prioritaire par rapport à `Carte._de_dos_defaut`.
+
+`CarteAnimInfo.destination` et `CarteAnimInfo.de_dos` peuvent contenir les constantes statiques `CarteAnimInfo.GARDER` et `CarteAnimInfo.CHANGER` qui indique respectivement qu'il faut soit utiliser les informations de la carte, soit qu'il faut utiliser une valeur que l'on a pas encore. Ainsi, si `de_dos = GARDER` alors lors de l'animation, la carte sera dessinée suivant `Carte._de_dos_defaut`, de même si `destination = GARDER`, la destination sera la position actuelle de la carte. L'interprétation exacte de `CHANGER` est déterminée par l'animation jouée.
+
 ## Les attaques
 Chaque attaque est représentée par un objet `Attaque` (classe définie dans [Attaque.py](../sources/Attaque.py)).  
 attributs:
-+ `._nom`: Le nom de l'attaque.
-+ `._desc`: Une courte description à montrer à l'utilisateur.
-+ `._puissance`: La puissance de l'attaque, sera utilisé pour calculer les dégats causés par l'attaque avec les stats du lanceur et de la victime.
-+ `._type`: Le type de dommages causés par l'attaque (sera détaillé plus en bas).
-+ `._lanceur_id` et `._cible_id`: Les IDs du lanceur et de la cible, sont changés lors de la copie, par défaut sont à `-1`.
-+ `._prob_crit`: La chance de faire un coup critique, doit être sur $[0; 1]$.
-+ `._crit`: Si l'attaque à fait un crit, ne **doit pas** être lu avant le calcul des dégats. Par défaut à `False` et le restera pour une attaque de `ATTAQUES_DISPONIBLES[]`.
-+ `._effet`: Le ou les effet.s causé.s de l'attaque (sera détaillé plus tard) (non implémenté).
-+ `._drapeaux`: Un flag de type `AttaqueFlags` à assigner à l'attaque.
-
-
-attributs statiques:
-+ `_PUISSANCE_CRIT`: Comment un crit devrait monter les dégats.
-+ `toujours_crits`: Outil de déboggage, permet de garantir un crit à chaque attaque.
-+ `CRIT_IMG`: Une surface avec l'icône de crit déjà chargée.
-+ `attaques_du_tour[]`: Une file triée (ordre croissant) contenant toutes les attaques lancées pendant ce tour. Capacité de 10.
-
-propriétés:
-+ `._couleur`: La couleur dans laquelle l'attaque sera déssinée une fois lancée, changera sûrement en `Sprite` dans le futur.
-+ `.dbg_str`: ...
-+ `._lanceur` et `._cible`: Le lanceur et la cible de l'attaque, leur existance est vérifiée par `assert()`.
-+ getters:
-	- `.puissance`
-	- `.desc`
-- `.nom_surface`: Une surface contenant le nom du monstre _rendered_ avec la bonne police de texte.
-+ `.friendly_fire`: Si l'attaque peut toucher le lanceur.
-+ `.ennemy_fire`: Si l'attaque peut toucher l'adversaire au lanceur.
 
 Les objets `Attaque` ont un comportement personnalisé pour les opérateurs:
 + `==`: Compare les noms des attaques.
@@ -143,12 +105,7 @@ Toutes les attaques sont _parse_ depuis le fichier [attaques.json](../data/attaq
 + `animer` (optionnel) ---> `_animation`
 	- Valeur par défaut: `true`
 
-## Un tour expliqué sous différents points de vue
-### Du point de vue du joueur
-Un tour commence quand le joueur choisit une attaque à lancer. Le monstre en choisira ensuite une autre suivant son type. Les attaques serons ensuite lancées suivant leurs vitesses; si une entité meurt avant que son attaque ne soit lancée, l'attaque sera _skip_.
+## Les objets passifs
+Une instance d'`Item` est un objet passif qui modifie les stats du joueur lorsqu'il est équipé. Le seul moyen de s'en procurer (pour l'instant) est le shop.
 
-### Du point de vue des entitées
-Le tour commence quand l'entitée récupère son attaque et l'enregistre dans la pile. Peu de temps après, elle doit changer son nombre de PV en appelant `.recoit_degats()`. Si elle survit au dégats infligés, elle peut passer au prochain tour, sinon elle est détruite.
-
-### Du point de vue de l'attaque
-Le tour commence quand elle est copiée pour avoir ses membres `._lanceur_id` et `._cible_id` défini puis la copie est insérée dans un objet `AttaquePriorisee` qui est lui-même _push_ dans `Attaque.attaque_du_tour[]`. Après peu, l'attaque priorisée ressort et si le lanceur est toujours vivant et que la cible correspond bien aux drapeaux l'attaque est lancée et les dégats sont envoyés à l'entité cible. Si l'attaque se révèle être un crit, son attribut `._crit` devient `True`. L'attaque est dessinée avec `.dessiner()` et est enfin détruite.
+Les items sont parsés de [items.json](../data/items.json), l'objet `"stats"` aura ses attributs additionnés aux stats de l'entité quand elle le prendra.

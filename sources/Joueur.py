@@ -1,7 +1,7 @@
 from Entite import *
 
 class Joueur(Entite):
-    _CACHER_CARTES           : bool = False
+    _CARTES_DE_DOS           : bool = False
     _CARTE_MAIN_PREMIERE_POS : Pos  = Jeu.pourcentages_coordonees(24, 60)
     _POS_BARRE_VIE           : Pos  = Pos(500, 400)
     
