@@ -53,8 +53,8 @@ MonstreJSON.actualiser_donnees()
 
 class Monstre(Entite):
     _CARTES_DE_DOS           : bool = True
-    _CARTE_MAIN_PREMIERE_POS : Pos  = Jeu.pourcentages_coordonees(45, 3)
-    POSITION                 : Pos  = Jeu.pourcentages_coordonees(70, 42)
+    _CARTE_MAIN_PREMIERE_POS : Pos  = Jeu.pourcentages_coordonees(35, 3)
+    POSITION                 : Pos  = Jeu.pourcentages_coordonees(70, 35)
     
     @override
     def __init__(

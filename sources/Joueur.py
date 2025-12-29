@@ -2,7 +2,7 @@ from Entite import *
 
 class Joueur(Entite):
     _CARTES_DE_DOS           : bool = False
-    _CARTE_MAIN_PREMIERE_POS : Pos  = Jeu.pourcentages_coordonees(32, 60)
+    _CARTE_MAIN_PREMIERE_POS : Pos  = Jeu.pourcentages_coordonees(40, 60)
     
     STATS_DE_BASE : Stat = Stat(45, 32, 37, 22, 32, 1.3, 1).reset_vie()
     
@@ -28,7 +28,7 @@ class Joueur(Entite):
     
     @property
     def pos_sprite(self) -> Pos:   # on ne met pas de @override car le membre est abstrait (pur)
-        return Jeu.pourcentages_coordonees(40, 80)
+        return Jeu.pourcentages_coordonees(30, 80)
     
     @property
     def pos_attaque(self) -> Pos:
