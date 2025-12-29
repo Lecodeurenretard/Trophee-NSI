@@ -47,7 +47,7 @@ class TypeParametre(Enum):
     
     @property
     def hauteur(self) -> int:
-        return 20
+        return Jeu.pourcentage_hauteur(2)
     
     @property
     def largeur(self) -> int:

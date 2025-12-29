@@ -2,7 +2,8 @@ from import_var import *
 from Curseur    import Curseur
 
 class Button:
-    SON_APPUI : Sound = Sound(f"{Chemins.SFX}/select.mp3")
+    SOUND_PRESSED : Sound         = Sound(f"{Chemins.SFX}/select.mp3")
+    FONT_NAME     : Optional[str] = None
     
     def __init__(
             self,
@@ -32,17 +33,19 @@ class Button:
     def rect(self) -> Rect:
         return self._rect
     
-    def draw(self, surface : Surface) -> None:
+    def draw(self, surface : Surface, point_size : int) -> None:
         pygame.draw.rect(surface, self._bg_color, self._rect)
         if self._line_size > 0:
             pygame.draw.rect(surface, self._line_color, self._rect, width=self._line_size)
         
-        surf : Surface; rect : Rect
+        
         if self._image is not None:
             surface.blit(self._image, self._rect)
-        else:
-            surf = Polices.FOURRE_TOUT.render(self._text, True, BLANC)
-            surface.blit(surf, surf.get_rect(center=self._rect.center))
+            return
+        
+        police : pygame.font.Font = pygame.font.SysFont(Button.FONT_NAME, point_size)
+        surf = police.render(self._text, True, BLANC)
+        surface.blit(surf, surf.get_rect(center=self._rect.center))
     
     def check_click(self, pos_click : pos_t, jouer_son : bool = True) -> bool:
         """Vérifie si le clic était dans le bouton, si oui joue le son et appelle le callback et return true."""
@@ -60,12 +63,13 @@ class Button:
         return self._rect.collidepoint(pos_t_vers_tuple(pos_mouse))
     
     def jouer_sfx(self) -> None:
-        Button.SON_APPUI.play()
+        Button.SOUND_PRESSED.play()
     
     def change_pos(self, new_pos : Pos) -> None:
         self._rect = Rect(new_pos.tuple, self._rect.size)
 
 class ButtonCursor(Button):
+    """La classe n'est plus maintenue, et ne doit PAS être utilisée."""
     _CURSOR_OFFSET : int = 10
     _cursor_radius : int = 12
     
@@ -88,7 +92,7 @@ class ButtonCursor(Button):
             - `group_name`: the group's name, if the group doesn't exists creates it
             - `group_color`: defines the color of the group's cursor (ignored if `group` already exists)
         """
-        super().__init__(dim, text=text, action=action, line_thickness=line_thickness, line_color=line_color, bg_color=bg_color)
+        super().__init__(dim=dim, text=text, action=action, line_thickness=line_thickness, line_color=line_color, bg_color=bg_color)
         self._group_name = group_name
         
         cursor_pos : Pos = Pos(

@@ -1,5 +1,5 @@
-from imports import Generator, Optional, logging, Any, TypeVar, Enum, auto
-from Constantes.Couleurs import rgba, color, color_to_rgba, iterable_to_rgba
+from imports import Generator, Optional, logging, Any, TypeVar, Enum, auto, Iterable, Generic
+from Constantes.Couleurs import rgba, color, color_to_rgba, sequence_to_rgba
 
 from .Pos import Pos
 from .EasingFunctions import EasingFunction
@@ -473,7 +473,7 @@ class MultiGradient:
         #  [0  , 200, 255, 128]               [0  , 200, 255],
         # )                                   [200, 255, 128]
         #                                    )
-        return iterable_to_rgba([
+        return sequence_to_rgba([
             round(
                 MultiInterpolation.calculer_valeur_s(
                     [couleur[canal] for couleur in couleurs_clefs],

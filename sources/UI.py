@@ -95,7 +95,6 @@ def afficher_infos() -> Interruption:
     logging.debug(f"→ Interruption: affichage des informations d'une attaque.")
     
     texte_puissance   : Surface
-    texte_vitesse     : Surface
     texte_description : Surface
     
     image : Surface = Surface((Jeu.largeur, Jeu.hauteur))
@@ -126,20 +125,23 @@ def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> I
         verifier_pour_quitter()
         
         surface.fill(BLANC)
+        # Le contour de la barre
         dessiner_rect(
             surface,
-            Jeu.pourcentages_coordonees(6.25, 50),
+            Jeu.centre_fenetre,
             (round(ratio_barre * LONGUEUR_BARRE), 50),
-            
             couleur_remplissage=gradient.calculer_valeur(ratio_barre),
-            epaisseur_trait=0
+            epaisseur_trait=0,
+            centre_x=True,
         )
+        # Ce qui va remplir la barre
         dessiner_rect(
             surface,
-            Jeu.pourcentages_coordonees(6.25, 50),
+            Jeu.centre_fenetre,
             (LONGUEUR_BARRE, 50),
             couleur_bords=NOIR, dessiner_interieur=False,
             epaisseur_trait=5,
+            centre_x=True,
         )
         
         texte_chargement : Surface = Polices.TITRE.render("Chargement...", True, NOIR)
@@ -201,7 +203,6 @@ def dessiner_diff_stats_joueur(surface : Surface) -> None:
         "défense"            : joueur.stats_totales.defense         - Joueur.STATS_DE_BASE.defense,
         "magie"              : joueur.stats_totales.magie           - Joueur.STATS_DE_BASE.magie,
         "défense magique"    : joueur.stats_totales.defense_magique - Joueur.STATS_DE_BASE.defense_magique,
-        "vitesse"            : joueur.stats_totales.vitesse         - Joueur.STATS_DE_BASE.vitesse,
         "puissance des crits": joueur.stats_totales.crit_puissance  - Joueur.STATS_DE_BASE.crit_puissance,
         "resitance aux crits": joueur.stats_totales.crit_resitance  - Joueur.STATS_DE_BASE.crit_resitance,
     }
@@ -217,7 +218,7 @@ def dessiner_diff_stats_joueur(surface : Surface) -> None:
         y += txt.get_rect().height + 5
 
 def dessiner_infos() -> None:
-    """Dessine les infos Si les bonnes touches sont pressées."""
+    """Si les bonnes touches sont pressées, dessine les infos."""
     if pygame.key.get_pressed()[Touches.DIFFS]:
         dessiner_diff_stats_joueur(Jeu.infos_surf)
     
@@ -234,18 +235,26 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
         entites.dessiner(Jeu.fenetre)
         entites.dessiner_UI(Jeu.fenetre)
     
-    # Avance et dessine l'animation des cartes affichées
-    a_cacher : list[int] = []
-    liste_carte : list[tuple[int, Carte]]=  list(Carte.cartes_affichees.items())
-    for i, carte in sorted(liste_carte, key=lambda t: t[1].pos_defaut.x):    # dessine les cartes dans l'ordre croissant des abscisses
-        try:
-            next(carte.animation_generateur)   # .items() garde les références donc tout va bien
-        except StopIteration:
-            a_cacher.append(i)
+    # Vérifie si les cartes doivent être dessinées
+    montrer_cartes : bool = True
+    for touche in Touches.DBG_CACHER_CARTES:
+        if pygame.key.get_pressed()[touche]:
+            montrer_cartes = False
+            break
     
-    # Nettoyage de Carte.cartes_affichees_anim[] (ici sinon on enlève des clefs)
-    for index in a_cacher:
-        Carte.cartes_affichees[index].cacher()
+    if montrer_cartes or not bool(params.mode_debug):
+        # Avance et dessine l'animation des cartes affichées
+        a_cacher : list[int] = []
+        liste_carte : list[tuple[int, Carte]]=  list(Carte.cartes_affichees.items())
+        for i, carte in sorted(liste_carte, key=lambda t: t[1].pos_defaut.x):    # dessine les cartes dans l'ordre croissant des abscisses
+            try:
+                next(carte.animation_generateur)   # .items() garde les références donc tout va bien
+            except StopIteration:
+                a_cacher.append(i)
+        
+        # Nettoyage de Carte.cartes_affichees_anim[] (ici sinon on enlève des clefs)
+        for index in a_cacher:
+            Carte.cartes_affichees[index].cacher()
     
     # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:
@@ -255,7 +264,7 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     dessiner_rect(
         Jeu.menus_surf,
         Jeu.pourcentages_coordonees(85, 87),
-        (150, 50),
+        Jeu.pourcentages_fenetre(20, 10, ret_vec=False),
         couleur_remplissage=GRIS_CLAIR,
         couleur_bords=BLANC,
         centre_x=True,
@@ -263,9 +272,14 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
         border_radius=3,
     )
     txt_coups = Polices.FOURRE_TOUT.render(
-        f"{abs(Jeu.attaques_restantes_joueur)}",
+        f"{Jeu.attaques_restantes_joueur} coups restants",
         True,
-        Couleurs.ROUGE
+        Gradient.calculer_valeur_s(
+            CYAN,
+            ROUGE,
+            abs(Jeu.attaques_restantes_joueur) / Jeu.ATTAQUES_PAR_TOUR,
+            sens_lecture=SensLecture.ARRIERE,   # le ratio décroit
+        )
     )
     blit_centre(
         Jeu.menus_surf,
@@ -309,18 +323,18 @@ def dessiner_nombre_pieces(surface : Surface, boite_inventaire : Rect, ordonnees
         ))
 
 def dessiner_inventaire(surface : Surface, boite_inventaire : Rect) -> None:
-    y : int = Jeu.pourcentage_hauteur(5) + 55
+    y : int = Jeu.pourcentage_hauteur(9)     # début affichage items inventaire
     for item in joueur.inventaire:
         icone : Surface = pygame.transform.scale_by(
             item.sprite,
-            (boite_inventaire.width - 20) / item.sprite.get_rect().width
+            (boite_inventaire.width - Jeu.pourcentage_hauteur(1)) / item.sprite.get_rect().width
         )
         
         surface.blit(
             icone,
             (boite_inventaire.left, y)
         )
-        y += icone.get_bounding_rect().height + 10
+        y += icone.get_bounding_rect().height + Jeu.pourcentage_hauteur(2)
 
 def rafraichir_ecran_shop(items : list[Item], abscisses : tuple[int, ...], rect_inventaire : Rect, epaisseur_trait : int, bouton : Button, afficher_avertissements : bool = False) -> None:
     Jeu.fenetre.fill(BLANC)
@@ -333,12 +347,12 @@ def rafraichir_ecran_shop(items : list[Item], abscisses : tuple[int, ...], rect_
         epaisseur_trait=epaisseur_trait
     )
     
+    # ...
     dessiner_nombre_pieces(Jeu.menus_surf, rect_inventaire)
     dessiner_inventaire(Jeu.fenetre, rect_inventaire)
-    
     dessiner_infos()
     
-    bouton.draw(Jeu.menus_surf)
+    bouton.draw(Jeu.menus_surf, point_size=0)
     for item, pourcentage_abscisse in zip(items, abscisses):
         item.dessiner(Jeu.fenetre, pourcentage_abscisse, afficher_avertissements=afficher_avertissements)
     

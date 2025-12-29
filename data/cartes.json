@@ -59,7 +59,7 @@
 			"nom_ajustement"	: null
 		}
 	},
-    {
+	{
 		"nom"			: "Choc éléctrique",
 		"description"	: "Infligez un coup d'éléctriciter a l'adversaire.",
 		"sprite"		: "choc_electrique1.png",
@@ -78,7 +78,7 @@
 		"sprite"		: "pique1.png",
 		"animer"		: null,
 		"attaque": {
-			"puissance"			: 8,
+			"puissance"			: 9,
 			"type"				: "physique",
 			"probabilité_crit"	: 0.3,
 			"flags"				: null,

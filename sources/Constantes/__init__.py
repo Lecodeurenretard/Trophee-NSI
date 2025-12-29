@@ -5,5 +5,3 @@ from . import Chemins    # Why is it like this?
 from . import Couleurs   # Python...
 from . import Polices
 from . import Touches
-
-from .autres import *

@@ -50,42 +50,6 @@ def dessiner_rect(
             border_bottom_right_radius=border_radius_br,
         )
 
-def dessiner_barre_de_vie(surface : Surface, pos : Pos, ratio_vie : float, longueur_remplissage : int) -> None:
-    from parametres_vars import mode_debug
-    
-    # Evite de répéter ce blob plusieurs fois
-    def dessin(remplissage : color) -> None:
-        dessiner_rect(  # remplissage
-            surface,
-            pos,
-            (longueur_remplissage               , UI_HAUTEUR_BARRE_DE_VIE),
-            couleur_remplissage=remplissage,
-            epaisseur_trait=0,
-        )
-        dessiner_rect(  # bords
-            surface,
-            pos,
-            (UI_LONGUEUR_BARRE_DE_VIE, UI_HAUTEUR_BARRE_DE_VIE),
-            couleur_bords=NOIR,
-            epaisseur_trait=2,
-            dessiner_interieur=False,
-        )
-        
-    
-    if mode_debug.case_cochee:
-        dessin(GRIS)
-        return
-    
-    couleur_remplissage : rgb = VERT
-    if ratio_vie <= .2:
-        couleur_remplissage = ROUGE
-    elif ratio_vie <= .5:
-        couleur_remplissage = JAUNE
-    elif ratio_vie == 1:
-        couleur_remplissage = CYAN
-    
-    dessin(couleur_remplissage)
-
 def image_vers_generateur(
         image : Surface,
         temps_affichage : Duree,

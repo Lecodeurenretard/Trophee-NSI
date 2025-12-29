@@ -11,7 +11,6 @@
                 "defense"        : 0,
                 "magie"          : 0,
                 "defense_magique": 0,
-                "vitesse"        : 0,
                 "crit_puissance" : 0,
                 "crit_resitance" : 0,
                 "vie"            : 0

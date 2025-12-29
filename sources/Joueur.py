@@ -2,11 +2,9 @@ from Entite import *
 
 class Joueur(Entite):
     _CARTES_DE_DOS           : bool = False
-    _CARTE_MAIN_PREMIERE_POS : Pos  = Jeu.pourcentages_coordonees(24, 60)
-    _POS_BARRE_VIE           : Pos  = Pos(500, 400)
+    _CARTE_MAIN_PREMIERE_POS : Pos  = Jeu.pourcentages_coordonees(32, 60)
     
-    STATS_DE_BASE : Stat = Stat(45, 32, 37, 22, 32, 50, 1.3, 1).reset_vie()
-    DIMENSIONS_SPRITE : tuple[int, int] = (200, 200)
+    STATS_DE_BASE : Stat = Stat(45, 32, 37, 22, 32, 1.3, 1).reset_vie()
     
     _nom_derniere_carte_piochee : str = ''
     
@@ -30,11 +28,11 @@ class Joueur(Entite):
     
     @property
     def pos_sprite(self) -> Pos:   # on ne met pas de @override car le membre est abstrait (pur)
-        return Jeu.pourcentages_coordonees(13, 80)
+        return Jeu.pourcentages_coordonees(40, 80)
     
     @property
     def pos_attaque(self) -> Pos:
-        return Jeu.pourcentages_coordonees(16, 46)
+        return Jeu.pourcentages_coordonees(30, 62)
     
     
     @override

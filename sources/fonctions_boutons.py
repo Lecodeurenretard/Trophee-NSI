@@ -49,10 +49,16 @@ def _evenements_parametres(bouton_sortie : Button, bouton_actualiser : Button) -
 def menu_parametres() -> Interruption:
     logging.debug("→ Interruption: Paramètres")
     
-    bouton_sortir : Button = Button((10, 10, 50, 50), img=f"{Chemins.IMG}/croix.png")
+    bouton_sortir : Button = Button(
+        (
+            *Jeu.pourcentages_coordonees(2, 2, ret_pos=False),
+            Jeu.pourcentage_largeur(4), Jeu.pourcentage_largeur(4),
+        ),
+        img=f"{Chemins.IMG}/croix.png"
+    )
     pos_dim_bouton_actualisation = (
-        Jeu.centre_fenetre[0], 50,
-        340, 50
+        *Jeu.pourcentages_coordonees(50, 50, ret_pos=False),
+        *Jeu.pourcentages_fenetre(30, 7, ret_vec=False),
     )
     butt_actualisation = Button(pos_dim_bouton_actualisation, "actualiser données", action=_rafraichir_donnees)
     
@@ -83,9 +89,9 @@ def menu_parametres() -> Interruption:
             )
             
             butt_actualisation.change_pos(pos_bouton)
-            butt_actualisation.draw(Jeu.menus_surf)
+            butt_actualisation.draw(Jeu.menus_surf, point_size=80)
         
-        bouton_sortir.draw(image)
+        bouton_sortir.draw(image, point_size=0)
         
         try:
             yield image

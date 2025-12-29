@@ -114,6 +114,22 @@ class Jeu:
             return Pos(Jeu.pourcentages_coordonees(pc_largeur, pc_hauteur, ret_pos=False))
         return (Jeu.pourcentage_largeur(pc_largeur), Jeu.pourcentage_hauteur(pc_hauteur))
     
+    @overload
+    @staticmethod
+    def pourcentages_fenetre(pc_largeur : float, pc_hauteur : float, ret_vec : Literal[True] = True) -> Vecteur:
+        """Raccourcit pour Vecteur(Jeu.pourcentage_largeur(pc_largeur), Jeu.pourcentage_largeur(pc_hauteur))"""
+    
+    @overload
+    @staticmethod
+    def pourcentages_fenetre(pc_largeur : float, pc_hauteur : float, ret_vec : Literal[False]) -> tuple[int, int]:
+        """Raccourcit pour (Jeu.pourcentage_largeur(pc_largeur), Jeu.pourcentage_largeur(pc_hauteur))"""
+    
+    @staticmethod
+    def pourcentages_fenetre(pc_largeur : float, pc_hauteur : float, ret_vec : bool = True) -> Vecteur|tuple[int, int]:
+        if ret_vec:
+            return Vecteur(Jeu.pourcentages_coordonees(pc_largeur, pc_hauteur, ret_pos=False))
+        return (Jeu.pourcentage_largeur(pc_largeur), Jeu.pourcentage_hauteur(pc_hauteur))
+    
     @staticmethod
     def changer_taille_fenetre(nouvelle_taille : tuple[int, int]) -> None:
         """Change la taille de la fenetre."""

@@ -1,8 +1,8 @@
 from Parametres import *
 
 _HAUTEUR_PREMIER_PARAMETRE : int = Jeu.pourcentage_hauteur(11)
-_ECART_ENTRE_PARAMETRES : int = 10
-_ECART_ENTRE_SECTIONS   : int = 40
+_ECART_ENTRE_PARAMETRES : int = Jeu.pourcentage_hauteur(1)
+_ECART_ENTRE_SECTIONS   : int = Jeu.pourcentage_hauteur(7)
 
 def _generer_menu_pos() -> Generator[int, int, NoReturn]:
     h = _HAUTEUR_PREMIER_PARAMETRE
@@ -46,12 +46,6 @@ joueur_invincible = Parametre(
     TypeParametre.CASE_A_COCHER,
     False,
 )
-monstre_invincible = Parametre(
-    "monstre invicible",
-    menu_h.send(TypeParametre.CASE_A_COCHER.hauteur),
-    TypeParametre.CASE_A_COCHER,
-    False,
-)
 
 argent_infini = Parametre(
     "Argent illimité",
@@ -70,6 +64,5 @@ PARAMETRES_NORMAUX : list[Parametre] = [
 
 PARAMETRES_TRICHE : list[Parametre] = [
     joueur_invincible,
-    monstre_invincible,
     argent_infini,
 ]

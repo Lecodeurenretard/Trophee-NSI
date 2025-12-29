@@ -15,9 +15,9 @@ class CarteAnimInfo:
     de_dos      : bool|int
 
 class Carte:
-    _HAUTEUR_SPRITE  : int     = 200
+    _HAUTEUR_SPRITE  : int     = 400
     _DUREE_INTER_JEU : Duree   = Duree(s=.5)
-    _SURVOL_DECALAGE : Vecteur = Vecteur(0, 20)
+    _SURVOL_DECALAGE : Vecteur = Jeu.pourcentages_fenetre(0, 2)
     
     # A chaque nom, associe une tuple contenant:
     # La position d'arrivée de l'animation, la duree de l'animation, la fonction d'easing à utiliser et si la carte dois être de dos
@@ -71,8 +71,7 @@ class Carte:
         
         self._finir_anim : bool = False
         
-        # On ne crée pas assez de carte par seconde pour que ça ralentisse tout
-        self._TAILLE_SPRITE : tuple[int, int] = self._get_sprite().get_rect().size
+        self._TAILLE_SPRITE : tuple[int, int] = self._sprite.get_rect().size
     
     def __repr__(self):
         return f"Carte(nom={self._nom}; sprite={self._nom_sprite}; pos={self._pos}; attaque={self._attaque})"
@@ -164,7 +163,9 @@ class Carte:
     def pos_defaut(self, val : Pos) -> None:
         self._pos_defaut = val
     
-    def _get_sprite(self) -> Surface:
+    @property
+    @lru_cache      # On ne fait le boulot qu'une fois!
+    def _sprite(self) -> Surface:
         """Génère le sprite de la carte. Assez lent."""
         img : Surface
         if self.est_de_dos:
@@ -255,7 +256,7 @@ class Carte:
         if not self.est_affiche:
             return
         
-        sprite = self._get_sprite()
+        sprite = self._sprite
         Jeu.fenetre.blit(sprite, self._pos.tuple)
         
         if self._attaque._crit:

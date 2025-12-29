@@ -13,6 +13,10 @@ DBG_SKIP : tuple[int, ...] = (
     pygame.K_RETURN,
     pygame.K_KP_ENTER,
 )
+DBG_CACHER_CARTES : tuple[int, ...] = (
+    pygame.K_LSHIFT,
+    pygame.K_RSHIFT,
+)
 VALIDER : tuple[int, ...] = (
     pygame.K_SPACE,
     pygame.K_RETURN,    # entrée (return pour carriage return ou retour chariot sur les machines à écrire)

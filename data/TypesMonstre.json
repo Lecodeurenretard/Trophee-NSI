@@ -14,7 +14,6 @@
 			"defense"			: null,
 			"magie"				: null,
 			"defense_magique"	: null,
-			"vitesse"			: null,
 			"crit_puissance"	: null,
 			"crit_resitance"	: null
 		}
@@ -33,7 +32,6 @@
 			"defense"			: 50,
 			"magie"				: 0,
 			"defense_magique"	: 23,
-			"vitesse"			: 30,
 			"crit_puissance"	: 1.8,
 			"crit_resitance"	: 1.3
 		}
@@ -52,7 +50,6 @@
 			"defense"			: 25,
 			"magie"				: 26,
 			"defense_magique"	: 35,
-			"vitesse"			: 60,
 			"crit_puissance"	: 1.3,
 			"crit_resitance"	: 1.4
 		}
@@ -61,17 +58,17 @@
 		"nom": "Secoupe",
 		"sprite" : "secoupe.png",
 		"moveset": [
-			"Choc éléctrique"      
+			"Choc éléctrique"
 		],
 		"rang": 2,
+		"nombre_cartes_main": 1,
 		"stats": {
 			"vie_max"			: 60,
-			"force"				: 35,
-			"defense"			: 20,
-			"magie"				: 30,
-			"defense_magique"	: 15,
-			"vitesse"			: 80,
-			"crit_puissance"	: 1.5,
+			"force"				: 29,
+			"defense"			: 29,
+			"magie"				: 29,
+			"defense_magique"	: 21,
+			"crit_puissance"	: 1.3,
 			"crit_resitance"	: 1.2
 		}
 	},
@@ -79,16 +76,16 @@
 		"nom": "Corbobo",
 		"sprite" : "corbobo.png",
 		"moveset": [
-			"Pique"                        
+			"Pique"
 		],
 		"rang": 0,
+		"nombre_cartes_main": 1,
 		"stats": {
 			"vie_max"			: 40,
-			"force"				: 15,
+			"force"				: 22,
 			"defense"			: 30,
 			"magie"				: 22,
-			"defense_magique"	: 50,
-			"vitesse"			: 70,
+			"defense_magique"	: 40,
 			"crit_puissance"	: 1.4,
 			"crit_resitance"	: 1.1
 		}

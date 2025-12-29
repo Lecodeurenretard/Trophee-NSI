@@ -261,7 +261,6 @@ class Attaque:
         self._nom          = a_copier._nom
         self._desc         = a_copier._desc
         self._puissance    = a_copier._puissance
-        self._vitesse      = a_copier._vitesse
         
         self._type         = a_copier._type
         # Le lanceur et la cible sont inchangés

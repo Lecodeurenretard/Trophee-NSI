@@ -13,7 +13,7 @@ class Item:
     stats_changees : Stat
     
     ORDONEE_SPRITE     : int = Jeu.pourcentage_hauteur(32)
-    DIMENSIONS_SPRITES : tuple[int, int] = (160, 160)
+    DIMENSIONS_SPRITES : tuple[int, int] = (350, 350)
     
     
     def __init__(self, id : int, permissif : bool = False, interdire_exemple : bool = True):

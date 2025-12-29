@@ -1,6 +1,7 @@
 from import_local import *
 
 class Curseur:
+    """N'est PLUS maintenue et ne doit PAS être utilisé."""
     def __init__(self, col_dispo : list[int], lne_dispo : list[int], pos_interdites : list[Pos] = []) -> None:
         # ordonne de gauche à droite et de haut en bas
         self._col_dispo : list[int] = list(sorted(col_dispo))

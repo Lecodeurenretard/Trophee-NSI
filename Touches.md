@@ -17,7 +17,7 @@ ___
 - Afficher les informations sur les entités: F9
 - Passer certaines animations:
 	+ espace
-	+ entrée (clavier ou pavé numérique)
+	+ entrée (clavier et pavé numérique)
 - Changer de combat:
 	+ S (précédent)
 	+ Z (suivant)
@@ -28,3 +28,5 @@ ___
 	+ \+ (clavier et pavé numérique)
 - Moins d'items dans le shop:
 	+ \- (clavier et pavé numérique)
+- Cacher les cartes
+	+ Maj (gauche et droite)

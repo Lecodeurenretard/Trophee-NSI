@@ -77,7 +77,7 @@ def choix_attaque() -> None:
                 if index_carte is None:
                     continue
                 
-                joueur.attaquer(1, index_carte)        # TODO: Ewww!
+                joueur.attaquer(Monstre.vivants()[0].id, index_carte)        # TODO: Ew.
                 
                 Jeu.attaques_restantes_joueur -= 1
                 logging.debug(f"Il reste {Jeu.attaques_restantes_joueur} attaques au joueur.")
@@ -103,7 +103,7 @@ def affichage_attaque() -> None:
         rafraichir_ecran()
     
     # Vérifie si c'est la fin du combat
-    if joueur.plus_de_vie:
+    if not joueur.en_vie:
         Jeu.a_gagne = False
         Jeu.changer_etat(Jeu.Etat.GAME_OVER)
         return
@@ -134,20 +134,20 @@ def ecran_titre() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.ECRAN_TITRE.name}.")
     Jeu.set_texte_fenetre("Ecran titre")
     
-    LARGEUR_BOUTONS : int = 200
-    HAUTEUR_BOUTONS : int = 60
+    LARGEUR_BOUTONS : int = 400
+    HAUTEUR_BOUTONS : int = 120
     
     DIMENSIONS_BOUTONS : tuple[tuple[int, int, int, int], ...] = (
         centrer_pos((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(30), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
         centrer_pos((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(50), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
         centrer_pos((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(70), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
     )
-    boutons_menu : tuple[ButtonCursor, ...] = (
-        ButtonCursor("Jouer"     , DIMENSIONS_BOUTONS[0], line_thickness=0, group_name="Ecran titre", group_color=VERT, action=lambda: Jeu.changer_etat(Jeu.Etat.PREPARATION)),
-        ButtonCursor("Paramètres", DIMENSIONS_BOUTONS[1], line_thickness=0, group_name="Ecran titre",                   action=lancer_parametres),
-        ButtonCursor("Crédits"   , DIMENSIONS_BOUTONS[2], line_thickness=0, group_name="Ecran titre",                   action=lambda: Jeu.changer_etat(Jeu.Etat.CREDITS)),
+    boutons_menu : tuple[Button, ...] = (
+        Button(DIMENSIONS_BOUTONS[0], "Jouer"     , line_thickness=0, action=lambda: Jeu.changer_etat(Jeu.Etat.PREPARATION)),#group_name="Ecran titre", group_color=VERT,
+        Button(DIMENSIONS_BOUTONS[1], "Paramètres", line_thickness=0, action=lancer_parametres),                             #group_name="Ecran titre",
+        Button(DIMENSIONS_BOUTONS[2], "Crédits"   , line_thickness=0, action=lambda: Jeu.changer_etat(Jeu.Etat.CREDITS)),    #group_name="Ecran titre",
     )
-    ButtonCursor.enable_drawing("Ecran titre")
+    #ButtonCursor.enable_drawing("Ecran titre")
     
     
     dessiner_fond_ecran = dessiner_gif(
@@ -160,17 +160,17 @@ def ecran_titre() -> None:
     while Jeu.etat == Jeu.Etat.ECRAN_TITRE:
         Jeu.commencer_frame()
         
-        potentiellement_fini : bool = False # Vérifie si un bouton à été appuyé
-        for event in pygame.event.get():    # si c'est le cas, il se peut que l'on dessine une frame de trop
-            verifier_pour_quitter(event)    # donc on revient au début de la boucle
-            potentiellement_fini = ButtonCursor.handle_inputs(boutons_menu, event)
-        
-        if potentiellement_fini:
-            continue
+        for event in pygame.event.get():
+            verifier_pour_quitter(event)
+            
+            if event.type != pygame.MOUSEBUTTONDOWN:
+                continue
+            for butt in boutons_menu:
+                butt.check_click(event.pos)
         
         next(dessiner_fond_ecran)
         for bouton in boutons_menu:
-            bouton.draw(Jeu.fenetre)
+            bouton.draw(Jeu.fenetre, point_size=90)
         
         ButtonCursor.draw_cursors(Jeu.fenetre)
         Jeu.display_flip()
@@ -254,7 +254,7 @@ def shop() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.SHOP.name}.")
     
     INVENTAIRE_EPAISSEUR_TRAIT : int = 2
-    INVENTAIRE_LARGEUR         : int = 100 + INVENTAIRE_EPAISSEUR_TRAIT
+    INVENTAIRE_LARGEUR         : int = Jeu.pourcentage_largeur(10) + INVENTAIRE_EPAISSEUR_TRAIT
     INVENTAIRE_BOITE           : Rect = Rect(
         Jeu.largeur - INVENTAIRE_LARGEUR + INVENTAIRE_EPAISSEUR_TRAIT,
         -INVENTAIRE_EPAISSEUR_TRAIT,
@@ -285,7 +285,10 @@ def shop() -> None:
     items : list[Item] = nouv_items()
     
     bouton_sortie : Button = Button(
-        (20, 20, 48, 48),
+        (
+            *Jeu.pourcentages_coordonees(2, 2, ret_pos=False),
+            Jeu.pourcentage_largeur(4), Jeu.pourcentage_largeur(4),
+        ),
         img=f"{Chemins.IMG}/retour.png",
         action=Jeu.reset_etat,
     )
@@ -313,7 +316,6 @@ def shop() -> None:
         
         # Si il n'y a plus de musique, en charge une aléatoire.
         next(radio)
-        
         rafraichir_ecran_shop(
             items,
             ABSCISSES_ITEMS[len(items)],
@@ -324,8 +326,8 @@ def shop() -> None:
         )
         premiere_frame = False
     
-    Jeu.num_etape += 1
     if Jeu.decision_etat_en_cours():
+        Jeu.num_etape += 1
         Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
     
     Jeu.interrompre_musique()

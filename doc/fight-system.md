@@ -18,7 +18,6 @@ Concrètement, une entite est une instance de `Entite` ou d'un de ses classes fi
 Quand une classe hérite de `Entite`, il faut qu'elle définisse:
 - `_CARTE_MAIN_PREMIERE_POS : Pos` (statique): La postion de la première carte (celle la plus à gauche) de la main de l'entite.
 - `_CARTES_DE_DOS : bool` (statique): Si les cartes de la main doivent être dessinées de dos par défaut.
-- `_POS_BARRE_VIE : Pos` (statique): La position de la barre de vie sur l'écran.
 - `.pos_sprite : Pos` (propriété _getter_): La position du centre du sprite sur l'écran.
 - `.pos_attaque : Pos` (propriété _getter_): La position sur laquelle les attaques devraient arriver.
 

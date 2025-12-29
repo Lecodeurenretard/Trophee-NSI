@@ -2,13 +2,15 @@ from Carte import *
 from Item  import Item
 
 class Entite(ABC):
-    _CARTE_MAIN_PREMIERE_POS : Pos     = Pos(0, 0)      # à changer dans les classes filles
-    _CARTES_MAIN_ESPACEMENT  : Vecteur = Vecteur(30, 0)
-    _CARTES_MAIN_MAX_DU_MAX  : int     = 10
     _CARTES_DE_DOS           : bool    = True           # à changer dans les classes filles
-    _POS_BARRE_VIE           : Pos     = Pos(0, 0)      # à changer dans les classes filles
+    _CARTE_MAIN_PREMIERE_POS : Pos     = Pos(0, 0)      # à changer dans les classes filles
+    _CARTES_MAIN_ESPACEMENT  : Vecteur = Jeu.pourcentages_fenetre(4, 0)
+    _CARTES_MAIN_MAX_DU_MAX  : int     = 10
     
-    SPRITE_DIM : tuple[int, int] = (150, 150)
+    _SPRITE_DIM : tuple[int, int] = (400, 400)
+    
+    _LONGUEUR_BARRE_DE_VIE : int = _SPRITE_DIM[0] - 100
+    _HAUTEUR_BARRE_DE_VIE  : int = 10
     
     vivantes : dict[int, 'Entite'] = {}
     
@@ -33,7 +35,7 @@ class Entite(ABC):
         self._cartes_main_max : int = max_cartes_main
         
         chemin_sprite = valeur_par_defaut(chemin_sprite, si_none=f"{Chemins.IMG}/erreur.png")
-        self._sprite : Surface = pygame.transform.scale(pygame.image.load(chemin_sprite), Entite.SPRITE_DIM)
+        self._sprite : Surface = pygame.transform.scale(pygame.image.load(chemin_sprite), Entite._SPRITE_DIM)
         
         # Ajoute l'entite à la liste
         self._id : int = premier_indice_libre(Entite.vivantes)
@@ -59,7 +61,7 @@ class Entite(ABC):
         """
         echafaud : list[Entite] = []   # Quand les entites seront enlevés de la liste, ils seront "exécutés" par le rammasse-miette
         for entite in list(Entite.vivantes.values()):
-            if entite.plus_de_vie:
+            if not entite.en_vie:
                 entite.meurt()
                 echafaud.append(entite)
         
@@ -78,8 +80,12 @@ class Entite(ABC):
         return [c._nom for c in self._cartes_main]
     
     @property
-    def plus_de_vie(self) -> bool:
-        return self._stats.est_mort
+    def _pos_barre_de_vie(self) -> Pos:
+        return self.pos_sprite - Vecteur(self._SPRITE_DIM) / 2 - Vecteur(0, 20)
+    
+    @property
+    def en_vie(self) -> bool:
+        return not self._stats.est_mort
     
     @property
     def nom(self) -> str:
@@ -107,11 +113,6 @@ class Entite(ABC):
     @property
     def cartes_main_max(self) -> int:
         return self._cartes_main_max
-    
-    @property
-    def remplissage_barre_de_vie(self) -> int:
-        ratio = max(0, self._stats.vie / self._stats.vie_max)
-        return round(ratio * UI_LONGUEUR_BARRE_DE_VIE)
     
     # propriété car la position pourrait changer suivant la position du ou des joueurs
     @property
@@ -197,16 +198,42 @@ class Entite(ABC):
     def dessiner(self, surface : Surface) -> None:
         blit_centre(surface, self._sprite, self.pos_sprite.tuple)
     
-    def dessiner_UI(self, surface : Surface) -> None:
-        dessiner_barre_de_vie(
+    def dessiner_barre_de_vie(self, surface : Surface) -> None:
+        ratio_vie = self._stats.vie / self._stats.vie_max
+        
+        couleur_remplissage : rgb = VERT
+        if ratio_vie <= .2:
+            couleur_remplissage = ROUGE
+        elif ratio_vie <= .5:
+            couleur_remplissage = JAUNE
+        elif ratio_vie == 1:
+            couleur_remplissage = CYAN
+        if bool(params.mode_debug):
+            couleur_remplissage = GRIS
+        
+        dim_remplissage : tuple[int, int] = (int(ratio_vie * Entite._LONGUEUR_BARRE_DE_VIE), Entite._HAUTEUR_BARRE_DE_VIE)
+        dim_bords       : tuple[int, int] = (                Entite._LONGUEUR_BARRE_DE_VIE , Entite._HAUTEUR_BARRE_DE_VIE)
+        dessiner_rect(  # remplissage
             surface,
-            self.__class__._POS_BARRE_VIE,
-            self._stats.vie / self._stats.vie_max,
-            self.remplissage_barre_de_vie
+            self._pos_barre_de_vie,
+            dim_remplissage,
+            couleur_remplissage=couleur_remplissage,
+            epaisseur_trait=0,
         )
+        dessiner_rect(  # bords
+            surface,
+            self._pos_barre_de_vie,
+            dim_bords,
+            couleur_bords=NOIR,
+            epaisseur_trait=2,
+            dessiner_interieur=False,
+        )
+    
+    def dessiner_UI(self, surface : Surface) -> None:
+        self.dessiner_barre_de_vie(surface)
         Jeu.menus_surf.blit(
             Polices.TITRE.render(self.nom, True, NOIR),
-            (self.__class__._POS_BARRE_VIE - Vecteur(1, 30)).tuple
+            (self._pos_barre_de_vie - Vecteur(1, 30)).tuple
         )
     
     def piocher(self) -> None:
