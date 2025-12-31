@@ -3,7 +3,7 @@ from Item  import Item
 
 class Entite(ABC):
     _CARTES_DE_DOS           : bool    = True           # à changer dans les classes filles
-    _CARTE_MAIN_PREMIERE_POS : Pos     = Pos(1000, 500)      # à changer dans les classes filles
+    _CARTE_MAIN_PREMIERE_POS : Pos     = Pos(0, 0)      # à changer dans les classes filles
     _CARTES_MAIN_ESPACEMENT  : Vecteur = Jeu.pourcentages_fenetre(4, 0)
     _CARTES_MAIN_MAX_DU_MAX  : int     = 10
     

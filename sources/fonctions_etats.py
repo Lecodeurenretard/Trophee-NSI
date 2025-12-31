@@ -183,8 +183,8 @@ def credits(duree : Duree = Duree(s=5)) -> None:
     if duree == Duree():
         return
     
-    texte_credits  : Surface = Polices.FOURRE_TOUT.render("Développé par Jules et Lucas", True, BLANC)
-    texte_credits2 : Surface = pygame.font.Font(None, 30).render("et Nils", True, BLANC)
+    texte_credits  : Surface = Polices.FOURRE_TOUT.render("Développé par Jules, Lucas", True, BLANC)
+    texte_credits2 : Surface = pygame.font.Font(None, 60).render("et Nils", True, BLANC)
     
     deplacement : Deplacement = Deplacement(
         Pos(Jeu.pourcentage_largeur(50), Jeu.hauteur),
