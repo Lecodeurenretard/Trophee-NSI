@@ -56,6 +56,25 @@ def blit_centre(
     
     return toile.blit(a_dessiner, emplacement_dessin, area=area, special_flags=flags)
 
+def blit_centre_rect(
+        toile      : Surface,
+        a_dessiner : Surface,
+        rect       : Rect,
+        centre_rect_x : bool = True,
+        centre_rect_y : bool = True,
+        centre_en_x : bool = True,
+        centre_en_y : bool = True,
+        pos      : Pos = Pos(0, 0)
+    ) -> None:
+    """
+    Blit `a_dessiner` sur `toile` de façon à ce que le centre de `a_dessiner` soit le centre de `rect`.
+    Si `centre_rect_x` ou `centre_rect_y` est False, utilise l'attribut `pos` pour cette coordonnée.
+    """
+    x : int = rect.centerx if centre_rect_x else pos.x
+    y : int = rect.centery if centre_rect_y else pos.y
+    
+    blit_centre(toile, a_dessiner, (x, y), centre_en_x=centre_en_x, centre_en_y=centre_en_y)
+
 def pause(temps_attente : Duree) -> Generator[bool, None, None]:
     """Renvoie `True` une fois que la `temps_attente` s'est écoulée."""
     fin : Duree = Jeu.duree_execution + temps_attente
@@ -116,20 +135,20 @@ def centrer_pos(pos : tuple[int, int], dim : tuple[int, int], *, centrer_x : boo
     """Centre la tuple de position: `(pos_en_x, pos_en_y)` comme si c'était un rectangle de dimensions `(taille_en_x, taille_en_y)`."""
     ...
 @overload
-def centrer_pos(pos : Pos, dim : tuple[int, int], *, centrer_x : bool = True, centrer_y : bool = True) -> Pos:
-    """Centre la tuple de position: `(pos_en_x, pos_en_y)` comme si c'était un rectangle de dimensions `(taille_en_x, taille_en_y)`."""
+def centrer_pos(pos : Pos, dim : Vecteur, *, centrer_x : bool = True, centrer_y : bool = True) -> Pos:
+    """Centre `pos` comme si c'était un rectangle de dimensions `(taille_en_x, taille_en_y)`."""
     ...
 
 def centrer_pos(
             pos : tuple[int, int, int, int]|tuple[int, int]|Pos,
-            dim : Optional[tuple[int, int]] = None,
+            dim : tuple[int, int]|Vecteur|None = None,
             *,  # necessaire pour que l'overload marche
             centrer_x : bool = True,
             centrer_y : bool = True,
     ) -> tuple[int, int, int, int]|tuple[int, int]|Pos:
     if type(pos) is Pos:
-        assert(dim is not None), "Il y a un bug dans les overloads"
-        return Pos(centrer_pos(pos.tuple, dim, centrer_x=centrer_x, centrer_y=centrer_y))
+        assert(type(dim) is Vecteur), "Il y a un bug dans les overloads."
+        return Pos(centrer_pos(pos.tuple, (int(dim.x), int(dim.y)), centrer_x=centrer_x, centrer_y=centrer_y))
     
     assert(type(pos) is tuple)  # rassure le type checker
     if len(pos) == 4:
@@ -139,11 +158,29 @@ def centrer_pos(
             pos[2], pos[3]
         )
     
-    assert(dim is not None), "Il y a un bug dans les overloads"
+    assert(type(pos) is tuple), "Il y a un bug dans les overloads"
+    assert(type(dim) is tuple or dim is None), "Il y a un bug dans les overloads"
     return (
-        pos[0] - dim[0] // 2 if centrer_x else pos[0] ,
-        pos[1] - dim[1] // 2 if centrer_y else pos[1] 
+        pos[0] - dim[0] // 2 if centrer_x else pos[0],  # type: ignore  # trust
+        pos[1] - dim[1] // 2 if centrer_y else pos[1],  # type: ignore
     )
+
+@overload
+def centrer_rect(rect : Rect, centrer_x : bool = False, centrer_y : bool = False) -> Rect:
+    """Permet de centrer un rectangle séparément pour son axe x et y."""
+@overload
+def centrer_rect(rect : tuple[int, int, int, int]|list[int], centrer_x : bool = False, centrer_y : bool = False) -> tuple[int, int, int, int]:
+    """Permet de centrer un rectangle séparément pour son axe x et y."""
+
+def centrer_rect(rect : Rect|tuple[int, int, int, int]|list[int], centrer_x : bool = False, centrer_y : bool = False) -> Rect|tuple[int, int, int, int]:
+    if type(rect) is tuple or type(rect) is list:
+        assert(len(rect) == 4), "Un rectangle doit contenir 4 données."
+        return rect_to_tuple(centrer_rect(Rect(rect)))
+    
+    assert(type(rect) is Rect)
+    x = rect.centerx if centrer_x else rect.topleft[0]
+    y = rect.centery if centrer_y else rect.topleft[1]
+    return Rect(x, y, rect.w, rect.h)
 
 def valeurs_regulieres(minimum : float, maximum : float, nombre_a_produire : int, inclure_min : bool = True, inclure_max : bool = False) -> list[float]:
     """`valeurs_regulieres_entre_01()` mais entre `minimum` et `maximum`."""
@@ -253,12 +290,12 @@ def etirer_garder_ratio(surface : Surface, *, longueur : Optional[int] = None, h
     
     if longueur is None and hauteur is None:
         return copy(surface)
-    elif longueur is not None and hauteur is not None:
-        dim = (longueur, hauteur)
     elif longueur is not None:
         dim = (longueur, round(longueur / ratio))
     elif hauteur is not None:
         dim = (round(hauteur / ratio), hauteur)
+    else:   # aucun n'est none
+        dim = (longueur, hauteur)   # type: ignore
     
     return pygame.transform.scale(surface, dim)
 
@@ -275,3 +312,7 @@ def gerer_radio() -> Generator[bool, None, None]:
         
         try                 : yield changement_musique
         except GeneratorExit: break
+
+def rect_to_tuple(rect : Rect) -> tuple[int, int, int, int]:
+    """Renvoie un tuple de la forme: `(x, y, largeur, hauteur)`. Evite d'écrire une longue tuple."""
+    return (rect.x, rect.y, rect.w, rect.h)

@@ -12,7 +12,7 @@ class Item:
     effet_affiche  : str
     stats_changees : Stat
     
-    ORDONEE_SPRITE     : int = Jeu.pourcentage_hauteur(32)
+    ORDONEE_SPRITE     : int = Jeu.pourcentage_hauteur(10)
     DIMENSIONS_SPRITES : tuple[int, int] = (350, 350)
     
     
@@ -54,8 +54,9 @@ class Item:
     def __str__(self):
         return self.nom
     
-    def __eq__(self, value : 'Item'):
-        return self.id == value.id
+    def __eq__(self, obj : object):
+        assert(type(obj) is Item), "On ne peut comparer un item qu'avec un autre item."
+        return self.id == obj.id
     
     @staticmethod
     def actualiser_items() -> None:
@@ -97,8 +98,8 @@ class Item:
         """Renvoie l'index de l'item survolé ou None si aucun ne l'est."""
         for i, item in enumerate(liste_item):
             decalage = Vecteur(
-                abscisses[i]        - Item.DIMENSIONS_SPRITES[0]//2,
-                Item.ORDONEE_SPRITE - Item.DIMENSIONS_SPRITES[1]//2
+                abscisses[i] - Item.DIMENSIONS_SPRITES[0]//2,
+                Item.ORDONEE_SPRITE
             )
             hitbox = translation(item.sprite.get_bounding_rect(), decalage)
             
@@ -106,46 +107,54 @@ class Item:
                 return i
         return None
     
-    def dessiner(self, surface : Surface, abscisses : int, centre : bool = True, afficher_avertissements : bool = True) -> None:
-        LARGEUR_SPRITE : int = self.sprite.get_bounding_rect().width
-        HAUTEUR_SPRITE : int = self.sprite.get_bounding_rect().height
-        LARGEUR_EFFET  : int = LARGEUR_SPRITE + 50
-        LARGEUR_DESC   : int = LARGEUR_SPRITE + 70
-        
-        nom  : Surface = Polices.TITRE.render(self.nom, True, NOIR)
-        prix : Surface = Polices.TEXTE.render(f"{self.prix} pieces", True, JAUNE_PIECE)
-        
-        pos_sprite : tuple[int, int] = (abscisses, Item.ORDONEE_SPRITE)
-        pos_nom    : tuple[int, int] = (abscisses, Jeu.pourcentage_hauteur(50))
-        pos_prix   : tuple[int, int] = (
-            abscisses + LARGEUR_SPRITE - prix.get_bounding_rect().width + 40,
-            Item.ORDONEE_SPRITE - HAUTEUR_SPRITE // 2
-        )
-        rect_effet : tuple[int, int, int, int] = (
-            abscisses, Jeu.pourcentage_hauteur(53),
-            LARGEUR_EFFET, Jeu.pourcentage_hauteur(5)
-        )
-        rect_desc  : tuple[int, int, int, int] = (
-            abscisses, Jeu.pourcentage_hauteur(60),
-            LARGEUR_DESC, Jeu.pourcentage_hauteur(42)
+    def dessiner(self, surface : Surface, abscisses : int, afficher_avertissements : bool = True) -> None:
+        HAUTEUR_POLICE_PC : int = 7
+        RECT_GLOBAL : Rect = Rect(
+            abscisses - self.DIMENSIONS_SPRITES[0] // 2,
+            0,
+            self.DIMENSIONS_SPRITES[0],
+            Jeu.hauteur,
         )
         
-        texte_non_dessine_effet : str = ''
-        texte_non_dessine_desc  : str = ''
-        if centre:
-            blit_centre(surface, self.sprite, pos_sprite)
-            blit_centre(surface, nom, pos_nom)
-            blit_centre(surface, prix, pos_prix)
-            
-            texte_non_dessine_effet += dessiner_texte(surface, self.effet_affiche, NOIR, centrer_pos(rect_effet, centrer_y=False), Polices.TEXTE)
-            texte_non_dessine_desc += dessiner_texte(surface, self.description  , NOIR, centrer_pos(rect_desc , centrer_y=False), Polices.TEXTE)
-        else:
-            surface.blit(self.sprite, pos_sprite)
-            surface.blit(nom, pos_nom)
-            surface.blit(prix, pos_prix)
-            
-            texte_non_dessine_effet += dessiner_texte(surface, self.effet_affiche, NOIR, rect_effet, Polices.TEXTE)
-            texte_non_dessine_desc += dessiner_texte(surface, self.description, NOIR, rect_desc, Polices.TEXTE)
+        nom  : Surface = Jeu.construire_police(Polices.TITRE, 12).render(self.nom, True, NOIR)
+        prix : Surface = Jeu.construire_police(Polices.TEXTE, 10).render(f"{self.prix} pieces", True, JAUNE_PIECE)
+        
+        rect_sprite : Rect = Rect(
+            (abscisses, Item.ORDONEE_SPRITE),
+            self.sprite.get_rect().size,
+        )
+        rect_nom    : Rect = Rect(
+            (abscisses, rect_sprite.bottom),
+           nom.size,
+        )
+        pos_prix   : Pos = Pos(
+            abscisses + rect_sprite.width // 2 + Jeu.pourcentage_largeur(1),
+            rect_sprite.y,
+        )
+        rect_effet : Rect = Rect(
+            abscisses,
+            rect_nom.bottom + Jeu.pourcentage_hauteur(2),
+            rect_sprite.width,
+            Jeu.pourcentage_hauteur(HAUTEUR_POLICE_PC)
+        )
+        rect_desc  : Rect = Rect(
+            abscisses,
+            rect_effet.bottom + Jeu.pourcentage_hauteur(4),
+            rect_sprite.width,
+            Jeu.pourcentage_hauteur(42)
+        )
+        
+        police = Jeu.construire_police(Polices.TEXTE, HAUTEUR_POLICE_PC)
+        
+        blit_centre_rect(surface, self.sprite, RECT_GLOBAL, centre_rect_y=False, pos=Pos(-1, rect_sprite.centery))
+        blit_centre_rect(surface, nom        , RECT_GLOBAL, centre_rect_y=False, pos=Pos(-1, rect_nom.centery))
+        blit_centre(surface, prix, pos_prix.tuple)
+        
+        rect_effet.centerx = RECT_GLOBAL.centerx
+        rect_desc.centerx  = RECT_GLOBAL.centerx
+        
+        texte_non_dessine_effet = dessiner_texte(surface, self.effet_affiche, NOIR, rect_to_tuple(rect_effet), police)
+        texte_non_dessine_desc  = dessiner_texte(surface, self.description  , NOIR, rect_to_tuple(rect_desc), police)
         
         if afficher_avertissements and texte_non_dessine_effet != '':
             logging.debug(f"Le texte suivant n'a pas pu être dessiné (effet d'un  item trop long): {texte_non_dessine_effet}")

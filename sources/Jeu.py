@@ -2,7 +2,7 @@ from imports import *
 from classes_utiles import Duree, Pos, pos_t
 from Constantes import Touches
 from Constantes.Couleurs import TRANSPARENT, ROUGE
-from Constantes.Polices import FOURRE_TOUT
+from Constantes.Polices import FOURRE_TOUT, pixels_vers_taille_police
 
 
 Interruption : TypeAlias = Generator[Surface, None, None]
@@ -100,18 +100,18 @@ class Jeu:
     
     @overload
     @staticmethod
-    def pourcentages_coordonees(pc_largeur : float, pc_hauteur : float, ret_pos : Literal[True] = True) -> Pos:
+    def pourcentages_coordonnees(pc_largeur : float, pc_hauteur : float, ret_pos : Literal[True] = True) -> Pos:
         """Raccourcit pour Pos(Jeu.pourcentage_largeur(pc_largeur), Jeu.pourcentage_largeur(pc_hauteur))"""
     
     @overload
     @staticmethod
-    def pourcentages_coordonees(pc_largeur : float, pc_hauteur : float, ret_pos : Literal[False]) -> tuple[int, int]:
+    def pourcentages_coordonnees(pc_largeur : float, pc_hauteur : float, ret_pos : Literal[False]) -> tuple[int, int]:
         """Raccourcit pour (Jeu.pourcentage_largeur(pc_largeur), Jeu.pourcentage_largeur(pc_hauteur))"""
     
     @staticmethod
-    def pourcentages_coordonees(pc_largeur : float, pc_hauteur : float, ret_pos : bool = True) -> pos_t:
+    def pourcentages_coordonnees(pc_largeur : float, pc_hauteur : float, ret_pos : bool = True) -> pos_t:
         if ret_pos:
-            return Pos(Jeu.pourcentages_coordonees(pc_largeur, pc_hauteur, ret_pos=False))
+            return Pos(Jeu.pourcentages_coordonnees(pc_largeur, pc_hauteur, ret_pos=False))
         return (Jeu.pourcentage_largeur(pc_largeur), Jeu.pourcentage_hauteur(pc_hauteur))
     
     @overload
@@ -127,8 +127,25 @@ class Jeu:
     @staticmethod
     def pourcentages_fenetre(pc_largeur : float, pc_hauteur : float, ret_vec : bool = True) -> Vecteur|tuple[int, int]:
         if ret_vec:
-            return Vecteur(Jeu.pourcentages_coordonees(pc_largeur, pc_hauteur, ret_pos=False))
+            return Vecteur(Jeu.pourcentages_coordonnees(pc_largeur, pc_hauteur, ret_pos=False))
         return (Jeu.pourcentage_largeur(pc_largeur), Jeu.pourcentage_hauteur(pc_hauteur))
+    
+    @staticmethod
+    def construire_police(
+            chemin  : Optional[str],
+            hauteur : float,
+            gras     : bool = False,
+            italique : bool = False,
+            souligne : bool = False,
+            barre    : bool = False,
+        ) -> Font:
+        """Construit un objet Font avec une taille de police de `hauteur`% la taille de l'écran."""
+        res = Font(chemin, pixels_vers_taille_police(Jeu.pourcentage_hauteur(hauteur)))
+        res.set_bold(gras)
+        res.set_italic(italique)
+        res.set_underline(souligne)
+        res.set_strikethrough(barre)
+        return res
     
     @staticmethod
     def changer_taille_fenetre(nouvelle_taille : tuple[int, int]) -> None:
@@ -143,7 +160,7 @@ class Jeu:
         """Met à jour le display et si `reset_menu` est actif, remplit `menus_surf` avec de la transparence."""
         import parametres_vars as p
         if bool(p.mode_debug):
-            surf : Surface = FOURRE_TOUT.render("Débug", True, ROUGE)
+            surf : Surface = Jeu.construire_police(FOURRE_TOUT, 10).render("Débug", True, ROUGE)
             Jeu.infos_surf.blit(
                 surf,
                 (Jeu.largeur - surf.get_rect().width, 0)

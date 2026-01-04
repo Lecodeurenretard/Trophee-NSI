@@ -29,7 +29,6 @@ def attente_prochaine_etape() -> None:
         Jeu.display_flip()
     
     if Jeu.DECISION_SHOP(Jeu.num_etape):
-        Jeu.set_texte_fenetre("I like shopping")
         Jeu.changer_etat(Jeu.Etat.SHOP)
         return
     
@@ -84,7 +83,7 @@ def choix_attaque() -> None:
                 Jeu.reset_etat()
                 break
         
-        rafraichir_ecran()
+        rafraichir_ecran_combat()
     
     if Jeu.decision_etat_en_cours():
         Jeu.changer_etat(Jeu.Etat.AFFICHAGE_ATTAQUE)
@@ -100,7 +99,7 @@ def affichage_attaque() -> None:
         if testeur_skip_ou_quitte():
             Carte.derniere_enregistree.skip_animation()
         
-        rafraichir_ecran()
+        rafraichir_ecran_combat()
     
     # Vérifie si c'est la fin du combat
     if not joueur.en_vie:
@@ -108,16 +107,20 @@ def affichage_attaque() -> None:
         Jeu.changer_etat(Jeu.Etat.GAME_OVER)
         return
     
+    # Si c'est la fin
+    # fait gagner les pieces
     pieces_gagnees : int = 0
     for monstre in Entite.tuer_les_entites_mortes():
         assert(type(monstre) is Monstre)
         assert(monstre.rang is not None), "Le monstre n'avait aucun type."
         pieces_gagnees += 2**monstre.rang + random.randint(1, 4)  # Dites non au décalage de bit et exponentiez
     
+    # Animation
     if pieces_gagnees != 0:
         joueur.gagner_pieces(pieces_gagnees)
         terminer_interruption(animation_argent_gagne(pieces_gagnees))
     
+    # Animation de victoire
     if len(Monstre.vivants()) == 0:
         if not victoire_joueur():
             Jeu.num_etape += 1
@@ -183,12 +186,12 @@ def credits(duree : Duree = Duree(s=5)) -> None:
     if duree == Duree():
         return
     
-    texte_credits  : Surface = Polices.FOURRE_TOUT.render("Développé par Jules, Lucas", True, BLANC)
-    texte_credits2 : Surface = pygame.font.Font(None, 60).render("et Nils", True, BLANC)
+    texte_credits  : Surface = Jeu.construire_police(Polices.TEXTE, 10).render("Développé par Jules, Lucas", True, BLANC)
+    texte_credits2 : Surface = Jeu.construire_police(Polices.TEXTE, 6).render("et Nils", True, BLANC)
     
     deplacement : Deplacement = Deplacement(
         Pos(Jeu.pourcentage_largeur(50), Jeu.hauteur),
-        Pos(Jeu.pourcentage_largeur(50), -50),  # pour laisser le "et Nils" aller hors écran
+        Pos(Jeu.pourcentage_largeur(50), - texte_credits2.height - 20),  # pour laisser le "et Nils" aller hors écran
     )
     
     debut : Duree = copy(Jeu.duree_execution)
@@ -199,7 +202,7 @@ def credits(duree : Duree = Duree(s=5)) -> None:
         
         Jeu.fenetre.fill(NOIR)
         blit_centre(Jeu.fenetre, texte_credits , pos.tuple)
-        blit_centre(Jeu.fenetre, texte_credits2, (pos + Vecteur(0, 30)).tuple)
+        blit_centre(Jeu.fenetre, texte_credits2, (pos + Vecteur(0, texte_credits2.height + 10)).tuple)
         
         Jeu.display_flip()
     Jeu.changer_etat(Jeu.precedent_etat)
@@ -252,6 +255,7 @@ def preparation() -> None:
 
 def shop() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.SHOP.name}.")
+    Jeu.set_texte_fenetre("I like shopping")
     
     INVENTAIRE_EPAISSEUR_TRAIT : int = 2
     INVENTAIRE_LARGEUR         : int = Jeu.pourcentage_largeur(10) + INVENTAIRE_EPAISSEUR_TRAIT
@@ -286,7 +290,7 @@ def shop() -> None:
     
     bouton_sortie : Button = Button(
         (
-            *Jeu.pourcentages_coordonees(2, 2, ret_pos=False),
+            *Jeu.pourcentages_coordonnees(2, 2, ret_pos=False),
             Jeu.pourcentage_largeur(4), Jeu.pourcentage_largeur(4),
         ),
         img=f"{Chemins.IMG}/retour.png",

@@ -9,7 +9,7 @@ def demander_pseudo(surface : Surface) -> Interruption:
     logging.debug(f"→ Interruption: demande du pseudo.")
     
     pseudo : str  = ""
-    texte : Surface = Polices.TITRE.render("Entrez votre pseudo :", True, NOIR)
+    texte : Surface = Jeu.construire_police(Polices.TEXTE, 10).render("Entrez votre pseudo :", True, NOIR)
     while True:
         Jeu.commencer_frame()
         
@@ -18,9 +18,9 @@ def demander_pseudo(surface : Surface) -> Interruption:
             break
         
         surface.fill(BLANC)
-        blit_centre(surface, texte, Jeu.pourcentages_coordonees(50, 45, ret_pos=False))
+        blit_centre(surface, texte, Jeu.pourcentages_coordonnees(50, 45, ret_pos=False))
         
-        pseudo_affiche : Surface = Polices.FOURRE_TOUT.render(pseudo, True, BLEU)
+        pseudo_affiche : Surface = Jeu.construire_police(Polices.FOURRE_TOUT, 12).render(pseudo, True, BLEU)
         blit_centre(surface, pseudo_affiche, Jeu.centre_fenetre)
         yield surface
     
@@ -102,11 +102,11 @@ def afficher_infos() -> Interruption:
     image.fill(BLANC)
     
     carte : Carte = trouve_carte_a_partir_du_curseur()
-    texte_puissance   = Polices.TITRE.render(f"Puissance: {carte.puissance}", True, NOIR)
-    texte_description = Polices.TITRE.render(carte.description              , True, NOIR)
+    texte_puissance   = Jeu.construire_police(Polices.TEXTE, 2).render(f"Puissance: {carte.puissance}", True, NOIR)
+    texte_description = Jeu.construire_police(Polices.TEXTE, 2).render(carte.description              , True, NOIR)
     
-    blit_centre(image, texte_puissance  , Jeu.pourcentages_coordonees(50, 50, ret_pos=False))
-    blit_centre(image, texte_description, Jeu.pourcentages_coordonees(50, 57, ret_pos=False))
+    blit_centre(image, texte_puissance  , Jeu.pourcentages_coordonnees(50, 50, ret_pos=False))
+    blit_centre(image, texte_description, Jeu.pourcentages_coordonnees(50, 57, ret_pos=False))
     
     return image_vers_generateur(
         image,
@@ -144,16 +144,17 @@ def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> I
             centre_x=True,
         )
         
-        texte_chargement : Surface = Polices.TITRE.render("Chargement...", True, NOIR)
-        blit_centre(surface, texte_chargement, Jeu.pourcentages_coordonees(50, 45, ret_pos=False))
+        texte_chargement : Surface = Jeu.construire_police(Polices.TITRE, 11).render("Chargement...", True, NOIR)
+        blit_centre(surface, texte_chargement, Jeu.pourcentages_coordonnees(50, 45, ret_pos=False))
         
         ratio_barre += delta.secondes / duree_totale.secondes
         yield surface
 
 
 def ecran_nombre_combat() -> Generator[Surface, None, None]:
-    texte_combat : Surface = Polices.TITRE.render(f"Combat n°{Jeu.num_etape}", True, NOIR)
-    texte_shop   : Surface = Polices.TITRE.render(f"Shop", True, NOIR)
+    police_annonce = Jeu.construire_police(Polices.TITRE, 9)
+    texte_combat : Surface = police_annonce.render(f"Combat n°{Jeu.num_etape}", True, NOIR)
+    texte_shop   : Surface = police_annonce.render(f"Shop", True, NOIR)
     image : Surface = Surface(Jeu.fenetre.get_size())
     
     logging.info("")
@@ -184,7 +185,7 @@ def dessiner_descriptions_entites(surface : Surface) -> None:
                 Jeu.pourcentage_largeur(33),
                 Jeu.hauteur
             ),
-            Polices.TEXTE,
+            Jeu.construire_police(Polices.TEXTE, 7),
             aa=True,
             ecart_entre_lignes=5
         )
@@ -213,7 +214,7 @@ def dessiner_diff_stats_joueur(surface : Surface) -> None:
         if diff < 0: coul = ROUGE
         if diff > 0: coul = VERT
         
-        txt = Polices.TEXTE.render(f"{stat}: {int(diff):+d}", True, coul)
+        txt = Jeu.construire_police(Polices.TEXTE, 7).render(f"{stat}: {int(diff):+d}", True, coul)
         surface.blit(txt, (10, y))
         y += txt.get_rect().height + 5
 
@@ -225,7 +226,7 @@ def dessiner_infos() -> None:
     elif pygame.key.get_pressed()[Touches.DBG_INFOS_ENTITES] and bool(params.mode_debug):
         dessiner_descriptions_entites(Jeu.infos_surf)
 
-def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = [], to_send_dessin : Any = None, to_send_UI : Any = None) -> None:
+def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = [], to_send_dessin : Any = None, to_send_UI : Any = None) -> None:
     # Effacer l'écran en redessinant l'arrière-plan
     Jeu.fenetre.fill(BLANC)
     Jeu.menus_surf.fill(TRANSPARENT)
@@ -245,8 +246,8 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     if montrer_cartes or not bool(params.mode_debug):
         # Avance et dessine l'animation des cartes affichées
         a_cacher : list[int] = []
-        liste_carte : list[tuple[int, Carte]]=  list(Carte.cartes_affichees.items())
-        for i, carte in sorted(liste_carte, key=lambda t: t[1].pos_defaut.x):    # dessine les cartes dans l'ordre croissant des abscisses
+        liste_carte : list[tuple[int, Carte]] = list(Carte.cartes_affichees.items())
+        for i, carte in sorted(liste_carte, key=lambda tpl: tpl[1].pos_defaut.x):    # dessine les cartes dans l'ordre croissant des abscisses
             try:
                 next(carte.animation_generateur)   # .items() garde les références donc tout va bien
             except StopIteration:
@@ -258,12 +259,12 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     
     # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:
-        blit_centre(Jeu.menus_surf, Carte.CRIT_IMG, Jeu.pourcentages_coordonees(80, 60, ret_pos=False))
+        blit_centre(Jeu.menus_surf, Carte.CRIT_IMG, Jeu.pourcentages_coordonnees(80, 60, ret_pos=False))
     
     # Dessiner le nombre de coups restant
     dessiner_rect(
         Jeu.menus_surf,
-        Jeu.pourcentages_coordonees(85, 87),
+        Jeu.pourcentages_coordonnees(85, 87),
         Jeu.pourcentages_fenetre(20, 10, ret_vec=False),
         couleur_remplissage=GRIS_CLAIR,
         couleur_bords=BLANC,
@@ -271,7 +272,7 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
         centre_y=True,
         border_radius=3,
     )
-    txt_coups = Polices.FOURRE_TOUT.render(
+    txt_coups = Jeu.construire_police(Polices.FOURRE_TOUT, 9).render(
         f"{Jeu.attaques_restantes_joueur} coups restants",
         True,
         Gradient.calculer_valeur_s(
@@ -284,7 +285,7 @@ def rafraichir_ecran(generateurs_dessin : list[Generator] = [], generateurs_UI :
     blit_centre(
         Jeu.menus_surf,
         txt_coups,
-        Jeu.pourcentages_coordonees(85, 87, ret_pos=False),
+        Jeu.pourcentages_coordonnees(85, 87, ret_pos=False),
     )
     
     # Dessin supplémentaire
@@ -309,11 +310,11 @@ def dessiner_nombre_pieces(surface : Surface, boite_inventaire : Rect, ordonnees
                 boite_inventaire.left + 10, ordonnees,
                 boite_inventaire.width, ordonnees + Jeu.pourcentage_hauteur(5)
             ),
-            Polices.TEXTE,
+            Jeu.construire_police(Polices.TEXTE, 5),
             True,
         )
     else:
-        TEXTE_PIECES = Polices.TEXTE.render(
+        TEXTE_PIECES = Jeu.construire_police(Polices.TEXTE, 8).render(
             f"{joueur.nb_pieces}p",
             True, JAUNE_PIECE,
         )

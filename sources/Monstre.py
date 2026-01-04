@@ -53,8 +53,8 @@ MonstreJSON.actualiser_donnees()
 
 class Monstre(Entite):
     _CARTES_DE_DOS           : bool = True
-    _CARTE_MAIN_PREMIERE_POS : Pos  = Jeu.pourcentages_coordonees(35, 3)
-    POSITION                 : Pos  = Jeu.pourcentages_coordonees(70, 35)
+    _CARTE_MAIN_PREMIERE_POS : Pos  = Jeu.pourcentages_coordonnees(33, 3)
+    POSITION                 : Pos  = Jeu.pourcentages_coordonnees(72, 42)
     
     @override
     def __init__(
@@ -98,6 +98,7 @@ class Monstre(Entite):
     @staticmethod
     def vivants() -> list[Monstre]:
         """Renvoie les monstres en vie."""
+        # on admet que c'est que des monstres
         return [monstre for clef, monstre in Entite.vivantes.items() if clef > 0]   # type: ignore
     
     @staticmethod
@@ -110,7 +111,7 @@ class Monstre(Entite):
     
     @property
     def pos_sprite(self) -> Pos:
-        return centrer_pos(Monstre.POSITION, Monstre._SPRITE_DIM)
+        return centrer_pos(Monstre.POSITION, Monstre._SPRITE_TAILLE)
     @property
     def pos_attaque(self) -> Pos:
         return Monstre.POSITION - Vecteur(Carte._HAUTEUR_SPRITE, Carte._HAUTEUR_SPRITE)
@@ -130,7 +131,7 @@ class Monstre(Entite):
         
         self._deck = list(nouveau_type.deck)
         
-        self._sprite = pygame.transform.scale(pygame.image.load(nouveau_type.sprite), Monstre._SPRITE_DIM)
+        self._sprite = pygame.transform.scale(pygame.image.load(nouveau_type.sprite), Monstre._SPRITE_TAILLE)
         self._type = nouveau_type
     
     def choisir_index_carte_main(self) -> int:

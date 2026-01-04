@@ -7,9 +7,8 @@ class Entite(ABC):
     _CARTES_MAIN_ESPACEMENT  : Vecteur = Jeu.pourcentages_fenetre(4, 0)
     _CARTES_MAIN_MAX_DU_MAX  : int     = 10
     
-    _SPRITE_DIM : tuple[int, int] = (400, 400)
-    
-    _LONGUEUR_BARRE_DE_VIE : int = _SPRITE_DIM[0] - 100
+    _SPRITE_TAILLE : Vecteur = Vecteur(Jeu.pourcentage_largeur(20), Jeu.pourcentage_largeur(20))
+    _LONGUEUR_BARRE_DE_VIE : int = int(_SPRITE_TAILLE.x) - 100
     _HAUTEUR_BARRE_DE_VIE  : int = 10
     
     vivantes : dict[int, 'Entite'] = {}
@@ -35,7 +34,7 @@ class Entite(ABC):
         self._cartes_main_max : int = max_cartes_main
         
         chemin_sprite = valeur_par_defaut(chemin_sprite, si_none=f"{Chemins.IMG}/erreur.png")
-        self._sprite : Surface = pygame.transform.scale(pygame.image.load(chemin_sprite), Entite._SPRITE_DIM)
+        self._sprite : Surface = pygame.transform.scale(pygame.image.load(chemin_sprite), Entite._SPRITE_TAILLE)
         
         # Ajoute l'entite à la liste
         self._id : int = premier_indice_libre(Entite.vivantes)
@@ -81,7 +80,11 @@ class Entite(ABC):
     
     @property
     def _pos_barre_de_vie(self) -> Pos:
-        return self.pos_sprite - Vecteur(self._SPRITE_DIM) / 2 - Vecteur(0, 20)
+        barre_de_vie : Rect = Rect(0, 0, self._LONGUEUR_BARRE_DE_VIE, self._HAUTEUR_BARRE_DE_VIE)
+        barre_de_vie.centerx = self.pos_sprite.x
+        barre_de_vie.bottom = self.pos_sprite.y - self._sprite.get_bounding_rect().height / 2 - Jeu.pourcentage_hauteur(1)
+        
+        return Pos(barre_de_vie.topleft)
     
     @property
     def en_vie(self) -> bool:
@@ -167,6 +170,37 @@ class Entite(ABC):
         # trie les cartes par ordre alphabetiques
         self._cartes_main = sorted(self._cartes_main, key=lambda c: c._nom)
     
+    def _dessiner_barre_de_vie(self, surface : Surface) -> None:
+        ratio_vie = self._stats.vie / self._stats.vie_max
+        
+        couleur_remplissage : rgb = VERT
+        if ratio_vie <= .2:
+            couleur_remplissage = ROUGE
+        elif ratio_vie <= .5:
+            couleur_remplissage = JAUNE
+        elif ratio_vie == 1:
+            couleur_remplissage = CYAN
+        if bool(params.mode_debug):
+            couleur_remplissage = GRIS
+        
+        dim_remplissage : tuple[int, int] = (int(ratio_vie * Entite._LONGUEUR_BARRE_DE_VIE), Entite._HAUTEUR_BARRE_DE_VIE)
+        dim_bords       : tuple[int, int] = (                Entite._LONGUEUR_BARRE_DE_VIE , Entite._HAUTEUR_BARRE_DE_VIE)
+        dessiner_rect(  # remplissage
+            surface,
+            self._pos_barre_de_vie,
+            dim_remplissage,
+            couleur_remplissage=couleur_remplissage,
+            epaisseur_trait=0,
+        )
+        dessiner_rect(  # bords
+            surface,
+            self._pos_barre_de_vie,
+            dim_bords,
+            couleur_bords=NOIR,
+            epaisseur_trait=2,
+            dessiner_interieur=False,
+        )
+    
     def meurt(self) -> None:
         del Entite.vivantes[self._id]
         self._id = -1
@@ -198,41 +232,10 @@ class Entite(ABC):
     def dessiner(self, surface : Surface) -> None:
         blit_centre(surface, self._sprite, self.pos_sprite.tuple)
     
-    def dessiner_barre_de_vie(self, surface : Surface) -> None:
-        ratio_vie = self._stats.vie / self._stats.vie_max
-        
-        couleur_remplissage : rgb = VERT
-        if ratio_vie <= .2:
-            couleur_remplissage = ROUGE
-        elif ratio_vie <= .5:
-            couleur_remplissage = JAUNE
-        elif ratio_vie == 1:
-            couleur_remplissage = CYAN
-        if bool(params.mode_debug):
-            couleur_remplissage = GRIS
-        
-        dim_remplissage : tuple[int, int] = (int(ratio_vie * Entite._LONGUEUR_BARRE_DE_VIE), Entite._HAUTEUR_BARRE_DE_VIE)
-        dim_bords       : tuple[int, int] = (                Entite._LONGUEUR_BARRE_DE_VIE , Entite._HAUTEUR_BARRE_DE_VIE)
-        dessiner_rect(  # remplissage
-            surface,
-            self._pos_barre_de_vie,
-            dim_remplissage,
-            couleur_remplissage=couleur_remplissage,
-            epaisseur_trait=0,
-        )
-        dessiner_rect(  # bords
-            surface,
-            self._pos_barre_de_vie,
-            dim_bords,
-            couleur_bords=NOIR,
-            epaisseur_trait=2,
-            dessiner_interieur=False,
-        )
-    
     def dessiner_UI(self, surface : Surface) -> None:
-        self.dessiner_barre_de_vie(surface)
+        self._dessiner_barre_de_vie(surface)
         Jeu.menus_surf.blit(
-            Polices.TITRE.render(self.nom, True, NOIR),
+            Jeu.construire_police(Polices.TITRE, 7).render(self.nom, True, NOIR),
             (self._pos_barre_de_vie - Vecteur(1, 30)).tuple
         )
     
@@ -250,6 +253,8 @@ class Entite(ABC):
             self._inserer_carte_main(choisi)
     
     def repiocher_tout(self) -> None:
+        for c in self._cartes_main:
+            c.cacher()
         self._cartes_main.clear()
         self._nom_derniere_carte_piochee = ''
         

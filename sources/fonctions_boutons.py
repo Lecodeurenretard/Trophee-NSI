@@ -51,20 +51,20 @@ def menu_parametres() -> Interruption:
     
     bouton_sortir : Button = Button(
         (
-            *Jeu.pourcentages_coordonees(2, 2, ret_pos=False),
+            *Jeu.pourcentages_coordonnees(2, 2, ret_pos=False),
             Jeu.pourcentage_largeur(4), Jeu.pourcentage_largeur(4),
         ),
         img=f"{Chemins.IMG}/croix.png"
     )
     pos_dim_bouton_actualisation = (
-        *Jeu.pourcentages_coordonees(50, 50, ret_pos=False),
+        *Jeu.pourcentages_coordonnees(50, 50, ret_pos=False),
         *Jeu.pourcentages_fenetre(30, 7, ret_vec=False),
     )
     butt_actualisation = Button(pos_dim_bouton_actualisation, "actualiser données", action=_rafraichir_donnees)
     
-    
-    TITRE_PARAMS : Surface = Polices.TITRE.render("Options de jeu"   , True, NOIR)
-    TITRE_TRICHE : Surface = Polices.TITRE.render("Options de triche", True, NOIR)
+    police_titres : Font = Jeu.construire_police(Polices.TITRE, 10)
+    TITRE_PARAMS : Surface = police_titres.render("Options de jeu"   , True, NOIR)
+    TITRE_TRICHE : Surface = police_titres.render("Options de triche", True, NOIR)
     
     while True:
         if _evenements_parametres(bouton_sortir, butt_actualisation):
@@ -73,7 +73,7 @@ def menu_parametres() -> Interruption:
         image : Surface = Surface((Jeu.largeur, Jeu.hauteur))
         image.fill(BLANC)
         
-        blit_centre(image, TITRE_PARAMS, Jeu.pourcentages_coordonees(50, 10, ret_pos=False))
+        blit_centre(image, TITRE_PARAMS, Jeu.pourcentages_coordonnees(50, 10, ret_pos=False))
         fin_params : int = Parametre.dessiner_groupe(image, PARAMETRES_NORMAUX)
         
         if params.mode_debug.case_cochee:
@@ -84,12 +84,12 @@ def menu_parametres() -> Interruption:
             fin_params += 40
             pos_bouton : Pos = centrer_pos(
                 Pos(Jeu.centre_fenetre[0], fin_params),
-                butt_actualisation.rect.size,
+                Vecteur(butt_actualisation.rect.size),
                 centrer_y=False,
             )
             
             butt_actualisation.change_pos(pos_bouton)
-            butt_actualisation.draw(Jeu.menus_surf, point_size=80)
+            butt_actualisation.draw(Jeu.menus_surf, point_size=65)
         
         bouton_sortir.draw(image, point_size=0)
         

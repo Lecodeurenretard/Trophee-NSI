@@ -1,8 +1,8 @@
-import pygame
-
-TITRE       : pygame.font.Font = pygame.font.Font(None, 46)    # police par défaut de pygame
-TEXTE       : pygame.font.Font = pygame.font.Font(None, 35)
-FOURRE_TOUT : pygame.font.Font = pygame.font.Font(None, 65)
+def pixels_vers_taille_police(taille_police : int) -> int:
+    """Convertit une longueur en pixel vers une taille de police passée à la construction des objets Font."""
+    return round(taille_police * 2/3)   # valeur trouvée expérimentalement
 
 
-TITRE.set_underline(True)
+TITRE       : str|None = None    # police par défaut de pygame
+TEXTE       : str|None = None
+FOURRE_TOUT : str|None = None

@@ -15,7 +15,7 @@ class CarteAnimInfo:
     de_dos      : bool|int
 
 class Carte:
-    _HAUTEUR_SPRITE  : int     = 400
+    _HAUTEUR_SPRITE  : int     = Jeu.pourcentage_hauteur(40)
     _DUREE_INTER_JEU : Duree   = Duree(s=.5)
     _SURVOL_DECALAGE : Vecteur = Jeu.pourcentages_fenetre(0, 2)
     
@@ -100,7 +100,7 @@ class Carte:
     
     @property
     def est_de_dos(self) -> bool:
-        """Renvoie si la carte doit être déssinée de dos e prenant en compte l'animation."""
+        """Renvoie si la carte doit être déssinée de dos en prenant en compte l'animation."""
         est_de_dos = self._anim_infos.de_dos
         if est_de_dos == CarteAnimInfo.GARDER:
             return self._de_dos_defaut
@@ -155,6 +155,12 @@ class Carte:
         assert(self.est_affiche), "La carte est cachée (elle n'est pas dans Carte.animations_affichees)."
         return self._anim_gen   # type: ignore
     
+    @property
+    def _sprite(self) -> Surface:
+        if self.est_de_dos:
+            return self._preparation_sprite(f"{Chemins.IMG}/cartes/dos.png")
+        return self._preparation_sprite(f"{Chemins.IMG}/cartes/{self._nom_sprite}")
+    
     @anim_nom.setter
     def anim_nom(self, val : str) -> None:
         self._anim_nom = val
@@ -163,17 +169,14 @@ class Carte:
     def pos_defaut(self, val : Pos) -> None:
         self._pos_defaut = val
     
-    @property
-    @lru_cache      # On ne fait le boulot qu'une fois!
-    def _sprite(self) -> Surface:
-        """Génère le sprite de la carte. Assez lent."""
-        img : Surface
-        if self.est_de_dos:
-            img = pygame.image.load(f"{Chemins.IMG}/cartes/dos.png")
-        else:
-            img = pygame.image.load(f"{Chemins.IMG}/cartes/{self._nom_sprite}")
+    @lru_cache
+    def _preparation_sprite(self, chemin : str) -> Surface:
+        """
+        Renvoie l'image se situant dans `chemin` formattée comme un sprite de carte.
+        Assez lent mais les résultats sont mémoisés.
+        """
+        img = pygame.image.load(chemin)
         img = etirer_garder_ratio(img, hauteur=Carte._HAUTEUR_SPRITE)
-        
         
         res = Surface(img.get_bounding_rect().size, pygame.SRCALPHA)
         res.blit(img, (0, 0), img.get_bounding_rect())

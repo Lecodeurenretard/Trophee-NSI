@@ -115,8 +115,9 @@ class Attaque:
             Attaque._DEFAUT_AJUSTEMENT,
         )
     
-    def __eq__(self, attaque: 'Attaque') -> bool:
-        return self._nom == attaque._nom
+    def __eq__(self, obj : object) -> bool:
+        assert(type(obj) is Attaque), "On en peut comparer une attaque qu'avec une autre attaque."
+        return self._nom == obj._nom
     # l'opérateur != (méthode .__ne__()), est par défaut défini comme l'inverse de ==
     
     def __repr__(self) -> str:
@@ -174,10 +175,6 @@ class Attaque:
     @property
     def desc(self) -> str:
         return self._desc
-    
-    @property
-    def nom_surface(self) -> Surface:
-        return Polices.TITRE.render(self._nom, True, BLANC)
     
     @property
     def peut_attaquer_lanceur(self) -> bool:

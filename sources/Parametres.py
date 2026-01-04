@@ -47,7 +47,7 @@ class TypeParametre(Enum):
     
     @property
     def hauteur(self) -> int:
-        return Jeu.pourcentage_hauteur(2)
+        return Jeu.pourcentage_hauteur(2.5)
     
     @property
     def largeur(self) -> int:
@@ -239,6 +239,7 @@ class Parametre:
         
         self._valeurs_autorisees = val
     
+    # Les types génériques n'ont pas l'air de trop marcher avec cette fonction
     def _convertion_vers_type(self, type_cible : type): # -> type_cible
         if self._categorie.type_correspondant is type_cible:
             return self._valeur

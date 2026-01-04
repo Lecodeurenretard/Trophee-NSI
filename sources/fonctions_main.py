@@ -9,19 +9,20 @@ def quit(exit_code : int = 0) -> NoReturn:
 
 def fin_partie(gagne : bool) -> Interruption:
     couleur_fond : rgb
-    texte_fin : Surface
+    texte_fin : str
     if gagne:
         couleur_fond = VERT
-        texte_fin = Polices.TITRE.render("Vous avez gagné !", True, NOIR)
-        logging.info("Vous avez gagné !")
+        texte_fin = "Vous avez gagné !"
     else:
         couleur_fond = BLEU_CLAIR
-        texte_fin = Polices.TITRE.render("Vous avez perdu !", True, NOIR)
-        logging.info("Vous avez perdu...")
+        texte_fin = "Vous avez perdu !"
+    
+    logging.info(texte_fin)
+    texte_fin_render = Jeu.construire_police(Polices.TEXTE, 20).render(texte_fin, True, NOIR)
     
     image : Surface = Surface((Jeu.largeur, Jeu.hauteur))
     image.fill(couleur_fond)
-    blit_centre(image, texte_fin, Jeu.centre_fenetre)
+    blit_centre(image, texte_fin_render, Jeu.centre_fenetre)
     
     return image_vers_generateur(image, Duree(s=2), gerer_evenements=True)
 
@@ -96,13 +97,11 @@ def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Inter
             joueur.repiocher_tout()
         
         case Touches.DBG_PREDECENT_MONSTRE:
-            if not Monstre.vivants()[0].vers_type_precedent():
-                logging.warning("Le monstre n'a pas de type!")
+            Monstre.vivants()[0].vers_type_precedent()
             return
        
         case Touches.DBG_PROCHAIN_MONSTRE:
-            if not Monstre.vivants()[0].vers_type_suivant():
-                logging.warning("Le monstre n'a pas de type!")
+            Monstre.vivants()[0].vers_type_suivant()
             return
         
         case Touches.DBG_SHOP:
@@ -144,10 +143,11 @@ def reagir_appui_touche_shop(ev : pygame.event.Event, lst_items : list['Item'], 
 
 def animation_argent_gagne(montant : int, arriere_plan : Surface = Jeu.fenetre, duree : Duree = Duree(s=1)) -> Interruption:
     arriere_plan = copy(arriere_plan)
-    TEXTE_AFFICHE : str = f"+{montant} pieces"
+    TEXTE_AFFICHE : str  = f"+{montant} pieces"
+    POLICE        : Font = Jeu.construire_police(Polices.FOURRE_TOUT, 10)
+    POLICE.set_italic(True)
     
-    # il y a plus efficace mais "the only thing better than good is good enough"
-    espacement_bord : int = Polices.FOURRE_TOUT.render(TEXTE_AFFICHE, True, JAUNE).get_rect().width + 50    # et c'est "good enough"
+    espacement_bord : int = POLICE.size(TEXTE_AFFICHE)[0] + Jeu.pourcentage_largeur(1)
     
     nb_frames : int = round(Jeu.framerate * duree.secondes)
     
@@ -171,7 +171,7 @@ def animation_argent_gagne(montant : int, arriere_plan : Surface = Jeu.fenetre, 
         if testeur_skip_ou_quitte():
             break
         
-        a_dessiner = Polices.FOURRE_TOUT.render(TEXTE_AFFICHE, True, JAUNE_PIECE)
+        a_dessiner = POLICE.render(TEXTE_AFFICHE, True, JAUNE_PIECE)
         a_dessiner.set_alpha(round(alpha))
         
         image = copy(arriere_plan)

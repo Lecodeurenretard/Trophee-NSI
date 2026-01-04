@@ -32,46 +32,35 @@ format:
 ------------------------------------
 -->
 _____
-## Adaptation au plein écran.
+## Adaptation des textes au plein écran.
 + Changements majeurs
-	- Le jeu est maintenant adapté au plein écran (du moins sur le mien).
-		* Agrandissement des interfaces et des polices.
-		* La quasi totalité des mesures de distance/longueur sont maintenant faites par rappot à l'écran.
-	- Les curseurs ne sont plus implémentés dans le jeu.
-		* `ButtonCursor` aussi.
+	- La taille des textes est maintenant calculée dynamiquement suivant la taille de la fenêtre.
+		* Les constantes dans [Polices.py](sources/Constantes/Polices.py) sont maintenant soit des strings indiquant les noms de police soit `None` (pour la police par défaut de Pygame).
+		* Ajout de `Jeu.construire_police()` qui permet de construire une police suivant sa hauteur sur l'écran.
 + Sur plusieurs fichiers
-	- Déplacement de `dessiner_barre_de_vie()` dans [Entite.py](sources/Entite.py).
-	- Suppression des derniers fossiles de la stat `vitesse`.
 + Structure de fichiers
 + READMEs et documentation
 + Interactions joueur/testeur
-	- Meilleur équilibrage pour Corbobo et Secoupe.
-	- Nouvelle touche en mode débug pour cacher les cartes.
-	- Nouvel écran de chargement: la barre part du milieu et s'allonge des deux côtés en même temps.
-	- Les barres de vies sont affichées au dessus des entités et sont allongées.
-	- Le texte de nombre d'attaques à été changé et change de couleur suivant le nombre d'attaques restantes.
-	- Suppression du paramètre `monstre_invincible` car il ne servait pas (et était inutilisable depuis le commit pécédent).
+	- Les tailles sont maintenant calculées suivant les dimensions de l'écran (ça peut introduire des _mixels_ mais problème pour futur nous).
+	- Les barres de vies sont maintenant centrées sur les sprites de leurs entités et suivent leurs tailles.
+	- Changement de tailles de certains textes.
+	- Agrandissement des boites dans les paramètres.
 + Correction de bugs
-	- Lorsque l'on essaye de revenir au combat précédent dans un shop, le bloaquage est enlevé.
-+ [Couleurs.py](sources/Constantes/Couleurs.py)
-	- Renommage des `iterable_to_*` en `sequence_to_*`.
-+ `Bouton`
-	- Ajout de l'attribut statique `FONT_NAME`.
-	- Renommage de `SON_APPUI` en `SOUND_PRESSED`.
-	- `.draw()` admet un nouvel argument (obligatoire) `point_size` qui représente la taille du texte.
+	- Réparation du lag sur le lancer de carte.
+	- Les cartes se retournent bien au lancement.
+	- Les mains après le shop sont correctement affichées.
++ `Attaque`
+	- Suppression de `.nom_surface` car inutile.
 + `Carte`
-	- `._get_sprite()` obtient le cache LRU de functools
-		* C'est une propriété maintenant.
-		* Renommage en `_sprite`.
-+ `Entite` et déscendants
-	- Remplacement de la constante `_POS_BARRE_VIE` par la propriété `._pos_barre_de_vie`.
-	- `SPRITE_DIM` devient non public.
-	- Remplacement de `.plus_de_vie` par `.en_vie`.
-	- `.dessiner_UI()` ne prend plus qu'un seul argument: la surface.
+	- La propriété `._sprite` à été scindée en deux:
+		* La partie qui fait le travail lent est cachée et mise dans la méthode `._preparation_sprite()`.
+		* `.sprite` se contente de l'appeler avec les bons arguments.
++ `Entite` et filles
+	- `_SPRITE_DIM` est renommée en `_SPRITE_TAILLE` est est devenue un `Vecteur`.
+	- `.dessiner_barre_de_vie()` devient privée.
++ [fonctions_vrac.py](sources/fonctions_vrac.py)
+	- Ajout de `blit_centre_rect()`.
+	- Ajout d'une overload à `centrer_pos()` avec un `Vecteur`.
+	- Ajout de `centrer_rect()` (2 overload).
+	- Ajout de `rect_to_tuple()`.
 + `Jeu`
-	- Ajout de la méthode `pourcentages_fenetre()` (3 overload) qui fait la même chose que `pourcentages_coordonees()` mais pour les distances (renvoie donc un `Vecteur`).
-
-
-
-_______________
-Le lancer de carte lag encore.

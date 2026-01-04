@@ -24,6 +24,7 @@ from sys         import exit
 from pygame.surface import Surface
 from pygame.rect    import Rect
 from pygame.mixer   import Sound
+from pygame.font    import Font
 
 try:
     from tkinter.messagebox import showerror as afficher_erreur # pyright: ignore[reportAssignmentType]
