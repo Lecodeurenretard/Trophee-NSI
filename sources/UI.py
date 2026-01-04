@@ -1,3 +1,4 @@
+import os
 from import_local import *
 from Joueur       import Entite, Joueur, joueur
 from Monstre      import Monstre
@@ -227,8 +228,17 @@ def dessiner_infos() -> None:
         dessiner_descriptions_entites(Jeu.infos_surf)
 
 def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = [], to_send_dessin : Any = None, to_send_UI : Any = None) -> None:
-    # Effacer l'écran en redessinant l'arrière-plan
-    Jeu.fenetre.fill(BLANC)
+    # Chemin vers l'image de fond
+    chemin_fond = os.path.join("data", "img", "stade", "terrain_plaine.png")
+
+    image_fond = pygame.image.load(chemin_fond).convert()
+    image_fond = pygame.transform.scale(image_fond, Jeu.fenetre.get_size()) # Redimensionne l'image
+
+    Jeu.fond = image_fond
+
+    # Afficher l'image de fond 
+    Jeu.fenetre.blit(Jeu.fond, (0, 0))
+     
     Jeu.menus_surf.fill(TRANSPARENT)
     
     # Dessiner les entités

@@ -1,3 +1,4 @@
+from unittest import case
 from import_local import *
 
 class TypeAttaque(Enum):
@@ -7,6 +8,8 @@ class TypeAttaque(Enum):
     SOIN     = auto(),
     CHARGE   = auto(),
     DIVERS   = auto(),
+    PLUS_ATK = auto(),
+    MOINS_ATK= auto()
     
     @staticmethod
     def depuis_str(s : str) -> 'TypeAttaque':
@@ -21,6 +24,10 @@ class TypeAttaque(Enum):
                 return TypeAttaque.CHARGE
             case "divers":
                 return TypeAttaque.DIVERS
+            case "plus_atk":
+                return TypeAttaque.PLUS_ATK
+            case "moins_atk":
+                return TypeAttaque.MOINS_ATK          
             case _:
                 raise ValueError(f'La valeur "{s}" ne renvoie à aucun type d\'attaque.')
 
@@ -225,6 +232,14 @@ class Attaque:
             case TypeAttaque.SOIN:
                 attaque : float = self._puissance * stats_attaquant.magie
                 degats *= -attaque
+
+            case TypeAttaque.PLUS_ATK:
+                stats_attaquant.force += self._puissance
+                degats = 0
+
+            case TypeAttaque.MOINS_ATK:
+                stats_victime.force -= self._puissance
+                degats = 0
             
             case TypeAttaque.DIVERS:
                 ...
