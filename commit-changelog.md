@@ -32,35 +32,37 @@ format:
 ------------------------------------
 -->
 _____
-## Adaptation des textes au plein écran.
+## [buggy] Les cartes disparaissent et réapparaissent + Nouveau conteneur `Array`.
 + Changements majeurs
-	- La taille des textes est maintenant calculée dynamiquement suivant la taille de la fenêtre.
-		* Les constantes dans [Polices.py](sources/Constantes/Polices.py) sont maintenant soit des strings indiquant les noms de police soit `None` (pour la police par défaut de Pygame).
-		* Ajout de `Jeu.construire_police()` qui permet de construire une police suivant sa hauteur sur l'écran.
+	- Ajout de la classe `Array` pour remplacer les dicos qui étaient utilisés avant.
+		- Suppression de `premier_indice_libre()` car c'est juste un cas spécifique de `Array.search()`.
 + Sur plusieurs fichiers
 + Structure de fichiers
 + READMEs et documentation
 + Interactions joueur/testeur
-	- Les tailles sont maintenant calculées suivant les dimensions de l'écran (ça peut introduire des _mixels_ mais problème pour futur nous).
-	- Les barres de vies sont maintenant centrées sur les sprites de leurs entités et suivent leurs tailles.
-	- Changement de tailles de certains textes.
-	- Agrandissement des boites dans les paramètres.
 + Correction de bugs
-	- Réparation du lag sur le lancer de carte.
-	- Les cartes se retournent bien au lancement.
-	- Les mains après le shop sont correctement affichées.
+	- Il n'y a plus de frame où les cartes disparaissent entre les animations.
++ `Duree`
+	- Le constructeur à maintenant 2 overloads qui l'empèche d'être appelé sans et avec 2 arguments (du moins virtuellement).
+	- Les opérateurs de comparaisons ne marchent plus avec les `int`s.
 + `Attaque`
-	- Suppression de `.nom_surface` car inutile.
+	- `.avec_nom()` élève une meilleure erreur s'il n'y a pas d'attaque avec le nom en argument.
 + `Carte`
-	- La propriété `._sprite` à été scindée en deux:
-		* La partie qui fait le travail lent est cachée et mise dans la méthode `._preparation_sprite()`.
-		* `.sprite` se contente de l'appeler avec les bons arguments.
-+ `Entite` et filles
-	- `_SPRITE_DIM` est renommée en `_SPRITE_TAILLE` est est devenue un `Vecteur`.
-	- `.dessiner_barre_de_vie()` devient privée.
+	- Ajout de la propriété `.est_a_pos_defaut`.
+	- Si l'animation passée à `._anim_nom` n'existe pas, on se reporte à `idle`.
+	- Suppression de `._anim_sens`.
++ `Entite`
+	- Ajout de la propriété `.cartes_main_sont_a_pos_defaut`.
+	- Ajout des méthodes `.main_jouer_entrer()` et `.main_jouer_sortir()`.
++ [fonctions_main.py](sources/fonctions_main.py)
+	- Ajout de `tour_des_monstres()` pour accueillir le code pour faire jouer les monstres.
 + [fonctions_vrac.py](sources/fonctions_vrac.py)
-	- Ajout de `blit_centre_rect()`.
-	- Ajout d'une overload à `centrer_pos()` avec un `Vecteur`.
-	- Ajout de `centrer_rect()` (2 overload).
-	- Ajout de `rect_to_tuple()`.
-+ `Jeu`
+	- `avancer_generateurs()` et `terminer_generateur()` sont maintenant des génériques.
+
+
+
+____________
+Les bugs sont beaucoup moins fréquents en mode débug pour une certaine raison.  
+J'en ai distingué 2:
+- Le jeu plante quand l'ennemi joue (1/4 sans le mode débug assez rare avec)
+- Les cartes réapparaissent dans le mauvais ordre et les nouvelles ne sont piochées q'après en avoir joué une.

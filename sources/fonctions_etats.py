@@ -39,10 +39,15 @@ def attente_prochaine_etape() -> None:
 def choix_attaque() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.CHOIX_ATTAQUE.name}.")
     
-    interruption : Optional[Interruption] = None
-    
     if Jeu.attaques_restantes_joueur == Jeu.ATTAQUES_PAR_TOUR:
         joueur.piocher()
+    
+    if Jeu.attaques_restantes_joueur > 0:
+        joueur.main_jouer_entrer()
+        for m in Monstre.vivants():
+            m.main_jouer_sortir()
+    
+    interruption : Optional[Interruption] = None
     while Jeu.etat == Jeu.Etat.CHOIX_ATTAQUE:
         Jeu.commencer_frame()
         if interruption is not None:
@@ -50,13 +55,7 @@ def choix_attaque() -> None:
         
         # Si le joueur ne peut pas jouer
         if Jeu.attaques_restantes_joueur <= 0:
-            verifier_pour_quitter()
-            
-            for monstre in Monstre.vivants():
-                monstre.attaquer(joueur.id, monstre.choisir_index_carte_main())
-            Jeu.reset_etat()
-            
-            Jeu.attaques_restantes_joueur -= 1
+            terminer_generateur(tour_des_monstres())
             if Jeu.attaques_restantes_joueur <= -Jeu.ATTAQUES_PAR_TOUR:
                 Jeu.attaques_restantes_joueur = Jeu.ATTAQUES_PAR_TOUR
             continue
@@ -67,9 +66,6 @@ def choix_attaque() -> None:
             interruption = reagir_appui_touche_choix_attaque(event)
             if interruption is not None:
                 break
-            
-            if event.type != pygame.MOUSEBUTTONDOWN:
-                continue
             
             if event.type == pygame.MOUSEBUTTONDOWN:
                 index_carte : Optional[int] = joueur.verifier_pour_attaquer(event)
@@ -94,12 +90,14 @@ def affichage_attaque() -> None:
     if Carte.derniere_enregistree is None:
         raise RuntimeError("Il n'y a aucune dernière attaque alors que l'état AFFICHAGE_ATTAQUE est actif.")
     
+    # joue l'animation de l'attaque
     while Carte.derniere_enregistree.est_affiche:
         Jeu.commencer_frame()
         if testeur_skip_ou_quitte():
             Carte.derniere_enregistree.skip_animation()
         
         rafraichir_ecran_combat()
+    rafraichir_ecran_combat()
     
     # Vérifie si c'est la fin du combat
     if not joueur.en_vie:
@@ -112,15 +110,14 @@ def affichage_attaque() -> None:
     pieces_gagnees : int = 0
     for monstre in Entite.tuer_les_entites_mortes():
         assert(type(monstre) is Monstre)
-        assert(monstre.rang is not None), "Le monstre n'avait aucun type."
         pieces_gagnees += 2**monstre.rang + random.randint(1, 4)  # Dites non au décalage de bit et exponentiez
     
-    # Animation
+    # Animation pièces
     if pieces_gagnees != 0:
         joueur.gagner_pieces(pieces_gagnees)
         terminer_interruption(animation_argent_gagne(pieces_gagnees))
     
-    # Animation de victoire
+    # Passage au prochain combat
     if len(Monstre.vivants()) == 0:
         if not victoire_joueur():
             Jeu.num_etape += 1
@@ -183,7 +180,7 @@ def ecran_titre() -> None:
 
 def credits(duree : Duree = Duree(s=5)) -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.CREDITS.name}.")
-    if duree == Duree():
+    if duree == Duree(s=0):
         return
     
     texte_credits  : Surface = Jeu.construire_police(Polices.TEXTE, 10).render("Développé par Jules, Lucas", True, BLANC)

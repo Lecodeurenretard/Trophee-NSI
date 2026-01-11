@@ -17,12 +17,12 @@ class CarteAnimInfo:
 class Carte:
     _HAUTEUR_SPRITE  : int     = Jeu.pourcentage_hauteur(40)
     _DUREE_INTER_JEU : Duree   = Duree(s=.5)
-    _SURVOL_DECALAGE : Vecteur = Jeu.pourcentages_fenetre(0, 2)
     
-    # A chaque nom, associe une tuple contenant:
-    # La position d'arrivée de l'animation, la duree de l'animation, la fonction d'easing à utiliser et si la carte dois être de dos
+    _ANIM_SURVOL_DECALAGE : Vecteur = Jeu.pourcentages_fenetre(0, 2)
     _ANIM_DICO : dict[str, CarteAnimInfo] = {
-        "idle"  : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER)      , Duree(s=0) , Easing.NO_EASING, CarteAnimInfo.GARDER),
+        "idle"  : CarteAnimInfo(Pos(CarteAnimInfo.GARDER , CarteAnimInfo.GARDER)       , Duree(s=0) , Easing.NO_EASING, CarteAnimInfo.GARDER),
+        "revenir": CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER)      , Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
+        "partir": CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, Jeu.hauteur)                , Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
         "survol": CarteAnimInfo(Pos(CarteAnimInfo.GARDER , Jeu.pourcentage_hauteur(80)), Duree(s=.5), Easing.FADE     , CarteAnimInfo.GARDER),
         "jouer" : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER)      , Duree(s=1) , Easing.FADE_IN  , True),
     }
@@ -34,11 +34,12 @@ class Carte:
     CRIT_IMG : Surface = pygame.transform.scale(
         pygame.image.load(f"{Chemins.IMG}/crit.png"),
         (40, 40)
-    )
+    ).convert_alpha()
     
     donnees_JSON : list[dict]
     derniere_enregistree : 'Optional[Carte]' = None
-    cartes_affichees : dict[int, 'Carte'] = {}
+    cartes_affichees : Array[Carte] = Array()
+    
     
     @overload 
     def __init__(self, nom_ou_id_attaque : str, pos_defaut : pos_t, de_dos = True): ...
@@ -46,7 +47,7 @@ class Carte:
     def __init__(self, nom_ou_id_attaque : int, pos_defaut : pos_t, de_dos = True): ...
     
     def __init__(self, nom_ou_id_attaque : int|str, pos_defaut : pos_t, de_dos = True):
-        id : int
+        id : int = 0
         if type(nom_ou_id_attaque) is int: id = nom_ou_id_attaque
         if type(nom_ou_id_attaque) is str: id = Attaque.avec_nom(nom_ou_id_attaque).id
         
@@ -54,9 +55,8 @@ class Carte:
         position = pos_t_vers_Pos(pos_defaut)
         self._pos_defaut  : Pos = position
         
-        self._pos       : Pos         = position
-        self._anim_nom  : str         = "idle"
-        self._anim_sens : SensLecture = SensLecture.AVANT
+        self._pos          : Pos = position
+        self._anim_nom     : str = "idle"
         self._id_affichage : int = -1
         
         donnees_JSON : dict = Carte.donnees_JSON[id]
@@ -99,6 +99,12 @@ class Carte:
         return Carte._ANIM_DICO[self._anim_nom]
     
     @property
+    def _sprite(self) -> Surface:
+        if self.est_de_dos:
+            return self._preparation_sprite(f"{Chemins.IMG}/cartes/dos.png")
+        return self._preparation_sprite(f"{Chemins.IMG}/cartes/{self._nom_sprite}")
+    
+    @property
     def est_de_dos(self) -> bool:
         """Renvoie si la carte doit être déssinée de dos en prenant en compte l'animation."""
         est_de_dos = self._anim_infos.de_dos
@@ -108,7 +114,7 @@ class Carte:
             raise NotImplementedError("Aucun changement prévu pour si la carte est de dos.")
         
         # c'est une int ssi c'est une des deux valeurs en haut
-        assert(type(est_de_dos) is bool), f"CarteAnimInfo.de_dos devrait être un bool mais est un {type(est_de_dos)} à la place."
+        assert(type(est_de_dos) is bool), f"CarteAnimInfo.de_dos devrait être un bool mais est un {type(est_de_dos).__name__} à la place."
         return est_de_dos
     
     @property
@@ -136,6 +142,10 @@ class Carte:
         return self._hitbox.collidepoint(pygame.mouse.get_pos())
     
     @property
+    def est_a_pos_defaut(self) -> bool:
+        return self._pos == self._pos_defaut
+    
+    @property
     def anim_nom(self) -> str:
         return self._anim_nom
     
@@ -153,13 +163,7 @@ class Carte:
         Suppose que la carte est montrée, pour la dévoiler utiliser .afficher().
         """
         assert(self.est_affiche), "La carte est cachée (elle n'est pas dans Carte.animations_affichees)."
-        return self._anim_gen   # type: ignore
-    
-    @property
-    def _sprite(self) -> Surface:
-        if self.est_de_dos:
-            return self._preparation_sprite(f"{Chemins.IMG}/cartes/dos.png")
-        return self._preparation_sprite(f"{Chemins.IMG}/cartes/{self._nom_sprite}")
+        return self._anim_gen   # type: ignore  # on vérifie en haut que c'est non none
     
     @anim_nom.setter
     def anim_nom(self, val : str) -> None:
@@ -192,25 +196,37 @@ class Carte:
         match(self._anim_nom):
             case "jouer":
                 dest = self._attaque.cible.pos_attaque
-            case "idle":
+            case "revenir":
                 dest = self._pos_defaut
+            case "partir":
+                dest = Pos(self._pos_defaut.x, dest.y)
         
         assert(
                 dest.x != CarteAnimInfo.CHANGER
             and dest.y != CarteAnimInfo.CHANGER
         ), f"La destination de l'animation \"{self._anim_nom}\" ({dest}) doit être changée."
         
-        return Deplacement(self._pos, dest, sens_lecture=self._anim_sens)
+        sens = SensLecture.AVANT
+        ...     # inutilisé pour l'instant
+        
+        return Deplacement(self._pos, dest, sens_lecture=sens)
     
     def _animation(self, surface : Surface) -> Generator[bool, None, None]:
         """Renvoie un générateur avançant l'animation."""
         while True:
+            if self._anim_nom not in Carte._ANIM_DICO.keys():
+                logging.warning(
+                    f"On ne reconnait pas l'animation \"{self._anim_nom}\", "
+                    "On joue \"idle\" à la place."
+                )
+                self._anim_nom = "idle"
+            
             debut_anim         : Duree       = copy(Jeu.duree_execution)
             animation_en_cours : str         = self._anim_nom
             deplacement        : Deplacement = self._calcul_deplacement()
             self._finir_anim = False
             
-            # Si la durrée est de 0, l'anim est déjà finie
+            # Si la durée est de 0, l'anim est déjà finie
             # (on évite aussi les divisions par 0 en dessous)
             if self._anim_infos.duree == Duree(s=0):
                 self._pos = deplacement.calculer_valeur(1)
@@ -231,28 +247,33 @@ class Carte:
                 self.dessiner(surface)
                 yield False
             
+            self._pos = deplacement.calculer_valeur(1)      # sécurité au cas où on revient trop tard
+            self.dessiner(surface)  # évite que la carte ne soit pas dessinée pendant un yield
             if self._anim_nom == "jouer":
                 self.jouer_sfx()
                 self._attaque.appliquer()
-                return      # La carte ne doit plus être dessinée après => plus de générateur
+                return      # La carte ne doit plus être dessinée après
             
+            self._anim_nom = "idle"
             yield True  # Changement d'animation
     
     def skip_animation(self) -> None:
         self._finir_anim = True
     
-    def afficher(self, surface : Surface) -> None:
+    def afficher(self) -> None:
         if self.est_affiche:
             return
         
         self._anim_gen = self._animation(Jeu.fenetre)
-        self._id_affichage = premier_indice_libre(Carte.cartes_affichees)
-        Carte.cartes_affichees[self._id_affichage] = self
+        self._id_affichage = Carte.cartes_affichees.search(None)
+        if self._id_affichage >= 0:
+            Carte.cartes_affichees[self._id_affichage] = self
+        else:
+            self._id_affichage = len(Carte.cartes_affichees)
+            Carte.cartes_affichees.append(self)
     
     def cacher(self) -> None:
-        # del ne va pas appeler le .__del__() de l'objet
-        # a moins qu'il ne soit stocké nulle part d'autre
-        del Carte.cartes_affichees[self._id_affichage]
+        Carte.cartes_affichees.pop(self._id_affichage)
         self._id_affichage = -1
     
     def dessiner(self, surface : Surface) -> None:

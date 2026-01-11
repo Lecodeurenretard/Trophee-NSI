@@ -11,7 +11,7 @@ class Entite(ABC):
     _LONGUEUR_BARRE_DE_VIE : int = int(_SPRITE_TAILLE.x) - 100
     _HAUTEUR_BARRE_DE_VIE  : int = 10
     
-    vivantes : dict[int, 'Entite'] = {}
+    vivantes : Array[Entite] = Array['Entite'](2)
     
     def __init__(
             self,
@@ -37,7 +37,7 @@ class Entite(ABC):
         self._sprite : Surface = pygame.transform.scale(pygame.image.load(chemin_sprite), Entite._SPRITE_TAILLE)
         
         # Ajoute l'entite à la liste
-        self._id : int = premier_indice_libre(Entite.vivantes)
+        self._id : int = Entite.vivantes.search(None)
         if self._id < 0:
             self._id = len(Entite.vivantes)
         
@@ -59,7 +59,7 @@ class Entite(ABC):
         Renvoie la liste des entités morts.
         """
         echafaud : list[Entite] = []   # Quand les entites seront enlevés de la liste, ils seront "exécutés" par le rammasse-miette
-        for entite in list(Entite.vivantes.values()):
+        for _, entite in Entite.vivantes.no_holes():
             if not entite.en_vie:
                 entite.meurt()
                 echafaud.append(entite)
@@ -117,7 +117,14 @@ class Entite(ABC):
     def cartes_main_max(self) -> int:
         return self._cartes_main_max
     
-    # propriété car la position pourrait changer suivant la position du ou des joueurs
+    @property
+    def cartes_main_sont_a_pos_defaut(self) -> bool:
+        # on admet que si l'un est à la position par défaut
+        # alors elles le sont toutes
+        return self._cartes_main[0].est_a_pos_defaut
+    
+    # propriété car la position pourrait changer
+    # suivant la position du joueurs
     @property
     @abstractmethod
     def pos_sprite(self) -> Pos:
@@ -151,7 +158,8 @@ class Entite(ABC):
             self._calculer_pos_carte(index),
             de_dos=self.__class__._CARTES_DE_DOS,
         ))
-        self._cartes_main[index].afficher(Jeu.fenetre)
+        self._cartes_main[index].afficher()
+        self._cartes_main[index].anim_nom = "revenir"
         
         self._trier_main()
         self._recalc_pos_cartes_main()
@@ -215,7 +223,7 @@ class Entite(ABC):
     
     def attaquer(self, id_cible : int, index_carte : int) -> None:
         """Enregistre le lancement de l'attaque."""
-        assert(id_cible in Entite.vivantes.keys()), "ID de la cible invalide."
+        assert(0 <= id_cible < len(Entite.vivantes)), "ID de la cible invalide."
         assert(0 <= index_carte < len(self._cartes_main)), f"Index invalide."
         
         carte : Carte = self._cartes_main[index_carte]
@@ -252,9 +260,16 @@ class Entite(ABC):
             self._nom_derniere_carte_piochee = choisi
             self._inserer_carte_main(choisi)
     
+    def main_jouer_entrer(self) -> None:
+        for c in self._cartes_main:
+            c.anim_nom = "revenir"
+    def main_jouer_sortir(self) -> None:
+        for c in self._cartes_main:
+            c.anim_nom = "partir"
+    
     def repiocher_tout(self) -> None:
         for c in self._cartes_main:
-            c.cacher()
+            c.cacher()      # on efface toutes les références
         self._cartes_main.clear()
         self._nom_derniere_carte_piochee = ''
         
@@ -281,5 +296,6 @@ class Entite(ABC):
             f"Inventaire: {[item.nom for item in self._inventaire]}\n"
         )
 
-Attaque.set_dico_entites(Entite.vivantes) # grâce au passage par référence ça marche
-                                          # C'est un hack, certes, mais j'ai pas trouvé mieux
+# Grâce au passage par référence ça marche!
+# C'est un hack mais j'ai pas trouvé mieux
+Attaque.set_arr_entites(Entite.vivantes)

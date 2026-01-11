@@ -3,28 +3,6 @@ from import_var import *
 from Jeu import Jeu
 from classes_utiles.Animation import valeurs_regulieres_entre_01
 
-T = TypeVar('T')    # utile pour les génériques
-K = TypeVar('K')    # utile pour les génériques (clef d'un dico)
-V = TypeVar('V')    # utile pour les génériques (valeur d'un dico)
-
-@overload
-def premier_indice_libre(cont : Sequence[T], si_vide : T, defaut : int = -1) -> int:
-    """Renvoie le premier indice de libre dans `cont` (un emplacement est vide s'il contient `si_vide`), si tous les emplacements sont pris renvoie `defaut`."""
-@overload
-def premier_indice_libre(cont : dict[int, V], si_vide : Optional[V] = None) -> int:
-    """Renvoie la première clef de libre dans `cont` (un emplacement est vide s'il contient `si_vide` ou s'il n'est pas déjà prit)."""
-
-def premier_indice_libre(cont : Sequence[T]|dict[int, T], si_vide : Optional[T] = None, defaut : int = -1) -> int:
-    if type(cont) is dict:
-        i : int = 0
-        while i in cont.keys() and cont[i] != si_vide:
-            i += 1
-        return i
-    
-    for i, elem in enumerate(cont):
-        if elem == defaut:
-            return i
-    return defaut
 
 def blit_centre(
         toile : Surface, a_dessiner : Surface,
@@ -93,7 +71,7 @@ def attendre(temps_attente : Duree) -> None:
     
     Jeu.duree_execution.millisecondes += Jeu.clock.tick_busy_loop(1 / temps_attente.secondes)   # framerate = 1 / temps_execution_frame
 
-def avancer_generateurs(gen_list : list[Generator[Any, Any, Any]], to_send : Any = None) -> None:
+def avancer_generateurs[S](gen_list : list[Generator[Any, S, Any]], to_send : S = None) -> None:
     """
     Appelle `next()` sur tous les générateurs de la liste.
     Si un générateur élève une `StopIteration`, l'enlève de la liste.
@@ -104,7 +82,7 @@ def avancer_generateurs(gen_list : list[Generator[Any, Any, Any]], to_send : Any
         except StopIteration:
             gen_list.pop(i)
 
-def terminer_generateur(gen : Generator, a_envoyer : Any = None) -> None:
+def terminer_generateur[S](gen : Generator[Any, S, Any], a_envoyer : S = None) -> None:
     """
     Exécute `gen` tant qu'il n'est pas fini.
     N'appelle PAS `Jeu.commencer_frame()` donc la condition de sortie ne doit pas dépendre sur une variable globale non modifiée par la fonction.
@@ -269,7 +247,7 @@ def clamp(x : float, a : float, b : float) -> float|int:
     """Si x < a, renvoie a; si b < x, renvoie b; sinon renvoie x."""
     return min(max(x, a), b)
 
-def valeur_par_defaut(a_tester : Optional[T], si_none : T, si_non_none : Optional[T] = None) -> T:
+def valeur_par_defaut[T](a_tester : Optional[T], si_none : T, si_non_none : Optional[T] = None) -> T:
     """
     Renvoie si_non_none si a_tester n'est pas None, sinon renvoie si_none.
     Si si_non_none n'est pas fourni, utilise a_tester.

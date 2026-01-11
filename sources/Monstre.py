@@ -99,7 +99,11 @@ class Monstre(Entite):
     def vivants() -> list[Monstre]:
         """Renvoie les monstres en vie."""
         # on admet que c'est que des monstres
-        return [monstre for clef, monstre in Entite.vivantes.items() if clef > 0]   # type: ignore
+        return [ # type: ignore
+            monstre
+            for clef, monstre in Entite.vivantes.no_holes()
+            if clef > 0
+        ]
     
     @staticmethod
     def massacre() -> None:

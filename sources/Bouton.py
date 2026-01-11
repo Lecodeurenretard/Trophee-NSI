@@ -19,7 +19,7 @@ class Button:
         self._text  : str  = text
         self._image : Optional[Surface] = None
         if img is not None:
-            self._image = pygame.image.load(img)
+            self._image = pygame.image.load(img).convert_alpha()
             self._image = pygame.transform.scale(self._image, (dim[2], dim[3]))
         
         self._line_color : rgba = color_to_rgba(line_color)

@@ -214,3 +214,25 @@ def shop_click(ev : pygame.event.Event, items : list[Item], bouton_sortie : Butt
     
     joueur.prendre_item(items[index])
     items.pop(index)
+
+def tour_des_monstres() -> Generator[None, None, None]:
+    joueur.main_jouer_sortir()
+    for monstre in Monstre.vivants():
+        monstre.main_jouer_entrer()
+    
+    # laisse le temps au cartes d'entrer
+    # (encore un fois, on considère qu'ils arrivent tous au même moment)
+    while not Monstre.vivants()[0].cartes_main_sont_a_pos_defaut:
+        Jeu.commencer_frame()
+        verifier_pour_quitter()
+        
+        rafraichir_ecran_combat()
+        Jeu.display_flip()
+        yield
+    
+    # fait attaquer les monstres
+    for monstre in Monstre.vivants():
+        monstre.attaquer(joueur.id, monstre.choisir_index_carte_main())
+    
+    Jeu.reset_etat()
+    Jeu.attaques_restantes_joueur -= 1
