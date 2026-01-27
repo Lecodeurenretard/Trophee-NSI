@@ -115,8 +115,12 @@ class Array[T]:
     def pop(self, index : int = -1) -> T|None:
         """Enlève l'élément à l'indice `index` et renvoie sa valeur."""
         index = self._solve_key(index)
-        enleve = self._valeurs[index]
+        if not (0 <= index < len(self)):
+            raise IndexError(f"L'indice {index} n'est pas dans l'array.")
+        if index not in self._valeurs.keys():
+            return None     # on pop un None
         
+        enleve = self._valeurs[index]
         del self._valeurs[index]
         return enleve
     
@@ -163,7 +167,8 @@ class Array[T]:
         return list(self).index(value, start, end)
     
     def search(self, value : T|None, start : int = 0, end : int = sys.maxsize) -> int:
-        """Alternative à .index() qui renvoie -1 au lieu de lancer une exception."""    # on est civilisés
+        """Alternative à .index() qui renvoie -1 quand l'élément n'est pas dans la liste au lieu de lancer une exception."""
+        # on est civilisés
         try:
             return self.index(value, start=start, end=end)
         except ValueError:

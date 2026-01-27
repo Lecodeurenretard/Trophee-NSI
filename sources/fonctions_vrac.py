@@ -236,6 +236,9 @@ def translation(rect : Rect, v : Vecteur) -> Rect:
     """Translate le rectangle `rect` par le vecteur `v`."""
     return Rect(rect.left + v.x, rect.top + v.y, rect.width, rect.height)
 
+# On pourrait faire un générique
+# mais il faut le créer nous même (on a pas les templates cpp)
+# (c'est overkill)
 @overload
 def clamp(x : int, a : int, b : int) -> int:
     ...
@@ -243,7 +246,7 @@ def clamp(x : int, a : int, b : int) -> int:
 def clamp(x : float, a : float, b : float) -> float:
     ...
 
-def clamp(x : float, a : float, b : float) -> float|int:
+def clamp(x : float, a : float, b : float) -> float:
     """Si x < a, renvoie a; si b < x, renvoie b; sinon renvoie x."""
     return min(max(x, a), b)
 

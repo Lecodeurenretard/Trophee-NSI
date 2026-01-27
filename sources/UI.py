@@ -160,7 +160,7 @@ def ecran_nombre_combat() -> Generator[Surface, None, None]:
     
     logging.info("")
     logging.info("")
-    if Jeu.DECISION_SHOP(Jeu.num_etape):
+    if Jeu.decision_shop(Jeu.num_etape):
         image.fill(CYAN)
         blit_centre(image, texte_shop, Jeu.centre_fenetre)
         

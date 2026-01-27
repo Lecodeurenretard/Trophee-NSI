@@ -106,7 +106,7 @@ def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Inter
         
         case Touches.DBG_SHOP:
             for i in range(Jeu.num_etape, Jeu.MAX_COMBAT):
-                if Jeu.DECISION_SHOP(i):
+                if Jeu.decision_shop(i):
                     Jeu.num_etape = i
                     break
             else:   # for... else, si jamis le break n'est jamais atteint

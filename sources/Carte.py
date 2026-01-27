@@ -14,17 +14,24 @@ class CarteAnimInfo:
     easing      : EasingFunction
     de_dos      : bool|int
 
+class CarteAnimEtat(Enum):
+    IDLE      = auto()
+    REVENIR   = auto()
+    PARTIR    = auto()
+    EN_SURVOL = auto()
+    JOUER     = auto()
+
 class Carte:
     _HAUTEUR_SPRITE  : int     = Jeu.pourcentage_hauteur(40)
     _DUREE_INTER_JEU : Duree   = Duree(s=.5)
     
     _ANIM_SURVOL_DECALAGE : Vecteur = Jeu.pourcentages_fenetre(0, 2)
-    _ANIM_DICO : dict[str, CarteAnimInfo] = {
-        "idle"  : CarteAnimInfo(Pos(CarteAnimInfo.GARDER , CarteAnimInfo.GARDER)       , Duree(s=0) , Easing.NO_EASING, CarteAnimInfo.GARDER),
-        "revenir": CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER)      , Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
-        "partir": CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, Jeu.hauteur)                , Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
-        "survol": CarteAnimInfo(Pos(CarteAnimInfo.GARDER , Jeu.pourcentage_hauteur(80)), Duree(s=.5), Easing.FADE     , CarteAnimInfo.GARDER),
-        "jouer" : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER)      , Duree(s=1) , Easing.FADE_IN  , True),
+    _ANIM_DICO : dict[CarteAnimEtat, CarteAnimInfo] = {
+        CarteAnimEtat.IDLE     : CarteAnimInfo(Pos(CarteAnimInfo.GARDER , CarteAnimInfo.GARDER)       , Duree(s=0) , Easing.NO_EASING, CarteAnimInfo.GARDER),
+        CarteAnimEtat.REVENIR  : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER)      , Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
+        CarteAnimEtat.PARTIR   : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, Jeu.hauteur)                , Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
+        CarteAnimEtat.EN_SURVOL: CarteAnimInfo(Pos(CarteAnimInfo.GARDER , Jeu.pourcentage_hauteur(80)), Duree(s=.5), Easing.FADE     , CarteAnimInfo.GARDER),
+        CarteAnimEtat.JOUER    : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER)      , Duree(s=1) , Easing.FADE_IN  , True),
     }
     
     SON_COUP : Sound = Sound(f"{Chemins.SFX}/hit.mp3")
@@ -56,7 +63,7 @@ class Carte:
         self._pos_defaut  : Pos = position
         
         self._pos          : Pos = position
-        self._anim_nom     : str = "idle"
+        self._anim_etat    : CarteAnimEtat = CarteAnimEtat.IDLE
         self._id_affichage : int = -1
         
         donnees_JSON : dict = Carte.donnees_JSON[id]
@@ -96,7 +103,7 @@ class Carte:
     
     @property
     def _anim_infos(self) -> CarteAnimInfo:
-        return Carte._ANIM_DICO[self._anim_nom]
+        return Carte._ANIM_DICO[self._anim_etat]
     
     @property
     def _sprite(self) -> Surface:
@@ -138,16 +145,12 @@ class Carte:
         return self._pos_defaut
     
     @property
-    def souris_survole(self) -> bool:
-        return self._hitbox.collidepoint(pygame.mouse.get_pos())
-    
-    @property
     def est_a_pos_defaut(self) -> bool:
         return self._pos == self._pos_defaut
     
     @property
-    def anim_nom(self) -> str:
-        return self._anim_nom
+    def anim_etat(self) -> CarteAnimEtat:
+        return self._anim_etat
     
     @property
     def est_affiche(self) -> bool:
@@ -165,9 +168,9 @@ class Carte:
         assert(self.est_affiche), "La carte est cachée (elle n'est pas dans Carte.animations_affichees)."
         return self._anim_gen   # type: ignore  # on vérifie en haut que c'est non none
     
-    @anim_nom.setter
-    def anim_nom(self, val : str) -> None:
-        self._anim_nom = val
+    @anim_etat.setter
+    def anim_etat(self, val : CarteAnimEtat) -> None:
+        self._anim_etat = val
     
     @pos_defaut.setter
     def pos_defaut(self, val : Pos) -> None:
@@ -193,18 +196,18 @@ class Carte:
         if dest.x == CarteAnimInfo.GARDER: dest.x = self._pos.x
         if dest.y == CarteAnimInfo.GARDER: dest.y = self._pos.y
         
-        match(self._anim_nom):
-            case "jouer":
+        match(self._anim_etat):
+            case CarteAnimEtat.JOUER:
                 dest = self._attaque.cible.pos_attaque
-            case "revenir":
+            case CarteAnimEtat.REVENIR:
                 dest = self._pos_defaut
-            case "partir":
+            case CarteAnimEtat.PARTIR:
                 dest = Pos(self._pos_defaut.x, dest.y)
         
         assert(
                 dest.x != CarteAnimInfo.CHANGER
             and dest.y != CarteAnimInfo.CHANGER
-        ), f"La destination de l'animation \"{self._anim_nom}\" ({dest}) doit être changée."
+        ), f"La destination de l'animation \"{self._anim_etat.name}\" ({dest}) doit être changée."
         
         sens = SensLecture.AVANT
         ...     # inutilisé pour l'instant
@@ -214,16 +217,16 @@ class Carte:
     def _animation(self, surface : Surface) -> Generator[bool, None, None]:
         """Renvoie un générateur avançant l'animation."""
         while True:
-            if self._anim_nom not in Carte._ANIM_DICO.keys():
+            if self._anim_etat not in Carte._ANIM_DICO.keys():
                 logging.warning(
-                    f"On ne reconnait pas l'animation \"{self._anim_nom}\", "
+                    f"On ne reconnait pas l'animation \"{self._anim_etat.name}\", "
                     "On joue \"idle\" à la place."
                 )
-                self._anim_nom = "idle"
+                self._anim_etat = CarteAnimEtat.IDLE
             
-            debut_anim         : Duree       = copy(Jeu.duree_execution)
-            animation_en_cours : str         = self._anim_nom
-            deplacement        : Deplacement = self._calcul_deplacement()
+            debut_anim         : Duree         = copy(Jeu.duree_execution)
+            animation_en_cours : CarteAnimEtat = self._anim_etat
+            deplacement        : Deplacement   = self._calcul_deplacement()
             self._finir_anim = False
             
             # Si la durée est de 0, l'anim est déjà finie
@@ -236,8 +239,8 @@ class Carte:
                 continue
             
             # On joue l'animation
-            while Jeu.duree_execution <= debut_anim + self._anim_infos.duree and not self._finir_anim:
-                if animation_en_cours != self._anim_nom:
+            while Jeu.duree_execution <= debut_anim + self._anim_infos.duree:
+                if animation_en_cours != self._anim_etat or self._finir_anim:
                     break   # changement d'animation
                 
                 t = (Jeu.duree_execution - debut_anim) / self._anim_infos.duree
@@ -247,14 +250,15 @@ class Carte:
                 self.dessiner(surface)
                 yield False
             
-            self._pos = deplacement.calculer_valeur(1)      # sécurité au cas où on revient trop tard
-            self.dessiner(surface)  # évite que la carte ne soit pas dessinée pendant un yield
-            if self._anim_nom == "jouer":
+            self._pos = deplacement.calculer_valeur(1)  # sécurité au cas où on revient trop tard dans la boucle du dessus
+            self.dessiner(surface)  # évite que la carte ne soit pas dessinée pendant l'intervalle d'un yield
+            
+            if animation_en_cours == CarteAnimEtat.JOUER:
                 self.jouer_sfx()
                 self._attaque.appliquer()
                 return      # La carte ne doit plus être dessinée après
             
-            self._anim_nom = "idle"
+            self._anim_etat = CarteAnimEtat.IDLE # Quand on finit l'animation, on arrête la carte
             yield True  # Changement d'animation
     
     def skip_animation(self) -> None:
@@ -310,5 +314,8 @@ class Carte:
             Carte.SON_HEAL.play()
         else:
             Carte.SON_COUP.play()
+    
+    def dans_hitbox(self, pos : Pos) -> bool:
+        return self._hitbox.collidepoint(pos.tuple)
 
 Carte.actualiser_donnees()

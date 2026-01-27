@@ -28,7 +28,12 @@ def attente_prochaine_etape() -> None:
         dessiner_infos()
         Jeu.display_flip()
     
-    if Jeu.DECISION_SHOP(Jeu.num_etape):
+    if Jeu.decision_boss(Jeu.num_etape):
+        Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
+        pass     # à implémenter plus tard
+        return
+    
+    if Jeu.decision_shop(Jeu.num_etape):
         Jeu.changer_etat(Jeu.Etat.SHOP)
         return
     
@@ -43,6 +48,7 @@ def choix_attaque() -> None:
         joueur.piocher()
     
     if Jeu.attaques_restantes_joueur > 0:
+        logging.debug('')
         joueur.main_jouer_entrer()
         for m in Monstre.vivants():
             m.main_jouer_sortir()
@@ -68,7 +74,7 @@ def choix_attaque() -> None:
                 break
             
             if event.type == pygame.MOUSEBUTTONDOWN:
-                index_carte : Optional[int] = joueur.verifier_pour_attaquer(event)
+                index_carte : Optional[int] = joueur.carte_du_dessus(event.pos)
                 if index_carte is None:
                     continue
                 
@@ -90,14 +96,24 @@ def affichage_attaque() -> None:
     if Carte.derniere_enregistree is None:
         raise RuntimeError("Il n'y a aucune dernière attaque alors que l'état AFFICHAGE_ATTAQUE est actif.")
     
+    interruption : Optional[Interruption] = None
     # joue l'animation de l'attaque
     while Carte.derniere_enregistree.est_affiche:
         Jeu.commencer_frame()
-        if testeur_skip_ou_quitte():
+        if interruption is not None:
+            terminer_interruption(interruption)
+        
+        skip : bool = False
+        for ev in pygame.event.get():
+            if testeur_skip_ou_quitte(ev):
+                skip = True
+            interruption = reagir_appui_touche(ev)
+        
+        if skip:
             Carte.derniere_enregistree.skip_animation()
         
         rafraichir_ecran_combat()
-    rafraichir_ecran_combat()
+    rafraichir_ecran_combat()   # comme ça on a pas de dernière frame moche
     
     # Vérifie si c'est la fin du combat
     if not joueur.en_vie:

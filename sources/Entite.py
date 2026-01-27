@@ -151,15 +151,18 @@ class Entite(ABC):
         for i, carte in enumerate(self._cartes_main):   # enumerate() garde la référence
             carte.pos_defaut = self._calculer_pos_carte(i)
     
-    def _inserer_carte_main(self, nom_carte : str) -> None:
+    def _ajouter_carte_main(self, nom_carte : str, faire_revenir : bool = True) -> None:
         index = len(self._cartes_main)
         self._cartes_main.append(Carte(
             nom_carte,
             self._calculer_pos_carte(index),
             de_dos=self.__class__._CARTES_DE_DOS,
         ))
-        self._cartes_main[index].afficher()
-        self._cartes_main[index].anim_nom = "revenir"
+        
+        carte_ajoutee = self._cartes_main[index]     # passée par référence
+        carte_ajoutee.afficher()
+        if faire_revenir:
+            carte_ajoutee.anim_etat = CarteAnimEtat.REVENIR
         
         self._trier_main()
         self._recalc_pos_cartes_main()
@@ -174,8 +177,13 @@ class Entite(ABC):
         
         return enleve
     
+    def _vider_main(self) -> None:
+        # itère à l'envers pour que les index restent cohérents
+        for i in range(len(self._cartes_main) - 1, -1, -1):
+            self._cartes_main.pop(i).cacher()
+    
     def _trier_main(self) -> None:
-        # trie les cartes par ordre alphabetiques
+        # trie les cartes par ordre alphabetique
         self._cartes_main = sorted(self._cartes_main, key=lambda c: c._nom)
     
     def _dessiner_barre_de_vie(self, surface : Surface) -> None:
@@ -187,7 +195,7 @@ class Entite(ABC):
         elif ratio_vie <= .5:
             couleur_remplissage = JAUNE
         elif ratio_vie == 1:
-            couleur_remplissage = CYAN
+            couleur_remplissage = BLEU_CADET
         if bool(params.mode_debug):
             couleur_remplissage = GRIS
         
@@ -219,7 +227,7 @@ class Entite(ABC):
     def reset(self) -> None:
         self._stats.reset_vie()
         self._inventaire.clear()
-        self._cartes_main.clear()
+        self._vider_main()
     
     def attaquer(self, id_cible : int, index_carte : int) -> None:
         """Enregistre le lancement de l'attaque."""
@@ -235,7 +243,7 @@ class Entite(ABC):
             self.piocher()
         
         carte.enregister_lancement(self._id, id_cible)
-        carte.anim_nom = "jouer"
+        carte.anim_etat = CarteAnimEtat.JOUER
     
     def dessiner(self, surface : Surface) -> None:
         blit_centre(surface, self._sprite, self.pos_sprite.tuple)
@@ -253,24 +261,21 @@ class Entite(ABC):
         
         while len(self._cartes_main) < self._cartes_main_max:
             choisi = random.choice(self._deck)
-            
             if choisi == self._nom_derniere_carte_piochee and len(self._deck) > 1:
                 continue    # repioche, on évite la surpioche de cartes de même type
             
             self._nom_derniere_carte_piochee = choisi
-            self._inserer_carte_main(choisi)
+            self._ajouter_carte_main(choisi)
     
     def main_jouer_entrer(self) -> None:
         for c in self._cartes_main:
-            c.anim_nom = "revenir"
+            c.anim_etat = CarteAnimEtat.REVENIR
     def main_jouer_sortir(self) -> None:
         for c in self._cartes_main:
-            c.anim_nom = "partir"
+            c.anim_etat = CarteAnimEtat.PARTIR
     
     def repiocher_tout(self) -> None:
-        for c in self._cartes_main:
-            c.cacher()      # on efface toutes les références
-        self._cartes_main.clear()
+        self._vider_main()
         self._nom_derniere_carte_piochee = ''
         
         self.piocher()

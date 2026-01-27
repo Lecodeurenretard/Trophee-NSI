@@ -32,37 +32,36 @@ format:
 ------------------------------------
 -->
 _____
-## [buggy] Les cartes disparaissent et réapparaissent + Nouveau conteneur `Array`.
+## [buggy] Changements divers
 + Changements majeurs
-	- Ajout de la classe `Array` pour remplacer les dicos qui étaient utilisés avant.
-		- Suppression de `premier_indice_libre()` car c'est juste un cas spécifique de `Array.search()`.
 + Sur plusieurs fichiers
 + Structure de fichiers
 + READMEs et documentation
 + Interactions joueur/testeur
+	- Changement de couleur pour les barres de vies à 100%.
+	- Le joueur peut maintenant utiliser les touches de base (celles gérées dans `reagir_appui_touche()`) dans l'état `AFFICHAGE_ATTAQUE`.
+	- Les appuis ne sont plus gardés entre les états.
 + Correction de bugs
-	- Il n'y a plus de frame où les cartes disparaissent entre les animations.
-+ `Duree`
-	- Le constructeur à maintenant 2 overloads qui l'empèche d'être appelé sans et avec 2 arguments (du moins virtuellement).
-	- Les opérateurs de comparaisons ne marchent plus avec les `int`s.
-+ `Attaque`
-	- `.avec_nom()` élève une meilleure erreur s'il n'y a pas d'attaque avec le nom en argument.
-+ `Carte`
-	- Ajout de la propriété `.est_a_pos_defaut`.
-	- Si l'animation passée à `._anim_nom` n'existe pas, on se reporte à `idle`.
-	- Suppression de `._anim_sens`.
+	- [Entite.py](sources/Entite.py) est enlevé du [.gitignore](.gitignore).
+	- Les deux bugs du commits précédents ont été réparés.
++ `Array`
+	- `.pop()` vérifie l'index passé en argument.
++ [Carte.py](sources/Carte.py)
+	- Les animations sont représentées par une enum `CarteAnimEtat`.
+	- Ajout de `.dans_hitbox()`.
+	- Renommage de `.anim_nom` en `.anim_etat`.
+	- Suppression de `.souris_survole`.
 + `Entite`
-	- Ajout de la propriété `.cartes_main_sont_a_pos_defaut`.
-	- Ajout des méthodes `.main_jouer_entrer()` et `.main_jouer_sortir()`.
-+ [fonctions_main.py](sources/fonctions_main.py)
-	- Ajout de `tour_des_monstres()` pour accueillir le code pour faire jouer les monstres.
-+ [fonctions_vrac.py](sources/fonctions_vrac.py)
-	- `avancer_generateurs()` et `terminer_generateur()` sont maintenant des génériques.
-
+	- Renommage de `._inserer_carte_main()` en `._ajouter_carte_main()` et ajout du paramètre `faire_revenir`.
+	- Ajout de `._vider_main()`.
++ `Jeu`
+	- Ajout de `decision_boss()` (inutile pour l'instant).
+	- `DECISION_SHOP()` est maintenant une vraie fonction est est renommée `decision_shop()`.
++ `Joueur`
+	- Remplacement de `.verifier_pour_attaquer()` par `.carte_du_dessus()`.
 
 
 ____________
-Les bugs sont beaucoup moins fréquents en mode débug pour une certaine raison.  
-J'en ai distingué 2:
-- Le jeu plante quand l'ennemi joue (1/4 sans le mode débug assez rare avec)
-- Les cartes réapparaissent dans le mauvais ordre et les nouvelles ne sont piochées q'après en avoir joué une.
+Je laisse un bug dont je n'arrive oas à trouver l'origine et donc à fix.  
+Si on spam le clic après l'animation de la carte, elle va en animation `JOUER` pour instantanément revenir  en `IDLE`.
+Le joueur verra la carte de dos pendant 1 frame et après le jeu plante.

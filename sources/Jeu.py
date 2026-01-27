@@ -13,7 +13,6 @@ class Jeu:
     """
     MAX_COMBAT        : int = 10
     ATTAQUES_PAR_TOUR : int = 3
-    DECISION_SHOP : Callable[[int], bool] = lambda num_combat: num_combat % 5 == 0 and num_combat != Jeu.MAX_COMBAT
     
     fenetre    : Surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     
@@ -29,7 +28,7 @@ class Jeu:
     num_etape                 : int  = 1
     a_gagne                   : bool = False
     
-    duree_execution     : Duree = Duree()
+    duree_execution     : Duree = Duree(s=0)
     clock               : pygame.time.Clock = pygame.time.Clock()
     framerate           : int = 60
     
@@ -66,6 +65,20 @@ class Jeu:
     @staticmethod
     def set_texte_fenetre(val : str) -> None:
         pygame.display.set_caption(val)
+    
+    @staticmethod
+    def decision_boss(num_combat : int) -> bool:
+        """Décide si le combat est un combat de boss."""
+        if num_combat == Jeu.MAX_COMBAT:    # un boss doit être le dernier niveau
+            return True
+        return num_combat % 10 == 0
+    
+    @staticmethod
+    def decision_shop(num_combat : int) -> bool:
+        """Décide si le combat est un shop."""
+        if Jeu.decision_boss(num_combat):    # un shop ne peut pas être pendant un boss
+            return False
+        return num_combat % 5 == 0
     
     @classmethod
     def decision_etat_en_cours(cls) -> bool:
