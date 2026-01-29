@@ -11,7 +11,7 @@ class Entite(ABC):
     _LONGUEUR_BARRE_DE_VIE : int = int(_SPRITE_TAILLE.x) - 100
     _HAUTEUR_BARRE_DE_VIE  : int = 10
     
-    vivantes : Array[Entite] = Array['Entite'](2)
+    vivantes : Array['Entite'] = Array['Entite'](2)
     
     def __init__(
             self,
@@ -306,5 +306,5 @@ class Entite(ABC):
     def additionner_stats_temporaire(self, stat : Stat):
         self._stats_temporaire.additionner(stat)
 
-Attaque.set_dico_entites(Entite.vivantes) # grâce au passage par référence ça marche
+Attaque.set_arr_entites(Entite.vivantes) # grâce au passage par référence ça marche
                                           # C'est un hack, certes, mais j'ai pas trouvé mieux
