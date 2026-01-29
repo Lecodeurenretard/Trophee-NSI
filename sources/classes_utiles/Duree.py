@@ -2,6 +2,11 @@ from imports import total_ordering, overload, logging
 
 @total_ordering
 class Duree:
+    @overload
+    def __init__(self, *, ms : int): ...
+    @overload
+    def __init__(self, *, s : float): ...
+    
     def __init__(self, *, ms : int = 0, s : float = 0):
         if ms != 0 and s != 0 and ms != s * 1000:
             raise ValueError(f"Les paramètres `ms` ({ms}) et `s` ({s}) se contredisent.")
@@ -13,16 +18,19 @@ class Duree:
             self._ms = round(s * 1000)
         self._check_si_negatif()
     
-    def __eq__(self, val : 'Duree|int'):
-        if type(val) is Duree:
+    def __eq__(self, val : object):  # on devrait mettre juste Duree
+        if type(val) is Duree:       # mais il faut que l'opérateur accepte tous les objets
             return self.millisecondes == val.millisecondes
-        return self.millisecondes == val
+        raise TypeError(     # on pourrais renvoyer False mais on est pas en JS ici
+            f"On ne compare les durées qu'avec d'autres durées pas avec des {type(val).__name__}."
+        )
     
-    def __lt__(self, val : 'Duree|int'):
+    def __lt__(self, val : 'Duree'):
         if type(val) is Duree:
             return self.millisecondes < val.millisecondes
-        if type(val) is int:
-            return self.millisecondes < val
+        raise TypeError(
+            f"On ne compare les durées qu'avec d'autres durées pas avec des {type(val).__name__}."
+        )
     # gt, le, et ge sont générées automatiquement par total_ordering
     
     def __add__(self, val : 'Duree') -> 'Duree':

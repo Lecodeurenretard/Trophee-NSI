@@ -32,35 +32,36 @@ format:
 ------------------------------------
 -->
 _____
-## Adaptation des textes au plein écran.
+## [buggy] Changements divers
 + Changements majeurs
-	- La taille des textes est maintenant calculée dynamiquement suivant la taille de la fenêtre.
-		* Les constantes dans [Polices.py](sources/Constantes/Polices.py) sont maintenant soit des strings indiquant les noms de police soit `None` (pour la police par défaut de Pygame).
-		* Ajout de `Jeu.construire_police()` qui permet de construire une police suivant sa hauteur sur l'écran.
 + Sur plusieurs fichiers
 + Structure de fichiers
 + READMEs et documentation
 + Interactions joueur/testeur
-	- Les tailles sont maintenant calculées suivant les dimensions de l'écran (ça peut introduire des _mixels_ mais problème pour futur nous).
-	- Les barres de vies sont maintenant centrées sur les sprites de leurs entités et suivent leurs tailles.
-	- Changement de tailles de certains textes.
-	- Agrandissement des boites dans les paramètres.
+	- Changement de couleur pour les barres de vies à 100%.
+	- Le joueur peut maintenant utiliser les touches de base (celles gérées dans `reagir_appui_touche()`) dans l'état `AFFICHAGE_ATTAQUE`.
+	- Les appuis ne sont plus gardés entre les états.
 + Correction de bugs
-	- Réparation du lag sur le lancer de carte.
-	- Les cartes se retournent bien au lancement.
-	- Les mains après le shop sont correctement affichées.
-+ `Attaque`
-	- Suppression de `.nom_surface` car inutile.
-+ `Carte`
-	- La propriété `._sprite` à été scindée en deux:
-		* La partie qui fait le travail lent est cachée et mise dans la méthode `._preparation_sprite()`.
-		* `.sprite` se contente de l'appeler avec les bons arguments.
-+ `Entite` et filles
-	- `_SPRITE_DIM` est renommée en `_SPRITE_TAILLE` est est devenue un `Vecteur`.
-	- `.dessiner_barre_de_vie()` devient privée.
-+ [fonctions_vrac.py](sources/fonctions_vrac.py)
-	- Ajout de `blit_centre_rect()`.
-	- Ajout d'une overload à `centrer_pos()` avec un `Vecteur`.
-	- Ajout de `centrer_rect()` (2 overload).
-	- Ajout de `rect_to_tuple()`.
+	- [Entite.py](sources/Entite.py) est enlevé du [.gitignore](.gitignore).
+	- Les deux bugs du commits précédents ont été réparés.
++ `Array`
+	- `.pop()` vérifie l'index passé en argument.
++ [Carte.py](sources/Carte.py)
+	- Les animations sont représentées par une enum `CarteAnimEtat`.
+	- Ajout de `.dans_hitbox()`.
+	- Renommage de `.anim_nom` en `.anim_etat`.
+	- Suppression de `.souris_survole`.
++ `Entite`
+	- Renommage de `._inserer_carte_main()` en `._ajouter_carte_main()` et ajout du paramètre `faire_revenir`.
+	- Ajout de `._vider_main()`.
 + `Jeu`
+	- Ajout de `decision_boss()` (inutile pour l'instant).
+	- `DECISION_SHOP()` est maintenant une vraie fonction est est renommée `decision_shop()`.
++ `Joueur`
+	- Remplacement de `.verifier_pour_attaquer()` par `.carte_du_dessus()`.
+
+
+____________
+Je laisse un bug dont je n'arrive oas à trouver l'origine et donc à fix.  
+Si on spam le clic après l'animation de la carte, elle va en animation `JOUER` pour instantanément revenir  en `IDLE`.
+Le joueur verra la carte de dos pendant 1 frame et après le jeu plante.

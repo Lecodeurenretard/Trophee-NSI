@@ -1,4 +1,5 @@
 from .      import EasingConstants as Easing
+from .Array import Array
 from .Duree import Duree
 from .Pos   import Pos, pos_t, pos_t_vers_Pos, pos_t_vers_tuple
 

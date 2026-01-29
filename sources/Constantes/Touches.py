@@ -51,4 +51,4 @@ def testeur_skip(ev : pygame.event.Event) -> bool:
     """Si en mode débug, le testeur veut skip."""
     from parametres_vars import mode_debug
     
-    return mode_debug.case_cochee and ev.type == pygame.KEYDOWN and ev.key in DBG_SKIP
+    return bool(mode_debug) and ev.type == pygame.KEYDOWN and ev.key in DBG_SKIP

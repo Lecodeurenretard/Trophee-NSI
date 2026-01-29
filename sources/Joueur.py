@@ -49,20 +49,19 @@ class Joueur(Entite):
         Entite.reset(self)
         self._stats = copy(Joueur.STATS_DE_BASE)
     
-    def verifier_pour_attaquer(self, ev : pygame.event.Event) -> Optional[int]:
-        """Verifie si le joueur veut attaquer."""
-        if ev.type != pygame.MOUSEBUTTONDOWN:
-            return None
-        
+    def carte_du_dessus(self, pos : pos_t) -> Optional[int]:
+        """
+        Détermine quelle est la carte de la main s'affichant au dessus à la position `pos`.
+        Renvoie l'index (dans la main) de la carte, si aucune carte n'est à cette position, renvoie None.
+        """
+        pos_verifiee : Pos = pos_t_vers_Pos(pos)
         index_cliquee : Optional[int] = None
         
         # ordre inverse de celui de dessin
         # les cartes dessinées avant sont en dessous
         iteration_inversee = range(len(self._cartes_main)-1, -1, -1)    # I miss C-style loops
         for i in iteration_inversee:
-            
-            carte : Carte = self._cartes_main[i]
-            if carte.souris_survole:
+            if self._cartes_main[i].dans_hitbox(pos_verifiee):
                 index_cliquee = i
                 break
         

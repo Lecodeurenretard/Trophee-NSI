@@ -1,6 +1,7 @@
 import parametres_vars as params
 from imports import afficher_erreur, NoReturn
 from Jeu import Jeu
+import pygame
 
 from fonctions_etats import (
     ecran_titre,
@@ -17,6 +18,7 @@ from fonctions_etats import (
 def jeu() -> NoReturn:
     Jeu.changer_etat(Jeu.Etat.ECRAN_TITRE)
     while True:
+        pygame.event.clear()    # il ne faut pas que les évènements transitent entre les états
         match Jeu.etat:
             case Jeu.Etat.ECRAN_TITRE:
                 ecran_titre()

@@ -76,7 +76,7 @@ class Attaque:
     _DEFAUT_AJUSTEMENT : _ajustements_t = _AJUSTEMENTS["base"]
     
     _liste          : list[dict]      = []
-    _dico_entites   : dict['Entite']  = []      # sera mis à Entite.vivantes[] plus tard  # type: ignore
+    _dico_entites   : Array['Entite'] = Array() # sera mis à Entite.vivantes[] plus tard  # type: ignore
     toujours_crits  : bool            = False   # ne pas activer ici, utiliser les touches du mode debug plutôt
     attaques_jouees : list['Attaque'] = []
     
@@ -146,26 +146,29 @@ class Attaque:
         Attaque._liste = lst
     
     @staticmethod
-    def set_dico_entites(dico : dict[int, 'Entite']) -> None: # pyright: ignore[reportUndefinedVariable]
+    def set_arr_entites(dico : Array['Entite']) -> None: # pyright: ignore[reportUndefinedVariable]
         Attaque._dico_entites = dico
     
     @staticmethod
     def avec_nom(nom : str) -> 'Attaque':
         """Cherche l'attaque avec le nom correspondant dans _liste."""
-        return Attaque(
-            [att["nom"] for att in Attaque._liste].index(nom)   # Recherche le nom
-        )
+        try:
+            return Attaque(
+                [att["nom"] for att in Attaque._liste].index(nom)   # Recherche le nom
+            )
+        except ValueError:
+            raise ValueError(f"L'attaque \"{nom}\" n'a pas été trouvée.")
     
     @property
-    def lanceur(self): # -> Joueur|Monstre
+    def lanceur(self) -> Any: # -> Entite   # ça devrait être annoté avec object mais le type checker n'aime pas trop
         # https://docs.python.org/3/tutorial/inputoutput.html#formatted-string-literals
-        assert(self._lanceur_id in Attaque._dico_entites.keys()), f"L'ID du lanceur est incorrecte dans la propriété ._lanceur de l'attaque {self!r}."
+        assert(Attaque._dico_entites.index_exists(self._lanceur_id)), f"L'ID du lanceur est incorrecte dans la propriété ._lanceur de l'attaque {self!r}."
         
         return Attaque._dico_entites[self._lanceur_id]
     
     @property
-    def cible(self): # -> Joueur|Monstre
-        assert(Attaque._dico_entites[self._cible_id] is not None), f"L'ID de la cible est incorrecte dans la propriété ._lanceur de l'attaque {self!r}."
+    def cible(self) -> Any: # -> Entite
+        assert(Attaque._dico_entites.index_exists(self._cible_id)), f"L'ID de la cible est incorrecte dans la propriété ._lanceur de l'attaque {self!r}."
         
         return Attaque._dico_entites[self._cible_id]
     

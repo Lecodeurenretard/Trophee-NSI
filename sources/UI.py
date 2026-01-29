@@ -160,7 +160,7 @@ def ecran_nombre_combat() -> Generator[Surface, None, None]:
     
     logging.info("")
     logging.info("")
-    if Jeu.DECISION_SHOP(Jeu.num_etape):
+    if Jeu.decision_shop(Jeu.num_etape):
         image.fill(CYAN)
         blit_centre(image, texte_shop, Jeu.centre_fenetre)
         
@@ -175,7 +175,7 @@ def ecran_nombre_combat() -> Generator[Surface, None, None]:
 
 def dessiner_descriptions_entites(surface : Surface) -> None:
     """Dessine les infos quand on appuie sur F9."""
-    for i, entite in Entite.vivantes.items():
+    for i, entite in Entite.vivantes.no_holes():
         dessiner_texte(
             surface,
             entite.decrire_stats(),
@@ -230,42 +230,40 @@ def dessiner_infos() -> None:
 def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = [], to_send_dessin : Any = None, to_send_UI : Any = None) -> None:
     # Chemin vers l'image de fond
     chemin_fond = os.path.join("data", "img", "stade", "terrain_plaine.png")
-
-    image_fond = pygame.image.load(chemin_fond).convert()
+    
+    image_fond = pygame.image.load(chemin_fond)
     image_fond = pygame.transform.scale(image_fond, Jeu.fenetre.get_size()) # Redimensionne l'image
-
-    Jeu.fond = image_fond
-
+    
     # Afficher l'image de fond 
-    Jeu.fenetre.blit(Jeu.fond, (0, 0))
-     
+    Jeu.fenetre.blit(image_fond, (0, 0))    # pas besoin de faire un .fill(), ça couvre déjà tout l'écran
     Jeu.menus_surf.fill(TRANSPARENT)
     
     # Dessiner les entités
-    for entites in Entite.vivantes.values():
+    for _, entites in Entite.vivantes.no_holes():
         entites.dessiner(Jeu.fenetre)
         entites.dessiner_UI(Jeu.fenetre)
     
     # Vérifie si les cartes doivent être dessinées
-    montrer_cartes : bool = True
+    dessiner_cartes : bool = True
     for touche in Touches.DBG_CACHER_CARTES:
-        if pygame.key.get_pressed()[touche]:
-            montrer_cartes = False
+        if bool(params.mode_debug) and pygame.key.get_pressed()[touche]:
+            dessiner_cartes = False
             break
     
-    if montrer_cartes or not bool(params.mode_debug):
+    if dessiner_cartes:
         # Avance et dessine l'animation des cartes affichées
         a_cacher : list[int] = []
-        liste_carte : list[tuple[int, Carte]] = list(Carte.cartes_affichees.items())
-        for i, carte in sorted(liste_carte, key=lambda tpl: tpl[1].pos_defaut.x):    # dessine les cartes dans l'ordre croissant des abscisses
+        liste_carte : Iterable[tuple[int, Carte]] = Carte.cartes_affichees.no_holes()
+        liste_carte = sorted(liste_carte, key=lambda tpl: tpl[1].pos_defaut.x)  # trie les cartes suivant leur abscisse
+        for i, carte in liste_carte:
             try:
-                next(carte.animation_generateur)   # .items() garde les références donc tout va bien
+                next(carte.animation_generateur)
             except StopIteration:
                 a_cacher.append(i)
         
         # Nettoyage de Carte.cartes_affichees_anim[] (ici sinon on enlève des clefs)
         for index in a_cacher:
-            Carte.cartes_affichees[index].cacher()
+            Carte.cartes_affichees[index].cacher()  # type: ignore  # on itère en sur .no_holes(), c'est donc non none
     
     # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:
