@@ -89,6 +89,8 @@ class Attaque:
         # Définitions des valeurs non null dans le JSON
         self._nom       : str   = donnees_attaque["nom"]
         self._puissance : float = donnees_attaque["puissance"]
+        self._stats_changees_cible : Stat = Stat.depuis_dictionnaire_json(donnees_attaque["Modif stat cible"])
+        self._stats_changees_lanceur : Stat = Stat.depuis_dictionnaire_json(donnees_attaque["Modif stat lanceur"])
         self._type      : TypeAttaque = TypeAttaque.depuis_str(
             donnees_attaque["type"]
         )
@@ -232,14 +234,6 @@ class Attaque:
             case TypeAttaque.SOIN:
                 attaque : float = self._puissance * stats_attaquant.magie
                 degats *= -attaque
-
-            case TypeAttaque.PLUS_ATK:
-                stats_attaquant.force += self._puissance
-                degats = 0
-
-            case TypeAttaque.MOINS_ATK:
-                stats_victime.force -= self._puissance
-                degats = 0
             
             case TypeAttaque.DIVERS:
                 ...
@@ -259,12 +253,16 @@ class Attaque:
     
     def appliquer(self) -> None:
         if AttaqueFlag.ATTAQUE_LANCEUR not in self._drapeaux and self._lanceur_id == self._cible_id:
+            print("a")
             return
         elif AttaqueFlag.ATTAQUE_ENNEMIS in self._drapeaux and type(self.lanceur) == type(self.cible):
+            print("b")
             return
         elif AttaqueFlag.ATTAQUE_LANCEUR not in self._drapeaux and AttaqueFlag.ATTAQUE_ENNEMIS not in self._drapeaux:
+            print(self._drapeaux)
             return
         self.cible.recoit_degats(self.calculer_degats())
+        self.appliquer_effet()
     
     def actualiser(self) -> None:
         """Actualise l'objet pour qu'il respecte les valeurs dans le dictionnaire."""
@@ -285,3 +283,7 @@ class Attaque:
         
         self._ajustement_degats   = a_copier._ajustement_degats
         self._autoriser_animation = a_copier._autoriser_animation
+
+    def appliquer_effet(self):
+        self.cible.additionner_stats_temporaire(self._stats_changees_cible)
+        self.lanceur.additionner_stats_temporaire(self._stats_changees_lanceur)

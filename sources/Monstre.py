@@ -96,7 +96,7 @@ class Monstre(Entite):
         return monstre
     
     @staticmethod
-    def vivants() -> list[Monstre]:
+    def vivants() -> list['Monstre']:
         """Renvoie les monstres en vie."""
         # on admet que c'est que des monstres
         return [monstre for clef, monstre in Entite.vivantes.items() if clef > 0]   # type: ignore
