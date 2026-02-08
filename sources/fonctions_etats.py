@@ -204,7 +204,7 @@ def credits(duree : Duree = Duree(s=5)) -> None:
     
     deplacement : Deplacement = Deplacement(
         Pos(Jeu.pourcentage_largeur(50), Jeu.hauteur),
-        Pos(Jeu.pourcentage_largeur(50), - texte_credits2.height - 20),  # pour laisser le "et Nils" aller hors écran
+        Pos(Jeu.pourcentage_largeur(50), - texte_credits2.get_height() - 20),  # pour laisser le "et Nils" aller hors écran
     )
     
     debut : Duree = copy(Jeu.duree_execution)
@@ -215,7 +215,7 @@ def credits(duree : Duree = Duree(s=5)) -> None:
         
         Jeu.fenetre.fill(NOIR)
         blit_centre(Jeu.fenetre, texte_credits , pos.tuple)
-        blit_centre(Jeu.fenetre, texte_credits2, (pos + Vecteur(0, texte_credits2.height + 10)).tuple)
+        blit_centre(Jeu.fenetre, texte_credits2, (pos + Vecteur(0, texte_credits2.get_height() + 10)).tuple)
         
         Jeu.display_flip()
     Jeu.changer_etat(Jeu.precedent_etat)

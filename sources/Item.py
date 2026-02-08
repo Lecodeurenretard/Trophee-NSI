@@ -125,7 +125,7 @@ class Item:
         )
         rect_nom    : Rect = Rect(
             (abscisses, rect_sprite.bottom),
-           nom.size,
+           nom.get_rect().size,
         )
         pos_prix   : Pos = Pos(
             abscisses + rect_sprite.width // 2 + Jeu.pourcentage_largeur(1),

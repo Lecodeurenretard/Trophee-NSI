@@ -77,6 +77,7 @@ class Carte:
         self._de_dos_defaut : bool = de_dos
         
         self._finir_anim : bool = False
+        self._est_survolee : bool = False
         
         self._TAILLE_SPRITE : tuple[int, int] = self._sprite.get_rect().size
     
@@ -228,6 +229,7 @@ class Carte:
             animation_en_cours : CarteAnimEtat = self._anim_etat
             deplacement        : Deplacement   = self._calcul_deplacement()
             self._finir_anim = False
+            etat_change = False
             
             # Si la durée est de 0, l'anim est déjà finie
             # (on évite aussi les divisions par 0 en dessous)
@@ -240,8 +242,11 @@ class Carte:
             
             # On joue l'animation
             while Jeu.duree_execution <= debut_anim + self._anim_infos.duree:
-                if animation_en_cours != self._anim_etat or self._finir_anim:
+                if animation_en_cours != self._anim_etat:
+                    etat_change = True
                     break   # changement d'animation
+                if self._finir_anim:
+                    break   # animation écourtée
                 
                 t = (Jeu.duree_execution - debut_anim) / self._anim_infos.duree
                 t = clamp(t, 0, 1)
@@ -258,7 +263,8 @@ class Carte:
                 self._attaque.appliquer()
                 return      # La carte ne doit plus être dessinée après
             
-            self._anim_etat = CarteAnimEtat.IDLE # Quand on finit l'animation, on arrête la carte
+            if not etat_change and animation_en_cours == self._anim_etat:
+                self._anim_etat = CarteAnimEtat.IDLE # Quand on finit l'animation, on arrête la carte
             yield True  # Changement d'animation
     
     def skip_animation(self) -> None:
@@ -285,7 +291,22 @@ class Carte:
             return
         
         sprite = self._sprite
-        Jeu.fenetre.blit(sprite, self._pos.tuple)
+        pos = self._pos
+        if self._est_survolee:
+            facteur_zoom = 1.05
+            sprite = pygame.transform.smoothscale(
+                sprite,
+                (
+                    round(sprite.get_width() * facteur_zoom),
+                    round(sprite.get_height() * facteur_zoom),
+                ),
+            )
+            delta = Vecteur(
+                (sprite.get_width() - self._TAILLE_SPRITE[0]) / 2,
+                (sprite.get_height() - self._TAILLE_SPRITE[1]) / 2,
+            )
+            pos = pos - delta - Carte._ANIM_SURVOL_DECALAGE
+        Jeu.fenetre.blit(sprite, pos.tuple)
         
         if self._attaque._crit:
             blit_centre(
@@ -306,6 +327,9 @@ class Carte:
         
         Attaque.attaques_jouees.append(self._attaque)
         Carte.derniere_enregistree = self
+
+    def set_survol(self, est_survolee : bool) -> None:
+        self._est_survolee = est_survolee
     
     def jouer_sfx(self) -> None:
         if self._attaque._crit:

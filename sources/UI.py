@@ -253,8 +253,21 @@ def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateu
     if dessiner_cartes:
         # Avance et dessine l'animation des cartes affichées
         a_cacher : list[int] = []
-        liste_carte : Iterable[tuple[int, Carte]] = Carte.cartes_affichees.no_holes()
+        liste_carte : list[tuple[int, Carte]] = list(Carte.cartes_affichees.no_holes())
         liste_carte = sorted(liste_carte, key=lambda tpl: tpl[1].pos_defaut.x)  # trie les cartes suivant leur abscisse
+        carte_survolee : Optional[tuple[int, Carte]] = None
+        pos_souris : Pos = Pos(pygame.mouse.get_pos())
+        for tpl in reversed(liste_carte):
+            if tpl[1].dans_hitbox(pos_souris):
+                carte_survolee = tpl
+                break
+        for _, carte in liste_carte:
+            carte.set_survol(False)
+        if carte_survolee is not None:
+            carte_survolee[1].set_survol(True)
+            liste_carte.remove(carte_survolee)
+            liste_carte.append(carte_survolee)
+        
         for i, carte in liste_carte:
             try:
                 next(carte.animation_generateur)
@@ -280,15 +293,21 @@ def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateu
         centre_y=True,
         border_radius=3,
     )
-    txt_coups = Jeu.construire_police(Polices.FOURRE_TOUT, 9).render(
-        f"{Jeu.attaques_restantes_joueur} coups restants",
-        True,
-        Gradient.calculer_valeur_s(
+    if Jeu.attaques_restantes_joueur <= 0:
+        texte_coups = "Tour de l'adversaire"
+        couleur_texte = NOIR
+    else:
+        texte_coups = f"{Jeu.attaques_restantes_joueur} coups restants"
+        couleur_texte = Gradient.calculer_valeur_s(
             CYAN,
             ROUGE,
             abs(Jeu.attaques_restantes_joueur) / Jeu.ATTAQUES_PAR_TOUR,
             sens_lecture=SensLecture.ARRIERE,   # le ratio décroit
         )
+    txt_coups = Jeu.construire_police(Polices.FOURRE_TOUT, 9).render(
+        texte_coups,
+        True,
+        couleur_texte,
     )
     blit_centre(
         Jeu.menus_surf,
