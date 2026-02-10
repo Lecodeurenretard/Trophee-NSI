@@ -8,7 +8,25 @@
 			"type"				: "V. doc pour la liste des types",
 			"probabilité_crit"	: null,
 			"flags"				: ["Une liste de AttaqueFlag.", "v. doc..."],
-			"nom_ajustement"	: "clef de Attaque._AJUSTEMENTS"
+			"nom_ajustement"	: "clef de Attaque._AJUSTEMENTS",
+			"Modif stat cible": {
+                "vie_max"        : 0,
+                "force"          : 0,
+                "defense"        : 0,
+                "magie"          : 0,
+                "defense_magique": 0,
+                "crit_puissance" : 0,
+                "crit_resitance" : 0
+            },
+			"Modif stat lanceur": {
+                "vie_max"        : 0,
+                "force"          : 0,
+                "defense"        : 0,
+                "magie"          : 0,
+                "defense_magique": 0,
+                "crit_puissance" : 0,
+                "crit_resitance" : 0
+			}
 		}
 	},
 	{
@@ -20,7 +38,25 @@
 			"type"				: "soin",
 			"probabilité_crit"	: 0.2,
 			"flags"				: ["cible lanceur"],
-			"nom_ajustement"	: null
+			"nom_ajustement"	: null,
+			"Modif stat cible": {
+                "vie_max"        : 0,
+                "force"          : 0,
+                "defense"        : 0,
+                "magie"          : 0,
+                "defense_magique": 0,
+                "crit_puissance" : 0,
+                "crit_resitance" : 0
+			},
+			"Modif stat lanceur": {
+                "vie_max"        : 0,
+                "force"          : 0,
+                "defense"        : 0,
+                "magie"          : 0,
+                "defense_magique": 0,
+                "crit_puissance" : 0,
+                "crit_resitance" : 0
+            }
 		}
 	},
 	{
@@ -32,7 +68,25 @@
 			"type"				: "magique",
 			"probabilité_crit"	: null,
 			"flags"				: null,
-			"nom_ajustement"	: null
+			"nom_ajustement"	: null,
+			"Modif stat cible": {
+                "vie_max"        : 0,
+                "force"          : 0,
+                "defense"        : -10,
+                "magie"          : 0,
+                "defense_magique": 0,
+                "crit_puissance" : 0,
+                "crit_resitance" : 0
+			},
+			"Modif stat lanceur": {
+                "vie_max"        : 0,
+                "force"          : 0,
+                "defense"        : 0,
+                "magie"          : 0,
+                "defense_magique": 0,
+                "crit_puissance" : 0,
+                "crit_resitance" : 0
+            }
 		}
 	},
 	{
@@ -44,7 +98,25 @@
 			"type"				: "physique",
 			"probabilité_crit"	: null,
 			"flags"				: null,
-			"nom_ajustement"	: null
+			"nom_ajustement"	: null,
+			"Modif stat cible": {
+                "vie_max"        : 0,
+                "force"          : 0,
+                "defense"        : 0,
+                "magie"          : 0,
+                "defense_magique": 0,
+                "crit_puissance" : 0,
+                "crit_resitance" : 0
+			},
+			"Modif stat lanceur": {
+                "vie_max"        : 0,
+                "force"          : 0,
+                "defense"        : 0,
+                "magie"          : 0,
+                "defense_magique": 0,
+                "crit_puissance" : 0,
+                "crit_resitance" : 0
+            }
 		}
 	},
 	{
@@ -56,7 +128,25 @@
 			"type"				: "divers",
 			"probabilité_crit"	: null,
 			"flags"				: [],
-			"nom_ajustement"	: null
+			"nom_ajustement"	: null,
+			"Modif stat cible": {
+                "vie_max"        : 0,
+                "force"          : 0,
+                "defense"        : 0,
+                "magie"          : 0,
+                "defense_magique": 0,
+                "crit_puissance" : 0,
+                "crit_resitance" : 0
+			},
+			"Modif stat lanceur": {
+                "vie_max"        : 0,
+                "force"          : 0,
+                "defense"        : 0,
+                "magie"          : 0,
+                "defense_magique": 0,
+                "crit_puissance" : 0,
+                "crit_resitance" : 0
+            }
 		}
 	},
 	{
@@ -69,7 +159,25 @@
 			"type"				: "magique",
 			"probabilité_crit"	: null,
 			"flags"				: null,
-			"nom_ajustement"	: null
+			"nom_ajustement"	: null,
+			"Modif stat cible": {
+                "vie_max"        : 0,
+                "force"          : 0,
+                "defense"        : 0,
+                "magie"          : 0,
+                "defense_magique": 0,
+                "crit_puissance" : 0,
+                "crit_resitance" : 0
+			},
+			"Modif stat lanceur": {
+                "vie_max"        : 0,
+                "force"          : 0,
+                "defense"        : 0,
+                "magie"          : 0,
+                "defense_magique": 0,
+                "crit_puissance" : 0,
+                "crit_resitance" : 0
+            }
 		}
 	},
 	{
@@ -82,7 +190,25 @@
 			"type"				: "physique",
 			"probabilité_crit"	: 0.3,
 			"flags"				: null,
-			"nom_ajustement"	: null
+			"nom_ajustement"	: null,
+			"Modif stat cible": {
+                "vie_max"        : 0,
+                "force"          : 0,
+                "defense"        : 0,
+                "magie"          : 0,
+                "defense_magique": 0,
+                "crit_puissance" : 0,
+                "crit_resitance" : 0
+			},
+			"Modif stat lanceur": {
+                "vie_max"        : 0,
+                "force"          : 0,
+                "defense"        : -10,
+                "magie"          : 0,
+                "defense_magique": 0,
+                "crit_puissance" : 0,
+                "crit_resitance" : 0
+            }
 		}
 	}
 ]

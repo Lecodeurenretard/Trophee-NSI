@@ -228,7 +228,7 @@ def dessiner_infos() -> None:
 
 def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = [], to_send_dessin : Any = None, to_send_UI : Any = None) -> None:
     # Chemin vers l'image de fond
-    chemin_fond = os.path.join("data", "img", "stade", "terrain_plaine.png")
+    chemin_fond = os.path.join(Chemins.IMG, "stade", "terrain_plaine.png")
     
     image_fond = pygame.image.load(chemin_fond)
     image_fond = pygame.transform.scale(image_fond, Jeu.fenetre.get_size()) # Redimensionne l'image

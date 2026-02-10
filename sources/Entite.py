@@ -11,12 +11,12 @@ class Entite(ABC):
     _LONGUEUR_BARRE_DE_VIE : int = int(_SPRITE_TAILLE.x) - 100
     _HAUTEUR_BARRE_DE_VIE  : int = 10
     
-    vivantes : Array[Entite] = Array['Entite'](2)
+    vivantes : Array['Entite'] = Array['Entite'](2)
     
     def __init__(
             self,
             nom             : str,
-            stats           : Stat,
+            stats           : Stat, 
             deck            : Sequence[str],
             max_cartes_main : int,
             chemin_sprite   : Optional[str]  = None,
@@ -24,6 +24,7 @@ class Entite(ABC):
         ):
         
         self._nom                        : str         = nom
+        self._stats_temporaire = Stat(0, 0, 0, 0, 0, 0, 0)
         self._stats                      : Stat        = stats
         self._cartes_main                : list[Carte] = []
         self._deck                       : list[str]   = list(deck)
@@ -101,6 +102,7 @@ class Entite(ABC):
     @property
     def stats_totales(self) -> Stat:
         copie = copy(self._stats)
+        copie.additionner(self._stats_temporaire)
         for item in self._inventaire:
             copie.additionner(item.stats_changees)
         return copie
@@ -303,6 +305,8 @@ class Entite(ABC):
             f"Inventaire: {[item.nom for item in self._inventaire]}\n"
         )
 
-# Grâce au passage par référence ça marche!
-# C'est un hack mais j'ai pas trouvé mieux
-Attaque.set_arr_entites(Entite.vivantes)
+    def additionner_stats_temporaire(self, stat : Stat):
+        self._stats_temporaire.additionner(stat)
+
+Attaque.set_arr_entites(Entite.vivantes) # grâce au passage par référence ça marche
+                                          # C'est un hack, certes, mais j'ai pas trouvé mieux

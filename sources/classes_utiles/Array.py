@@ -77,7 +77,7 @@ class Array[T]:
             return False
         return item in self._valeurs.values()
     
-    def __add__(self, other : Array[T]|Sequence[T]):
+    def __add__(self, other : 'Array[T]|Sequence[T]'):
         res = copy(self)
         for val in other:
             res.append(val)
