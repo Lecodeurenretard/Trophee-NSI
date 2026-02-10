@@ -6,8 +6,9 @@ Chaque fonction éponyme à une valeur de `EtatJeu` sera une boucle stournant ta
 from fonctions_main import *
 from Item           import Item
 from Bouton         import Button, ButtonCursor
-from Carte          import Carte
+from Carte          import Carte, CarteAnimEtat
 from Joueur         import Entite, joueur
+from Boss           import Monstre, Boss
 
 def attente_prochaine_etape() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.ATTENTE_PROCHAINE_ETAPE.name}.")
@@ -28,14 +29,13 @@ def attente_prochaine_etape() -> None:
         dessiner_infos()
         Jeu.display_flip()
     
-    if Jeu.decision_boss(Jeu.num_etape):
-        Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
-        pass     # à implémenter plus tard
-        return
-    
-    if Jeu.decision_shop(Jeu.num_etape):
+    if Jeu.etape_est_shop():
         Jeu.changer_etat(Jeu.Etat.SHOP)
         return
+    
+    if Jeu.etape_est_boss():
+        Monstre.massacre()
+        Boss.spawn_boss()
     
     joueur.repiocher_tout()
     Jeu.set_texte_fenetre("Combat!")
@@ -46,6 +46,10 @@ def choix_attaque() -> None:
     
     if Jeu.attaques_restantes_joueur == Jeu.ATTAQUES_PAR_TOUR:
         joueur.piocher()
+    
+    joueur.piocher_si_main_vide()
+    for m in Monstre.vivants():
+       m.piocher_si_main_vide()
     
     if Jeu.attaques_restantes_joueur > 0:
         logging.debug('')
@@ -95,13 +99,15 @@ def affichage_attaque() -> None:
     
     if Carte.derniere_enregistree is None:
         raise RuntimeError("Il n'y a aucune dernière attaque alors que l'état AFFICHAGE_ATTAQUE est actif.")
-    
-    interruption : Optional[Interruption] = None
     # joue l'animation de l'attaque
+    interruption : Optional[Interruption] = None
     while Carte.derniere_enregistree.est_affiche:
         Jeu.commencer_frame()
         if interruption is not None:
             terminer_interruption(interruption)
+        
+        # Ce n'est pas sûr que les cartes soient dans cet état apparament
+        Carte.derniere_enregistree.anim_etat = CarteAnimEtat.JOUER
         
         skip : bool = False
         for ev in pygame.event.get():
@@ -125,8 +131,12 @@ def affichage_attaque() -> None:
     # fait gagner les pieces
     pieces_gagnees : int = 0
     for monstre in Entite.tuer_les_entites_mortes():
-        assert(type(monstre) is Monstre)
-        pieces_gagnees += 2**monstre.rang + random.randint(1, 4)  # Dites non au décalage de bit et exponentiez
+        if type(monstre) is Monstre:
+            pieces_gagnees += 2**monstre.rang + random.randint(1, 4)  # Dites non au décalage de bit et exponentiez
+        elif type(monstre) is Boss:
+            pieces_gagnees += 10**monstre.rang + random.randint(5, 10)
+        else:
+            raise TypeError(f"On veut exécuter les monstres/boss morts mais il y a un innocent parmis eux de type {type(monstre)}: {monstre}.")
     
     # Animation pièces
     if pieces_gagnees != 0:

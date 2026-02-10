@@ -78,10 +78,19 @@ class Carte:
         
         self._finir_anim : bool = False
         
+        # C'est un attribut non statique car il dépend de ._sprite qui n'est pas statique
+        # mais il faut le traiter comme si
         self._TAILLE_SPRITE : tuple[int, int] = self._sprite.get_rect().size
     
     def __repr__(self):
-        return f"Carte(nom={self._nom}; sprite={self._nom_sprite}; pos={self._pos}; attaque={self._attaque})"
+        return (
+            "Carte("
+            f"nom={self._nom}"
+            f"; sprite={self._nom_sprite}"
+            f"; pos={self._pos}"
+            f"; attaque={self._attaque}"
+            ")"
+        )
     
     @staticmethod
     def actualiser_donnees() -> None:
@@ -209,10 +218,7 @@ class Carte:
             and dest.y != CarteAnimInfo.CHANGER
         ), f"La destination de l'animation \"{self._anim_etat.name}\" ({dest}) doit être changée."
         
-        sens = SensLecture.AVANT
-        ...     # inutilisé pour l'instant
-        
-        return Deplacement(self._pos, dest, sens_lecture=sens)
+        return Deplacement(self._pos, dest)
     
     def _animation(self, surface : Surface) -> Generator[bool, None, None]:
         """Renvoie un générateur avançant l'animation."""
@@ -256,6 +262,7 @@ class Carte:
             if animation_en_cours == CarteAnimEtat.JOUER:
                 self.jouer_sfx()
                 self._attaque.appliquer()
+                self.cacher()
                 return      # La carte ne doit plus être dessinée après
             
             self._anim_etat = CarteAnimEtat.IDLE # Quand on finit l'animation, on arrête la carte

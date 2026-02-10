@@ -2,6 +2,7 @@
 from fonctions_boutons import *
 from Item import Item
 from Carte import Carte
+from Monstre import Monstre
 
 def quit(exit_code : int = 0) -> NoReturn:
     pygame.quit()

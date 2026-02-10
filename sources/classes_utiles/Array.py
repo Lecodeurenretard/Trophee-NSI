@@ -93,18 +93,18 @@ class Array[T]:
                 res[i + len(self) * n] = val  # [[0, 3, 6],  [1, 4, 7],  [2, 5, 8]]
         return res
     
-    def _solve_key(self, index : int) -> int:
+    def _solve_key(self, key : int) -> int:
         """Renvoie l'index "canonique" qui sera utilisé par les fonctions (ex: -1 devient le dernier élément de la liste)."""
-        if type(index) is slice:
+        if type(key) is slice:
             return NotImplemented
-        if type(index) is not int:
+        if type(key) is not int:
             raise TypeError("Le type d'une clef d'un array doit être une int.")
         
-        if abs(index) > self._clef_maximum:
-            raise IndexError(f"Accès à l'élément d'indice {index} alors que l'array est de longueur {len(self)}.")
-        if index < 0:     # les clefs négatives fonctionnent comme dans les listes
-            return len(self) + index
-        return index
+        if abs(key) > self._clef_maximum:
+            raise IndexError(f"Accès à l'élément d'indice {key} alors que l'array est de longueur {len(self)}.")
+        if key < 0:     # les clefs négatives fonctionnent comme dans les listes
+            return len(self) + key
+        return key
     
     def append(self, val : T|None) -> None:
         """Ajoute un élément à la fin de la liste."""
@@ -134,7 +134,7 @@ class Array[T]:
             return
         
         if size < len(self):
-            # Supprimme toutes les clefs au dessus du nouveau max
+            # Supprime toutes les clefs au dessus du nouveau max
             for i in self._valeurs.keys():
                 if i >= size:
                     del self._valeurs[i]
@@ -186,5 +186,17 @@ class Array[T]:
             return self[key] is not None
         except IndexError:
             return False
+    
+    def at(self, index : int, accept_negative : bool = True) -> T:
+        true_index = index
+        if true_index < 0 and accept_negative:
+            true_index = len(self) + index
+        else:
+            raise ValueError("Index négatif passé alors que `accept_negative` est False.")
+        
+        if true_index not in self._valeurs.keys():
+            raise IndexError(f"Index {index} est     soit un trou, soit en dehors de l'array.")
+        
+        return self._valeurs[true_index]
     
     # Par essence on ne peut pas définir .insert()

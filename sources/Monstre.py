@@ -2,7 +2,7 @@ from Entite import *
 
 @dataclass
 class MonstreJSON:
-    """Les propriétés des types des monstres quand ils sont parse de TypesMonstre.json"""
+    """La représentation d'un monstre dans le JSON."""
     DONNEES_TYPES : list[dict] = field(repr=False)
     
     id             : int
@@ -59,8 +59,8 @@ class Monstre(Entite):
     @override
     def __init__(
             self,
-            type          : MonstreJSON,
-            inventaire    : Sequence[Item] = (),
+            type       : MonstreJSON,
+            inventaire : Sequence[Item] = (),
         ):
         super().__init__(
             type.nom,
@@ -99,10 +99,10 @@ class Monstre(Entite):
     def vivants() -> list[Monstre]:
         """Renvoie les monstres en vie."""
         # on admet que c'est que des monstres
-        return [ # type: ignore
+        return [
             monstre
             for clef, monstre in Entite.vivantes.no_holes()
-            if clef > 0
+            if isinstance(monstre, Monstre)
         ]
     
     @staticmethod
