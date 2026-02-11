@@ -10,7 +10,7 @@ class Stat:
     crit_puissance  : float
     crit_resitance  : float
     vie             : int = -0xFFFF
-
+    
     @staticmethod
     def depuis_dictionnaire_json(json_dict : dict, valeur_par_defaut : int = -1000) -> 'Stat':
         """

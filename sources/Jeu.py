@@ -11,7 +11,8 @@ class Jeu:
     Classe statique gerant le jeu.
     Elle contient les variables globales.
     """
-    MAX_COMBAT        : int = 10
+    ETAPE_PAR_ETAGE   : int = 10
+    MAX_COMBAT        : int = 2 * ETAPE_PAR_ETAGE
     ATTAQUES_PAR_TOUR : int = 3
     
     fenetre    : Surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -65,6 +66,18 @@ class Jeu:
     @staticmethod
     def set_texte_fenetre(val : str) -> None:
         pygame.display.set_caption(val)
+    
+    @staticmethod
+    def num_etage() -> int:
+        return Jeu.num_etape // Jeu.ETAPE_PAR_ETAGE
+
+    @staticmethod
+    def etape_est_shop() -> bool:
+        return Jeu.decision_shop(Jeu.num_etape)
+        
+    @staticmethod
+    def etape_est_boss() -> bool:
+        return Jeu.decision_boss(Jeu.num_etape)
     
     @staticmethod
     def decision_boss(num_combat : int) -> bool:
@@ -142,6 +155,11 @@ class Jeu:
         if ret_vec:
             return Vecteur(Jeu.pourcentages_coordonnees(pc_largeur, pc_hauteur, ret_pos=False))
         return (Jeu.pourcentage_largeur(pc_largeur), Jeu.pourcentage_hauteur(pc_hauteur))
+    
+    @staticmethod
+    def vecteur_pourcentage(v : Vecteur) -> Vecteur:
+        """pourcentages_fenetre() mais prend un vecteur en entrée."""
+        return Vecteur(*Jeu.pourcentages_fenetre(v.x, v.y))
     
     @staticmethod
     def construire_police(

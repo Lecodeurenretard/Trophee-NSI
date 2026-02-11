@@ -241,11 +241,9 @@ class Entite(ABC):
             id_cible = self.id
         
         self._enlever_carte_main(index_carte)
-        if len(self._cartes_main) == 0:
-            self.piocher()
         
-        carte.enregister_lancement(self._id, id_cible)
         carte.anim_etat = CarteAnimEtat.JOUER
+        carte.enregister_lancement(self._id, id_cible)
     
     def dessiner(self, surface : Surface) -> None:
         blit_centre(surface, self._sprite, self.pos_sprite.tuple)
@@ -268,6 +266,10 @@ class Entite(ABC):
             
             self._nom_derniere_carte_piochee = choisi
             self._ajouter_carte_main(choisi)
+    
+    def piocher_si_main_vide(self) -> None:
+        if len(self._cartes_main) == 0:
+            self.piocher()
     
     def main_jouer_entrer(self) -> None:
         for c in self._cartes_main:

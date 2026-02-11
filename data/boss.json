@@ -1,0 +1,44 @@
+[
+	{
+		"nom": "Exemple",
+		"sprite" : "Chemin vers le sprite depuis /sources/data/img/boss/",
+		"moveset_boss": [
+			"nom Attaque1",
+			"nom Attaque2"
+		],
+		"moveset_joueur": null,
+		"nombre_cartes_main": null,
+		"pos_sprite": [null, null],
+		"rang": null,
+		"stats": {
+			"vie_max"			: null,
+			"force"				: null,
+			"defense"			: null,
+			"magie"				: null,
+			"defense_magique"	: null,
+			"crit_puissance"	: null,
+			"crit_resitance"	: null
+		}
+	},
+	{
+		"nom": "Roi blob",
+		"sprite" : "Roi blob.png",
+		"moveset_boss": [
+			"Magie",
+			"Torgnole"
+		],
+		"rang": 1,
+		"moveset_joueur": null,
+		"nombre_cartes_main": 1,
+		"pos_sprite": [50, 50],
+		"stats": {
+			"vie_max"			: 100,
+			"force"				: 40,
+			"defense"			: 50,
+			"magie"				: 40,
+			"defense_magique"	: 25,
+			"crit_puissance"	: 1.4,
+			"crit_resitance"	: 1.4
+		}
+	}
+]

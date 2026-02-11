@@ -1,7 +1,6 @@
 import os
 from import_local import *
 from Joueur       import Entite, Joueur, joueur
-from Monstre      import Monstre
 from Carte        import Attaque, Carte
 from Item         import Item
 from Bouton       import Button
@@ -229,7 +228,7 @@ def dessiner_infos() -> None:
 
 def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = [], to_send_dessin : Any = None, to_send_UI : Any = None) -> None:
     # Chemin vers l'image de fond
-    chemin_fond = os.path.join("data", "img", "stade", "terrain_plaine.png")
+    chemin_fond = os.path.join(Chemins.IMG, "stade", "terrain_plaine.png")
     
     image_fond = pygame.image.load(chemin_fond)
     image_fond = pygame.transform.scale(image_fond, Jeu.fenetre.get_size()) # Redimensionne l'image
@@ -252,18 +251,14 @@ def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateu
     
     if dessiner_cartes:
         # Avance et dessine l'animation des cartes affichées
-        a_cacher : list[int] = []
-        liste_carte : Iterable[tuple[int, Carte]] = Carte.cartes_affichees.no_holes()
-        liste_carte = sorted(liste_carte, key=lambda tpl: tpl[1].pos_defaut.x)  # trie les cartes suivant leur abscisse
-        for i, carte in liste_carte:
+        it_carte = Carte.cartes_affichees.no_holes()
+        it_carte = sorted(it_carte, key=lambda tpl: tpl[1].pos_defaut.x)  # trie les cartes suivant leur abscisse
+        for _, carte in it_carte:
+            print("rf", carte, carte._id_affichage, carte.anim_etat, carte == Carte.derniere_enregistree)
             try:
                 next(carte.animation_generateur)
             except StopIteration:
-                a_cacher.append(i)
-        
-        # Nettoyage de Carte.cartes_affichees_anim[] (ici sinon on enlève des clefs)
-        for index in a_cacher:
-            Carte.cartes_affichees[index].cacher()  # type: ignore  # on itère en sur .no_holes(), c'est donc non none
+                ...
     
     # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:

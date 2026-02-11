@@ -32,36 +32,28 @@ format:
 ------------------------------------
 -->
 _____
-## [buggy] Changements divers
+## Implémentation primitive des boss et bugfix!
 + Changements majeurs
+	- Ajout d'un système de boss (v. le tiret sur `Boss`)
 + Sur plusieurs fichiers
 + Structure de fichiers
 + READMEs et documentation
 + Interactions joueur/testeur
-	- Changement de couleur pour les barres de vies à 100%.
-	- Le joueur peut maintenant utiliser les touches de base (celles gérées dans `reagir_appui_touche()`) dans l'état `AFFICHAGE_ATTAQUE`.
-	- Les appuis ne sont plus gardés entre les états.
+	- La pioche se fait maintenant en début de tour.
+	- Ajout d'un boss pour les étapes 10 et 20.
 + Correction de bugs
-	- [Entite.py](sources/Entite.py) est enlevé du [.gitignore](.gitignore).
-	- Les deux bugs du commits précédents ont été réparés.
 + `Array`
-	- `.pop()` vérifie l'index passé en argument.
-+ [Carte.py](sources/Carte.py)
-	- Les animations sont représentées par une enum `CarteAnimEtat`.
-	- Ajout de `.dans_hitbox()`.
-	- Renommage de `.anim_nom` en `.anim_etat`.
-	- Suppression de `.souris_survole`.
-+ `Entite`
-	- Renommage de `._inserer_carte_main()` en `._ajouter_carte_main()` et ajout du paramètre `faire_revenir`.
-	- Ajout de `._vider_main()`.
-+ `Jeu`
-	- Ajout de `decision_boss()` (inutile pour l'instant).
-	- `DECISION_SHOP()` est maintenant une vraie fonction est est renommée `decision_shop()`.
-+ `Joueur`
-	- Remplacement de `.verifier_pour_attaquer()` par `.carte_du_dessus()`.
-
+	- nouvelle fonction `.at()`.
++ `Boss`
+	- Fonctionne un peu comme `Monstre` (hérite aussi de cette classe).
+	- Pour l'instant les boss sont juste de gros ennemis.
++ `Carte`
+	- L'arret de l'animation fait en sorte que la carre soit cachée.
++ `Entite` (donc filles)
+	- Ajout de `.piocher_si_main_vide()` car écrire un if, c'est énervant.
++ `Monstre`
+	- `.vivants()` garantit le retour de type monstre.
 
 ____________
-Je laisse un bug dont je n'arrive oas à trouver l'origine et donc à fix.  
-Si on spam le clic après l'animation de la carte, elle va en animation `JOUER` pour instantanément revenir  en `IDLE`.
-Le joueur verra la carte de dos pendant 1 frame et après le jeu plante.
+Enfin!  
+Sinon pour le système de boss, je pense faire un système de callback qui modifie l'objet `Boss` sans prendre en compte l'encapsulation. Comme un dico qui à le nom de boss en clef et le callback en valeur.

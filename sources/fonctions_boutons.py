@@ -7,6 +7,7 @@ def _rafraichir_donnees() -> None:
     from Carte  import Carte
     from Item    import Item
     from Monstre import MonstreJSON
+    from Boss import BossJSON
     
     logging.debug("Actualisation des cartes...")
     Carte.actualiser_donnees()
@@ -16,6 +17,9 @@ def _rafraichir_donnees() -> None:
     
     logging.debug("Actualisation des monstres...")
     MonstreJSON.actualiser_donnees()
+    
+    logging.debug("Actualisation des boss...")
+    BossJSON.actualiser_donnees()
     
     logging.debug("fini!")
 
