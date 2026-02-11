@@ -79,7 +79,7 @@ class Boss(Monstre):
         self._pos_sprite  = boss_json.pos_sprite
     
     @staticmethod
-    def vivant() -> list[Boss]:
+    def vivant() -> list["Boss"]:
         """Renvoie les monstres en vie."""
         # on admet que c'est que des monstres
         return [
