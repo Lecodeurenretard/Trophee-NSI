@@ -25,8 +25,10 @@ class Jeu:
     
     
     
-    attaques_restantes_joueur : int  = ATTAQUES_PAR_TOUR
     num_etape                 : int  = 1
+    attaques_restantes_joueur : int  = ATTAQUES_PAR_TOUR
+    nb_tours_combat           : int  = 0
+    
     a_gagne                   : bool = False
     
     duree_execution     : Duree = Duree(s=0)

@@ -6,10 +6,7 @@ class Entite(ABC):
     _CARTE_MAIN_PREMIERE_POS : Pos     = Pos(0, 0)      # à changer dans les classes filles
     _CARTES_MAIN_ESPACEMENT  : Vecteur = Jeu.pourcentages_fenetre(4, 0)
     _CARTES_MAIN_MAX_DU_MAX  : int     = 10
-    
-    _SPRITE_TAILLE : Vecteur = Vecteur(Jeu.pourcentage_largeur(20), Jeu.pourcentage_largeur(20))
-    _LONGUEUR_BARRE_DE_VIE : int = int(_SPRITE_TAILLE.x) - 100
-    _HAUTEUR_BARRE_DE_VIE  : int = 10
+    _DIFF_LARG_ET_BARRE_SPRITE : int = 100
     
     vivantes : Array['Entite'] = Array['Entite'](2)
     
@@ -21,10 +18,11 @@ class Entite(ABC):
             max_cartes_main : int,
             chemin_sprite   : Optional[str]  = None,
             inventaire      : Sequence[Item] = [],
+            _taille_sprite  : Optional[Vecteur] = None,
         ):
         
         self._nom                        : str         = nom
-        self._stats_temporaire = Stat(0, 0, 0, 0, 0, 0, 0)
+        self._stats_temporaire           : Stat        = Stat(0, 0, 0, 0, 0, 0, 0)
         self._stats                      : Stat        = stats
         self._cartes_main                : list[Carte] = []
         self._deck                       : list[str]   = list(deck)
@@ -34,10 +32,15 @@ class Entite(ABC):
         assert(0 < max_cartes_main <= self.__class__._CARTES_MAIN_MAX_DU_MAX), f"Le maximum de cartes en main ({max_cartes_main}) doit être entre 0 (exclus) et {self.__class__._CARTES_MAIN_MAX_DU_MAX} (inclus)."
         self._cartes_main_max : int = max_cartes_main
         
-        chemin_sprite = valeur_par_defaut(chemin_sprite, si_none=f"{Chemins.IMG}/erreur.png")
-        self._sprite : Surface = pygame.transform.scale(pygame.image.load(chemin_sprite), Entite._SPRITE_TAILLE)
+        self._SPRITE_TAILLE : Vecteur = valeur_par_defaut(
+            _taille_sprite,
+            si_none=Vecteur(Jeu.pourcentage_largeur(20), Jeu.pourcentage_largeur(20)),
+        )
+        self._LONGUEUR_BARRE_DE_VIE : int = int(self._SPRITE_TAILLE.x) - Entite._DIFF_LARG_ET_BARRE_SPRITE
+        self._HAUTEUR_BARRE_DE_VIE  : int = 10
         
-        # Ajoute l'entite à la liste
+        chemin_sprite = valeur_par_defaut(chemin_sprite, si_none=f"{Chemins.IMG}/erreur.png")
+        self._sprite : Surface = pygame.transform.scale(pygame.image.load(chemin_sprite), self._SPRITE_TAILLE)
         self._id : int = Entite.vivantes.search(None)
         if self._id < 0:
             self._id = len(Entite.vivantes)
@@ -67,7 +70,6 @@ class Entite(ABC):
         
         return echafaud
     
-    
     @property
     def _cartes_deck(self) -> list[Carte]:
         return [
@@ -82,8 +84,15 @@ class Entite(ABC):
     @property
     def _pos_barre_de_vie(self) -> Pos:
         barre_de_vie : Rect = Rect(0, 0, self._LONGUEUR_BARRE_DE_VIE, self._HAUTEUR_BARRE_DE_VIE)
-        barre_de_vie.centerx = self.pos_sprite.x
-        barre_de_vie.bottom = self.pos_sprite.y - self._sprite.get_bounding_rect().height / 2 - Jeu.pourcentage_hauteur(1)
+        barre_de_vie.x = (
+            self.pos_sprite.x
+            + Entite._DIFF_LARG_ET_BARRE_SPRITE // 2
+        )
+        barre_de_vie.bottom = (
+            self.pos_sprite.y
+            + (self._sprite.get_bounding_rect().y)
+            - Jeu.pourcentage_hauteur(1)
+        )
         
         return Pos(barre_de_vie.topleft)
     
@@ -125,17 +134,20 @@ class Entite(ABC):
         # alors elles le sont toutes
         return self._cartes_main[0].est_a_pos_defaut
     
+    @property
+    def pos_sprite(self) -> Pos:
+        return centrer_pos(self.pos_sprite_centree, self._SPRITE_TAILLE)
+    
     # propriété car la position pourrait changer
     # suivant la position du joueurs
     @property
     @abstractmethod
-    def pos_sprite(self) -> Pos:
+    def pos_sprite_centree(self) -> Pos:
         pass
     
     @property
-    @abstractmethod
     def pos_attaque(self) -> Pos:
-        pass
+        return self.pos_sprite
     
     @nom.setter
     def nom(self, val : str) -> None:
@@ -197,12 +209,10 @@ class Entite(ABC):
         elif ratio_vie <= .5:
             couleur_remplissage = JAUNE
         elif ratio_vie == 1:
-            couleur_remplissage = BLEU_CADET
-        if bool(params.mode_debug):
-            couleur_remplissage = GRIS
+            couleur_remplissage = TURQUOISE
         
-        dim_remplissage : tuple[int, int] = (int(ratio_vie * Entite._LONGUEUR_BARRE_DE_VIE), Entite._HAUTEUR_BARRE_DE_VIE)
-        dim_bords       : tuple[int, int] = (                Entite._LONGUEUR_BARRE_DE_VIE , Entite._HAUTEUR_BARRE_DE_VIE)
+        dim_remplissage : tuple[int, int] = (int(ratio_vie * self._LONGUEUR_BARRE_DE_VIE), self._HAUTEUR_BARRE_DE_VIE)
+        dim_bords       : tuple[int, int] = (                self._LONGUEUR_BARRE_DE_VIE , self._HAUTEUR_BARRE_DE_VIE)
         dessiner_rect(  # remplissage
             surface,
             self._pos_barre_de_vie,
@@ -223,7 +233,7 @@ class Entite(ABC):
         del Entite.vivantes[self._id]
         self._id = -1
     
-    def recoit_degats(self, degats_recu : int) -> None:
+    def recoit_degats(self, degats_recu : int, attaque_cause : Attaque) -> None:
         self._stats.baisser_vie(degats_recu)
     
     def reset(self) -> None:
@@ -246,7 +256,7 @@ class Entite(ABC):
         carte.enregister_lancement(self._id, id_cible)
     
     def dessiner(self, surface : Surface) -> None:
-        blit_centre(surface, self._sprite, self.pos_sprite.tuple)
+        surface.blit(self._sprite, self.pos_sprite.tuple)
     
     def dessiner_UI(self, surface : Surface) -> None:
         self._dessiner_barre_de_vie(surface)

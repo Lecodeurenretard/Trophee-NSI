@@ -27,26 +27,22 @@ class Joueur(Entite):
         return self._nombre_pieces
     
     @property
-    def pos_sprite(self) -> Pos:   # on ne met pas de @override car le membre est abstrait (pur)
-        return Jeu.pourcentages_coordonnees(30, 80)
-    
-    @property
-    def pos_attaque(self) -> Pos:
-        return Jeu.pourcentages_coordonnees(30, 62)
+    def pos_sprite_centree(self) -> Pos:
+        return Jeu.pourcentages_coordonnees(31, 75)
     
     
     @override
-    def recoit_degats(self, degats_recu : int) -> None:
+    def recoit_degats(self, degats_recu : int, attaque_cause : Attaque) -> None:
         """Prend en charge les dégats prits et retourne si un crit est retourné."""
         # joueur_invincible n'empèche pas les soins
         if bool(params.joueur_invincible) and degats_recu >= 0:
             return
         
-        Entite.recoit_degats(self, degats_recu)
+        Entite.recoit_degats(self, degats_recu, attaque_cause)
     
     @override
     def reset(self) -> None:
-        Entite.reset(self)
+        Entite.reset(self)      # Appelle la version de Entite au lieu de cette override
         self._stats = copy(Joueur.STATS_DE_BASE)
     
     def carte_du_dessus(self, pos : pos_t) -> Optional[int]:

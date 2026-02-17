@@ -32,28 +32,32 @@ format:
 ------------------------------------
 -->
 _____
-## Implémentation primitive des boss et bugfix!
+## Les boss customizables avec des fonctions callbacks spéciales.
 + Changements majeurs
-	- Ajout d'un système de boss (v. le tiret sur `Boss`)
+	- Ajout d'une mini API pour les boss.
+		* Les callbacks ainsi qu'une dataclasse `BossMethodeWrapper` sont dans [fonctions_boss.py](sources/fonctions_boss.py).
+	- Les tours d'un combat sont comptés dans `Jeu.nb_tours_combat`.
 + Sur plusieurs fichiers
 + Structure de fichiers
 + READMEs et documentation
 + Interactions joueur/testeur
-	- La pioche se fait maintenant en début de tour.
-	- Ajout d'un boss pour les étapes 10 et 20.
+	- Le roi Blob est mieux placé.
+	- Le Blob est fortement nerf.
+	- Ajout d'une touche pour le mode debug pour skip jusqu'au boss.
+	- La couleur de la barre de vie pleine est maintenant un turquoise assombrit.
 + Correction de bugs
-+ `Array`
-	- nouvelle fonction `.at()`.
+	- Quelques `print()` oubliés ont été enlevés.
 + `Boss`
-	- Fonctionne un peu comme `Monstre` (hérite aussi de cette classe).
-	- Pour l'instant les boss sont juste de gros ennemis.
+	- Ajout propriété statique `_AGRANDISSEMENT_SPRITE`.
 + `Carte`
-	- L'arret de l'animation fait en sorte que la carre soit cachée.
-+ `Entite` (donc filles)
-	- Ajout de `.piocher_si_main_vide()` car écrire un if, c'est énervant.
-+ `Monstre`
-	- `.vivants()` garantit le retour de type monstre.
-
-____________
-Enfin!  
-Sinon pour le système de boss, je pense faire un système de callback qui modifie l'objet `Boss` sans prendre en compte l'encapsulation. Comme un dico qui à le nom de boss en clef et le callback en valeur.
+	- Ajout de la méthode statique `vider_cartes_affichees()`.
++ `Entite` (et filles)
+	- Correction du code de dessin des barres de vies.
+	- Modifications sur l'utilisation et définition des propriétés de positions
+		* Ajout de `pos_sprite_centree`.
+		* `.pos_sprite` n'est plus abstraite et désigne la position du coin haut gauche.
+		* `.pos_attaque` n'est plus abstraite.
+	- Les propriétés statiques `_SPRITE_TAILLE`, `_LONGUEUR_BARRE_DE_VIE` et `_HAUTEUR_BARRE_DE_VIE` sont maintenant non statiques.
+	- `.recoit_degat()` à un nouveau parametre `attaque_cause` pour la compatibilité avec la version de `Boss`.
++ [fonctions_main.py](sources/fonctions_main.py)
+	- Les skips pour le boss et le shop ont été ajoutés/déplacés dans `reagir_appui_touche()` et peuvent être triggered dans plus d'états.

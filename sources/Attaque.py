@@ -256,15 +256,12 @@ class Attaque:
     
     def appliquer(self) -> None:
         if AttaqueFlag.ATTAQUE_LANCEUR not in self._drapeaux and self._lanceur_id == self._cible_id:
-            print("a")
             return
         elif AttaqueFlag.ATTAQUE_ENNEMIS in self._drapeaux and type(self.lanceur) == type(self.cible):
-            print("b")
             return
         elif AttaqueFlag.ATTAQUE_LANCEUR not in self._drapeaux and AttaqueFlag.ATTAQUE_ENNEMIS not in self._drapeaux:
-            print(self._drapeaux)
             return
-        self.cible.recoit_degats(self.calculer_degats())
+        self.cible.recoit_degats(self.calculer_degats(), self)
         self.appliquer_effet()
     
     def actualiser(self) -> None:

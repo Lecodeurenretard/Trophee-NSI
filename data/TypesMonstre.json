@@ -28,7 +28,7 @@
 		],
 		"stats": {
 			"vie_max"			: 40,
-			"force"				: 25,
+			"force"				: 17,
 			"defense"			: 50,
 			"magie"				: 0,
 			"defense_magique"	: 23,

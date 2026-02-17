@@ -254,7 +254,6 @@ def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateu
         it_carte = Carte.cartes_affichees.no_holes()
         it_carte = sorted(it_carte, key=lambda tpl: tpl[1].pos_defaut.x)  # trie les cartes suivant leur abscisse
         for _, carte in it_carte:
-            print("rf", carte, carte._id_affichage, carte.anim_etat, carte == Carte.derniere_enregistree)
             try:
                 next(carte.animation_generateur)
             except StopIteration:

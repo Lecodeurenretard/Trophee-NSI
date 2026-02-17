@@ -5,7 +5,7 @@ from fonctions_vrac import blit_centre
 def dessiner_rect(
         surface : Surface,
         pos : pos_t, dimensions : tuple[int, int]|list[int],
-        couleur_remplissage : color = ROUGE, couleur_bords : color = NOIR,
+        couleur_remplissage : color = ROUGE, couleur_bords : color = ROUGE,
         epaisseur_trait : int = 1, dessiner_interieur : bool = True,
         centre_x : bool = False, centre_y : bool = False,
         border_radius = -1,

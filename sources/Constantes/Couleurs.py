@@ -12,9 +12,9 @@ GRIS_CLAIR : rgb = (145, 145, 145)
 
 ROUGE   : rgb = (255, 0, 0)
 VERT    : rgb = (0, 255, 0)
-BLEU    : rgb = (0, 0, 255)
+TURQUOISE : rgb = (0, 230, 230)     # le vrai turquoise serait (0, 255, 255) mais celui là est plus joli
+BLEU      : rgb = (0, 0, 255)
 BLEU_CLAIR : rgb = (50, 50 , 255)
-BLEU_CADET : rgb = (95, 158, 160)
 CYAN       : rgb = (0 , 255, 255)
 JAUNE      : rgb = (255, 255, 0)
 

@@ -21,7 +21,7 @@
 		}
 	},
 	{
-		"nom": "Roi blob",
+		"nom": "Roi Blob",
 		"sprite" : "Roi blob.png",
 		"moveset_boss": [
 			"Magie",
@@ -30,7 +30,7 @@
 		"rang": 1,
 		"moveset_joueur": null,
 		"nombre_cartes_main": 1,
-		"pos_sprite": [50, 50],
+		"pos_sprite": [60, 18],
 		"stats": {
 			"vie_max"			: 100,
 			"force"				: 40,

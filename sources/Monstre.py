@@ -54,13 +54,14 @@ MonstreJSON.actualiser_donnees()
 class Monstre(Entite):
     _CARTES_DE_DOS           : bool = True
     _CARTE_MAIN_PREMIERE_POS : Pos  = Jeu.pourcentages_coordonnees(33, 3)
-    POSITION                 : Pos  = Jeu.pourcentages_coordonnees(72, 42)
+    POSITION                 : Pos  = Jeu.pourcentages_coordonnees(60, 23)
     
     @override
     def __init__(
             self,
             type       : MonstreJSON,
             inventaire : Sequence[Item] = (),
+            _taille_sprite : Optional[Vecteur] = None
         ):
         super().__init__(
             type.nom,
@@ -69,6 +70,7 @@ class Monstre(Entite):
             type.nb_cartes_main,
             chemin_sprite=type.sprite,
             inventaire=inventaire,
+            _taille_sprite=_taille_sprite,
         )
         self._type = type
     
@@ -101,7 +103,7 @@ class Monstre(Entite):
         # on admet que c'est que des monstres
         return [
             monstre
-            for clef, monstre in Entite.vivantes.no_holes()
+            for _, monstre in Entite.vivantes.no_holes()
             if isinstance(monstre, Monstre)
         ]
     
@@ -114,11 +116,8 @@ class Monstre(Entite):
     
     
     @property
-    def pos_sprite(self) -> Pos:
-        return centrer_pos(Monstre.POSITION, Monstre._SPRITE_TAILLE)
-    @property
-    def pos_attaque(self) -> Pos:
-        return Monstre.POSITION - Vecteur(Carte._HAUTEUR_SPRITE, Carte._HAUTEUR_SPRITE)
+    def pos_sprite_centree(self) -> Pos:
+        return Monstre.POSITION
     
     @property
     def rang(self) -> int:
@@ -135,7 +134,7 @@ class Monstre(Entite):
         
         self._deck = list(nouveau_type.deck)
         
-        self._sprite = pygame.transform.scale(pygame.image.load(nouveau_type.sprite), Monstre._SPRITE_TAILLE)
+        self._sprite = pygame.transform.scale(pygame.image.load(nouveau_type.sprite), self._SPRITE_TAILLE)
         self._type = nouveau_type
     
     def choisir_index_carte_main(self) -> int:

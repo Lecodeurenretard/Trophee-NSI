@@ -32,6 +32,7 @@ DBG_PREDECENT_MONSTRE : int = pygame.K_q
 DBG_PROCHAIN_MONSTRE  : int = pygame.K_d
 
 DBG_SHOP              : int = pygame.K_p
+DBG_BOSS              : int = pygame.K_b
 DBG_INFOS_ENTITES     : int = pygame.K_F9
 
 INFOS                 : int = pygame.K_i

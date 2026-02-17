@@ -106,6 +106,11 @@ class Carte:
             liste_attaques.append(attaque_dict)
         Attaque.set_liste(liste_attaques)
     
+    @staticmethod
+    def vider_cartes_affichees() -> None:
+        for _, c in Carte.cartes_affichees.no_holes():
+            c.cacher()
+    
     @property
     def _hitbox(self) -> Rect:
         return Rect(self._pos.tuple, self._TAILLE_SPRITE)

@@ -45,7 +45,10 @@ def choix_attaque() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.CHOIX_ATTAQUE.name}.")
     
     if Jeu.attaques_restantes_joueur == Jeu.ATTAQUES_PAR_TOUR:
+        Jeu.nb_tours_combat += 1
         joueur.piocher()
+        for boss in Boss.vivant():
+            boss.nouveau_tour()
     
     joueur.piocher_si_main_vide()
     for m in Monstre.vivants():

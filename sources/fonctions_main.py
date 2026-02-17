@@ -37,6 +37,7 @@ def initialiser_nouveau_combat(numero_combat : int, reset_joueur : bool = False)
         raise ValueError(f"`numero_combat` ({numero_combat}) doit être compris dans [1; {Jeu.MAX_COMBAT}].")
     Jeu.num_etape = numero_combat
     
+    Jeu.nb_tours_combat = 0
     Jeu.attaques_restantes_joueur = Jeu.ATTAQUES_PAR_TOUR
     
     Carte.derniere_enregistree = None
@@ -47,6 +48,7 @@ def initialiser_nouveau_combat(numero_combat : int, reset_joueur : bool = False)
     
     if reset_joueur:
         joueur.reset()
+    Carte.vider_cartes_affichees()
 
 def reagir_appui_touche(ev : pygame.event.Event) -> Optional[Interruption]:
     if ev.type != pygame.KEYDOWN:
@@ -77,6 +79,26 @@ def reagir_appui_touche(ev : pygame.event.Event) -> Optional[Interruption]:
                 Jeu.num_etape = 1
             
             Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
+        
+        case Touches.DBG_SHOP:
+            for i in range(Jeu.num_etape, Jeu.MAX_COMBAT):
+                if Jeu.decision_shop(i):
+                    Jeu.num_etape = i
+                    Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
+                    break
+            else:   # boucle for... else, le msg n'est affiché que si on ne break pas
+                logging.error("Le dernier shop a été dépassé.")
+                return
+                
+        case Touches.DBG_BOSS:
+            for i in range(Jeu.num_etape, Jeu.MAX_COMBAT):
+                if Jeu.decision_boss(i):
+                    Jeu.num_etape = i
+                    Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
+                    break
+            else:
+                logging.error("Le dernier boss a été dépassé.")
+                return
             return
 
 def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Interruption]:
@@ -104,15 +126,6 @@ def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Inter
         case Touches.DBG_PROCHAIN_MONSTRE:
             Monstre.vivants()[0].vers_type_suivant()
             return
-        
-        case Touches.DBG_SHOP:
-            for i in range(Jeu.num_etape, Jeu.MAX_COMBAT):
-                if Jeu.decision_shop(i):
-                    Jeu.num_etape = i
-                    break
-            else:   # for... else, si jamis le break n'est jamais atteint
-                logging.error("Le dernier shop a été dépassé.")
-                return
             
             
             logging.info(f"Skip jusqu'au combat {Jeu.num_etape}.")
