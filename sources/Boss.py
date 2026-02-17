@@ -92,7 +92,7 @@ class Boss(Monstre):
             )
     
     @staticmethod
-    def vivant() -> list[Boss]:
+    def vivant() -> list["Boss"]:
         """Renvoie les monstres en vie."""
         # on admet que c'est que des monstres
         return [
