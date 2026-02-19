@@ -227,11 +227,8 @@ def dessiner_infos() -> None:
         dessiner_descriptions_entites(Jeu.infos_surf)
 
 def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = [], to_send_dessin : Any = None, to_send_UI : Any = None) -> None:
-    # Chemin vers l'image de fond
-    chemin_fond = os.path.join(Chemins.IMG, "stade", "terrain_plaine.png")
-    
-    image_fond = pygame.image.load(chemin_fond)
-    image_fond = pygame.transform.scale(image_fond, Jeu.fenetre.get_size()) # Redimensionne l'image
+    image_fond = pygame.image.load(f"{Chemins.IMG}/etages/{Jeu.nom_etage()}.png")
+    image_fond = pygame.transform.scale(image_fond, Jeu.fenetre.get_size())
     
     # Afficher l'image de fond 
     Jeu.fenetre.blit(image_fond, (0, 0))    # pas besoin de faire un .fill(), ça couvre déjà tout l'écran

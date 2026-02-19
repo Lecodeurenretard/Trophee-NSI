@@ -71,8 +71,18 @@ class Jeu:
     
     @staticmethod
     def num_etage() -> int:
-        return Jeu.num_etape // Jeu.ETAPE_PAR_ETAGE
-
+        # Pour que les étages multiples de Jeu.ETAPE_PAR_ETAGE
+        # soient dans l'étage inférieur.
+        return (Jeu.num_etape - 1) // Jeu.ETAPE_PAR_ETAGE
+    
+    @staticmethod
+    def nom_etage() -> str:
+        match(Jeu.num_etage()):
+            case 1:
+                return "eglise_satanique"
+            case _:
+                return "plaines"
+    
     @staticmethod
     def etape_est_shop() -> bool:
         return Jeu.decision_shop(Jeu.num_etape)
@@ -98,10 +108,12 @@ class Jeu:
     @classmethod
     def decision_etat_en_cours(cls) -> bool:
         return Jeu.etat == Jeu.Etat.DECISION_ETAT
+    
     @classmethod
     def reset_etat(cls) -> None:
         """Indique que l'état du jeu doit être changé sous peu."""
         Jeu.etat = Jeu.Etat.DECISION_ETAT   # on ne veut pas enregistrer DECISION_ETAT dans precedent_etat
+    
     @classmethod
     def changer_etat(cls, nouvel_etat : Etat) -> None:
         """Change l'état du jeu vers `nouvel_etat`."""
