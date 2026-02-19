@@ -1,6 +1,6 @@
 from Monstre import *
 from fonctions_boss import callbacks as boss_callbacks
-from fonctions_boss import BossMethodeWrapper
+from fonctions_boss import BossInterfaceMethodes
 
 @dataclass
 class BossJSON:
@@ -60,7 +60,7 @@ class BossJSON:
         res.sprite = self.chemin_sprite
         res.nb_cartes_main = self.nb_cartes_main
         res.deck = self.deck_boss
-        res.rang = self.rang                # formule approximative
+        res.rang = self.rang
         res.stats = self.stats
         
         return res
@@ -81,7 +81,6 @@ class Boss(Monstre):
                 pygame.image.load(boss_json.chemin_sprite).get_size()
             ) * Boss._AGRANDISSEMENT_SPRITE,
         )
-        self._rang        = boss_json.rang
         self._deck_joueur = boss_json.deck_joueur
         self._pos_sprite  = boss_json.pos_sprite
         
@@ -92,13 +91,12 @@ class Boss(Monstre):
             )
     
     @staticmethod
-    def vivant() -> list["Boss"]:
-        """Renvoie les monstres en vie."""
-        # on admet que c'est que des monstres
+    def vivants_boss() -> list['Boss']:
+        """Renvoie les boss en vie."""
         return [
-            monstre
-            for _, monstre in Entite.vivantes.no_holes()
-            if isinstance(monstre, Boss)
+            boss
+            for _, boss in Entite.vivantes.no_holes()
+            if isinstance(boss, Boss)
         ]
     
     @staticmethod
@@ -111,7 +109,7 @@ class Boss(Monstre):
         return self._pos_sprite
     
     @property
-    def callbacks(self) -> BossMethodeWrapper:
+    def callbacks(self) -> BossInterfaceMethodes:
         return boss_callbacks[self._nom]
     
     @override
@@ -119,14 +117,14 @@ class Boss(Monstre):
         fonction = self.callbacks.choisir_atk
         if fonction is None:
             return super().choisir_index_carte_main()
-        return fonction(self)
+        return fonction(self, self.callbacks.attributs_supplementaires)
     
     @override
     def recoit_degats(self, degats_recu : int, attaque_cause : Attaque) -> None:
         fonction = self.callbacks.subir_dmg
         if fonction is None:
             return super().recoit_degats(degats_recu, attaque_cause)
-        return fonction(self, degats_recu, attaque_cause)
+        return fonction(self, degats_recu, attaque_cause, self.callbacks.attributs_supplementaires)
     
     # = delete mais c'est du python
     @override
@@ -147,6 +145,6 @@ class Boss(Monstre):
     def nouveau_tour(self) -> None:
         fonction = self.callbacks.nouveau_tour
         if fonction is not None:
-            fonction(self)
+            fonction(self, self.callbacks.attributs_supplementaires)
 
 BossJSON.actualiser_donnees()

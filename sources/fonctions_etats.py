@@ -47,7 +47,7 @@ def choix_attaque() -> None:
     if Jeu.attaques_restantes_joueur == Jeu.ATTAQUES_PAR_TOUR:
         Jeu.nb_tours_combat += 1
         joueur.piocher()
-        for boss in Boss.vivant():
+        for boss in Boss.vivants_boss():
             boss.nouveau_tour()
     
     joueur.piocher_si_main_vide()

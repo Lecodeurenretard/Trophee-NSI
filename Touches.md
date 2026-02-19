@@ -12,6 +12,7 @@ ___
 > Touches qui marchent seulement en mode débug:
 - Crits garantis: C
 - Aller jusqu'au prochain shop: P
+- Aller jusqu'au prochain boss: B
 - Repiocher les cartes: R
 - Changer les items du shop: scroll de la molette
 - Afficher les informations sur les entités: F9
