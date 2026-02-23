@@ -8,7 +8,7 @@ class Entite(ABC):
     _CARTES_MAIN_MAX_DU_MAX  : int     = 10
     _DIFF_LARG_ET_BARRE_SPRITE : int = 100
     
-    vivantes : Array['Entite'] = Array['Entite'](2)
+    vivantes : ArrayStable['Entite'] = ArrayStable['Entite'](2)
     
     def __init__(
             self,

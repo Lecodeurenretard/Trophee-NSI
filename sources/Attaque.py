@@ -76,7 +76,7 @@ class Attaque:
     _DEFAUT_AJUSTEMENT : _ajustements_t = _AJUSTEMENTS["base"]
     
     _liste          : list[dict]      = []
-    _dico_entites   : Array['Entite'] = Array() # sera mis à Entite.vivantes[] plus tard  # type: ignore
+    _dico_entites   : ArrayStable['Entite'] = ArrayStable() # sera mis à Entite.vivantes[] plus tard  # type: ignore
     toujours_crits  : bool            = False   # ne pas activer ici, utiliser les touches du mode debug plutôt
     attaques_jouees : list['Attaque'] = []
     
@@ -146,7 +146,7 @@ class Attaque:
         Attaque._liste = lst
     
     @staticmethod
-    def set_arr_entites(dico : Array['Entite']) -> None: # pyright: ignore[reportUndefinedVariable]
+    def set_arr_entites(dico : ArrayStable['Entite']) -> None: # pyright: ignore[reportUndefinedVariable]
         Attaque._dico_entites = dico
     
     @staticmethod

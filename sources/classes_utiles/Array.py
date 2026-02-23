@@ -1,14 +1,16 @@
-from imports import overload, copy, Iterable, Sequence, Iterator
+from imports import overload, copy, Iterable, Sequence, MutableSequence, Iterator, Any
 import sys
 
-class Array[T]:
+def iter_slice(s : slice[int, int, int]) -> Iterator[int]:
+    for i in range(s.start, s.stop + 1, s.step):
+        yield i
+
+class ArrayStable[T](MutableSequence[T|None]):
     """
     Une liste mais les valeurs ne peuvent pas changer d'index (pas de décalage).
-    Cela impose qu'il existe des index n'ayant pas de valeur,
-    la classe se ce comporte comme s'ils contenaient `None`.
-    La classe ne supporte pas les slices, tout opération les utilisant renverra `NotImplemented`.
+    Ce design impose qu'il existe des index n'ayant pas de valeur associée, La classe les considère comme `None`.
     
-    Sauf pour le slicing et la méthode `.insert()`, la classe est une MutableSequence.
+    Bien que la méthode `.insert()` ne soit pas implémentée, la classe est une MutableSequence.
     Voici la documentation: https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range
     """
     
@@ -32,8 +34,13 @@ class Array[T]:
             if i > self._clef_maximum:
                 self._clef_maximum = i
     
-    def __delitem__(self, key : int):
-        self.pop(key)
+    def __delitem__(self, index : int|slice):
+        if type(index) is int:
+            self.pop(index)
+        
+        assert(type(index) is slice)    # pywright strikes again
+        for i in iter_slice(index):
+            del self[i]
     
     def __format__(self, format_spec: str):
         res : str = '['
@@ -55,15 +62,42 @@ class Array[T]:
         
         return res[:-2] + ']'   # on enlève le ', ' final
     
-    def __getitem__(self, key : int) -> T|None:
+    @overload
+    def __getitem__(self, key : int) -> T|None: ...
+    @overload
+    def __getitem__(self, key : slice) -> list[T|None]: ...
+    
+    def __getitem__(self, key : int|slice) -> T|None|list[T|None]:
+        if type(key) is slice:
+            if not (0 <= key.start <= key.stop or key.stop <= key.start <= 0):
+                raise ValueError(f"La slice {key} entrainerait une boucle infine.")
+            
+            return [self[i] for i in iter_slice(key)]
+        
         key = self._solve_key(key)
         
         if key not in self._valeurs.keys():
             return None
         return self._valeurs[key]
-
-    def __setitem__(self, key : int, value : T):
-        self._valeurs[self._solve_key(key)] = value
+    
+    @overload
+    def __setitem__(self, index: int, value: T|None) -> None: ...
+    @overload
+    def __setitem__(self, index: slice, value: Iterable[T|None]) -> None: ...
+    
+    def __setitem__(self, index : int|slice, value : T|None|Iterable[T|None]) -> None:
+        if type(index) is int and (type(value) is T or type(value) is None):
+            # D'après Pywright, value est potentiellement Iterable[T]
+            self._valeurs[self._solve_key(index)] = value   # type: ignore
+            return
+        
+        if type(index) is slice and isinstance(value, Iterable):
+            for i, elem in zip(iter_slice(index), value):
+                self[i] = elem
+        raise TypeError(
+            "Soit l'index doit être une slice et la valeur passée un itérable, "
+            "soit l'index passé doit être une int et la valeur passée un élément de type T."
+        )
     
     def __len__(self):
         return self._clef_maximum + 1
@@ -72,12 +106,12 @@ class Array[T]:
         for i in range(self._clef_maximum + 1):
             yield self[i]
     
-    def __contains__(self, item : T):
+    def __contains__(self, item : object):
         if type(item) is not T:
             return False
         return item in self._valeurs.values()
     
-    def __add__(self, other : 'Array[T]|Sequence[T]'):
+    def __add__(self, other : 'ArrayStable[T]|Sequence[T]'):
         res = copy(self)
         for val in other:
             res.append(val)
@@ -87,7 +121,7 @@ class Array[T]:
         if type(other) is not int:
             raise TypeError("On ne peut multiplier un array par autre chose qu'un entier.")
         
-        res = Array(len(self) * other)
+        res = ArrayStable(len(self) * other)
         for i, val in enumerate(res):
             for n in range(1, other+1):       # itère de cette manière (pour les index)
                 res[i + len(self) * n] = val  # [[0, 3, 6],  [1, 4, 7],  [2, 5, 8]]
@@ -95,8 +129,6 @@ class Array[T]:
     
     def _solve_key(self, key : int) -> int:
         """Renvoie l'index "canonique" qui sera utilisé par les fonctions (ex: -1 devient le dernier élément de la liste)."""
-        if type(key) is slice:
-            return NotImplemented
         if type(key) is not int:
             raise TypeError("Le type d'une clef d'un array doit être une int.")
         
@@ -106,11 +138,11 @@ class Array[T]:
             return len(self) + key
         return key
     
-    def append(self, val : T|None) -> None:
+    def append(self, value : T|None) -> None:
         """Ajoute un élément à la fin de la liste."""
         self._clef_maximum += 1
-        if val is not None:
-            self._valeurs[self._clef_maximum] = val
+        if value is not None:
+            self._valeurs[self._clef_maximum] = value
     
     def pop(self, index : int = -1) -> T|None:
         """Enlève l'élément à l'indice `index` et renvoie sa valeur."""
@@ -123,6 +155,12 @@ class Array[T]:
         enleve = self._valeurs[index]
         del self._valeurs[index]
         return enleve
+    
+    def insert(self, index: int, value: T | None) -> None:
+        raise TypeError(
+            "La classe Array n'implémente pas la méthode .insert().\n"
+            "Pour ajouter un élément à l'index i, utilisez .__setitem__()."
+        )
     
     def resize(self, size : int) -> None:
         """Modifie la taille de la liste pour qu'elle soit de `taille`."""
@@ -159,18 +197,18 @@ class Array[T]:
         """
         return list(self).count(value)
     
-    def index(self, value : T|None, start : int = 0, end : int = sys.maxsize) -> int:
+    def index(self, value : Any, start : int = 0, stop : int = sys.maxsize) -> int:
         """
         Renvoie l'index du premier élément étant égal à `value` entre les index `start` et `stop` (inclus),
         élève une `ValueError` sinon.
         """
-        return list(self).index(value, start, end)
+        return list(self).index(value, start, stop)
     
     def search(self, value : T|None, start : int = 0, end : int = sys.maxsize) -> int:
         """Alternative à .index() qui renvoie -1 quand l'élément n'est pas dans la liste au lieu de lancer une exception."""
         # on est civilisés
         try:
-            return self.index(value, start=start, end=end)
+            return self.index(value, start=start, stop=end)
         except ValueError:
             return -1
     
@@ -195,7 +233,7 @@ class Array[T]:
             raise ValueError("Index négatif passé alors que `accept_negative` est False.")
         
         if true_index not in self._valeurs.keys():
-            raise IndexError(f"Index {index} est     soit un trou, soit en dehors de l'array.")
+            raise IndexError(f"L'index {index} est soit un trou, soit en dehors de l'array.")
         
         return self._valeurs[true_index]
     
