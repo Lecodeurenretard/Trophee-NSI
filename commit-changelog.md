@@ -1,5 +1,4 @@
-Ce fichier contient tous les changements faits dans les commits. Il est rafraichit à chaque commits.
-Un bon moyen de savoir si le changement devrait être écrit ici, c'est de se demander si il changera la façcon d'interagir sur la fonction/classe.
+Ce fichier contient tous les changements faits dans les commits. Il est rafraichit à _à peu près_ chaque commit (si le commit est assez petit, c'est pas très grave si le fichier n'est pas mis-à-jour).
 
 <!--
 format:
@@ -32,14 +31,18 @@ format:
 ------------------------------------
 -->
 _____
-## Ajout doc pour le système de boss.
+## Restructuration de [data/](data/) + les cartes se lèvent.
 + Changements majeurs
-	- Nouveau fichier de documentation pour le système de boss.
-	- Les fonctions de l'interface Boss doivent prendre `attributs_supplementaires` en argument.
 + Sur plusieurs fichiers
-	- Quelques renommages.
 + Structure de fichiers
-	- Ajout du fichier de police de Analog Whisper.
+	- Le répertoire [data/](data/) est mieux organisé.
+		* Les cartes ont maintenant 1 dossier par carte.
+		* Les JSONs ont leurs dossier
 + READMEs et documentation
+	- Ajout d'un README dans [data/](data/).
 + Interactions joueur/testeur
+	- Les cartes se lèvent quand la souris les survole.
 + Correction de bugs
+	- Patch du bug dans `Array`.
++ `Button`
+	- Traduction en français.

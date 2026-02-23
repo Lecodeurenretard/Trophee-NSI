@@ -37,10 +37,11 @@ class Pos:
     def __add__(self, other : 'Pos|Vecteur') -> 'Pos':
         if type(other) is Vecteur:
             return Pos(self.x + int(other.x), self.y + int(other.y))
-        if type(other) is Pos:  # pas necessaire, mais Pylance ne veut pas me lacher sinon
+        if type(other) is Pos:  # pas necessaire mais le typechecker...
             return Pos(self.x + other.x, self.y + other.y)
         
         raise TypeError("On ne peut ajouter un objet pos qu'a un vecteur (de pygame) ou une autre instance de Pos.")
+    
     def __sub__(self, other : 'Pos|Vecteur') -> 'Pos':
         if type(other) is Vecteur:
             return Pos(self.x - int(other.x), self.y - int(other.y))
@@ -81,7 +82,10 @@ def pos_t_vers_Pos(p : pos_t) -> Pos:
     if type(p) is Pos:
         return copy(p)
     
-    assert(type(p) is tuple or type(p) is list) # I love pywright--------------------
+    # I love pywright--------------------
+    # (on sait déjà que c'est l'un des deux)
+    assert(type(p) is tuple or type(p) is list) 
     return Pos(p)
+
 def pos_t_vers_tuple(p : pos_t) -> tuple[int, int]:
     return pos_t_vers_Pos(p).tuple

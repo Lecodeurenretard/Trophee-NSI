@@ -3,7 +3,7 @@ from import_local import *
 from Joueur       import Entite, Joueur, joueur
 from Carte        import Attaque, Carte
 from Item         import Item
-from Bouton       import Button
+from Bouton       import Bouton
 
 def demander_pseudo(surface : Surface) -> Interruption:
     logging.debug(f"→ Interruption: demande du pseudo.")
@@ -226,8 +226,8 @@ def dessiner_infos() -> None:
     elif pygame.key.get_pressed()[Touches.DBG_INFOS_ENTITES] and bool(params.mode_debug):
         dessiner_descriptions_entites(Jeu.infos_surf)
 
-def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = [], to_send_dessin : Any = None, to_send_UI : Any = None) -> None:
-    image_fond = pygame.image.load(f"{Chemins.IMG}/etages/{Jeu.nom_etage()}.png")
+def rafraichir_ecran_combat() -> None:
+    image_fond = pygame.image.load(f"{Chemins.IMG}etages/{Jeu.nom_etage()}.png")
     image_fond = pygame.transform.scale(image_fond, Jeu.fenetre.get_size())
     
     # Afficher l'image de fond 
@@ -287,10 +287,6 @@ def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateu
         Jeu.pourcentages_coordonnees(85, 87, ret_pos=False),
     )
     
-    # Dessin supplémentaire
-    avancer_generateurs(generateurs_dessin, to_send_dessin)
-    avancer_generateurs(generateurs_UI,     to_send_UI)
-    
     # Si les bonnes touches sont appuyées, affiche les infos ou les diffs
     dessiner_infos()
     
@@ -336,7 +332,7 @@ def dessiner_inventaire(surface : Surface, boite_inventaire : Rect) -> None:
         )
         y += icone.get_bounding_rect().height + Jeu.pourcentage_hauteur(2)
 
-def rafraichir_ecran_shop(items : list[Item], abscisses : tuple[int, ...], rect_inventaire : Rect, epaisseur_trait : int, bouton : Button, afficher_avertissements : bool = False) -> None:
+def rafraichir_ecran_shop(items : list[Item], abscisses : tuple[int, ...], rect_inventaire : Rect, epaisseur_trait : int, bouton : Bouton, afficher_avertissements : bool = False) -> None:
     Jeu.fenetre.fill(BLANC)
     
     # Dessine l'inventaire du joueur
@@ -352,7 +348,7 @@ def rafraichir_ecran_shop(items : list[Item], abscisses : tuple[int, ...], rect_
     dessiner_inventaire(Jeu.fenetre, rect_inventaire)
     dessiner_infos()
     
-    bouton.draw(Jeu.menus_surf, point_size=0)
+    bouton.dessiner(Jeu.menus_surf, point_size=0)
     for item, pourcentage_abscisse in zip(items, abscisses):
         item.dessiner(Jeu.fenetre, pourcentage_abscisse, afficher_avertissements=afficher_avertissements)
     

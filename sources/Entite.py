@@ -39,7 +39,7 @@ class Entite(ABC):
         self._LONGUEUR_BARRE_DE_VIE : int = int(self._SPRITE_TAILLE.x) - Entite._DIFF_LARG_ET_BARRE_SPRITE
         self._HAUTEUR_BARRE_DE_VIE  : int = 10
         
-        chemin_sprite = valeur_par_defaut(chemin_sprite, si_none=f"{Chemins.IMG}/erreur.png")
+        chemin_sprite = valeur_par_defaut(chemin_sprite, si_none=f"{Chemins.IMG}erreur.png")
         self._sprite : Surface = pygame.transform.scale(pygame.image.load(chemin_sprite), self._SPRITE_TAILLE)
         self._id : int = Entite.vivantes.search(None)
         if self._id < 0:

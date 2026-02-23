@@ -36,7 +36,7 @@ class Item:
         self.nom         = item["nom"]
         self.description = item["description"]
         
-        chemin : str = f"{Chemins.IMG}/"
+        chemin : str = f"{Chemins.IMG}"
         chemin += valeur_par_defaut(
             item['sprite'],
             si_non_none=f"items/{item['sprite']}",
@@ -61,7 +61,7 @@ class Item:
     @staticmethod
     def actualiser_items() -> None:
         """Ouvre item.json et prend tous les objets trouvés."""
-        with open(f"{Chemins.DATA}/items.json", 'r', encoding='utf-8') as fichier:
+        with open(f"{Chemins.JSON}items.json", 'r', encoding='utf-8') as fichier:
             Item.DONNEES_ITEMS = json.load(fichier)
     
     @staticmethod

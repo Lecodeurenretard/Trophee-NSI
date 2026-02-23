@@ -23,8 +23,8 @@ class MonstreJSON:
         
         self.sprite = valeur_par_defaut(
             donnees['sprite'],
-            si_non_none=f"{Chemins.IMG}/monstres/{donnees['sprite']}",
-            si_none=f"{Chemins.IMG}/erreur.png",
+            si_non_none=f"{Chemins.IMG}monstres/{donnees['sprite']}",
+            si_none=f"{Chemins.IMG}erreur.png",
         )
         
         self.rang = donnees["rang"]
@@ -35,7 +35,7 @@ class MonstreJSON:
     @staticmethod
     def actualiser_donnees() -> None:
         """Actualise DONNEES_TYPES[]."""
-        with open(f"{Chemins.DATA}/TypesMonstre.json", 'r', encoding='utf-8') as fichier:
+        with open(f"{Chemins.JSON}TypesMonstre.json", 'r', encoding='utf-8') as fichier:
             MonstreJSON.DONNEES_TYPES = json.load(fichier)
     
     def type_precedent(self, autoriser_exemple : bool = False) -> 'MonstreJSON':

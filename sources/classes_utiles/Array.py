@@ -2,9 +2,12 @@ from imports import overload, copy, Iterable, Sequence, MutableSequence, Iterato
 import sys
 
 def iter_slice(s : slice[int, int, int]) -> Iterator[int]:
+    """Renvoie un itérateur qui prend les valeurs de la slice."""
     for i in range(s.start, s.stop + 1, s.step):
         yield i
 
+# Python va considérer ArrayStable comme une liste (pas précis du tout mais c'est dans l'esprit)
+# Si vous voulez en savoir plus, allez voir l'hérédité et les génériques (on utilise la nouvelle syntaxe)
 class ArrayStable[T](MutableSequence[T|None]):
     """
     Une liste mais les valeurs ne peuvent pas changer d'index (pas de décalage).
@@ -37,6 +40,7 @@ class ArrayStable[T](MutableSequence[T|None]):
     def __delitem__(self, index : int|slice):
         if type(index) is int:
             self.pop(index)
+            return
         
         assert(type(index) is slice)    # pywright strikes again
         for i in iter_slice(index):
@@ -86,14 +90,16 @@ class ArrayStable[T](MutableSequence[T|None]):
     def __setitem__(self, index: slice, value: Iterable[T|None]) -> None: ...
     
     def __setitem__(self, index : int|slice, value : T|None|Iterable[T|None]) -> None:
-        if type(index) is int and (type(value) is T or type(value) is None):
-            # D'après Pywright, value est potentiellement Iterable[T]
+        if type(index) is int and not isinstance(value, Iterable):
+            # on assume que le type soit bon vu que l'on a 
             self._valeurs[self._solve_key(index)] = value   # type: ignore
             return
         
         if type(index) is slice and isinstance(value, Iterable):
             for i, elem in zip(iter_slice(index), value):
                 self[i] = elem
+            return
+        
         raise TypeError(
             "Soit l'index doit être une slice et la valeur passée un itérable, "
             "soit l'index passé doit être une int et la valeur passée un élément de type T."

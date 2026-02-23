@@ -1,6 +1,6 @@
 from UI           import *
 from import_local import *
-from Bouton       import Button
+from Bouton       import Bouton
 
 
 def _rafraichir_donnees() -> None:
@@ -24,7 +24,7 @@ def _rafraichir_donnees() -> None:
     logging.debug("fini!")
 
 
-def _evenements_parametres(bouton_sortie : Button, bouton_actualiser : Button) -> bool:
+def _evenements_parametres(bouton_sortie : Bouton, bouton_actualiser : Bouton) -> bool:
     """la boucle des évènements de `menu_paramètre()`. Renvoie si l'interruption s'arrête."""
     for ev in pygame.event.get():
         verifier_pour_quitter(ev)
@@ -53,18 +53,18 @@ def _evenements_parametres(bouton_sortie : Button, bouton_actualiser : Button) -
 def menu_parametres() -> Interruption:
     logging.debug("→ Interruption: Paramètres")
     
-    bouton_sortir : Button = Button(
+    bouton_sortir : Bouton = Bouton(
         (
             *Jeu.pourcentages_coordonnees(2, 2, ret_pos=False),
             Jeu.pourcentage_largeur(4), Jeu.pourcentage_largeur(4),
         ),
-        img=f"{Chemins.IMG}/croix.png"
+        img=f"{Chemins.IMG}croix.png"
     )
     pos_dim_bouton_actualisation = (
         *Jeu.pourcentages_coordonnees(50, 50, ret_pos=False),
         *Jeu.pourcentages_fenetre(30, 7, ret_vec=False),
     )
-    butt_actualisation = Button(pos_dim_bouton_actualisation, "actualiser données", action=_rafraichir_donnees)
+    butt_actualisation = Bouton(pos_dim_bouton_actualisation, "actualiser données", action=_rafraichir_donnees)
     
     police_titres : Font = Jeu.construire_police(Polices.TITRE, 10)
     TITRE_PARAMS : Surface = police_titres.render("Options de jeu"   , True, NOIR)
@@ -92,10 +92,10 @@ def menu_parametres() -> Interruption:
                 centrer_y=False,
             )
             
-            butt_actualisation.change_pos(pos_bouton)
-            butt_actualisation.draw(Jeu.menus_surf, point_size=65)
+            butt_actualisation.changer_pos(pos_bouton)
+            butt_actualisation.dessiner(Jeu.menus_surf, point_size=65)
         
-        bouton_sortir.draw(image, point_size=0)
+        bouton_sortir.dessiner(image, point_size=0)
         
         try:
             yield image

@@ -283,7 +283,7 @@ def etirer_garder_ratio(surface : Surface, *, longueur : Optional[int] = None, h
 
 def gerer_radio() -> Generator[bool, None, None]:
     """Renvoie un générateur qui gère la radio, il renvoie True s'il changer de musique."""
-    musiques_disponibles : list[str] = glob(f"{Chemins.RADIO}/*.mp3")
+    musiques_disponibles : list[str] = glob(f"{Chemins.RADIO}*.mp3")
     while True:
         changement_musique : bool = not pygame.mixer.music.get_busy()
         if changement_musique:

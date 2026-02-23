@@ -207,7 +207,7 @@ def dbg_shop_scroll(ev : pygame.event.Event, items : list[Item], abcisses : tupl
     changement : int = round(ev.precise_y * sensibilite_scroll)
     items[index] = Item(items[index].id + changement, permissif=True)
 
-def shop_click(ev : pygame.event.Event, items : list[Item], bouton_sortie : Button, abcisses : tuple[int, ...]):
+def shop_click(ev : pygame.event.Event, items : list[Item], bouton_sortie : Bouton, abcisses : tuple[int, ...]):
     """Fonction à appeler quand le joueur/testeur clique dans le shop."""
     if ev.button in (4, 5): # empèche le scroll de compter pour un click
         return

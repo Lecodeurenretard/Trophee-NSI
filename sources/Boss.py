@@ -29,8 +29,8 @@ class BossJSON:
         
         self.chemin_sprite = valeur_par_defaut(
             donnees['sprite'],
-            si_non_none=f"{Chemins.IMG}/boss/{donnees['sprite']}",
-            si_none=f"{Chemins.IMG}/erreur.png",
+            si_non_none=f"{Chemins.IMG}boss/{donnees['sprite']}",
+            si_none=f"{Chemins.IMG}erreur.png",
         )
         
         self.nb_cartes_main = donnees["nombre_cartes_main"]
@@ -51,7 +51,7 @@ class BossJSON:
     @staticmethod
     def actualiser_donnees() -> None:
         """Actualise DONNEES_TYPES[]."""
-        with open(f"{Chemins.DATA}/boss.json", 'r', encoding='utf-8') as fichier:
+        with open(f"{Chemins.JSON}boss.json", 'r', encoding='utf-8') as fichier:
             BossJSON.DONNEES_BOSS = json.load(fichier)
     
     def vers_MonstreJSON(self) -> MonstreJSON:

@@ -1,30 +1,30 @@
 import logging
 from os import getcwd
 
-RACINE : str
-DATA   : str
-IMG    : str
-SAVE   : str
-ANIM   : str
-ETC    : str
+DATA : str
+ANIM : str
+ETC  : str
+IMG  : str
+JSON : str
+SAVE : str
 
 MUSIQUE : str
+SFX     : str
 RADIO   : str
 
 RACINE = ''
 if getcwd().endswith("sources"):
     RACINE = "../"    # rudimentaire mais fonctionnel
-elif getcwd().endswith("Constantes"):
-    RACINE = '../../'
 else:
     logging.warning("Le dossier n'est pas reconnu, on suppose que l'on est à la racine.")
 
-DATA = f"{RACINE}data"
-ANIM = f"{DATA}/anim"
-ETC  = f"{DATA}/etc"
-IMG  = f"{DATA}/img"
-SAVE = f"{DATA}/save"
-SFX  = f"{DATA}/sfx"
+DATA = f"{RACINE}data/"
+ANIM = f"{DATA}anim/"
+ETC  = f"{DATA}etc/"
+IMG  = f"{DATA}img/"
+JSON = f"{DATA}JSON/"
+SAVE = f"{DATA}save/"
 
-MUSIQUE = f"{DATA}/musique"
-RADIO   = f"{MUSIQUE}/radio"
+MUSIQUE = f"{DATA}musique/"
+SFX     = f"{DATA}sfx/"
+RADIO   = f"{MUSIQUE}radio/"

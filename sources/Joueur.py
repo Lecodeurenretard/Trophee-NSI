@@ -16,7 +16,7 @@ class Joueur(Entite):
             Joueur.STATS_DE_BASE,
             deck,
             6,
-            f"{Chemins.IMG}/joueur.png",
+            f"{Chemins.IMG}joueur.png",
             inventaire
         )
         self._nombre_pieces : int = 0
@@ -45,12 +45,12 @@ class Joueur(Entite):
         Entite.reset(self)      # Appelle la version de Entite au lieu de cette override
         self._stats = copy(Joueur.STATS_DE_BASE)
     
-    def carte_du_dessus(self, pos : pos_t) -> Optional[int]:
+    def index_carte_du_dessus(self, pos_souris : pos_t) -> Optional[int]:
         """
         Détermine quelle est la carte de la main s'affichant au dessus à la position `pos`.
         Renvoie l'index (dans la main) de la carte, si aucune carte n'est à cette position, renvoie None.
         """
-        pos_verifiee : Pos = pos_t_vers_Pos(pos)
+        pos_verifiee : Pos = pos_t_vers_Pos(pos_souris)
         index_cliquee : Optional[int] = None
         
         # ordre inverse de celui de dessin
@@ -62,6 +62,16 @@ class Joueur(Entite):
                 break
         
         return index_cliquee
+    
+    def lever_carte_du_dessus(self, pos_souris : pos_t) -> None:
+        # Baisse les cartes
+        for c in self._cartes_main:
+                c.anim_etat = CarteAnimEtat.REVENIR
+        
+        # Lève celle qui est survolée
+        i = self.index_carte_du_dessus(pos_souris)
+        if i is not None:
+            self._cartes_main[i].anim_etat = CarteAnimEtat.EN_SURVOL
     
     def gagner_pieces(self, gagne : int) -> None:
         """Donne `gagne` pieces au joueur peu importe les options de triches."""

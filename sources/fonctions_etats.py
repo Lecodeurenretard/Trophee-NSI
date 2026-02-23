@@ -5,7 +5,7 @@ Chaque fonction éponyme à une valeur de `EtatJeu` sera une boucle stournant ta
 
 from fonctions_main import *
 from Item           import Item
-from Bouton         import Button, ButtonCursor
+from Bouton         import Bouton, ButtonCursor
 from Carte          import Carte, CarteAnimEtat
 from Joueur         import Entite, joueur
 from Boss           import Monstre, Boss
@@ -80,8 +80,12 @@ def choix_attaque() -> None:
             if interruption is not None:
                 break
             
+            if event.type == pygame.MOUSEMOTION:
+                joueur.lever_carte_du_dessus(event.pos)
+                print(event.pos)
+            
             if event.type == pygame.MOUSEBUTTONDOWN:
-                index_carte : Optional[int] = joueur.carte_du_dessus(event.pos)
+                index_carte : Optional[int] = joueur.index_carte_du_dessus(event.pos)
                 if index_carte is None:
                     continue
                 
@@ -116,6 +120,12 @@ def affichage_attaque() -> None:
         for ev in pygame.event.get():
             if testeur_skip_ou_quitte(ev):
                 skip = True
+                continue
+            
+            if ev.type == pygame.MOUSEMOTION:
+                joueur.lever_carte_du_dessus(ev.pos)
+                continue
+            
             interruption = reagir_appui_touche(ev)
         
         if skip:
@@ -171,17 +181,17 @@ def ecran_titre() -> None:
         centrer_pos((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(50), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
         centrer_pos((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(70), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
     )
-    boutons_menu : tuple[Button, ...] = (
-        Button(DIMENSIONS_BOUTONS[0], "Jouer"     , line_thickness=0, action=lambda: Jeu.changer_etat(Jeu.Etat.PREPARATION)),#group_name="Ecran titre", group_color=VERT,
-        Button(DIMENSIONS_BOUTONS[1], "Paramètres", line_thickness=0, action=lancer_parametres),                             #group_name="Ecran titre",
-        Button(DIMENSIONS_BOUTONS[2], "Crédits"   , line_thickness=0, action=lambda: Jeu.changer_etat(Jeu.Etat.CREDITS)),    #group_name="Ecran titre",
+    boutons_menu : tuple[Bouton, ...] = (
+        Bouton(DIMENSIONS_BOUTONS[0], "Jouer"     , epaisseur_ligne=0, action=lambda: Jeu.changer_etat(Jeu.Etat.PREPARATION)),#group_name="Ecran titre", group_color=VERT,
+        Bouton(DIMENSIONS_BOUTONS[1], "Paramètres", epaisseur_ligne=0, action=lancer_parametres),                             #group_name="Ecran titre",
+        Bouton(DIMENSIONS_BOUTONS[2], "Crédits"   , epaisseur_ligne=0, action=lambda: Jeu.changer_etat(Jeu.Etat.CREDITS)),    #group_name="Ecran titre",
     )
     #ButtonCursor.enable_drawing("Ecran titre")
     
     
     dessiner_fond_ecran = dessiner_gif(
         Jeu.fenetre,
-        f"{Chemins.ANIM}/fond/frame *.png",
+        f"{Chemins.ANIM}fond/frame *.png",
         Duree(s=.1),
         Pos(Jeu.centre_fenetre),
         en_boucle=True, etendre=True
@@ -199,7 +209,7 @@ def ecran_titre() -> None:
         
         next(dessiner_fond_ecran)
         for bouton in boutons_menu:
-            bouton.draw(Jeu.fenetre, point_size=90)
+            bouton.dessiner(Jeu.fenetre, point_size=90)
         
         ButtonCursor.draw_cursors(Jeu.fenetre)
         Jeu.display_flip()
@@ -314,12 +324,12 @@ def shop() -> None:
         return [next(gen_item) for _ in range(random.randint(2, 3))]
     items : list[Item] = nouv_items()
     
-    bouton_sortie : Button = Button(
+    bouton_sortie : Bouton = Bouton(
         (
             *Jeu.pourcentages_coordonnees(2, 2, ret_pos=False),
             Jeu.pourcentage_largeur(4), Jeu.pourcentage_largeur(4),
         ),
-        img=f"{Chemins.IMG}/retour.png",
+        img=f"{Chemins.IMG}retour.png",
         action=Jeu.reset_etat,
     )
     

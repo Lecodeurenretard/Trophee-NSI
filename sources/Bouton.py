@@ -1,55 +1,55 @@
 from import_var import *
 from Curseur    import Curseur
 
-class Button:
-    SOUND_PRESSED : Sound         = Sound(f"{Chemins.SFX}/select.mp3")
-    FONT_NAME     : Optional[str] = None
+class Bouton:
+    SON_APPUI  : Sound         = Sound(f"{Chemins.SFX}/select.mp3")
+    NOM_POLICE : Optional[str] = None
     
     def __init__(
             self,
             dim            : tuple[int, int, int, int],
-            text           : str                       = '',
+            txt            : str                       = '',
             img            : Optional[str]             = None,
             action         : Callable[[], None] | None = None,
-            line_thickness : int                       = 1,
-            bg_color       : color                     = GRIS,
-            line_color     : color                     = NOIR
+            epaisseur_ligne : int                      = 1,
+            coul_bg        : color                     = GRIS,
+            coul_ligne     : color                     = NOIR
     ):
-        self._rect  : Rect = Rect(*dim)
-        self._text  : str  = text
-        self._image : Optional[Surface] = None
+        self._rect   : Rect = Rect(*dim)
+        self._texte  : str  = txt
+        self._image  : Optional[Surface] = None
         if img is not None:
             self._image = pygame.image.load(img).convert_alpha()
             self._image = pygame.transform.scale(self._image, (dim[2], dim[3]))
         
-        self._line_color : rgba = color_to_rgba(line_color)
-        self._bg_color   : rgba = color_to_rgba(bg_color)
+        self._coul_ligne : rgba = color_to_rgba(coul_ligne)
+        self._coul_bg    : rgba = color_to_rgba(coul_bg)
         
-        self._line_size : int = line_thickness
+        self._taille_ligne : int = epaisseur_ligne
         
-        self._action : Callable[[], None] | None = action
+        self._action : Callable[[], None]|None = action
     
     @property
     def rect(self) -> Rect:
-        return self._rect
+        return copy(self._rect)
     
-    def draw(self, surface : Surface, point_size : int) -> None:
-        pygame.draw.rect(surface, self._bg_color, self._rect)
-        if self._line_size > 0:
-            pygame.draw.rect(surface, self._line_color, self._rect, width=self._line_size)
+    def dessiner(self, surface : Surface, point_size : int) -> None:
+        pygame.draw.rect(surface, self._coul_bg, self._rect)
+        if self._taille_ligne > 0:
+            pygame.draw.rect(surface, self._coul_ligne, self._rect, width=self._taille_ligne)
         
         
         if self._image is not None:
             surface.blit(self._image, self._rect)
             return
         
-        police : pygame.font.Font = pygame.font.SysFont(Button.FONT_NAME, point_size)
-        surf = police.render(self._text, True, BLANC)
+        police : pygame.font.Font = pygame.font.SysFont(Bouton.NOM_POLICE, point_size)
+        surf = police.render(self._texte, True, BLANC)
         surface.blit(surf, surf.get_rect(center=self._rect.center))
     
     def check_click(self, pos_click : pos_t, jouer_son : bool = True) -> bool:
         """Vérifie si le clic était dans le bouton, si oui joue le son et appelle le callback et return true."""
-        if self.mouse_on_butt(pos_click):
+        if self.dans_hitbox(pos_click):
             if jouer_son:
                 self.jouer_sfx()
             
@@ -58,17 +58,17 @@ class Button:
             return True
         return False
     
-    def mouse_on_butt(self, pos_mouse : pos_t) -> bool: # peak naming
+    def dans_hitbox(self, pos : pos_t) -> bool: # peak name has been lost in translaztion :(
         """Vérifie que la souris est dans la hitbox du bouton ("sur" le bouton)."""
-        return self._rect.collidepoint(pos_t_vers_tuple(pos_mouse))
+        return self._rect.collidepoint(pos_t_vers_tuple(pos))
     
     def jouer_sfx(self) -> None:
-        Button.SOUND_PRESSED.play()
+        Bouton.SON_APPUI.play()
     
-    def change_pos(self, new_pos : Pos) -> None:
+    def changer_pos(self, new_pos : Pos) -> None:
         self._rect = Rect(new_pos.tuple, self._rect.size)
 
-class ButtonCursor(Button):
+class ButtonCursor(Bouton):
     """La classe n'est plus maintenue, et ne doit PAS être utilisée."""
     _CURSOR_OFFSET : int = 10
     _cursor_radius : int = 12
@@ -92,7 +92,7 @@ class ButtonCursor(Button):
             - `group_name`: the group's name, if the group doesn't exists creates it
             - `group_color`: defines the color of the group's cursor (ignored if `group` already exists)
         """
-        super().__init__(dim=dim, text=text, action=action, line_thickness=line_thickness, line_color=line_color, bg_color=bg_color)
+        super().__init__(dim=dim, txt=text, action=action, epaisseur_ligne=line_thickness, coul_ligne=line_color, coul_bg=bg_color)
         self._group_name = group_name
         
         cursor_pos : Pos = Pos(
@@ -207,7 +207,7 @@ class ButtonCursor(Button):
         assert(group_name in ButtonCursor._static_group_is_drawn.keys()), "Mauvais nom de groupe."
         ButtonCursor._static_group_is_drawn[group_name] = False
     
-    def change_pos(self, new_pos : Pos) -> None:
+    def changer_pos(self, new_pos : Pos) -> None:
         # La méthode demanderait de modifier la position dans le groupe aussi
         # (donc la position des autres membres), je laisse ça à plus tard.
         raise NotImplementedError("La méthode `.change_pos()` n'est pas implémentée pour la classe ButtonCursor.")

@@ -25,13 +25,13 @@ class Carte:
     _HAUTEUR_SPRITE  : int     = Jeu.pourcentage_hauteur(40)
     _DUREE_INTER_JEU : Duree   = Duree(s=.5)
     
-    _ANIM_SURVOL_DECALAGE : Vecteur = Jeu.pourcentages_fenetre(0, 2)
+    _ANIM_SURVOL_DECALAGE : Vecteur = Jeu.pourcentages_fenetre(0, -2)
     _ANIM_DICO : dict[CarteAnimEtat, CarteAnimInfo] = {
-        CarteAnimEtat.IDLE     : CarteAnimInfo(Pos(CarteAnimInfo.GARDER , CarteAnimInfo.GARDER)       , Duree(s=0) , Easing.NO_EASING, CarteAnimInfo.GARDER),
-        CarteAnimEtat.REVENIR  : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER)      , Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
-        CarteAnimEtat.PARTIR   : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, Jeu.hauteur)                , Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
-        CarteAnimEtat.EN_SURVOL: CarteAnimInfo(Pos(CarteAnimInfo.GARDER , Jeu.pourcentage_hauteur(80)), Duree(s=.5), Easing.FADE     , CarteAnimInfo.GARDER),
-        CarteAnimEtat.JOUER    : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER)      , Duree(s=1) , Easing.FADE_IN  , True),
+        CarteAnimEtat.IDLE     : CarteAnimInfo(Pos(CarteAnimInfo.GARDER , CarteAnimInfo.GARDER) , Duree(s=0) , Easing.NO_EASING, CarteAnimInfo.GARDER),
+        CarteAnimEtat.REVENIR  : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER), Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
+        CarteAnimEtat.PARTIR   : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, Jeu.hauteur)          , Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
+        CarteAnimEtat.EN_SURVOL: CarteAnimInfo(Pos(CarteAnimInfo.CHANGER , CarteAnimInfo.CHANGER), Duree(s=.1), Easing.FADE     , CarteAnimInfo.GARDER),
+        CarteAnimEtat.JOUER    : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER), Duree(s=1) , Easing.FADE_IN  , True),
     }
     
     SON_COUP : Sound = Sound(f"{Chemins.SFX}/hit.mp3")
@@ -39,13 +39,13 @@ class Carte:
     SON_CRIT : Sound = Sound(f"{Chemins.SFX}/smash-crit.wav")
     
     CRIT_IMG : Surface = pygame.transform.scale(
-        pygame.image.load(f"{Chemins.IMG}/crit.png"),
+        pygame.image.load(f"{Chemins.IMG}crit.png"),
         (40, 40)
     ).convert_alpha()
     
     donnees_JSON : list[dict]
     derniere_enregistree : 'Optional[Carte]' = None
-    cartes_affichees : Array['Carte'] = Array()
+    cartes_affichees : ArrayStable['Carte'] = ArrayStable()
     
     
     @overload 
@@ -94,7 +94,7 @@ class Carte:
     
     @staticmethod
     def actualiser_donnees() -> None:
-        with open(f"{Chemins.DATA}/cartes.json", encoding="utf-8") as fichier:
+        with open(f"{Chemins.JSON}cartes.json", encoding="utf-8") as fichier:
             Carte.donnees_JSON = json.load(fichier)
         
         # Envoie l'objet "attaque" avec le nom rajouté pour les attaques
@@ -122,8 +122,8 @@ class Carte:
     @property
     def _sprite(self) -> Surface:
         if self.est_de_dos:
-            return self._preparation_sprite(f"{Chemins.IMG}/cartes/dos.png")
-        return self._preparation_sprite(f"{Chemins.IMG}/cartes/{self._nom_sprite}")
+            return self._preparation_sprite(f"{Chemins.IMG}cartes/dos.png")
+        return self._preparation_sprite(f"{Chemins.IMG}cartes/{self._nom_sprite}/1.png")
     
     @property
     def est_de_dos(self) -> bool:
@@ -134,7 +134,7 @@ class Carte:
         if est_de_dos == CarteAnimInfo.CHANGER:
             raise NotImplementedError("Aucun changement prévu pour si la carte est de dos.")
         
-        # c'est une int ssi c'est une des deux valeurs en haut
+        # c'est une int si et seulement si c'est une des deux valeurs en haut
         assert(type(est_de_dos) is bool), f"CarteAnimInfo.de_dos devrait être un bool mais est un {type(est_de_dos).__name__} à la place."
         return est_de_dos
     
@@ -217,6 +217,8 @@ class Carte:
                 dest = self._pos_defaut
             case CarteAnimEtat.PARTIR:
                 dest = Pos(self._pos_defaut.x, dest.y)
+            case CarteAnimEtat.EN_SURVOL:
+                dest = self._pos_defaut + Carte._ANIM_SURVOL_DECALAGE
         
         assert(
                 dest.x != CarteAnimInfo.CHANGER
@@ -238,7 +240,7 @@ class Carte:
             debut_anim         : Duree         = copy(Jeu.duree_execution)
             animation_en_cours : CarteAnimEtat = self._anim_etat
             deplacement        : Deplacement   = self._calcul_deplacement()
-            self._finir_anim = False
+            self._finir_anim = False    # reset
             
             # Si la durée est de 0, l'anim est déjà finie
             # (on évite aussi les divisions par 0 en dessous)
@@ -261,8 +263,10 @@ class Carte:
                 self.dessiner(surface)
                 yield False
             
-            self._pos = deplacement.calculer_valeur(1)  # sécurité au cas où on revient trop tard dans la boucle du dessus
-            self.dessiner(surface)  # évite que la carte ne soit pas dessinée pendant l'intervalle d'un yield
+            # Ces deux lignes s'assurent que la carte soit au bon endroit
+            # avant le return/yield juste après
+            self._pos = deplacement.calculer_valeur(1)
+            self.dessiner(surface)
             
             if animation_en_cours == CarteAnimEtat.JOUER:
                 self.jouer_sfx()
@@ -296,14 +300,14 @@ class Carte:
         if not self.est_affiche:
             return
         
-        sprite = self._sprite
-        Jeu.fenetre.blit(sprite, self._pos.tuple)
+        Jeu.fenetre.blit(self._sprite, self._pos.tuple)
         
         if self._attaque._crit:
+            milieu_sprite = Vecteur(self._sprite.get_rect().size) // 2
             blit_centre(
                 surface,
                 Carte.CRIT_IMG,
-                (self._pos + Vecteur(sprite.get_rect().size) // 2).tuple, # on centre l'étoile
+                (self._pos + milieu_sprite).tuple, # on centre l'étoile
             )
     
     def enregister_lancement(self, id_lanceur : int, id_cible : int, flags_a_ajouter : AttaqueFlag = AttaqueFlag.AUCUN) -> None:
@@ -327,7 +331,7 @@ class Carte:
         else:
             Carte.SON_COUP.play()
     
-    def dans_hitbox(self, pos : Pos) -> bool:
-        return self._hitbox.collidepoint(pos.tuple)
+    def dans_hitbox(self, pos : pos_t) -> bool:
+        return self._hitbox.collidepoint(pos_t_vers_tuple(pos))
 
 Carte.actualiser_donnees()
