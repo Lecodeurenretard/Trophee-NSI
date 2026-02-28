@@ -5,9 +5,9 @@ from Carte        import Attaque, Carte
 from Item         import Item
 from Bouton       import Bouton
 
-def demander_pseudo(surface : Surface) -> Interruption:
+def demander_pseudo() -> Interruption:
     logging.debug(f"→ Interruption: demande du pseudo.")
-    
+        
     pseudo : str  = ""
     texte : Surface = Jeu.construire_police(Polices.TEXTE, 10).render("Entrez votre pseudo :", True, NOIR)
     while True:
@@ -17,19 +17,19 @@ def demander_pseudo(surface : Surface) -> Interruption:
         if not continuer and pseudo != '':
             break
         
-        surface.fill(BLANC)
-        blit_centre(surface, texte, Jeu.pourcentages_coordonnees(50, 45, ret_pos=False))
+        Jeu.fenetre.fill(BLANC)
+        blit_centre(0, texte, Jeu.pourcentages_coordonnees(50, 45, ret_pos=False))
         
         pseudo_affiche : Surface = Jeu.construire_police(Polices.FOURRE_TOUT, 12).render(pseudo, True, BLEU)
-        blit_centre(surface, pseudo_affiche, Jeu.centre_fenetre)
-        yield surface
+        blit_centre(0, pseudo_affiche, Jeu.centre_fenetre)
+        yield
     
     joueur.nom = pseudo
     logging.debug(f"← Fin interruption (demande du pseudo).")
 
 def texte_entree_event(texte : str) -> tuple[str, bool]:
     continuer : bool = True
-
+    
     TOUCHES_A_IGNORER : tuple[int, ...] = (
         pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN,   # flemme de faire un système de curseur
         pygame.K_LSHIFT, pygame.K_RSHIFT,
@@ -42,8 +42,6 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
         # on s'arrête ici pour l'instant
     )
     for event in pygame.event.get():
-        verifier_pour_quitter(event)
-        
         if event.type != pygame.KEYDOWN or event.key in TOUCHES_A_IGNORER:
             continue
         
@@ -69,65 +67,18 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
         texte = texte[:-1]                                              # les espaces, nouvelles lignes, tabs...
     return (texte, continuer)
 
-# TODO: TOREMOVE
-def trouve_carte_a_partir_du_curseur() -> Carte:
-    raise AssertionError("Cette fonction est cassée, elle sera réparée sous peu.")
-    
-    # Ce qui est important, c'est que le bouton soit dans le groupe Attaques
-    curseur_pos : Pos = Pos(0, 0)
-    
-    # Il faudra changer ça avec l'ajout du système de cartes
-    if curseur_pos == Pos(0, 0):
-        return Carte('Soin')
-    
-    if curseur_pos == Pos(1, 0):
-        return Carte('Magie')
-    
-    if curseur_pos == Pos(0, 1):
-        return Carte('Physique')
-    
-    if curseur_pos == Pos(1, 1):
-        return Carte('Skip')
-    
-    raise RuntimeError(f"Le curseur est à une position innatendue: {curseur_pos}.")
-
-def afficher_infos() -> Interruption:
-    logging.debug(f"→ Interruption: affichage des informations d'une attaque.")
-    
-    texte_puissance   : Surface
-    texte_description : Surface
-    
-    image : Surface = Surface((Jeu.largeur, Jeu.hauteur))
-    
-    image.fill(BLANC)
-    
-    carte : Carte = trouve_carte_a_partir_du_curseur()
-    texte_puissance   = Jeu.construire_police(Polices.TEXTE, 2).render(f"Puissance: {carte.puissance}", True, NOIR)
-    texte_description = Jeu.construire_police(Polices.TEXTE, 2).render(carte.description              , True, NOIR)
-    
-    blit_centre(image, texte_puissance  , Jeu.pourcentages_coordonnees(50, 50, ret_pos=False))
-    blit_centre(image, texte_description, Jeu.pourcentages_coordonnees(50, 57, ret_pos=False))
-    
-    return image_vers_generateur(
-        image,
-        Duree(s=2),
-        gerer_evenements=True,
-        derniere_etape=lambda: logging.debug(f"← Fin interruption (infos d'une attaque).")
-    )
-
-def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> Interruption:
+def faux_chargement(duree_totale : Duree = Duree(s=2.0)) -> Interruption:
     LONGUEUR_BARRE : int = 700
     ratio_barre : float = 0
     
     gradient : MultiGradient = MultiGradient([ROUGE, JAUNE, VERT])        # sinon ça donne un marron pas très estéthique
     while ratio_barre < 1:
         delta : Duree = Jeu.commencer_frame()
-        verifier_pour_quitter()
+        Jeu.fenetre.fill(BLANC)
         
-        surface.fill(BLANC)
         # Le contour de la barre
         dessiner_rect(
-            surface,
+            1,
             Jeu.centre_fenetre,
             (round(ratio_barre * LONGUEUR_BARRE), 50),
             couleur_remplissage=gradient.calculer_valeur(ratio_barre),
@@ -136,7 +87,7 @@ def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> I
         )
         # Ce qui va remplir la barre
         dessiner_rect(
-            surface,
+            1,
             Jeu.centre_fenetre,
             (LONGUEUR_BARRE, 50),
             couleur_bords=NOIR, dessiner_interieur=False,
@@ -145,13 +96,13 @@ def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> I
         )
         
         texte_chargement : Surface = Jeu.construire_police(Polices.TITRE, 11).render("Chargement...", True, NOIR)
-        blit_centre(surface, texte_chargement, Jeu.pourcentages_coordonnees(50, 45, ret_pos=False))
+        blit_centre(1, texte_chargement, Jeu.pourcentages_coordonnees(50, 45, ret_pos=False))
         
         ratio_barre += delta.secondes / duree_totale.secondes
-        yield surface
+        yield
 
 
-def ecran_nombre_combat() -> Generator[Surface, None, None]:
+def ecran_nombre_combat(num_couche : int) -> Generator[None, None, None]:
     police_annonce = Jeu.construire_police(Polices.TITRE, 9)
     texte_combat : Surface = police_annonce.render(f"Combat n°{Jeu.num_etape}", True, NOIR)
     texte_shop   : Surface = police_annonce.render(f"Shop", True, NOIR)
@@ -159,24 +110,24 @@ def ecran_nombre_combat() -> Generator[Surface, None, None]:
     
     logging.info("")
     logging.info("")
+    
     if Jeu.decision_shop(Jeu.num_etape):
         image.fill(CYAN)
         blit_centre(image, texte_shop, Jeu.centre_fenetre)
-        
         logging.info(f"Entrée dans le shop de la zone {Jeu.num_etape}.")
     else:
         image.fill(BLANC)
         blit_centre(image, texte_combat, Jeu.centre_fenetre)
-        
         logging.info(f"Début combat numéro {Jeu.num_etape}.")
-    return image_vers_generateur(image, Duree(s=2), gerer_evenements=True)
+        
+    return blit_generateur(num_couche, image, Duree(s=2), gerer_evenements=True)
 
 
-def dessiner_descriptions_entites(surface : Surface) -> None:
+def dessiner_descriptions_entites(num_couche : int) -> None:
     """Dessine les infos quand on appuie sur F9."""
     for i, entite in Entite.vivantes.no_holes():
         dessiner_texte(
-            surface,
+            num_couche,
             entite.decrire_stats(),
             rgb_to_rgba(GRIS_CLAIR, transparence=128),
             (
@@ -190,13 +141,13 @@ def dessiner_descriptions_entites(surface : Surface) -> None:
             ecart_entre_lignes=5
         )
         pygame.draw.line(
-            surface,
+            Jeu.get_couche(num_couche),
             GRIS_CLAIR,
             (Jeu.pourcentage_largeur(33) * i, 0),
             (Jeu.pourcentage_largeur(33) * i, Jeu.hauteur)
         )
 
-def dessiner_diff_stats_joueur(surface : Surface) -> None:
+def dessiner_diff_stats_joueur(num_couche : int) -> None:
     """Dessine les gains/pertes par rapport aux stats de bases."""
     differences : dict[str, float] = {
         "vie maximum"        : joueur.stats_totales.vie_max         - Joueur.STATS_DE_BASE.vie_max,
@@ -215,16 +166,16 @@ def dessiner_diff_stats_joueur(surface : Surface) -> None:
         if diff > 0: coul = VERT
         
         txt = Jeu.construire_police(Polices.TEXTE, 7).render(f"{stat}: {int(diff):+d}", True, coul)
-        surface.blit(txt, (10, y))
+        Jeu.get_couche(num_couche).blit(txt, (10, y))
         y += txt.get_rect().height + 5
 
 def dessiner_infos() -> None:
     """Si les bonnes touches sont pressées, dessine les infos."""
     if pygame.key.get_pressed()[Touches.DIFFS]:
-        dessiner_diff_stats_joueur(Jeu.infos_surf)
+        dessiner_diff_stats_joueur(2)
     
     elif pygame.key.get_pressed()[Touches.DBG_INFOS_ENTITES] and bool(params.mode_debug):
-        dessiner_descriptions_entites(Jeu.infos_surf)
+        dessiner_descriptions_entites(2)
 
 def rafraichir_ecran_combat() -> None:
     image_fond = pygame.image.load(f"{Chemins.IMG}etages/{Jeu.nom_etage()}.png")
@@ -232,12 +183,11 @@ def rafraichir_ecran_combat() -> None:
     
     # Afficher l'image de fond 
     Jeu.fenetre.blit(image_fond, (0, 0))    # pas besoin de faire un .fill(), ça couvre déjà tout l'écran
-    Jeu.menus_surf.fill(TRANSPARENT)
     
     # Dessiner les entités
     for _, entites in Entite.vivantes.no_holes():
-        entites.dessiner(Jeu.fenetre)
-        entites.dessiner_UI(Jeu.fenetre)
+        entites.dessiner(0)
+        entites.dessiner_UI(0)
     
     # Vérifie si les cartes doivent être dessinées
     dessiner_cartes : bool = True
@@ -258,11 +208,11 @@ def rafraichir_ecran_combat() -> None:
     
     # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:
-        blit_centre(Jeu.menus_surf, Carte.CRIT_IMG, Jeu.pourcentages_coordonnees(80, 60, ret_pos=False))
+        blit_centre(1, Carte.CRIT_IMG, Jeu.pourcentages_coordonnees(80, 60, ret_pos=False))
     
     # Dessiner le nombre de coups restant
     dessiner_rect(
-        Jeu.menus_surf,
+        1,
         Jeu.pourcentages_coordonnees(85, 87),
         Jeu.pourcentages_fenetre(20, 10, ret_vec=False),
         couleur_remplissage=GRIS_CLAIR,
@@ -282,7 +232,7 @@ def rafraichir_ecran_combat() -> None:
         )
     )
     blit_centre(
-        Jeu.menus_surf,
+        1,
         txt_coups,
         Jeu.pourcentages_coordonnees(85, 87, ret_pos=False),
     )
@@ -295,10 +245,10 @@ def rafraichir_ecran_combat() -> None:
 
 
 
-def dessiner_nombre_pieces(surface : Surface, boite_inventaire : Rect, ordonnees : int = Jeu.pourcentage_hauteur(5)) -> None:
+def dessiner_nombre_pieces(num_couche : int, boite_inventaire : Rect, ordonnees : int = Jeu.pourcentage_hauteur(5)) -> None:
     if params.argent_infini.case_cochee:
         dessiner_texte(
-            surface,
+            num_couche,
             "genre, beaucoup de p",
             JAUNE_PIECE,
             (
@@ -313,10 +263,14 @@ def dessiner_nombre_pieces(surface : Surface, boite_inventaire : Rect, ordonnees
             f"{joueur.nb_pieces}p",
             True, JAUNE_PIECE,
         )
-        surface.blit(TEXTE_PIECES, (
-            boite_inventaire.left + boite_inventaire.width // 2,
-            ordonnees,
-        ))
+        Jeu.blit_couche(
+            num_couche,
+            TEXTE_PIECES,
+            (
+                boite_inventaire.left + boite_inventaire.width // 2,
+                ordonnees,
+            )
+        )
 
 def dessiner_inventaire(surface : Surface, boite_inventaire : Rect) -> None:
     y : int = Jeu.pourcentage_hauteur(9)     # début affichage items inventaire
@@ -344,12 +298,12 @@ def rafraichir_ecran_shop(items : list[Item], abscisses : tuple[int, ...], rect_
     )
     
     # ...
-    dessiner_nombre_pieces(Jeu.menus_surf, rect_inventaire)
+    dessiner_nombre_pieces(1, rect_inventaire)
     dessiner_inventaire(Jeu.fenetre, rect_inventaire)
     dessiner_infos()
     
-    bouton.dessiner(Jeu.menus_surf, point_size=0)
+    bouton.dessiner(1, point_size=0)
     for item, pourcentage_abscisse in zip(items, abscisses):
-        item.dessiner(Jeu.fenetre, pourcentage_abscisse, afficher_avertissements=afficher_avertissements)
+        item.dessiner(0, pourcentage_abscisse, afficher_avertissements=afficher_avertissements)
     
     Jeu.display_flip()

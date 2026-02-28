@@ -18,11 +18,11 @@ class TypeParametre(Enum):
     FLOAT            = auto()
     
     @staticmethod
-    def dessiner(surface : Surface, categ : 'TypeParametre', position : Pos, dimensions : tuple[int, int]|list[int], valeur : categorie_valeur_parametre) -> None:
+    def dessiner(num_couche : int, categ : 'TypeParametre', position : Pos, dimensions : tuple[int, int]|list[int], valeur : categorie_valeur_parametre) -> None:
         match(categ):
             case TypeParametre.CASE_A_COCHER:
                 dessiner_rect(
-                    surface,
+                    num_couche,
                     position, dimensions,
                     BLEU if valeur else BLANC,
                     epaisseur_trait=2, couleur_bords=GRIS
@@ -138,8 +138,8 @@ class Parametre:
         return self._convertion_vers_type(int)
     def __float__(self):
         return self._convertion_vers_type(float)
-    def __str__(self):
-        return self._convertion_vers_type(str)
+    def __str__(self) -> str:   # annotation sinon le type chcker se plaint
+        return self._convertion_vers_type(str)  # type: ignore
     #def __iter__(self):
     #    if self._categorie == ParametreCategorie.CHECKBOXES:
     #        return (val for val in self._valeur)
@@ -147,11 +147,11 @@ class Parametre:
     #    raise TypeError(f"On ne peut itérer à travers un paramètre de catégorie {self._categorie}.")
     
     @staticmethod
-    def dessiner_groupe(surface : Surface, groupe_a_dessiner : 'list[Parametre]|tuple[Parametre]') -> int:
+    def dessiner_groupe(num_couche : int, groupe_a_dessiner : 'list[Parametre]|tuple[Parametre]') -> int:
         y_maximum : int = -1
         
         for param in groupe_a_dessiner:
-            param.dessiner(surface)
+            param.dessiner(num_couche)
             
             if param._hitbox_globale.bottom > y_maximum:
                 y_maximum = param._hitbox_globale.bottom
@@ -249,18 +249,19 @@ class Parametre:
     def reset_val(self) -> None:
         self._valeur = self._valeur_par_defaut
     
-    def dessiner(self, surface : Surface) -> None:
+    def dessiner(self, num_couche : int) -> None:
         DECALAGE : Vecteur = Vecteur(Parametre._ECART_NOM_VALEUR // 2, 0)
         nom_rendered : Surface = Parametre._POLICE.render(self._nom_affichage, True, NOIR)
         
         blit_centre(
-            surface, nom_rendered,
+            num_couche,
+            nom_rendered,
             (self._position - Vecteur(nom_rendered.get_width(), 0) - DECALAGE).tuple,
             centre_en_x=False
         )
         
         self._categorie.dessiner(
-            surface,
+            num_couche,
             self._categorie,
             Pos(self._hitbox_globale.topleft),
             self._categorie.dimensions,

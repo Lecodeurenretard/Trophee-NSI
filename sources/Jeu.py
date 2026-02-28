@@ -1,27 +1,42 @@
 from imports import *
-from classes_utiles import Duree, Pos, pos_t
-from Constantes import Touches
+from classes_utiles import Duree, Pos, pos_t, pos_t_vers_tuple
+from Constantes import Touches, Chemins
 from Constantes.Couleurs import TRANSPARENT, ROUGE
 from Constantes.Polices import FOURRE_TOUT, pixels_vers_taille_police
 
 
-Interruption : TypeAlias = Generator[Surface, None, None]
+Interruption : TypeAlias = Generator[None, None, None]
 class Jeu:
     """
     Classe statique gerant le jeu.
     Elle contient les variables globales.
     """
+    _CHEMIN_FICHIER_PARAMETRES : str = f"{Chemins.SAVE}parametres.txt"
+    _TYPE_PREFIXES             : dict[type, str] = {
+        int: 'i',
+        float: 'f',
+        str: 's',
+    }
+    
     ETAPE_PAR_ETAGE   : int = 10
-    MAX_COMBAT        : int = 2 * ETAPE_PAR_ETAGE
+    COMBAT_MAX        : int = 2 * ETAPE_PAR_ETAGE
     ATTAQUES_PAR_TOUR : int = 3
     
-    fenetre    : Surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    
+    fenetre : Surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     
     largeur, hauteur = pygame.display.get_surface().get_size()  # type: ignore # la fenêtre à été créée du coup ce n'est jamais None
     centre_fenetre : tuple[int, int] = (largeur // 2, hauteur // 2)
     
-    menus_surf : Surface = Surface((largeur, hauteur), pygame.SRCALPHA)
-    infos_surf : Surface = Surface((largeur, hauteur), pygame.SRCALPHA)
+    
+    # on pourrait automatiser la création de surfaces avec
+    # une compréhension de liste mais c'est brouillon.
+    NB_COUCHES_GRAPHIQUES : int = 3
+    couches_graphiques : tuple[Surface, ...] = (
+        Surface((largeur, hauteur), pygame.SRCALPHA),
+        Surface((largeur, hauteur), pygame.SRCALPHA),
+        Surface((largeur, hauteur), pygame.SRCALPHA),
+    )
     
     
     
@@ -35,7 +50,10 @@ class Jeu:
     clock               : pygame.time.Clock = pygame.time.Clock()
     framerate           : int = 60
     
+    dernier_mouvement_souris : Duree = copy(duree_execution)
+    
     volume_musique : float = 1
+    parametres : dict[str, Any] = {}
     
     
     
@@ -70,6 +88,46 @@ class Jeu:
         pygame.display.set_caption(val)
     
     @staticmethod
+    def get_couche(numero_couche : int) -> Surface:
+        """
+        Renvoie la couche avec le numéro correspondant, plus le numéro est élevé, plus la couche est dessinée tard.
+        Ainsi les couches avec les plus haut numéro sont au dessus de celles avec de plus bas.
+        La seule exeption est la couche de debogage qui est dessinée en dernière et à pour numéro -1.
+        """
+        if numero_couche == -1:
+            return Jeu.get_couche_debug()
+        if not 0 <= numero_couche <= Jeu.NB_COUCHES_GRAPHIQUES-1:
+            raise ValueError(f"Le numéro de couche doit être positif et en dessous ou égal à {Jeu.NB_COUCHES_GRAPHIQUES-1} ou égal à -1.")
+        
+        if numero_couche == 0:
+            return Jeu.fenetre
+        return Jeu.couches_graphiques[numero_couche-1]
+    
+    @staticmethod
+    def get_couche_debug() -> Surface:
+        return Jeu.couches_graphiques[-1]
+    
+    @staticmethod
+    def blit_couche(
+        numero_couche : int,
+        surface : Surface,
+        dest : pos_t = (0, 0),
+        area : tuple[int, int, int, int]|None = None,
+        special_flags : int = 0,
+    ) -> Rect:
+        """
+        Blit surface sur la couche numero_couche.
+        Les autres arguments sont passés à surface.blit().
+        Renvoie un Rect sur la zone de l'écran affectée.
+        """
+        return Jeu.get_couche(numero_couche).blit(
+            surface,
+            dest=pos_t_vers_tuple(dest),
+            area=area,
+            special_flags=special_flags
+        )
+    
+    @staticmethod
     def num_etage() -> int:
         # Pour que les étages multiples de Jeu.ETAPE_PAR_ETAGE
         # soient dans l'étage inférieur.
@@ -94,7 +152,7 @@ class Jeu:
     @staticmethod
     def decision_boss(num_combat : int) -> bool:
         """Décide si le combat est un combat de boss."""
-        if num_combat == Jeu.MAX_COMBAT:    # un boss doit être le dernier niveau
+        if num_combat == Jeu.COMBAT_MAX:    # un boss doit être le dernier niveau
             return True
         return num_combat % 10 == 0
     
@@ -126,6 +184,13 @@ class Jeu:
         delta = Jeu.clock.tick(Jeu.framerate)
         Jeu.duree_execution.millisecondes += delta
         
+        for ev in pygame.event.get():
+            verifier_pour_quitter(ev)
+            if ev.type == pygame.MOUSEMOTION:
+                Jeu.dernier_mouvement_souris = copy(Jeu.duree_execution)
+            
+            pygame.event.post(ev)    # remet les évènements dans la file des évènements
+        
         return Duree(ms=delta)
     
     @staticmethod
@@ -137,6 +202,11 @@ class Jeu:
     def pourcentage_largeur(pourcents : float) -> int:
         """Renvoie pourcentage de la largeur de l'écran en pixels"""
         return round(Jeu.largeur * pourcents / 100)
+    
+    @staticmethod
+    def pourcentage_hauteur_police(pourcents : float) -> int:
+        """Renvoie pourcentage de la hauteur de l'écran en pixels pour une police."""
+        return pixels_vers_taille_police(Jeu.pourcentage_hauteur(pourcents))
     
     @overload
     @staticmethod
@@ -185,7 +255,7 @@ class Jeu:
             barre    : bool = False,
         ) -> Font:
         """Construit un objet Font avec une taille de police de `hauteur`% la taille de l'écran."""
-        res = Font(chemin, pixels_vers_taille_police(Jeu.pourcentage_hauteur(hauteur)))
+        res = Font(chemin, Jeu.pourcentage_hauteur_police(hauteur))
         res.set_bold(gras)
         res.set_italic(italique)
         res.set_underline(souligne)
@@ -201,24 +271,23 @@ class Jeu:
         Jeu.centre_fenetre = (Jeu.largeur // 2, Jeu.hauteur // 2)
     
     @staticmethod
-    def display_flip(reset_menu : bool = True, reset_infos : bool = True) -> None:
+    def display_flip() -> None:
         """Met à jour le display et si `reset_menu` est actif, remplit `menus_surf` avec de la transparence."""
         import parametres_vars as p
         if bool(p.mode_debug):
             surf : Surface = Jeu.construire_police(FOURRE_TOUT, 10).render("Débug", True, ROUGE)
-            Jeu.infos_surf.blit(
+            Jeu.blit_couche(
+                2,
                 surf,
                 (Jeu.largeur - surf.get_rect().width, 0)
             )
         
-        Jeu.fenetre.blit(Jeu.menus_surf, (0, 0))
-        Jeu.fenetre.blit(Jeu.infos_surf, (0, 0))
+        for couche in Jeu.couches_graphiques:
+            Jeu.fenetre.blit(couche)
         pygame.display.flip()
         
-        if reset_menu:
-            Jeu.menus_surf.fill(TRANSPARENT)
-        if reset_infos:
-            Jeu.infos_surf.fill(TRANSPARENT)
+        for couche in Jeu.couches_graphiques:
+            couche.fill(TRANSPARENT)
     
     @staticmethod
     def jouer_musique(fichier : str, volume : Optional[float] = None) -> None:
@@ -234,6 +303,42 @@ class Jeu:
     @staticmethod
     def interrompre_musique() -> None:
         pygame.mixer.music.stop()
+
+    @staticmethod
+    def ecrire_parametres() -> None:
+        with open(Jeu._CHEMIN_FICHIER_PARAMETRES, "w", encoding="utf-8") as f:
+            for nom, val in Jeu.parametres.items():
+                prefixe = Jeu._TYPE_PREFIXES[type(val)]
+                f.write(f"{prefixe}{nom}={val}\n")
+    
+    @staticmethod
+    def lire_parametres() -> None:
+        Jeu.parametres = {}
+        if not os.path.isfile(Jeu._CHEMIN_FICHIER_PARAMETRES):
+            logging.warning(f"Le fichier {Jeu._CHEMIN_FICHIER_PARAMETRES} n'a pas été trouvé, on en recrée un.")
+            
+            CHEMIN_PARAM_DEFAUT = f"{Chemins.ETC}parametres_defaut.txt"
+            if not os.path.isfile(CHEMIN_PARAM_DEFAUT):
+                raise FileNotFoundError(f"{CHEMIN_PARAM_DEFAUT} non trouvé, veuillez le retélécharger de Github.")
+            shutil.copy(CHEMIN_PARAM_DEFAUT, Jeu._CHEMIN_FICHIER_PARAMETRES)
+        
+        with open(Jeu._CHEMIN_FICHIER_PARAMETRES, "r", encoding="utf-8") as f:
+            # Lit chaque ligne et remplit 
+            for ligne in f.readlines():
+                nom, val = ligne.split('=', maxsplit=1)
+                type_val = recherche_map(nom[0], Jeu._TYPE_PREFIXES, type(None))
+                
+                if type_val is None:
+                    raise RuntimeError(
+                        f"Préfixe '{nom[0]}' inconnu,"
+                        " le fichier {Jeu.CHEMIN_FICHIER_PARAMETRES} est mal-formé."
+                    )
+                Jeu.parametres[nom[1:]] = type_val(val)     # functional cast comme pour int()
+
+
+
+
+
 
 
 # Le système d'overload est à la fois une bénédiction pour la fonctionnalité
@@ -265,33 +370,17 @@ def verifier_pour_quitter(ev : Optional[pygame.event.Event] = None) -> None:
     for event in pygame.event.get():
         verifier_pour_quitter(event)
 
-@overload
-def testeur_skip_ou_quitte() -> bool:
-    """
-    Vérifie si un évènement dans la file des evènements est un évènement permettant de sortir, s'il en existe un quitte immédiatement.
-    La fonction vérifie aussi si le testeur veut skip, dans ce cas là elle renvoie `True`.
-    Vide la file des évènements.
-    La décision est prise par la version avec un argument.
-    """
-    ...
-@overload
-def testeur_skip_ou_quitte(ev : pygame.event.Event) -> bool:
-    """
-    Vérifie si `ev` permet de quitter le jeu, il doit respecter au moins une de ces conditions:
-    - Être de type `pygame.QUIT`;
-    - Représenter l'appui de la touche `TOUCHE_QUITTER`.
-    
-    La fonction vérifie aussi si le testeur veut skip dans ce cas là elle renvoie `True`.
-    """
-    ...
 
-def testeur_skip_ou_quitte(ev : Optional[pygame.event.Event] = None) -> bool:
-    if ev is not None:
-        verifier_pour_quitter(ev)
-        return Touches.testeur_skip(ev)
-    
-    for ev in pygame.event.get():
-        if testeur_skip_ou_quitte(ev):
-            pygame.event.clear()    # pas de restes
-            return True
-    return False
+
+
+# La fonction ci-dessous devrait être dans fonction_vrac.py mais est requise par Jeu
+def recherche_map[K, V](element : V, map : Mapping[K, V], si_pas_trouve : K) -> K:
+    """
+    Trouve la clef correspondante à `element` dans `map` ou `si_pas_trouve` s'il n'est pas dans la map.
+    Si les valeurs du dictionnaire ne sont pas uniques, le résultat pourrait être imprévisible.
+    Cette fonction n'est pas mémoisée car les dict ne sont pas hashables.
+    """
+    for clef, valeur in map.items():
+        if valeur == element:
+            return clef
+    return si_pas_trouve

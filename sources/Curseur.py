@@ -108,8 +108,8 @@ class Curseur:
             and p not in self._interdit
         )
     
-    def dessiner(self, surface : Surface, couleur : color, rayon : int = 10) -> None:
-        pygame.draw.circle(surface, couleur, self._pos.tuple, rayon)
+    def dessiner(self, num_couche : int, couleur : color, rayon : int = 10) -> None:
+        pygame.draw.circle(Jeu.get_couche(num_couche), couleur, self._pos.tuple, rayon)
     
     def monter(self) -> None:
         self._ajouter_a_pdtp_y(-1)

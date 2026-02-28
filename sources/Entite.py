@@ -31,6 +31,7 @@ class Entite(ABC):
         
         assert(0 < max_cartes_main <= self.__class__._CARTES_MAIN_MAX_DU_MAX), f"Le maximum de cartes en main ({max_cartes_main}) doit être entre 0 (exclus) et {self.__class__._CARTES_MAIN_MAX_DU_MAX} (inclus)."
         self._cartes_main_max : int = max_cartes_main
+        self._main_dans_ecran : bool = False
         
         self._SPRITE_TAILLE : Vecteur = valeur_par_defaut(
             _taille_sprite,
@@ -200,7 +201,7 @@ class Entite(ABC):
         # trie les cartes par ordre alphabetique
         self._cartes_main = sorted(self._cartes_main, key=lambda c: c._nom)
     
-    def _dessiner_barre_de_vie(self, surface : Surface) -> None:
+    def _dessiner_barre_de_vie(self, num_couche : int) -> None:
         ratio_vie = self._stats.vie / self._stats.vie_max
         
         couleur_remplissage : rgb = VERT
@@ -214,14 +215,14 @@ class Entite(ABC):
         dim_remplissage : tuple[int, int] = (int(ratio_vie * self._LONGUEUR_BARRE_DE_VIE), self._HAUTEUR_BARRE_DE_VIE)
         dim_bords       : tuple[int, int] = (                self._LONGUEUR_BARRE_DE_VIE , self._HAUTEUR_BARRE_DE_VIE)
         dessiner_rect(  # remplissage
-            surface,
+            num_couche,
             self._pos_barre_de_vie,
             dim_remplissage,
             couleur_remplissage=couleur_remplissage,
             epaisseur_trait=0,
         )
         dessiner_rect(  # bords
-            surface,
+            num_couche,
             self._pos_barre_de_vie,
             dim_bords,
             couleur_bords=NOIR,
@@ -255,12 +256,13 @@ class Entite(ABC):
         carte.anim_etat = CarteAnimEtat.JOUER
         carte.enregister_lancement(self._id, id_cible)
     
-    def dessiner(self, surface : Surface) -> None:
-        surface.blit(self._sprite, self.pos_sprite.tuple)
+    def dessiner(self, num_couche : int) -> None:
+        Jeu.blit_couche(num_couche, self._sprite, self.pos_sprite.tuple)
     
-    def dessiner_UI(self, surface : Surface) -> None:
-        self._dessiner_barre_de_vie(surface)
-        Jeu.menus_surf.blit(
+    def dessiner_UI(self, num_couche : int) -> None:
+        self._dessiner_barre_de_vie(num_couche)
+        Jeu.blit_couche(
+            num_couche,
             Jeu.construire_police(Polices.TITRE, 7).render(self.nom, True, NOIR),
             (self._pos_barre_de_vie - Vecteur(1, 30)).tuple
         )
@@ -282,9 +284,11 @@ class Entite(ABC):
             self.piocher()
     
     def main_jouer_entrer(self) -> None:
+        self._main_dans_ecran = True
         for c in self._cartes_main:
             c.anim_etat = CarteAnimEtat.REVENIR
     def main_jouer_sortir(self) -> None:
+        self._main_dans_ecran = False
         for c in self._cartes_main:
             c.anim_etat = CarteAnimEtat.PARTIR
     

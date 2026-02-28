@@ -189,6 +189,18 @@ class Attaque:
         return self._desc
     
     @property
+    def type(self) -> TypeAttaque:
+        return self._type
+    
+    @property
+    def stats_changees_cible(self) -> Stat:
+        return copy(self._stats_changees_cible)
+    
+    @property
+    def stats_changees_lanceur(self) -> Stat:
+        return copy(self._stats_changees_lanceur)
+    
+    @property
     def peut_attaquer_lanceur(self) -> bool:
         return AttaqueFlag.ATTAQUE_LANCEUR in self._drapeaux
     

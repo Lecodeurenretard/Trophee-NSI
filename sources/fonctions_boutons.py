@@ -27,8 +27,6 @@ def _rafraichir_donnees() -> None:
 def _evenements_parametres(bouton_sortie : Bouton, bouton_actualiser : Bouton) -> bool:
     """la boucle des évènements de `menu_paramètre()`. Renvoie si l'interruption s'arrête."""
     for ev in pygame.event.get():
-        verifier_pour_quitter(ev)
-        
         for parametre in PARAMETRES_NORMAUX:
             parametre.prendre_input(ev)
         
@@ -37,7 +35,7 @@ def _evenements_parametres(bouton_sortie : Bouton, bouton_actualiser : Bouton) -
                 parametre.prendre_input(ev)
         
         
-        if ev.type == pygame.KEYDOWN and ev.key == Touches.SETTINGS:
+        if ev.type == pygame.KEYDOWN and ev.key == Touches.PARAMETRES:
             return True
         
         if ev.type != pygame.MOUSEBUTTONDOWN:
@@ -74,16 +72,15 @@ def menu_parametres() -> Interruption:
         if _evenements_parametres(bouton_sortir, butt_actualisation):
             break
         
-        image : Surface = Surface((Jeu.largeur, Jeu.hauteur))
-        image.fill(BLANC)
+        Jeu.fenetre.fill(BLANC)
         
-        blit_centre(image, TITRE_PARAMS, Jeu.pourcentages_coordonnees(50, 10, ret_pos=False))
-        fin_params : int = Parametre.dessiner_groupe(image, PARAMETRES_NORMAUX)
+        blit_centre(0, TITRE_PARAMS, Jeu.pourcentages_coordonnees(50, 10, ret_pos=False))
+        fin_params : int = Parametre.dessiner_groupe(1, PARAMETRES_NORMAUX)
         
         if params.mode_debug.case_cochee:
             fin_params += 40
-            blit_centre(image, TITRE_TRICHE, (Jeu.pourcentage_largeur(50), fin_params))
-            fin_params = Parametre.dessiner_groupe(image, PARAMETRES_TRICHE)
+            blit_centre(0, TITRE_TRICHE, (Jeu.pourcentage_largeur(50), fin_params))
+            fin_params = Parametre.dessiner_groupe(1, PARAMETRES_TRICHE)
             
             fin_params += 40
             pos_bouton : Pos = centrer_pos(
@@ -93,12 +90,12 @@ def menu_parametres() -> Interruption:
             )
             
             butt_actualisation.changer_pos(pos_bouton)
-            butt_actualisation.dessiner(Jeu.menus_surf, point_size=65)
+            butt_actualisation.dessiner(1, point_size=65)
         
-        bouton_sortir.dessiner(image, point_size=0)
+        bouton_sortir.dessiner(1, point_size=0)
         
         try:
-            yield image
+            yield
         except GeneratorExit:
             break
     logging.debug("← Fin interruption (paramètres).")

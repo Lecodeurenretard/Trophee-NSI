@@ -9,5 +9,5 @@ from import_var     import *
 
 from parametres_vars import PARAMETRES_NORMAUX, PARAMETRES_TRICHE
 
-from Jeu import verifier_pour_quitter, testeur_skip_ou_quitte
+from Jeu import verifier_pour_quitter
 # Le reste est importé dans import_var

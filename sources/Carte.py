@@ -76,7 +76,8 @@ class Carte:
         self._anim_gen      : Optional[Generator[bool, None, None]] = None
         self._de_dos_defaut : bool = de_dos
         
-        self._finir_anim : bool = False
+        self._finir_anim     : bool = False
+        self._dessiner_infos : bool = False
         
         # C'est un attribut non statique car il dépend de ._sprite qui n'est pas statique
         # mais il faut le traiter comme si
@@ -167,6 +168,10 @@ class Carte:
         return self._anim_etat
     
     @property
+    def dessiner_infos(self) -> bool:
+        return self._dessiner_infos
+    
+    @property
     def est_affiche(self) -> bool:
         if self._id_affichage >= 0:
             assert(self._anim_gen is not None), "Tout objet dans Carte.cartes_affichees[] doit avoir un générateur d'animation."
@@ -185,6 +190,10 @@ class Carte:
     @anim_etat.setter
     def anim_etat(self, val : CarteAnimEtat) -> None:
         self._anim_etat = val
+    
+    @dessiner_infos.setter
+    def dessiner_infos(self, val : bool) -> None:
+        self._dessiner_infos = val
     
     @pos_defaut.setter
     def pos_defaut(self, val : Pos) -> None:
@@ -227,7 +236,63 @@ class Carte:
         
         return Deplacement(self._pos, dest)
     
-    def _animation(self, surface : Surface) -> Generator[bool, None, None]:
+    def _dessin_infos(self, num_couche : int) -> None:
+        if self.est_de_dos:
+            return
+        
+        # Dessine Le fond derrière les infos
+        rect = Rect(
+            *(self._pos + Vecteur(0, self._TAILLE_SPRITE[1] // 2)).tuple,
+            self._TAILLE_SPRITE[0], self._TAILLE_SPRITE[1] // 2
+        )
+        dessiner_rect(
+            num_couche,
+            rect.topleft,
+            rect.size,
+            couleur_remplissage=GRIS_CLAIR,
+            couleur_bords=GRIS,
+            epaisseur_trait=3,
+            border_radius=10
+        )
+        
+        PADDING = 10
+        INTER_INFO = 5
+        def dessiner_dans_rect() -> Generator[None, str, None]:
+            """Renvoie un générateur qui dessine le texte envoyé dans le rectangle rect."""
+            POLICE_STATS = pygame.font.Font(Polices.TEXTE, 16)
+            x = rect.x + PADDING
+            y = rect.y + PADDING
+            while True:
+                texte = (yield)
+                y = Jeu.blit_couche(
+                    num_couche,
+                    POLICE_STATS.render(texte, True, NOIR),
+                    (x, y + INTER_INFO),
+                ).bottom
+        
+        dessinateur = dessiner_dans_rect()
+        next(dessinateur)   # démarre le générateur
+        
+        def dessiner_stats_modifiees(stats : Stat, stats_de_qui : str) -> None:
+            """Dessine le texte les stats modifées par l'attaque dans le rectangle."""
+            aucun_changement = True
+            dessinateur.send(f"Stats de {stats_de_qui} modifiées:")
+            for nom, stat in stats.__dict__.items():
+                if stat != 0 and nom != "vie":
+                    aucun_changement = False
+                    dessinateur.send(f"    {nom}: {stat:+}")
+            if aucun_changement:
+                dessinateur.send("    aucune")
+        
+        # Dessin
+        dessinateur.send(f"Nom: {self._nom}")
+        dessinateur.send(f"Type: {self._attaque.type.name}")
+        dessinateur.send(f"Puissance: {self._attaque.puissance}")
+        
+        dessiner_stats_modifiees(self._attaque.stats_changees_cible, "l'adversaire")
+        dessiner_stats_modifiees(self._attaque.stats_changees_lanceur, "Esquimot")
+    
+    def _animation(self, num_couche : int) -> Generator[bool, None, None]:
         """Renvoie un générateur avançant l'animation."""
         while True:
             if self._anim_etat not in Carte._ANIM_DICO.keys():
@@ -246,7 +311,7 @@ class Carte:
             # (on évite aussi les divisions par 0 en dessous)
             if self._anim_infos.duree == Duree(s=0):
                 self._pos = deplacement.calculer_valeur(1)
-                self.dessiner(surface)
+                self.dessiner(num_couche)
                 
                 yield True
                 continue
@@ -255,18 +320,20 @@ class Carte:
             while Jeu.duree_execution <= debut_anim + self._anim_infos.duree:
                 if animation_en_cours != self._anim_etat or self._finir_anim:
                     break   # changement d'animation
+                if animation_en_cours == CarteAnimEtat.JOUER:
+                    self._dessiner_infos = False
                 
                 t = (Jeu.duree_execution - debut_anim) / self._anim_infos.duree
                 t = clamp(t, 0, 1)
                 self._pos = deplacement.calculer_valeur(t, easing_fun=self._anim_infos.easing)
                 
-                self.dessiner(surface)
+                self.dessiner(num_couche)
                 yield False
             
             # Ces deux lignes s'assurent que la carte soit au bon endroit
             # avant le return/yield juste après
             self._pos = deplacement.calculer_valeur(1)
-            self.dessiner(surface)
+            self.dessiner(num_couche)
             
             if animation_en_cours == CarteAnimEtat.JOUER:
                 self.jouer_sfx()
@@ -284,7 +351,7 @@ class Carte:
         if self.est_affiche:
             return
         
-        self._anim_gen = self._animation(Jeu.fenetre)
+        self._anim_gen = self._animation(0)
         self._id_affichage = Carte.cartes_affichees.search(None)
         if self._id_affichage >= 0:
             Carte.cartes_affichees[self._id_affichage] = self
@@ -296,16 +363,18 @@ class Carte:
         Carte.cartes_affichees.pop(self._id_affichage)
         self._id_affichage = -1
     
-    def dessiner(self, surface : Surface) -> None:
+    def dessiner(self, num_couche : int) -> None:
         if not self.est_affiche:
             return
         
-        Jeu.fenetre.blit(self._sprite, self._pos.tuple)
+        Jeu.blit_couche(0, self._sprite, self._pos.tuple)
+        if self.dessiner_infos:
+            self._dessin_infos(num_couche)
         
         if self._attaque._crit:
             milieu_sprite = Vecteur(self._sprite.get_rect().size) // 2
             blit_centre(
-                surface,
+                num_couche,
                 Carte.CRIT_IMG,
                 (self._pos + milieu_sprite).tuple, # on centre l'étoile
             )

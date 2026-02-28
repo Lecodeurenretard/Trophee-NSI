@@ -17,6 +17,8 @@ from fonctions_etats import (
 
 def jeu() -> NoReturn:
     Jeu.changer_etat(Jeu.Etat.ECRAN_TITRE)
+    Jeu.lire_parametres()
+    
     while True:
         pygame.event.clear()    # il ne faut pas que les évènements transitent entre les états
         match Jeu.etat:
@@ -53,13 +55,13 @@ if __name__ == "__main__":
         jeu()
     
     except (ValueError, NotImplementedError, RuntimeError, AssertionError) as err:
-        # Erreurs suseptibles d'être élevées par les développeurs.
+        # Erreurs susceptibles d'être élevées par les développeurs.
         if not bool(params.mode_debug):
             afficher_erreur("Une erreur est survenue.", f"{type(err).__name__}: {err.args[0]}")
         raise err
     
     except Exception as err:
-        # Erreurs suseptibles d'être élevées par Python directement.
+        # Erreurs susceptibles d'être élevées par Python directement.
         if not bool(params.mode_debug):
             afficher_erreur("oups", "Le jeu est cassé, contactez un développeur.\nSi vous en êtes un, regardez la console.")
         raise err   # Comme ça la console à toutes les infos

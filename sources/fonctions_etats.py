@@ -5,7 +5,7 @@ Chaque fonction éponyme à une valeur de `EtatJeu` sera une boucle stournant ta
 
 from fonctions_main import *
 from Item           import Item
-from Bouton         import Bouton, ButtonCursor
+from Bouton         import Bouton
 from Carte          import Carte, CarteAnimEtat
 from Joueur         import Entite, joueur
 from Boss           import Monstre, Boss
@@ -14,15 +14,15 @@ def attente_prochaine_etape() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.ATTENTE_PROCHAINE_ETAPE.name}.")
     
     initialiser_nouveau_combat(Jeu.num_etape)
-    ecran_gen : Generator[Surface, None, None] = ecran_nombre_combat()
+    ecran_gen : Generator[None, None, None] = ecran_nombre_combat(0)
    
     while True:
         Jeu.commencer_frame()
-        if testeur_skip_ou_quitte():
+        if testeur_skip():
             break
         
         try:
-            Jeu.fenetre.blit(next(ecran_gen), (0, 0))
+            next(ecran_gen)
         except StopIteration:
             break
         
@@ -44,6 +44,7 @@ def attente_prochaine_etape() -> None:
 def choix_attaque() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.CHOIX_ATTAQUE.name}.")
     
+    # Si nouveau tour (commencement tour joueur)
     if Jeu.attaques_restantes_joueur == Jeu.ATTAQUES_PAR_TOUR:
         Jeu.nb_tours_combat += 1
         joueur.piocher()
@@ -73,16 +74,14 @@ def choix_attaque() -> None:
                 Jeu.attaques_restantes_joueur = Jeu.ATTAQUES_PAR_TOUR
             continue
         
+        joueur.gerer_dessin_infos_cartes()
         for event in pygame.event.get():
-            verifier_pour_quitter(event)
-            
             interruption = reagir_appui_touche_choix_attaque(event)
             if interruption is not None:
                 break
             
             if event.type == pygame.MOUSEMOTION:
                 joueur.lever_carte_du_dessus(event.pos)
-                print(event.pos)
             
             if event.type == pygame.MOUSEBUTTONDOWN:
                 index_carte : Optional[int] = joueur.index_carte_du_dessus(event.pos)
@@ -118,7 +117,7 @@ def affichage_attaque() -> None:
         
         skip : bool = False
         for ev in pygame.event.get():
-            if testeur_skip_ou_quitte(ev):
+            if testeur_skip(ev):
                 skip = True
                 continue
             
@@ -190,18 +189,17 @@ def ecran_titre() -> None:
     
     
     dessiner_fond_ecran = dessiner_gif(
-        Jeu.fenetre,
+        0,
         f"{Chemins.ANIM}fond/frame *.png",
         Duree(s=.1),
-        Pos(Jeu.centre_fenetre),
-        en_boucle=True, etendre=True
+        pos=(0, 0),
+        en_boucle=True,
+        etendre=True
     )
     while Jeu.etat == Jeu.Etat.ECRAN_TITRE:
         Jeu.commencer_frame()
         
         for event in pygame.event.get():
-            verifier_pour_quitter(event)
-            
             if event.type != pygame.MOUSEBUTTONDOWN:
                 continue
             for butt in boutons_menu:
@@ -209,9 +207,8 @@ def ecran_titre() -> None:
         
         next(dessiner_fond_ecran)
         for bouton in boutons_menu:
-            bouton.dessiner(Jeu.fenetre, point_size=90)
+            bouton.dessiner(0, point_size=90)
         
-        ButtonCursor.draw_cursors(Jeu.fenetre)
         Jeu.display_flip()
     
     if Jeu.etat != Jeu.Etat.CREDITS:
@@ -231,7 +228,7 @@ def credits(duree : Duree = Duree(s=5)) -> None:
     )
     
     debut : Duree = copy(Jeu.duree_execution)
-    while not testeur_skip_ou_quitte() and Jeu.duree_execution < debut + duree:
+    while not testeur_skip() and Jeu.duree_execution < debut + duree:
         Jeu.commencer_frame()
         
         pos = deplacement.calculer_valeur((Jeu.duree_execution - debut) / duree)
@@ -248,7 +245,7 @@ def game_over() -> None:
     logging.debug("")
     logging.debug(f"Activation de l'état {Jeu.Etat.GAME_OVER.name}.")
     
-    ecran_gen : Generator[Surface, None, None] = fin_partie(Jeu.a_gagne)
+    ecran_gen : Interruption = fin_partie(0, Jeu.a_gagne)
     if Jeu.a_gagne:
         Jeu.set_texte_fenetre("yay!")
         pygame.mixer.music.load(f"{Chemins.SFX}/victoire.wav")
@@ -258,10 +255,10 @@ def game_over() -> None:
     
     pygame.mixer.music.set_volume(1)
     pygame.mixer.music.play()
-    while not testeur_skip_ou_quitte():
+    while not testeur_skip():
         Jeu.commencer_frame()
         try:
-            Jeu.fenetre.blit(next(ecran_gen), (0, 0))
+            next(ecran_gen)
         except StopIteration:
             break
         Jeu.display_flip()
@@ -282,10 +279,10 @@ def preparation() -> None:
         # exception au principe de la boucle principale dans l'état
         # C'est juste plus simple et propre de faire comme ça ici
         Jeu.set_texte_fenetre("Who am I?")
-        terminer_interruption(demander_pseudo(Jeu.fenetre))
+        terminer_interruption(demander_pseudo())
         
         Jeu.set_texte_fenetre("Chargement...")
-        terminer_interruption(faux_chargement(Jeu.fenetre))
+        terminer_interruption(faux_chargement())
     
     Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
 
@@ -341,8 +338,6 @@ def shop() -> None:
         Jeu.commencer_frame()
         
         for ev in pygame.event.get():
-            verifier_pour_quitter(ev)
-            
             interruption = reagir_appui_touche_shop(ev, items, (0, len(ABSCISSES_ITEMS) - 1))
             if interruption is not None:
                 items = nouv_items()

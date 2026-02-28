@@ -5,7 +5,7 @@ from classes_utiles.Animation import valeurs_regulieres_entre_01
 
 
 def blit_centre(
-        toile : Surface, a_dessiner : Surface,
+        toile : Surface|int, a_dessiner : Surface,
         dest : list[int]|tuple[int, int]|tuple[int, int, int, int],
         area : list[int]|tuple[int, int, int, int]|None = None,
         centre_en_x : bool = True, centre_en_y : bool = True,
@@ -14,7 +14,11 @@ def blit_centre(
     """
     Blit `a_dessiner` sur `toile` avec les flags `flags` de façon à ce que le centre de `a_dessiner` soit aux coordonées indiquées par `dest`.
     `dest` doit contenir au moins deux éléments (seuls les deux premiers serons utilisés); sous peine d'une `AssertionError`.
+    Si toile est une int, prend la couche graphique correspondante.
     """
+    if type(toile) is int:
+        toile = Jeu.get_couche(toile)
+    assert(type(toile) is Surface)
     assert(len(dest) >= 2), "On attend que le paramètre `dest` aie au moins 2 éléments."
     assert(area is None or len(area) == 4), "On attend que le paramètre `area` soit None ou aie exactement 4 éléments."
     
@@ -35,7 +39,7 @@ def blit_centre(
     return toile.blit(a_dessiner, emplacement_dessin, area=area, special_flags=flags)
 
 def blit_centre_rect(
-        toile      : Surface,
+        toile      : Surface|int,
         a_dessiner : Surface,
         rect       : Rect,
         centre_rect_x : bool = True,
@@ -47,6 +51,7 @@ def blit_centre_rect(
     """
     Blit `a_dessiner` sur `toile` de façon à ce que le centre de `a_dessiner` soit le centre de `rect`.
     Si `centre_rect_x` ou `centre_rect_y` est False, utilise l'attribut `pos` pour cette coordonnée.
+    Si toile est une int, prend la couche graphique correspondante.
     """
     x : int = rect.centerx if centre_rect_x else pos.x
     y : int = rect.centery if centre_rect_y else pos.y
@@ -98,10 +103,10 @@ def terminer_interruption(gen : Interruption) -> None:
     while True:
         Jeu.commencer_frame()
         try:
-            Jeu.fenetre.blit(next(gen), (0, 0))
-            Jeu.display_flip()
+            next(gen)
         except StopIteration:
             return
+        Jeu.display_flip()
 
 
 @overload
@@ -167,7 +172,7 @@ def valeurs_regulieres(minimum : float, maximum : float, nombre_a_produire : int
     return [val * (maximum - minimum) + minimum for val in res]     # J'aime pas voir des lerp partout.
 
 def dessiner_texte(
-            surface : Surface,
+            toile : Surface|int,
             texte : str,
             couleur : color,
             espace_ecriture : tuple[int, int, int, int]|list[int],
@@ -186,7 +191,12 @@ def dessiner_texte(
     Renvoie le texte non dessiné.
     
     La fonction originale vient du wiki Pygame: https://www.pygame.org/wiki/TextWrap
+   Si toile est une int, prend la couche graphique correspondante.
     """
+    if type(toile) is int:
+        toile = Jeu.get_couche(toile)
+    assert(type(toile) is Surface)
+    
     rect : Rect = Rect(espace_ecriture)
     y    : int = rect.top
     
@@ -222,14 +232,14 @@ def dessiner_texte(
             image = police.render(ligne_a_render, aa, couleur)
         
         # Dessine la ligne sur la surface
-        surface.blit(image, (rect.left, y))
+        toile.blit(image, (rect.left, y))
         y += hauteur_police + ecart_entre_lignes
         
         # Enlève le texte que l'on vient de dessiner
         texte = texte[dernier_index_a_render:]
     
     if dessiner_boite:
-        pygame.draw.rect(surface, ROUGE, espace_ecriture, 2)
+        pygame.draw.rect(toile, ROUGE, espace_ecriture, 2)
     
     return texte
 
@@ -298,3 +308,35 @@ def gerer_radio() -> Generator[bool, None, None]:
 def rect_to_tuple(rect : Rect) -> tuple[int, int, int, int]:
     """Renvoie un tuple de la forme: `(x, y, largeur, hauteur)`. Evite d'écrire une longue tuple."""
     return (rect.x, rect.y, rect.w, rect.h)
+
+
+
+
+@overload
+def testeur_skip() -> bool:
+    """
+    Vérifie si un évènement dans la file des evènements est un évènement permettant de sortir, s'il en existe un quitte immédiatement.
+    La fonction vérifie aussi si le testeur veut skip, dans ce cas là elle renvoie `True`.
+    Vide la file des évènements.
+    La décision est prise par la version avec un argument.
+    """
+    ...
+@overload
+def testeur_skip(ev : pygame.event.Event) -> bool:
+    """
+    Vérifie si `ev` permet de quitter le jeu, il doit respecter au moins une de ces conditions:
+    - Être de type `pygame.QUIT`;
+    - Représenter l'appui de la touche `TOUCHE_QUITTER`.
+    
+    La fonction vérifie aussi si le testeur veut skip dans ce cas là elle renvoie `True`.
+    """
+    ...
+
+def testeur_skip(ev : Optional[pygame.event.Event] = None) -> bool:
+    if ev is not None:
+        return Touches.appuie_testeur_skip(ev)
+    
+    for ev in pygame.event.get():
+        if testeur_skip(ev):
+            return True
+    return False

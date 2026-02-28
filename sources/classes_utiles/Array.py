@@ -1,5 +1,10 @@
-from imports import overload, copy, Iterable, Sequence, MutableSequence, Iterator, Any
-import sys
+from imports import (
+    overload, copy,
+    Iterable,  Iterator,
+    Sequence, MutableSequence,
+    Any, sys
+)
+
 
 def iter_slice(s : slice[int, int, int]) -> Iterator[int]:
     """Renvoie un itérateur qui prend les valeurs de la slice."""
@@ -7,7 +12,7 @@ def iter_slice(s : slice[int, int, int]) -> Iterator[int]:
         yield i
 
 # Python va considérer ArrayStable comme une liste (pas précis du tout mais c'est dans l'esprit)
-# Si vous voulez en savoir plus, allez voir l'hérédité et les génériques (on utilise la nouvelle syntaxe)
+# Si vous voulez en savoir plus, allez voir l'hérédité et les génériques (on utilise la nouvelle syntaxe de ces génériques)
 class ArrayStable[T](MutableSequence[T|None]):
     """
     Une liste mais les valeurs ne peuvent pas changer d'index (pas de décalage).
@@ -30,7 +35,7 @@ class ArrayStable[T](MutableSequence[T|None]):
             self.resize(lst_ou_taille)
             return
         
-        assert(isinstance(lst_ou_taille, Iterable)), "Mauvais paramètres."
+        assert(isinstance(lst_ou_taille, Iterable)), f"lst_ou_taille n'est ni un entier, ni un Iterable.."
         for i, val in enumerate(lst_ou_taille):
             self._valeurs[i] = val
             
@@ -47,6 +52,9 @@ class ArrayStable[T](MutableSequence[T|None]):
             del self[i]
     
     def __format__(self, format_spec: str):
+        if self._clef_maximum == -1:
+            return '[]'
+        
         res : str = '['
         for clef, val in enumerate(self):
             if val is None:
@@ -56,6 +64,9 @@ class ArrayStable[T](MutableSequence[T|None]):
         return res[:-2] + ']'   # on enlève le ', ' final
     
     def __repr__(self):
+        if self._clef_maximum == -1:
+            return '[]'
+        
         res : str = '['
         for i in range(self._clef_maximum + 1):
             if i in self._valeurs.keys():
@@ -173,7 +184,7 @@ class ArrayStable[T](MutableSequence[T|None]):
         if size < 0:
             raise ValueError("La taille ne peut pas être négative.")
         if size == 0:
-            self._clef_maximum = 0
+            self._clef_maximum = -1
             self._valeurs.clear()
             return
         

@@ -107,7 +107,7 @@ class Item:
                 return i
         return None
     
-    def dessiner(self, surface : Surface, abscisses : int, afficher_avertissements : bool = True) -> None:
+    def dessiner(self, num_couche : int, abscisses : int, afficher_avertissements : bool = True) -> None:
         HAUTEUR_POLICE_PC : int = 7
         RECT_GLOBAL : Rect = Rect(
             abscisses - self.DIMENSIONS_SPRITES[0] // 2,
@@ -146,15 +146,15 @@ class Item:
         
         police = Jeu.construire_police(Polices.TEXTE, HAUTEUR_POLICE_PC)
         
-        blit_centre_rect(surface, self.sprite, RECT_GLOBAL, centre_rect_y=False, pos=Pos(-1, rect_sprite.centery))
-        blit_centre_rect(surface, nom        , RECT_GLOBAL, centre_rect_y=False, pos=Pos(-1, rect_nom.centery))
-        blit_centre(surface, prix, pos_prix.tuple)
+        blit_centre_rect(num_couche, self.sprite, RECT_GLOBAL, centre_rect_y=False, pos=Pos(-1, rect_sprite.centery))
+        blit_centre_rect(num_couche, nom        , RECT_GLOBAL, centre_rect_y=False, pos=Pos(-1, rect_nom.centery))
+        blit_centre(num_couche, prix, pos_prix.tuple)
         
         rect_effet.centerx = RECT_GLOBAL.centerx
         rect_desc.centerx  = RECT_GLOBAL.centerx
         
-        texte_non_dessine_effet = dessiner_texte(surface, self.effet_affiche, NOIR, rect_to_tuple(rect_effet), police)
-        texte_non_dessine_desc  = dessiner_texte(surface, self.description  , NOIR, rect_to_tuple(rect_desc), police)
+        texte_non_dessine_effet = dessiner_texte(num_couche, self.effet_affiche, NOIR, rect_to_tuple(rect_effet), police)
+        texte_non_dessine_desc  = dessiner_texte(num_couche, self.description  , NOIR, rect_to_tuple(rect_desc), police)
         
         if afficher_avertissements and texte_non_dessine_effet != '':
             logging.debug(f"Le texte suivant n'a pas pu être dessiné (effet d'un  item trop long): {texte_non_dessine_effet}")
