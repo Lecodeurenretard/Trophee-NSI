@@ -239,6 +239,7 @@ class Entite(ABC):
     
     def reset(self) -> None:
         self._stats.reset_vie()
+        self._stats_temporaire = Stat(0, 0, 0, 0, 0, 0, 0)
         self._inventaire.clear()
         self._vider_main()
     

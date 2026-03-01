@@ -31,6 +31,20 @@ class Stat:
                 case _                : raise RuntimeError(f"Mauvaise clef \"{clef}\" dans le JSON d'un objet Stat.")
         return resultat
     
+    @staticmethod
+    def joli_nom(nom_base : str) -> str:
+        """Renvoie le nom qui doit être afiché au joueur de la stat."""
+        if nom_base == "defense":
+            return "défense physique"
+        nom_base = nom_base.replace("defense", "défense")
+        
+        if nom_base == "crit_resitance":
+            return "résistance aux crits"
+        
+        if nom_base == "crit_puissance":
+            return "puissance des crits"
+        return nom_base.replace('_', ' ')
+    
     def additionner(self, delta : 'Stat', ajouter_vie : bool = False) -> None:
         """Ajoute les attributs deux à deux. Si `ajouter_vie` est active, ajoute aussi les vies."""
         self.vie_max         += delta.vie_max

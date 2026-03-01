@@ -240,9 +240,9 @@ class Carte:
         if self.est_de_dos:
             return
         
-        # Dessine Le fond derrière les infos
+        # Dessine le fond derrière les infos au dessus de la carte
         rect = Rect(
-            *(self._pos + Vecteur(0, self._TAILLE_SPRITE[1] // 2)).tuple,
+            *(self._pos - Vecteur(0, self._TAILLE_SPRITE[1] // 2)).tuple,
             self._TAILLE_SPRITE[0], self._TAILLE_SPRITE[1] // 2
         )
         dessiner_rect(
@@ -278,6 +278,8 @@ class Carte:
             aucun_changement = True
             dessinateur.send(f"Stats de {stats_de_qui} modifiées:")
             for nom, stat in stats.__dict__.items():
+                if not bool(params.mode_debug):
+                    nom = Stat.joli_nom(nom)
                 if stat != 0 and nom != "vie":
                     aucun_changement = False
                     dessinateur.send(f"    {nom}: {stat:+}")

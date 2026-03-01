@@ -49,13 +49,13 @@
 				"crit_resitance" : 0
 			},
 			"Modif stat lanceur": {
-				"vie_max"		: 0,
+				"vie_max"		: -1,
 				"force"			: 0,
 				"defense"		: 0,
 				"magie"			: 0,
 				"defense_magique": 0,
 				"crit_puissance" : 0,
-				"crit_resitance" : 0
+				"crit_resitance" : -2
 			}
 		}
 	},
@@ -72,9 +72,9 @@
 			"Modif stat cible": {
 				"vie_max"		: 0,
 				"force"			: 0,
-				"defense"		: -10,
+				"defense"		: 0,
 				"magie"			: 0,
-				"defense_magique": 0,
+				"defense_magique": 2,
 				"crit_puissance" : 0,
 				"crit_resitance" : 0
 			},
@@ -82,7 +82,7 @@
 				"vie_max"		: 0,
 				"force"			: 0,
 				"defense"		: 0,
-				"magie"			: 0,
+				"magie"			: 1,
 				"defense_magique": 0,
 				"crit_puissance" : 0,
 				"crit_resitance" : 0
@@ -102,7 +102,7 @@
 			"Modif stat cible": {
 				"vie_max"		: 0,
 				"force"			: 0,
-				"defense"		: 0,
+				"defense"		: 2,
 				"magie"			: 0,
 				"defense_magique": 0,
 				"crit_puissance" : 0,
@@ -110,7 +110,7 @@
 			},
 			"Modif stat lanceur": {
 				"vie_max"		: 0,
-				"force"			: 0,
+				"force"			: 1,
 				"defense"		: 0,
 				"magie"			: 0,
 				"defense_magique": 0,
@@ -127,7 +127,7 @@
 			"puissance"			: 0,
 			"type"				: "divers",
 			"probabilité_crit"	: null,
-			"flags"				: [],
+			"flags"				: null,
 			"nom_ajustement"	: null,
 			"Modif stat cible": {
 				"vie_max"		: 0,
@@ -141,11 +141,11 @@
 			"Modif stat lanceur": {
 				"vie_max"		: 0,
 				"force"			: 0,
-				"defense"		: 0,
+				"defense"		: 5,
 				"magie"			: 0,
-				"defense_magique": 0,
+				"defense_magique": 5,
 				"crit_puissance" : 0,
-				"crit_resitance" : 0
+				"crit_resitance" : 1
 			}
 		}
 	},
@@ -203,7 +203,7 @@
 			"Modif stat lanceur": {
 				"vie_max"		: 0,
 				"force"			: 0,
-				"defense"		: -10,
+				"defense"		: 0,
 				"magie"			: 0,
 				"defense_magique": 0,
 				"crit_puissance" : 0,

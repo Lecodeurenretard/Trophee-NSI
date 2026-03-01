@@ -24,10 +24,6 @@ class TypeAttaque(Enum):
                 return TypeAttaque.CHARGE
             case "divers":
                 return TypeAttaque.DIVERS
-            case "plus_atk":
-                return TypeAttaque.PLUS_ATK
-            case "moins_atk":
-                return TypeAttaque.MOINS_ATK          
             case _:
                 raise ValueError(f'La valeur "{s}" ne renvoie à aucun type d\'attaque.')
 
@@ -209,18 +205,20 @@ class Attaque:
         return AttaqueFlag.ATTAQUE_ENNEMIS in self._drapeaux
     
     
-    def _calcul_attaque_defense(self, puissance_attaquant : int, defense_cible : int, def_min : float) -> tuple[float, float]:
+    def _calcul_attaque_defense(self, puissance_attaquant : int, defense_cible : int) -> tuple[float, float]:
         if AttaqueFlag.IGNORE_STATS in self._drapeaux:
             return (self._puissance, 1)
         
         attaque : float = self._puissance * puissance_attaquant
-        defense : float = max(def_min, defense_cible)
+        defense : float = defense_cible
+        if defense_cible < 0:
+            defense = abs(1 / defense_cible)
         
         if AttaqueFlag.IGNORE_DEFENSE in self._drapeaux:
             return (attaque, 1)
         return (attaque, defense)
     
-    def calculer_degats(self, defense_min : float = 10) -> int:
+    def calculer_degats(self) -> int:
         """
         Calcule les dégats qu'aurait causé l'attaque pour les paramètres donnés.  
         Renvoie une tuple contenant les dégats infligés et si un crit s'est passé.
@@ -234,7 +232,6 @@ class Attaque:
                 attaque, defense = self._calcul_attaque_defense(
                     stats_attaquant.force,
                     stats_victime.defense,
-                    defense_min
                 )
                 degats *= attaque / defense
             
@@ -242,7 +239,6 @@ class Attaque:
                 attaque, defense = self._calcul_attaque_defense(
                     stats_attaquant.magie,
                     stats_victime.defense_magique,
-                    defense_min
                 )
                 degats *= attaque / defense
             
