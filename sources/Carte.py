@@ -404,5 +404,3 @@ class Carte:
     
     def dans_hitbox(self, pos : pos_t) -> bool:
         return self._hitbox.collidepoint(pos_t_vers_tuple(pos))
-
-Carte.actualiser_donnees()

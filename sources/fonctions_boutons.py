@@ -3,27 +3,6 @@ from import_local import *
 from Bouton       import Bouton
 
 
-def _rafraichir_donnees() -> None:
-    from Carte  import Carte
-    from Item    import Item
-    from Monstre import MonstreJSON
-    from Boss import BossJSON
-    
-    logging.debug("Actualisation des cartes...")
-    Carte.actualiser_donnees()
-    
-    logging.debug("Actualisation des items...")
-    Item.actualiser_items()
-    
-    logging.debug("Actualisation des monstres...")
-    MonstreJSON.actualiser_donnees()
-    
-    logging.debug("Actualisation des boss...")
-    BossJSON.actualiser_donnees()
-    
-    logging.debug("fini!")
-
-
 def _evenements_parametres(bouton_sortie : Bouton, bouton_actualiser : Bouton) -> bool:
     """la boucle des évènements de `menu_paramètre()`. Renvoie si l'interruption s'arrête."""
     for ev in pygame.event.get():
@@ -48,6 +27,27 @@ def _evenements_parametres(bouton_sortie : Bouton, bouton_actualiser : Bouton) -
             return True
     return False
 
+
+def rafraichir_donnees() -> None:
+    from Carte   import Carte
+    from Item    import Item
+    from Monstre import MonstreJSON
+    from Boss    import BossJSON
+    
+    logging.debug("Actualisation des cartes...")
+    Carte.actualiser_donnees()
+    
+    logging.debug("Actualisation des items...")
+    Item.actualiser_items()
+    
+    logging.debug("Actualisation des monstres...")
+    MonstreJSON.actualiser_donnees()
+    
+    logging.debug("Actualisation des boss...")
+    BossJSON.actualiser_donnees()
+    
+    logging.debug("fini!")
+
 def menu_parametres() -> Interruption:
     logging.debug("→ Interruption: Paramètres")
     
@@ -62,7 +62,7 @@ def menu_parametres() -> Interruption:
         *Jeu.pourcentages_coordonnees(50, 50, ret_pos=False),
         *Jeu.pourcentages_fenetre(30, 7, ret_vec=False),
     )
-    butt_actualisation = Bouton(pos_dim_bouton_actualisation, "actualiser données", action=_rafraichir_donnees)
+    butt_actualisation = Bouton(pos_dim_bouton_actualisation, "actualiser données", action=rafraichir_donnees)
     
     police_titres : Font = Jeu.construire_police(Polices.TITRE, 10)
     TITRE_PARAMS : Surface = police_titres.render("Options de jeu"   , True, NOIR)

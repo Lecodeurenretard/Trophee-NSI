@@ -303,7 +303,14 @@ class Jeu:
     @staticmethod
     def interrompre_musique() -> None:
         pygame.mixer.music.stop()
-
+    
+    @staticmethod
+    def _creer_fichier_parametre() -> None:
+        CHEMIN_PARAM_DEFAUT = f"{Chemins.ETC}parametres_defaut.txt"
+        if not os.path.isfile(CHEMIN_PARAM_DEFAUT):
+            raise FileNotFoundError(f"{CHEMIN_PARAM_DEFAUT} non trouvé, veuillez le retélécharger de Github.")
+        shutil.copy(CHEMIN_PARAM_DEFAUT, Jeu._CHEMIN_FICHIER_PARAMETRES)
+    
     @staticmethod
     def ecrire_parametres() -> None:
         with open(Jeu._CHEMIN_FICHIER_PARAMETRES, "w", encoding="utf-8") as f:
@@ -316,11 +323,7 @@ class Jeu:
         Jeu.parametres = {}
         if not os.path.isfile(Jeu._CHEMIN_FICHIER_PARAMETRES):
             logging.warning(f"Le fichier {Jeu._CHEMIN_FICHIER_PARAMETRES} n'a pas été trouvé, on en recrée un.")
-            
-            CHEMIN_PARAM_DEFAUT = f"{Chemins.ETC}parametres_defaut.txt"
-            if not os.path.isfile(CHEMIN_PARAM_DEFAUT):
-                raise FileNotFoundError(f"{CHEMIN_PARAM_DEFAUT} non trouvé, veuillez le retélécharger de Github.")
-            shutil.copy(CHEMIN_PARAM_DEFAUT, Jeu._CHEMIN_FICHIER_PARAMETRES)
+            Jeu._creer_fichier_parametre()
         
         with open(Jeu._CHEMIN_FICHIER_PARAMETRES, "r", encoding="utf-8") as f:
             # Lit chaque ligne et remplit 

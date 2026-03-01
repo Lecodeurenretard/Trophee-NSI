@@ -31,16 +31,10 @@ format:
 ------------------------------------
 -->
 _____
-## Nouvelles dynamiques + Meilleure UI.
+## 
 + Changements majeurs
-	- Le joueur est découragé d'utiliser tout le temps les mêmes attaques car l'adverdaire devient résilient.
 + Sur plusieurs fichiers
 + Structure de fichiers
 + READMEs et documentation
 + Interactions joueur/testeur
-	- Une défense négative augmente les dégats prits, il n'y a plus de défense minimale.
-	- Les infos sont dessinées audessus des cartes pour ne plus être cachées par les autres cartes.
-	- Les stats ont maintenant un joli nom (user friendly).
-		* Ajout de `Stat.joli_nom()`.
 + Correction de bugs
-	- Les stats temporaires sont reset aux game overs

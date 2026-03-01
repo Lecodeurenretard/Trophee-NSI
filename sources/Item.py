@@ -160,5 +160,3 @@ class Item:
             logging.debug(f"Le texte suivant n'a pas pu être dessiné (effet d'un  item trop long): {texte_non_dessine_effet}")
         if afficher_avertissements and texte_non_dessine_desc != '':
             logging.debug(f"Le texte suivant n'a pas pu être dessiné (description d'un  item trop longue): {texte_non_dessine_desc}")
-
-Item.actualiser_items()

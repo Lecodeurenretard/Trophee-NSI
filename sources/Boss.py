@@ -146,5 +146,3 @@ class Boss(Monstre):
         fonction = self.callbacks.nouveau_tour
         if fonction is not None:
             fonction(self, self.callbacks.attributs_supplementaires)
-
-BossJSON.actualiser_donnees()

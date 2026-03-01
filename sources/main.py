@@ -1,7 +1,9 @@
 import parametres_vars as params
-from imports import afficher_erreur, NoReturn
-from Jeu import Jeu
 import pygame
+from imports           import afficher_erreur, NoReturn
+from Jeu               import Jeu
+from fonctions_boutons import rafraichir_donnees
+from fonctions_vrac    import creer_dossiers_non_commit
 
 from fonctions_etats import (
     ecran_titre,
@@ -16,9 +18,11 @@ from fonctions_etats import (
 
 
 def jeu() -> NoReturn:
-    Jeu.changer_etat(Jeu.Etat.ECRAN_TITRE)
+    creer_dossiers_non_commit()
     Jeu.lire_parametres()
+    rafraichir_donnees()
     
+    Jeu.changer_etat(Jeu.Etat.ECRAN_TITRE)
     while True:
         pygame.event.clear()    # il ne faut pas que les évènements transitent entre les états
         match Jeu.etat:

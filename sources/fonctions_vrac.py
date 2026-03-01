@@ -340,3 +340,8 @@ def testeur_skip(ev : Optional[pygame.event.Event] = None) -> bool:
         if testeur_skip(ev):
             return True
     return False
+
+def creer_dossiers_non_commit() -> None:
+    """Crée les dossier nécessaire au jeuu mais non commit (v. .gitignore)."""
+    if not os.path.isdir(Chemins.SAVE):
+        os.mkdir(Chemins.SAVE)

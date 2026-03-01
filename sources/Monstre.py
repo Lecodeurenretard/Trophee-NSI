@@ -48,8 +48,6 @@ class MonstreJSON:
             return MonstreJSON(0 if autoriser_exemple else 1)
         return MonstreJSON(self.id + 1)
 
-MonstreJSON.actualiser_donnees()
-
 
 class Monstre(Entite):
     _CARTES_DE_DOS           : bool = True
