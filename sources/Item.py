@@ -12,7 +12,7 @@ class Item:
     effet_affiche  : str
     stats_changees : Stat
     
-    ORDONEE_SPRITE     : int = Jeu.pourcentage_hauteur(10)
+    ORDONEE_SPRITE     : int = Fenetre.pourcentage_hauteur(10)
     DIMENSIONS_SPRITES : tuple[int, int] = (350, 350)
     
     
@@ -113,11 +113,11 @@ class Item:
             abscisses - self.DIMENSIONS_SPRITES[0] // 2,
             0,
             self.DIMENSIONS_SPRITES[0],
-            Jeu.hauteur,
+            Fenetre.hauteur,
         )
         
-        nom  : Surface = Jeu.construire_police(Polices.TITRE, 12).render(self.nom, True, NOIR)
-        prix : Surface = Jeu.construire_police(Polices.TEXTE, 10).render(f"{self.prix} pieces", True, JAUNE_PIECE)
+        nom  : Surface = Fenetre.construire_police(Polices.TITRE, 12).render(self.nom, True, NOIR)
+        prix : Surface = Fenetre.construire_police(Polices.TEXTE, 10).render(f"{self.prix} pieces", True, JAUNE_PIECE)
         
         rect_sprite : Rect = Rect(
             (abscisses, Item.ORDONEE_SPRITE),
@@ -128,23 +128,23 @@ class Item:
            nom.size,
         )
         pos_prix   : Pos = Pos(
-            abscisses + rect_sprite.width // 2 + Jeu.pourcentage_largeur(1),
+            abscisses + rect_sprite.width // 2 + Fenetre.pourcentage_largeur(1),
             rect_sprite.y,
         )
         rect_effet : Rect = Rect(
             abscisses,
-            rect_nom.bottom + Jeu.pourcentage_hauteur(2),
+            rect_nom.bottom + Fenetre.pourcentage_hauteur(2),
             rect_sprite.width,
-            Jeu.pourcentage_hauteur(HAUTEUR_POLICE_PC)
+            Fenetre.pourcentage_hauteur(HAUTEUR_POLICE_PC)
         )
         rect_desc  : Rect = Rect(
             abscisses,
-            rect_effet.bottom + Jeu.pourcentage_hauteur(4),
+            rect_effet.bottom + Fenetre.pourcentage_hauteur(4),
             rect_sprite.width,
-            Jeu.pourcentage_hauteur(42)
+            Fenetre.pourcentage_hauteur(42)
         )
         
-        police = Jeu.construire_police(Polices.TEXTE, HAUTEUR_POLICE_PC)
+        police = Fenetre.construire_police(Polices.TEXTE, HAUTEUR_POLICE_PC)
         
         blit_centre_rect(num_couche, self.sprite, RECT_GLOBAL, centre_rect_y=False, pos=Pos(-1, rect_sprite.centery))
         blit_centre_rect(num_couche, nom        , RECT_GLOBAL, centre_rect_y=False, pos=Pos(-1, rect_nom.centery))

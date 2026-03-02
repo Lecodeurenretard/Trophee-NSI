@@ -1,4 +1,5 @@
 from Entite import *
+from Pool import Pool
 
 @dataclass
 class MonstreJSON:
@@ -13,12 +14,21 @@ class MonstreJSON:
     deck           : tuple[str, ...]
     stats          : Stat
     
-    def __init__(self, id_type : int, autoriser_exemple : bool = False):
-        if id_type == 0 and not autoriser_exemple:
-            raise RuntimeError("Le monstre d'exemple (id 0) est interdit.")
-        donnees : dict = MonstreJSON.DONNEES_TYPES[id_type]
+    @overload
+    def __init__(self, id_ou_nom : int, autoriser_exemple : bool = False): ...
+    @overload
+    def __init__(self, id_ou_nom : str, autoriser_exemple : bool = False): ...
+    
+    def __init__(self, id_ou_nom : int|str, autoriser_exemple : bool = False):
+        if type(id_ou_nom) is str:
+            id_ou_nom = MonstreJSON.chercher_nom(id_ou_nom)
+        assert(type(id_ou_nom) is int), f"{type(id_ou_nom)}"
         
-        self.id = id_type
+        if id_ou_nom == 0 and not autoriser_exemple:
+            raise RuntimeError("Le monstre d'exemple (id 0) est interdit.")
+        donnees : dict = MonstreJSON.DONNEES_TYPES[id_ou_nom]
+        
+        self.id = id_ou_nom
         self.nom = donnees["nom"]
         
         self.sprite = valeur_par_defaut(
@@ -38,6 +48,14 @@ class MonstreJSON:
         with open(f"{Chemins.JSON}TypesMonstre.json", 'r', encoding='utf-8') as fichier:
             MonstreJSON.DONNEES_TYPES = json.load(fichier)
     
+    @staticmethod
+    def chercher_nom(nom : str) -> int:
+        """Cherche un nom et renvoie sont id."""
+        for i, dico in enumerate(MonstreJSON.DONNEES_TYPES):
+            if nom == dico["nom"]:
+                return i
+        return -1
+    
     def type_precedent(self, autoriser_exemple : bool = False) -> 'MonstreJSON':
         if self.id == 0 or (not autoriser_exemple and self.id == 1):
             return MonstreJSON(len(MonstreJSON.DONNEES_TYPES) - 1)
@@ -51,8 +69,8 @@ class MonstreJSON:
 
 class Monstre(Entite):
     _CARTES_DE_DOS           : bool = True
-    _CARTE_MAIN_PREMIERE_POS : Pos  = Jeu.pourcentages_coordonnees(33, 3)
-    POSITION                 : Pos  = Jeu.pourcentages_coordonnees(60, 23)
+    _CARTE_MAIN_PREMIERE_POS : Pos  = Fenetre.pourcentages_coordonnees(33, 3)
+    POSITION                 : Pos  = Fenetre.pourcentages_coordonnees(60, 23)
     
     @override
     def __init__(
@@ -74,23 +92,18 @@ class Monstre(Entite):
     
     
     @staticmethod
-    def spawn(proba : list[float]|tuple[float, ...]|None = None) -> 'Monstre':
+    def spawn(pool : Pool) -> 'Monstre':
         """
-        Spawn un monstre au hasard (exclut l'exemple).
-        Si `proba[]` n'est pas None alors le monstre d'index i aurat une probabilité de porba[i] de spawn.
+        Tire un monstre dans la pool et le spawn.
         """
-        poids : Optional[list[float]] = None
-        id_types : list[int] = [i for i, _ in enumerate(MonstreJSON.DONNEES_TYPES)]
-        id_types.pop(0)     # l'exemple n'est pas pris en compte
-        
-        if proba is not None:
-            poids = [-1.0] * len(id_types)    # garantit de trouver une clef
-            
-            for i, type in enumerate(id_types):
-                poids[i] = proba[type]
+        if len(pool) == 0:
+            raise ValueError("La pool est vide.")
+        nom_monstre = pool.tirer_n(1)
         
         monstre = Monstre(
-            MonstreJSON(random.choices(id_types, weights=poids)[0]),
+            MonstreJSON(
+                nom_monstre[0]
+            ),
         )
         monstre.piocher()
         return monstre

@@ -2,7 +2,7 @@ from Entite import *
 
 class Joueur(Entite):
     _CARTES_DE_DOS           : bool = False
-    _CARTE_MAIN_PREMIERE_POS : Pos  = Jeu.pourcentages_coordonnees(40, 60)
+    _CARTE_MAIN_PREMIERE_POS : Pos  = Fenetre.pourcentages_coordonnees(40, 60)
     
     # Pas la peine de créer un JSON juste pour ça
     STATS_DE_BASE : Stat = Stat(45, 32, 37, 22, 32, 1.3, 1).reset_vie()
@@ -29,7 +29,7 @@ class Joueur(Entite):
     
     @property
     def pos_sprite_centree(self) -> Pos:
-        return Jeu.pourcentages_coordonnees(31, 75)
+        return Fenetre.pourcentages_coordonnees(31, 75)
     
     
     @override

@@ -47,7 +47,7 @@ class TypeParametre(Enum):
     
     @property
     def hauteur(self) -> int:
-        return Jeu.pourcentage_hauteur(2.5)
+        return Fenetre.pourcentage_hauteur(2.5)
     
     @property
     def largeur(self) -> int:
@@ -120,7 +120,7 @@ class Parametre:
             on_change : Callable[[categorie_valeur_parametre], None]|None = None,
         ):
         self._nom_affichage = nom_affichage
-        self._position : Pos = Pos(Jeu.pourcentage_largeur(50) + Parametre._ECART_NOM_VALEUR // 2, hauteur)
+        self._position : Pos = Pos(Fenetre.pourcentage_largeur(50) + Parametre._ECART_NOM_VALEUR // 2, hauteur)
         
         self._categorie = categ
         self._valeur_par_defaut = valeur_par_defaut

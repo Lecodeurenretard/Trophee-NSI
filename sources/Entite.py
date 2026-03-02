@@ -4,7 +4,7 @@ from Item  import Item
 class Entite(ABC):
     _CARTES_DE_DOS           : bool    = True           # à changer dans les classes filles
     _CARTE_MAIN_PREMIERE_POS : Pos     = Pos(0, 0)      # à changer dans les classes filles
-    _CARTES_MAIN_ESPACEMENT  : Vecteur = Jeu.pourcentages_fenetre(4, 0)
+    _CARTES_MAIN_ESPACEMENT  : Vecteur = Fenetre.pourcentages_fenetre(4, 0)
     _CARTES_MAIN_MAX_DU_MAX  : int     = 10
     _DIFF_LARG_ET_BARRE_SPRITE : int = 100
     
@@ -35,7 +35,7 @@ class Entite(ABC):
         
         self._SPRITE_TAILLE : Vecteur = valeur_par_defaut(
             _taille_sprite,
-            si_none=Vecteur(Jeu.pourcentage_largeur(20), Jeu.pourcentage_largeur(20)),
+            si_none=Vecteur(Fenetre.pourcentage_largeur(20), Fenetre.pourcentage_largeur(20)),
         )
         self._LONGUEUR_BARRE_DE_VIE : int = int(self._SPRITE_TAILLE.x) - Entite._DIFF_LARG_ET_BARRE_SPRITE
         self._HAUTEUR_BARRE_DE_VIE  : int = 10
@@ -92,7 +92,7 @@ class Entite(ABC):
         barre_de_vie.bottom = (
             self.pos_sprite.y
             + (self._sprite.get_bounding_rect().y)
-            - Jeu.pourcentage_hauteur(1)
+            - Fenetre.pourcentage_hauteur(1)
         )
         
         return Pos(barre_de_vie.topleft)
@@ -258,13 +258,13 @@ class Entite(ABC):
         carte.enregister_lancement(self._id, id_cible)
     
     def dessiner(self, num_couche : int) -> None:
-        Jeu.blit_couche(num_couche, self._sprite, self.pos_sprite.tuple)
+        Fenetre.blit_couche(num_couche, self._sprite, self.pos_sprite.tuple)
     
     def dessiner_UI(self, num_couche : int) -> None:
         self._dessiner_barre_de_vie(num_couche)
-        Jeu.blit_couche(
+        Fenetre.blit_couche(
             num_couche,
-            Jeu.construire_police(Polices.TITRE, 7).render(self.nom, True, NOIR),
+            Fenetre.construire_police(Polices.TITRE, 7).render(self.nom, True, NOIR),
             (self._pos_barre_de_vie - Vecteur(1, 30)).tuple
         )
     

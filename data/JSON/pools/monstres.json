@@ -1,0 +1,43 @@
+{
+    "-1": [
+        {
+            "nom"        : "nom du monstre",
+            "poids"      : null,
+            "soustraire" : null
+        },
+        {
+            "nom"        : "nom du monstre2",
+            "poids"      : null,
+            "soustraire" : null
+        }
+    ],
+    "0": [
+        {
+            "nom"        : "Blob",
+            "poids"      : 20,
+            "soustraire" : null
+        },
+        {
+            "nom"        : "Sorcier",
+            "poids"      : 20,
+            "soustraire" : null
+        },
+        {
+            "nom"        : "Corbobo",
+            "poids"      : 5,
+            "soustraire" : null
+        }
+    ],
+    "1": [
+        {
+            "nom"        : "Corbobo",
+            "poids"      : 10,
+            "soustraire" : null
+        },
+        {
+            "nom"        : "Secoupe",
+            "poids"      : 5,
+            "soustraire" : null
+        }
+    ]
+}

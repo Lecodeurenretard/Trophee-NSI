@@ -17,7 +17,7 @@ def blit_centre(
     Si toile est une int, prend la couche graphique correspondante.
     """
     if type(toile) is int:
-        toile = Jeu.get_couche(toile)
+        toile = Fenetre.get_couche(toile)
     assert(type(toile) is Surface)
     assert(len(dest) >= 2), "On attend que le paramètre `dest` aie au moins 2 éléments."
     assert(area is None or len(area) == 4), "On attend que le paramètre `area` soit None ou aie exactement 4 éléments."
@@ -106,7 +106,7 @@ def terminer_interruption(gen : Interruption) -> None:
             next(gen)
         except StopIteration:
             return
-        Jeu.display_flip()
+        Fenetre.display_flip()
 
 
 @overload
@@ -194,7 +194,7 @@ def dessiner_texte(
    Si toile est une int, prend la couche graphique correspondante.
     """
     if type(toile) is int:
-        toile = Jeu.get_couche(toile)
+        toile = Fenetre.get_couche(toile)
     assert(type(toile) is Surface)
     
     rect : Rect = Rect(espace_ecriture)

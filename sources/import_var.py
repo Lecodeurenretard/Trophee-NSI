@@ -1,8 +1,8 @@
 # Ce fichier pré-importe les variables globales
 
 from imports import *
-from Jeu import Jeu, Interruption
-Jeu.init()
+from Jeu import Jeu, Fenetre, Interruption
+Fenetre.init()
 
 
 

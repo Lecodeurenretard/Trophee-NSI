@@ -1,8 +1,8 @@
 from Parametres import *
 
-_HAUTEUR_PREMIER_PARAMETRE : int = Jeu.pourcentage_hauteur(11)
-_ECART_ENTRE_PARAMETRES : int = Jeu.pourcentage_hauteur(1)
-_ECART_ENTRE_SECTIONS   : int = Jeu.pourcentage_hauteur(7)
+_HAUTEUR_PREMIER_PARAMETRE : int = Fenetre.pourcentage_hauteur(11)
+_ECART_ENTRE_PARAMETRES : int = Fenetre.pourcentage_hauteur(1)
+_ECART_ENTRE_SECTIONS   : int = Fenetre.pourcentage_hauteur(7)
 
 def _generer_menu_pos() -> Generator[int, int, NoReturn]:
     h = _HAUTEUR_PREMIER_PARAMETRE

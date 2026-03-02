@@ -34,7 +34,7 @@ class Bouton:
         return copy(self._rect)
     
     def dessiner(self, num_couche : int, point_size : int) -> None:
-        toile = Jeu.get_couche(num_couche)
+        toile = Fenetre.get_couche(num_couche)
         
         pygame.draw.rect(toile, self._coul_bg, self._rect)
         if self._taille_ligne > 0:

@@ -13,7 +13,7 @@ from Boss           import Monstre, Boss
 def attente_prochaine_etape() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.ATTENTE_PROCHAINE_ETAPE.name}.")
     
-    initialiser_nouveau_combat(Jeu.num_etape)
+    initialiser_nouveau_combat()
     ecran_gen : Generator[None, None, None] = ecran_nombre_combat(0)
    
     while True:
@@ -27,7 +27,7 @@ def attente_prochaine_etape() -> None:
             break
         
         dessiner_infos()
-        Jeu.display_flip()
+        Fenetre.display_flip()
     
     if Jeu.etape_est_shop():
         Jeu.changer_etat(Jeu.Etat.SHOP)
@@ -38,7 +38,7 @@ def attente_prochaine_etape() -> None:
         Boss.spawn_boss()
     
     joueur.repiocher_tout()
-    Jeu.set_texte_fenetre("Combat!")
+    Fenetre.set_texte_fenetre("Combat!")
     Jeu.changer_etat(Jeu.Etat.CHOIX_ATTAQUE)
 
 def choix_attaque() -> None:
@@ -158,7 +158,7 @@ def affichage_attaque() -> None:
     # Passage au prochain combat
     if len(Monstre.vivants()) == 0:
         if not victoire_joueur():
-            Jeu.num_etape += 1
+            Jeu.avancer_etape(1)
             Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
             return
         
@@ -170,15 +170,15 @@ def affichage_attaque() -> None:
 
 def ecran_titre() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.ECRAN_TITRE.name}.")
-    Jeu.set_texte_fenetre("Ecran titre")
+    Fenetre.set_texte_fenetre("Ecran titre")
     
     LARGEUR_BOUTONS : int = 400
     HAUTEUR_BOUTONS : int = 120
     
     DIMENSIONS_BOUTONS : tuple[tuple[int, int, int, int], ...] = (
-        centrer_pos((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(30), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
-        centrer_pos((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(50), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
-        centrer_pos((Jeu.pourcentage_largeur(50), Jeu.pourcentage_hauteur(70), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
+        centrer_pos((Fenetre.pourcentage_largeur(50), Fenetre.pourcentage_hauteur(30), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
+        centrer_pos((Fenetre.pourcentage_largeur(50), Fenetre.pourcentage_hauteur(50), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
+        centrer_pos((Fenetre.pourcentage_largeur(50), Fenetre.pourcentage_hauteur(70), LARGEUR_BOUTONS, HAUTEUR_BOUTONS)),
     )
     boutons_menu : tuple[Bouton, ...] = (
         Bouton(DIMENSIONS_BOUTONS[0], "Jouer"     , epaisseur_ligne=0, action=lambda: Jeu.changer_etat(Jeu.Etat.PREPARATION)),#group_name="Ecran titre", group_color=VERT,
@@ -209,7 +209,7 @@ def ecran_titre() -> None:
         for bouton in boutons_menu:
             bouton.dessiner(0, point_size=90)
         
-        Jeu.display_flip()
+        Fenetre.display_flip()
     
     if Jeu.etat != Jeu.Etat.CREDITS:
         Jeu.changer_etat(Jeu.Etat.PREPARATION)
@@ -219,12 +219,12 @@ def credits(duree : Duree = Duree(s=5)) -> None:
     if duree == Duree(s=0):
         return
     
-    texte_credits  : Surface = Jeu.construire_police(Polices.TEXTE, 10).render("Développé par Jules, Lucas", True, BLANC)
-    texte_credits2 : Surface = Jeu.construire_police(Polices.TEXTE, 6).render("et Nils", True, BLANC)
+    texte_credits  : Surface = Fenetre.construire_police(Polices.TEXTE, 10).render("Développé par Jules, Lucas", True, BLANC)
+    texte_credits2 : Surface = Fenetre.construire_police(Polices.TEXTE, 6).render("et Nils", True, BLANC)
     
     deplacement : Deplacement = Deplacement(
-        Pos(Jeu.pourcentage_largeur(50), Jeu.hauteur),
-        Pos(Jeu.pourcentage_largeur(50), - texte_credits2.height - 20),  # pour laisser le "et Nils" aller hors écran
+        Pos(Fenetre.pourcentage_largeur(50), Fenetre.hauteur),
+        Pos(Fenetre.pourcentage_largeur(50), - texte_credits2.height - 20),  # pour laisser le "et Nils" aller hors écran
     )
     
     debut : Duree = copy(Jeu.duree_execution)
@@ -233,11 +233,11 @@ def credits(duree : Duree = Duree(s=5)) -> None:
         
         pos = deplacement.calculer_valeur((Jeu.duree_execution - debut) / duree)
         
-        Jeu.fenetre.fill(NOIR)
-        blit_centre(Jeu.fenetre, texte_credits , pos.tuple)
-        blit_centre(Jeu.fenetre, texte_credits2, (pos + Vecteur(0, texte_credits2.height + 10)).tuple)
+        Fenetre.surface.fill(NOIR)
+        blit_centre(Fenetre.surface, texte_credits , pos.tuple)
+        blit_centre(Fenetre.surface, texte_credits2, (pos + Vecteur(0, texte_credits2.height + 10)).tuple)
         
-        Jeu.display_flip()
+        Fenetre.display_flip()
     Jeu.changer_etat(Jeu.precedent_etat)
 
 def game_over() -> None:
@@ -247,10 +247,10 @@ def game_over() -> None:
     
     ecran_gen : Interruption = fin_partie(0, Jeu.a_gagne)
     if Jeu.a_gagne:
-        Jeu.set_texte_fenetre("yay!")
+        Fenetre.set_texte_fenetre("yay!")
         pygame.mixer.music.load(f"{Chemins.SFX}/victoire.wav")
     else:
-        Jeu.set_texte_fenetre("...")
+        Fenetre.set_texte_fenetre("...")
         pygame.mixer.music.load(f"{Chemins.SFX}/defaite.wav")
     
     pygame.mixer.music.set_volume(1)
@@ -261,13 +261,13 @@ def game_over() -> None:
             next(ecran_gen)
         except StopIteration:
             break
-        Jeu.display_flip()
+        Fenetre.display_flip()
     
     if bool(params.fermer_a_la_fin):
         quit()
     
     joueur.reset()
-    Jeu.num_etape = 1
+    Jeu.aller_etape(1)
     Jeu.changer_etat(Jeu.Etat.ECRAN_TITRE)
 
 def preparation() -> None:
@@ -278,25 +278,25 @@ def preparation() -> None:
     else:
         # exception au principe de la boucle principale dans l'état
         # C'est juste plus simple et propre de faire comme ça ici
-        Jeu.set_texte_fenetre("Who am I?")
+        Fenetre.set_texte_fenetre("Who am I?")
         terminer_interruption(demander_pseudo())
         
-        Jeu.set_texte_fenetre("Chargement...")
+        Fenetre.set_texte_fenetre("Chargement...")
         terminer_interruption(faux_chargement())
     
     Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
 
 def shop() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.SHOP.name}.")
-    Jeu.set_texte_fenetre("I like shopping")
+    Fenetre.set_texte_fenetre("I like shopping")
     
     INVENTAIRE_EPAISSEUR_TRAIT : int = 2
-    INVENTAIRE_LARGEUR         : int = Jeu.pourcentage_largeur(10) + INVENTAIRE_EPAISSEUR_TRAIT
+    INVENTAIRE_LARGEUR         : int = Fenetre.pourcentage_largeur(10) + INVENTAIRE_EPAISSEUR_TRAIT
     INVENTAIRE_BOITE           : Rect = Rect(
-        Jeu.largeur - INVENTAIRE_LARGEUR + INVENTAIRE_EPAISSEUR_TRAIT,
+        Fenetre.largeur - INVENTAIRE_LARGEUR + INVENTAIRE_EPAISSEUR_TRAIT,
         -INVENTAIRE_EPAISSEUR_TRAIT,
         INVENTAIRE_LARGEUR,
-        Jeu.hauteur + INVENTAIRE_EPAISSEUR_TRAIT * 2
+        Fenetre.hauteur + INVENTAIRE_EPAISSEUR_TRAIT * 2
     )
     
     # nombre d'éléments -> listes des abscisses (en pourcentage de largeur)
@@ -309,7 +309,7 @@ def shop() -> None:
     # nombre d'éléments -> listes des abscisses (avec les dimensions de la fenêtre)
     ABSCISSES_ITEMS : tuple[tuple[int, ...], ...] = tuple([
         tuple([
-            round(pc_abcisse * (Jeu.largeur - INVENTAIRE_BOITE.width) / 100)  # Convertit les pourcentages en vraies valeurs
+            round(pc_abcisse * (Fenetre.largeur - INVENTAIRE_BOITE.width) / 100)  # Convertit les pourcentages en vraies valeurs
             for pc_abcisse in liste_abscisses   # pc pour pourcentage
         ])
         for liste_abscisses in ABSCISSES_RELATIVE_ITEMS
@@ -323,8 +323,8 @@ def shop() -> None:
     
     bouton_sortie : Bouton = Bouton(
         (
-            *Jeu.pourcentages_coordonnees(2, 2, ret_pos=False),
-            Jeu.pourcentage_largeur(4), Jeu.pourcentage_largeur(4),
+            *Fenetre.pourcentages_coordonnees(2, 2, ret_pos=False),
+            Fenetre.pourcentage_largeur(4), Fenetre.pourcentage_largeur(4),
         ),
         img=f"{Chemins.IMG}retour.png",
         action=Jeu.reset_etat,
@@ -362,7 +362,7 @@ def shop() -> None:
         premiere_frame = False
     
     if Jeu.decision_etat_en_cours():
-        Jeu.num_etape += 1
+        Jeu.avancer_etape(1)
         Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
     
     Jeu.interrompre_musique()

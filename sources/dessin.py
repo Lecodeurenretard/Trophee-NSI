@@ -14,7 +14,7 @@ def dessiner_rect(
     ) -> None:
     position = pos_t_vers_Pos(pos)
     if type(surface) is int:
-        surface = Jeu.get_couche(surface)
+        surface = Fenetre.get_couche(surface)
     assert(type(surface) is Surface)
     
     if centre_x:
@@ -71,7 +71,7 @@ def blit_generateur(
         if gerer_evenements:
             verifier_pour_quitter()
         try:
-            Jeu.blit_couche(num_couche, image, pos_t_vers_tuple(pos))
+            Fenetre.blit_couche(num_couche, image, pos_t_vers_tuple(pos))
             yield
         except GeneratorExit:
             break
@@ -99,7 +99,7 @@ def dessiner_gif(num_couche : int, pattern : str, duree_affichage : Duree, pos :
         for image_chemin in images:
             img : Surface = pygame.image.load(image_chemin)
             if etendre:
-                img = pygame.transform.scale(img, (Jeu.largeur, Jeu.hauteur))
+                img = pygame.transform.scale(img, (Fenetre.largeur, Fenetre.hauteur))
             
             img_gen = blit_generateur(num_couche, img, duree_affichage, pos=pos)
             while True:

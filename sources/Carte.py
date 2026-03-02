@@ -22,14 +22,14 @@ class CarteAnimEtat(Enum):
     JOUER     = auto()
 
 class Carte:
-    _HAUTEUR_SPRITE  : int     = Jeu.pourcentage_hauteur(40)
+    _HAUTEUR_SPRITE  : int     = Fenetre.pourcentage_hauteur(40)
     _DUREE_INTER_JEU : Duree   = Duree(s=.5)
     
-    _ANIM_SURVOL_DECALAGE : Vecteur = Jeu.pourcentages_fenetre(0, -2)
+    _ANIM_SURVOL_DECALAGE : Vecteur = Fenetre.pourcentages_fenetre(0, -2)
     _ANIM_DICO : dict[CarteAnimEtat, CarteAnimInfo] = {
         CarteAnimEtat.IDLE     : CarteAnimInfo(Pos(CarteAnimInfo.GARDER , CarteAnimInfo.GARDER) , Duree(s=0) , Easing.NO_EASING, CarteAnimInfo.GARDER),
         CarteAnimEtat.REVENIR  : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER), Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
-        CarteAnimEtat.PARTIR   : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, Jeu.hauteur)          , Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
+        CarteAnimEtat.PARTIR   : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, Fenetre.hauteur)          , Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
         CarteAnimEtat.EN_SURVOL: CarteAnimInfo(Pos(CarteAnimInfo.CHANGER , CarteAnimInfo.CHANGER), Duree(s=.1), Easing.FADE     , CarteAnimInfo.GARDER),
         CarteAnimEtat.JOUER    : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER), Duree(s=1) , Easing.FADE_IN  , True),
     }
@@ -264,7 +264,7 @@ class Carte:
             y = rect.y + PADDING
             while True:
                 texte = (yield)
-                y = Jeu.blit_couche(
+                y = Fenetre.blit_couche(
                     num_couche,
                     POLICE_STATS.render(texte, True, NOIR),
                     (x, y + INTER_INFO),
@@ -369,7 +369,7 @@ class Carte:
         if not self.est_affiche:
             return
         
-        Jeu.blit_couche(0, self._sprite, self._pos.tuple)
+        Fenetre.blit_couche(0, self._sprite, self._pos.tuple)
         if self.dessiner_infos:
             self._dessin_infos(num_couche)
         

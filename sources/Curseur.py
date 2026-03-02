@@ -109,7 +109,7 @@ class Curseur:
         )
     
     def dessiner(self, num_couche : int, couleur : color, rayon : int = 10) -> None:
-        pygame.draw.circle(Jeu.get_couche(num_couche), couleur, self._pos.tuple, rayon)
+        pygame.draw.circle(Fenetre.get_couche(num_couche), couleur, self._pos.tuple, rayon)
     
     def monter(self) -> None:
         self._ajouter_a_pdtp_y(-1)

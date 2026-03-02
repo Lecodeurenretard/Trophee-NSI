@@ -39,7 +39,7 @@ class BossJSON:
         if self.deck_joueur is not None:
             self.deck_joueur = tuple(self.deck_joueur)
         
-        self.pos_sprite = Pos(Jeu.vecteur_pourcentage(
+        self.pos_sprite = Pos(Fenetre.vecteur_pourcentage(
             Pos(
                 donnees["pos_sprite"]
             ).vecteur

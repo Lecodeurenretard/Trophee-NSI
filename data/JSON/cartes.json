@@ -72,7 +72,7 @@
 			"Modif stat cible": {
 				"vie_max"		: 0,
 				"force"			: 0,
-				"defense"		: 0,
+				"defense"		: -1,
 				"magie"			: 0,
 				"defense_magique": 2,
 				"crit_puissance" : 0,
@@ -104,7 +104,7 @@
 				"force"			: 0,
 				"defense"		: 2,
 				"magie"			: 0,
-				"defense_magique": 0,
+				"defense_magique": -1,
 				"crit_puissance" : 0,
 				"crit_resitance" : 0
 			},
