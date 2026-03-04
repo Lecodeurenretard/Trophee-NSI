@@ -8,8 +8,8 @@ class Duree:
     def __init__(self, *, s : float): ...
     
     def __init__(self, *, ms : int = 0, s : float = 0):
-        if ms != 0 and s != 0 and ms != s * 1000:
-            raise ValueError(f"Les paramètres `ms` ({ms}) et `s` ({s}) se contredisent.")
+        if (ms != 0 and s != 0) and ms != s * 1000:
+            raise ValueError(f"Les paramètres {ms=} et {s=} se contredisent.")
         
         self._ms : int = 0
         if ms != 0:

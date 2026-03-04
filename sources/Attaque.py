@@ -24,10 +24,6 @@ class TypeAttaque(Enum):
                 return TypeAttaque.CHARGE
             case "divers":
                 return TypeAttaque.DIVERS
-            case "plus_atk":
-                return TypeAttaque.PLUS_ATK
-            case "moins_atk":
-                return TypeAttaque.MOINS_ATK          
             case _:
                 raise ValueError(f'La valeur "{s}" ne renvoie à aucun type d\'attaque.')
 
@@ -76,7 +72,7 @@ class Attaque:
     _DEFAUT_AJUSTEMENT : _ajustements_t = _AJUSTEMENTS["base"]
     
     _liste          : list[dict]      = []
-    _dico_entites   : Array['Entite'] = Array() # sera mis à Entite.vivantes[] plus tard  # type: ignore
+    _dico_entites   : ArrayStable['Entite'] = ArrayStable() # sera mis à Entite.vivantes[] plus tard  # type: ignore
     toujours_crits  : bool            = False   # ne pas activer ici, utiliser les touches du mode debug plutôt
     attaques_jouees : list['Attaque'] = []
     
@@ -146,7 +142,7 @@ class Attaque:
         Attaque._liste = lst
     
     @staticmethod
-    def set_arr_entites(dico : Array['Entite']) -> None: # pyright: ignore[reportUndefinedVariable]
+    def set_arr_entites(dico : ArrayStable['Entite']) -> None: # pyright: ignore[reportUndefinedVariable]
         Attaque._dico_entites = dico
     
     @staticmethod
@@ -189,6 +185,18 @@ class Attaque:
         return self._desc
     
     @property
+    def type(self) -> TypeAttaque:
+        return self._type
+    
+    @property
+    def stats_changees_cible(self) -> Stat:
+        return copy(self._stats_changees_cible)
+    
+    @property
+    def stats_changees_lanceur(self) -> Stat:
+        return copy(self._stats_changees_lanceur)
+    
+    @property
     def peut_attaquer_lanceur(self) -> bool:
         return AttaqueFlag.ATTAQUE_LANCEUR in self._drapeaux
     
@@ -197,18 +205,20 @@ class Attaque:
         return AttaqueFlag.ATTAQUE_ENNEMIS in self._drapeaux
     
     
-    def _calcul_attaque_defense(self, puissance_attaquant : int, defense_cible : int, def_min : float) -> tuple[float, float]:
+    def _calcul_attaque_defense(self, puissance_attaquant : int, defense_cible : int) -> tuple[float, float]:
         if AttaqueFlag.IGNORE_STATS in self._drapeaux:
             return (self._puissance, 1)
         
         attaque : float = self._puissance * puissance_attaquant
-        defense : float = max(def_min, defense_cible)
+        defense : float = defense_cible
+        if defense_cible < 0:
+            defense = abs(1 / defense_cible)
         
         if AttaqueFlag.IGNORE_DEFENSE in self._drapeaux:
             return (attaque, 1)
         return (attaque, defense)
     
-    def calculer_degats(self, defense_min : float = 10) -> int:
+    def calculer_degats(self) -> int:
         """
         Calcule les dégats qu'aurait causé l'attaque pour les paramètres donnés.  
         Renvoie une tuple contenant les dégats infligés et si un crit s'est passé.
@@ -222,7 +232,6 @@ class Attaque:
                 attaque, defense = self._calcul_attaque_defense(
                     stats_attaquant.force,
                     stats_victime.defense,
-                    defense_min
                 )
                 degats *= attaque / defense
             
@@ -230,7 +239,6 @@ class Attaque:
                 attaque, defense = self._calcul_attaque_defense(
                     stats_attaquant.magie,
                     stats_victime.defense_magique,
-                    defense_min
                 )
                 degats *= attaque / defense
             
@@ -256,15 +264,12 @@ class Attaque:
     
     def appliquer(self) -> None:
         if AttaqueFlag.ATTAQUE_LANCEUR not in self._drapeaux and self._lanceur_id == self._cible_id:
-            print("a")
             return
         elif AttaqueFlag.ATTAQUE_ENNEMIS in self._drapeaux and type(self.lanceur) == type(self.cible):
-            print("b")
             return
         elif AttaqueFlag.ATTAQUE_LANCEUR not in self._drapeaux and AttaqueFlag.ATTAQUE_ENNEMIS not in self._drapeaux:
-            print(self._drapeaux)
             return
-        self.cible.recoit_degats(self.calculer_degats())
+        self.cible.recoit_degats(self.calculer_degats(), self)
         self.appliquer_effet()
     
     def actualiser(self) -> None:

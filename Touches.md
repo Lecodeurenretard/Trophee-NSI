@@ -6,15 +6,16 @@
 - Déplacer les curseurs:
 	+ les flèches du clavier
 - Afficher/cacher le menu des paramètres: tab
-- Affichés les gains/pertes de stats: F10
+- Afficher les gains/pertes de stats: F10 (maintenir)
 
 ___
 > Touches qui marchent seulement en mode débug:
 - Crits garantis: C
 - Aller jusqu'au prochain shop: P
+- Aller jusqu'au prochain boss: B
 - Repiocher les cartes: R
 - Changer les items du shop: scroll de la molette
-- Afficher les informations sur les entités: F9
+- Afficher les informations sur les entités: F9 (maintenir)
 - Passer certaines animations:
 	+ espace
 	+ entrée (clavier et pavé numérique)
@@ -29,4 +30,4 @@ ___
 - Moins d'items dans le shop:
 	+ \- (clavier et pavé numérique)
 - Cacher les cartes
-	+ Maj (gauche et droite)
+	+ Maj (gauche et droite) (maintenir)

@@ -1,14 +1,14 @@
 """Fonctions seulements utilisées dans fonctions_etat.py."""
 from fonctions_boutons import *
-from Item import Item
-from Carte import Carte
+from Item    import Item
+from Carte   import Carte
 from Monstre import Monstre
 
 def quit(exit_code : int = 0) -> NoReturn:
     pygame.quit()
-    exit(exit_code)
+    sys.exit(exit_code)
 
-def fin_partie(gagne : bool) -> Interruption:
+def fin_partie(num_couche : int, gagne : bool) -> Interruption:
     couleur_fond : rgb
     texte_fin : str
     if gagne:
@@ -19,41 +19,46 @@ def fin_partie(gagne : bool) -> Interruption:
         texte_fin = "Vous avez perdu !"
     
     logging.info(texte_fin)
-    texte_fin_render = Jeu.construire_police(Polices.TEXTE, 20).render(texte_fin, True, NOIR)
+    texte_fin_render = Fenetre.construire_police(Polices.TEXTE, 20).render(texte_fin, True, NOIR)
     
-    image : Surface = Surface((Jeu.largeur, Jeu.hauteur))
+    image : Surface = Surface((Fenetre.largeur, Fenetre.hauteur))
     image.fill(couleur_fond)
-    blit_centre(image, texte_fin_render, Jeu.centre_fenetre)
+    blit_centre(image, texte_fin_render, Fenetre.centre_fenetre)
     
-    return image_vers_generateur(image, Duree(s=2), gerer_evenements=True)
+    return blit_generateur(num_couche, image, Duree(s=2), gerer_evenements=True)
 
 
 
 def victoire_joueur() -> bool:
-    return Jeu.num_etape >= Jeu.MAX_COMBAT
+    return Jeu.num_etape >= Jeu.COMBAT_MAX
 
-def initialiser_nouveau_combat(numero_combat : int, reset_joueur : bool = False) -> None:
-    if not (1 <= numero_combat <= Jeu.MAX_COMBAT):
-        raise ValueError(f"`numero_combat` ({numero_combat}) doit être compris dans [1; {Jeu.MAX_COMBAT}].")
-    Jeu.num_etape = numero_combat
+def initialiser_nouveau_combat(reset_joueur : bool = False) -> None:
+    changement_etage : bool = (
+        Jeu.num_etage(Jeu.num_etape_precedente) != Jeu.num_etage(Jeu.num_etape)
+    )
+    # Si nouvel étage ou pool non initialisée à une vraie pool
+    if changement_etage or len(Jeu.pool_monstres_etage) == 0:
+        Jeu.pool_monstres_etage = deepcopy(Jeu.pools_monstres[Jeu.num_etage()])
     
+    Jeu.nb_tours_combat = 0
     Jeu.attaques_restantes_joueur = Jeu.ATTAQUES_PAR_TOUR
     
     Carte.derniere_enregistree = None
     Attaque.attaques_jouees.clear()
     
     Monstre.massacre()
-    Monstre.spawn()
+    Monstre.spawn(Jeu.pool_monstres_etage)
     
     if reset_joueur:
         joueur.reset()
+    Carte.vider_cartes_affichees()
 
 def reagir_appui_touche(ev : pygame.event.Event) -> Optional[Interruption]:
     if ev.type != pygame.KEYDOWN:
         return
     
     match ev.key:
-        case Touches.SETTINGS:
+        case Touches.PARAMETRES:
             return menu_parametres()
     
     if not params.mode_debug.case_cochee:
@@ -64,20 +69,39 @@ def reagir_appui_touche(ev : pygame.event.Event) -> Optional[Interruption]:
             return
         
         case Touches.DBG_PRECEDENT_COMBAT:
-            Jeu.num_etape -= 1
-            if Jeu.num_etape < 1: 
-                Jeu.num_etape = Jeu.MAX_COMBAT
-            
+            Jeu.avancer_etape(-1)
             Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
             return
         
         case Touches.DBG_PROCHAIN_COMBAT:
-            Jeu.num_etape += 1
-            if Jeu.num_etape > Jeu.MAX_COMBAT: 
-                Jeu.num_etape = 1
-            
+            Jeu.avancer_etape(1)
             Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
-            return
+        
+        case Touches.DBG_SHOP:
+            for i in range(Jeu.num_etape, Jeu.COMBAT_MAX):
+                if Jeu.decision_shop(i):
+                    Jeu.aller_etape(i)
+                    Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
+                    break
+            else:   # boucle for... else, le msg n'est affiché que si on ne break pas
+                logging.error("Le dernier shop a été dépassé.")
+                return
+            
+            logging.info(f"Skip jusqu'au combat {Jeu.num_etape}.")
+            Jeu.changer_etat(Jeu.Etat.SHOP)
+        
+        case Touches.DBG_BOSS:
+            for i in range(Jeu.num_etape, Jeu.COMBAT_MAX):
+                if Jeu.decision_boss(i):
+                    Jeu.aller_etape(i)
+                    Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
+                    break
+            else:
+                logging.error("Le dernier boss a été dépassé.")
+                return
+            
+            logging.info(f"Skip jusqu'au combat {Jeu.num_etape}.")
+            Jeu.changer_etat(Jeu.Etat.SHOP)
 
 def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Interruption]:
     if ev.type != pygame.KEYDOWN:
@@ -87,9 +111,10 @@ def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Inter
     if interruption_potentielle is not None:
         return interruption_potentielle
     
-    match ev.key:        # Un event ne peut être qu'une seule touche à la fois
-        case Touches.INFOS:
-            return afficher_infos()
+    match ev.key:
+        # Il ne se passe rien sans le mode débug
+        case _:
+            ...
     
     if not params.mode_debug.case_cochee:
         return
@@ -104,22 +129,14 @@ def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Inter
         case Touches.DBG_PROCHAIN_MONSTRE:
             Monstre.vivants()[0].vers_type_suivant()
             return
-        
-        case Touches.DBG_SHOP:
-            for i in range(Jeu.num_etape, Jeu.MAX_COMBAT):
-                if Jeu.decision_shop(i):
-                    Jeu.num_etape = i
-                    break
-            else:   # for... else, si jamis le break n'est jamais atteint
-                logging.error("Le dernier shop a été dépassé.")
-                return
-            
-            
-            logging.info(f"Skip jusqu'au combat {Jeu.num_etape}.")
-            Jeu.changer_etat(Jeu.Etat.SHOP)
-            return
 
 def reagir_appui_touche_shop(ev : pygame.event.Event, lst_items : list['Item'],  min_max_items : tuple[int, int]) -> Optional[Interruption|bool]:
+    """
+    S'occupe des évènements d'appuie de touche.
+    Renvoie None si l'évènement n'est pas un appui de touche ou si l'appui n'a plus d'effet après la fonction,
+    renvoie une Interruption si `reagir_appui_touche()` en renvoie une,
+    renvoie True s'il faut reroll les items du shop.
+    """
     if ev.type != pygame.KEYDOWN:
         return
     
@@ -142,23 +159,24 @@ def reagir_appui_touche_shop(ev : pygame.event.Event, lst_items : list['Item'], 
     elif ev.key == Touches.DBG_REROLL:
         return True
 
-def animation_argent_gagne(montant : int, arriere_plan : Surface = Jeu.fenetre, duree : Duree = Duree(s=1)) -> Interruption:
-    arriere_plan = copy(arriere_plan)
-    TEXTE_AFFICHE : str  = f"+{montant} pieces"
-    POLICE        : Font = Jeu.construire_police(Polices.FOURRE_TOUT, 10)
+def animation_argent_gagne(montant : int, num_couche : int = 0, duree : Duree = Duree(s=1)) -> Interruption:
+    TEXTE_AFFICHE : str  = f"{montant:+} pieces"
+    POLICE        : Font = Fenetre.construire_police(Polices.FOURRE_TOUT, 10)
     POLICE.set_italic(True)
     
-    espacement_bord : int = POLICE.size(TEXTE_AFFICHE)[0] + Jeu.pourcentage_largeur(1)
+    espacement_bord : int = POLICE.size(TEXTE_AFFICHE)[0] + Fenetre.pourcentage_largeur(1)
     
     nb_frames : int = round(Jeu.framerate * duree.secondes)
     
     deplacement = Deplacement.generateur_s(
-        Pos(Jeu.largeur - espacement_bord, Jeu.pourcentage_hauteur(10)),
-        Pos(Jeu.largeur - espacement_bord, Jeu.pourcentage_hauteur(0)),
+        Pos(Fenetre.largeur - espacement_bord, Fenetre.pourcentage_hauteur(10)),
+        Pos(Fenetre.largeur - espacement_bord, Fenetre.pourcentage_hauteur(0)),
         nb_frames,
         easing_fun=Easing.NO_EASING,
     )
     
+    # La courbe de la transparence ressemblera
+    # à une courbe en cloche aplatie
     transparence = MultiInterpolation.generateur_s(
         [0, 220, 220, 0],
         [.3, .7],
@@ -167,19 +185,19 @@ def animation_argent_gagne(montant : int, arriere_plan : Surface = Jeu.fenetre, 
     )
     
     # Animation
+    fond = copy(Fenetre.surface)
     for pos, alpha in zip(deplacement, transparence):
-        Jeu.commencer_frame()
-        if testeur_skip_ou_quitte():
+        if testeur_skip():
             break
         
         a_dessiner = POLICE.render(TEXTE_AFFICHE, True, JAUNE_PIECE)
         a_dessiner.set_alpha(round(alpha))
         
-        image = copy(arriere_plan)
-        image.blit(a_dessiner, pos.tuple)
+        Fenetre.blit_couche(num_couche, fond)
+        Fenetre.blit_couche(num_couche, a_dessiner, pos.tuple)
         
         try:
-            yield image
+            yield
         except GeneratorExit:
             break
 
@@ -194,7 +212,7 @@ def dbg_shop_scroll(ev : pygame.event.Event, items : list[Item], abcisses : tupl
     changement : int = round(ev.precise_y * sensibilite_scroll)
     items[index] = Item(items[index].id + changement, permissif=True)
 
-def shop_click(ev : pygame.event.Event, items : list[Item], bouton_sortie : Button, abcisses : tuple[int, ...]):
+def shop_click(ev : pygame.event.Event, items : list[Item], bouton_sortie : Bouton, abcisses : tuple[int, ...]):
     """Fonction à appeler quand le joueur/testeur clique dans le shop."""
     if ev.button in (4, 5): # empèche le scroll de compter pour un click
         return
@@ -228,7 +246,7 @@ def tour_des_monstres() -> Generator[None, None, None]:
         verifier_pour_quitter()
         
         rafraichir_ecran_combat()
-        Jeu.display_flip()
+        Fenetre.display_flip()
         yield
     
     # fait attaquer les monstres

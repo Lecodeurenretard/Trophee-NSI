@@ -3,6 +3,7 @@
 Les classes décrites dans ce fichier sont:
 + [`Stat`](../sources/Stats.py): Représente les statistiques d'une entité.
 + [`Entite`](../sources/Entite.py) (et descendants): Tout acteur dans un combat, c'est-à-dire le joueur et les monstres.
+	- la classe `Boss` à [son propre fichier](boss.md).
 + [`Carte`](../sources/Carte.py): Une carte en elle-même.
 + [`Attaque`](../sources/Attaque.py) (ainsi que les enums/_wrappers_ en lien): S'assure du calcul de dégats.
 + [`Item`](../sources/Item.py): Un objet avec un effet passif.

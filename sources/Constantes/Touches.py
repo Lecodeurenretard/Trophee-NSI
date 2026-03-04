@@ -32,10 +32,11 @@ DBG_PREDECENT_MONSTRE : int = pygame.K_q
 DBG_PROCHAIN_MONSTRE  : int = pygame.K_d
 
 DBG_SHOP              : int = pygame.K_p
+DBG_BOSS              : int = pygame.K_b
 DBG_INFOS_ENTITES     : int = pygame.K_F9
 
 INFOS                 : int = pygame.K_i
-SETTINGS              : int = pygame.K_TAB
+PARAMETRES              : int = pygame.K_TAB
 DIFFS                 : int = pygame.K_F10
 
 QUITTER               : int = pygame.K_ESCAPE
@@ -47,7 +48,7 @@ def utilisateur_valide_menu(ev : pygame.event.Event) -> bool:
     return ev.type == pygame.KEYDOWN and ev.key in VALIDER
 
 @staticmethod
-def testeur_skip(ev : pygame.event.Event) -> bool:
+def appuie_testeur_skip(ev : pygame.event.Event) -> bool:
     """Si en mode débug, le testeur veut skip."""
     from parametres_vars import mode_debug
     

@@ -22,16 +22,16 @@ class CarteAnimEtat(Enum):
     JOUER     = auto()
 
 class Carte:
-    _HAUTEUR_SPRITE  : int     = Jeu.pourcentage_hauteur(40)
+    _HAUTEUR_SPRITE  : int     = Fenetre.pourcentage_hauteur(40)
     _DUREE_INTER_JEU : Duree   = Duree(s=.5)
     
-    _ANIM_SURVOL_DECALAGE : Vecteur = Jeu.pourcentages_fenetre(0, 2)
+    _ANIM_SURVOL_DECALAGE : Vecteur = Fenetre.pourcentages_fenetre(0, -2)
     _ANIM_DICO : dict[CarteAnimEtat, CarteAnimInfo] = {
-        CarteAnimEtat.IDLE     : CarteAnimInfo(Pos(CarteAnimInfo.GARDER , CarteAnimInfo.GARDER)       , Duree(s=0) , Easing.NO_EASING, CarteAnimInfo.GARDER),
-        CarteAnimEtat.REVENIR  : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER)      , Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
-        CarteAnimEtat.PARTIR   : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, Jeu.hauteur)                , Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
-        CarteAnimEtat.EN_SURVOL: CarteAnimInfo(Pos(CarteAnimInfo.GARDER , Jeu.pourcentage_hauteur(80)), Duree(s=.5), Easing.FADE     , CarteAnimInfo.GARDER),
-        CarteAnimEtat.JOUER    : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER)      , Duree(s=1) , Easing.FADE_IN  , True),
+        CarteAnimEtat.IDLE     : CarteAnimInfo(Pos(CarteAnimInfo.GARDER , CarteAnimInfo.GARDER) , Duree(s=0) , Easing.NO_EASING, CarteAnimInfo.GARDER),
+        CarteAnimEtat.REVENIR  : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER), Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
+        CarteAnimEtat.PARTIR   : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, Fenetre.hauteur)          , Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),
+        CarteAnimEtat.EN_SURVOL: CarteAnimInfo(Pos(CarteAnimInfo.CHANGER , CarteAnimInfo.CHANGER), Duree(s=.1), Easing.FADE     , CarteAnimInfo.GARDER),
+        CarteAnimEtat.JOUER    : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER), Duree(s=1) , Easing.FADE_IN  , True),
     }
     
     SON_COUP : Sound = Sound(f"{Chemins.SFX}/hit.mp3")
@@ -39,13 +39,13 @@ class Carte:
     SON_CRIT : Sound = Sound(f"{Chemins.SFX}/smash-crit.wav")
     
     CRIT_IMG : Surface = pygame.transform.scale(
-        pygame.image.load(f"{Chemins.IMG}/crit.png"),
+        pygame.image.load(f"{Chemins.IMG}crit.png"),
         (40, 40)
     ).convert_alpha()
     
     donnees_JSON : list[dict]
     derniere_enregistree : 'Optional[Carte]' = None
-    cartes_affichees : Array['Carte'] = Array()
+    cartes_affichees : ArrayStable['Carte'] = ArrayStable()
     
     
     @overload 
@@ -76,7 +76,8 @@ class Carte:
         self._anim_gen      : Optional[Generator[bool, None, None]] = None
         self._de_dos_defaut : bool = de_dos
         
-        self._finir_anim : bool = False
+        self._finir_anim     : bool = False
+        self._dessiner_infos : bool = False
         
         # C'est un attribut non statique car il dépend de ._sprite qui n'est pas statique
         # mais il faut le traiter comme si
@@ -94,7 +95,7 @@ class Carte:
     
     @staticmethod
     def actualiser_donnees() -> None:
-        with open(f"{Chemins.DATA}/cartes.json", encoding="utf-8") as fichier:
+        with open(f"{Chemins.JSON}cartes.json", encoding="utf-8") as fichier:
             Carte.donnees_JSON = json.load(fichier)
         
         # Envoie l'objet "attaque" avec le nom rajouté pour les attaques
@@ -105,6 +106,11 @@ class Carte:
             
             liste_attaques.append(attaque_dict)
         Attaque.set_liste(liste_attaques)
+    
+    @staticmethod
+    def vider_cartes_affichees() -> None:
+        for _, c in Carte.cartes_affichees.no_holes():
+            c.cacher()
     
     @property
     def _hitbox(self) -> Rect:
@@ -117,8 +123,8 @@ class Carte:
     @property
     def _sprite(self) -> Surface:
         if self.est_de_dos:
-            return self._preparation_sprite(f"{Chemins.IMG}/cartes/dos.png")
-        return self._preparation_sprite(f"{Chemins.IMG}/cartes/{self._nom_sprite}")
+            return self._preparation_sprite(f"{Chemins.IMG}cartes/dos.png")
+        return self._preparation_sprite(f"{Chemins.IMG}cartes/{self._nom_sprite}/1.png")
     
     @property
     def est_de_dos(self) -> bool:
@@ -129,7 +135,7 @@ class Carte:
         if est_de_dos == CarteAnimInfo.CHANGER:
             raise NotImplementedError("Aucun changement prévu pour si la carte est de dos.")
         
-        # c'est une int ssi c'est une des deux valeurs en haut
+        # c'est une int si et seulement si c'est une des deux valeurs en haut
         assert(type(est_de_dos) is bool), f"CarteAnimInfo.de_dos devrait être un bool mais est un {type(est_de_dos).__name__} à la place."
         return est_de_dos
     
@@ -162,6 +168,10 @@ class Carte:
         return self._anim_etat
     
     @property
+    def dessiner_infos(self) -> bool:
+        return self._dessiner_infos
+    
+    @property
     def est_affiche(self) -> bool:
         if self._id_affichage >= 0:
             assert(self._anim_gen is not None), "Tout objet dans Carte.cartes_affichees[] doit avoir un générateur d'animation."
@@ -180,6 +190,10 @@ class Carte:
     @anim_etat.setter
     def anim_etat(self, val : CarteAnimEtat) -> None:
         self._anim_etat = val
+    
+    @dessiner_infos.setter
+    def dessiner_infos(self, val : bool) -> None:
+        self._dessiner_infos = val
     
     @pos_defaut.setter
     def pos_defaut(self, val : Pos) -> None:
@@ -212,6 +226,8 @@ class Carte:
                 dest = self._pos_defaut
             case CarteAnimEtat.PARTIR:
                 dest = Pos(self._pos_defaut.x, dest.y)
+            case CarteAnimEtat.EN_SURVOL:
+                dest = self._pos_defaut + Carte._ANIM_SURVOL_DECALAGE
         
         assert(
                 dest.x != CarteAnimInfo.CHANGER
@@ -220,7 +236,65 @@ class Carte:
         
         return Deplacement(self._pos, dest)
     
-    def _animation(self, surface : Surface) -> Generator[bool, None, None]:
+    def _dessin_infos(self, num_couche : int) -> None:
+        if self.est_de_dos:
+            return
+        
+        # Dessine le fond derrière les infos au dessus de la carte
+        rect = Rect(
+            *(self._pos - Vecteur(0, self._TAILLE_SPRITE[1] // 2)).tuple,
+            self._TAILLE_SPRITE[0], self._TAILLE_SPRITE[1] // 2
+        )
+        dessiner_rect(
+            num_couche,
+            rect.topleft,
+            rect.size,
+            couleur_remplissage=GRIS_CLAIR,
+            couleur_bords=GRIS,
+            epaisseur_trait=3,
+            border_radius=10
+        )
+        
+        PADDING = 10
+        INTER_INFO = 5
+        def dessiner_dans_rect() -> Generator[None, str, None]:
+            """Renvoie un générateur qui dessine le texte envoyé dans le rectangle rect."""
+            POLICE_STATS = pygame.font.Font(Polices.TEXTE, 16)
+            x = rect.x + PADDING
+            y = rect.y + PADDING
+            while True:
+                texte = (yield)
+                y = Fenetre.blit_couche(
+                    num_couche,
+                    POLICE_STATS.render(texte, True, NOIR),
+                    (x, y + INTER_INFO),
+                ).bottom
+        
+        dessinateur = dessiner_dans_rect()
+        next(dessinateur)   # démarre le générateur
+        
+        def dessiner_stats_modifiees(stats : Stat, stats_de_qui : str) -> None:
+            """Dessine le texte les stats modifées par l'attaque dans le rectangle."""
+            aucun_changement = True
+            dessinateur.send(f"Stats de {stats_de_qui} modifiées:")
+            for nom, stat in stats.__dict__.items():
+                if not bool(params.mode_debug):
+                    nom = Stat.joli_nom(nom)
+                if stat != 0 and nom != "vie":
+                    aucun_changement = False
+                    dessinateur.send(f"    {nom}: {stat:+}")
+            if aucun_changement:
+                dessinateur.send("    aucune")
+        
+        # Dessin
+        dessinateur.send(f"Nom: {self._nom}")
+        dessinateur.send(f"Type: {self._attaque.type.name}")
+        dessinateur.send(f"Puissance: {self._attaque.puissance}")
+        
+        dessiner_stats_modifiees(self._attaque.stats_changees_cible, "l'adversaire")
+        dessiner_stats_modifiees(self._attaque.stats_changees_lanceur, "Esquimot")
+    
+    def _animation(self, num_couche : int) -> Generator[bool, None, None]:
         """Renvoie un générateur avançant l'animation."""
         while True:
             if self._anim_etat not in Carte._ANIM_DICO.keys():
@@ -233,13 +307,13 @@ class Carte:
             debut_anim         : Duree         = copy(Jeu.duree_execution)
             animation_en_cours : CarteAnimEtat = self._anim_etat
             deplacement        : Deplacement   = self._calcul_deplacement()
-            self._finir_anim = False
+            self._finir_anim = False    # reset
             
             # Si la durée est de 0, l'anim est déjà finie
             # (on évite aussi les divisions par 0 en dessous)
             if self._anim_infos.duree == Duree(s=0):
                 self._pos = deplacement.calculer_valeur(1)
-                self.dessiner(surface)
+                self.dessiner(num_couche)
                 
                 yield True
                 continue
@@ -248,16 +322,20 @@ class Carte:
             while Jeu.duree_execution <= debut_anim + self._anim_infos.duree:
                 if animation_en_cours != self._anim_etat or self._finir_anim:
                     break   # changement d'animation
+                if animation_en_cours == CarteAnimEtat.JOUER:
+                    self._dessiner_infos = False
                 
                 t = (Jeu.duree_execution - debut_anim) / self._anim_infos.duree
                 t = clamp(t, 0, 1)
                 self._pos = deplacement.calculer_valeur(t, easing_fun=self._anim_infos.easing)
                 
-                self.dessiner(surface)
+                self.dessiner(num_couche)
                 yield False
             
-            self._pos = deplacement.calculer_valeur(1)  # sécurité au cas où on revient trop tard dans la boucle du dessus
-            self.dessiner(surface)  # évite que la carte ne soit pas dessinée pendant l'intervalle d'un yield
+            # Ces deux lignes s'assurent que la carte soit au bon endroit
+            # avant le return/yield juste après
+            self._pos = deplacement.calculer_valeur(1)
+            self.dessiner(num_couche)
             
             if animation_en_cours == CarteAnimEtat.JOUER:
                 self.jouer_sfx()
@@ -275,7 +353,7 @@ class Carte:
         if self.est_affiche:
             return
         
-        self._anim_gen = self._animation(Jeu.fenetre)
+        self._anim_gen = self._animation(0)
         self._id_affichage = Carte.cartes_affichees.search(None)
         if self._id_affichage >= 0:
             Carte.cartes_affichees[self._id_affichage] = self
@@ -287,18 +365,20 @@ class Carte:
         Carte.cartes_affichees.pop(self._id_affichage)
         self._id_affichage = -1
     
-    def dessiner(self, surface : Surface) -> None:
+    def dessiner(self, num_couche : int) -> None:
         if not self.est_affiche:
             return
         
-        sprite = self._sprite
-        Jeu.fenetre.blit(sprite, self._pos.tuple)
+        Fenetre.blit_couche(0, self._sprite, self._pos.tuple)
+        if self.dessiner_infos:
+            self._dessin_infos(num_couche)
         
         if self._attaque._crit:
+            milieu_sprite = Vecteur(self._sprite.get_rect().size) // 2
             blit_centre(
-                surface,
+                num_couche,
                 Carte.CRIT_IMG,
-                (self._pos + Vecteur(sprite.get_rect().size) // 2).tuple, # on centre l'étoile
+                (self._pos + milieu_sprite).tuple, # on centre l'étoile
             )
     
     def enregister_lancement(self, id_lanceur : int, id_cible : int, flags_a_ajouter : AttaqueFlag = AttaqueFlag.AUCUN) -> None:
@@ -322,7 +402,5 @@ class Carte:
         else:
             Carte.SON_COUP.play()
     
-    def dans_hitbox(self, pos : Pos) -> bool:
-        return self._hitbox.collidepoint(pos.tuple)
-
-Carte.actualiser_donnees()
+    def dans_hitbox(self, pos : pos_t) -> bool:
+        return self._hitbox.collidepoint(pos_t_vers_tuple(pos))

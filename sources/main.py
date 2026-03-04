@@ -1,7 +1,9 @@
 import parametres_vars as params
-from imports import afficher_erreur, NoReturn
-from Jeu import Jeu
 import pygame
+from imports           import afficher_erreur, NoReturn
+from Jeu               import Jeu
+from fonctions_boutons import rafraichir_donnees
+from fonctions_vrac    import creer_dossiers_non_commit
 
 from fonctions_etats import (
     ecran_titre,
@@ -16,6 +18,10 @@ from fonctions_etats import (
 
 
 def jeu() -> NoReturn:
+    creer_dossiers_non_commit()
+    Jeu.lire_parametres()
+    rafraichir_donnees()
+    
     Jeu.changer_etat(Jeu.Etat.ECRAN_TITRE)
     while True:
         pygame.event.clear()    # il ne faut pas que les évènements transitent entre les états
@@ -53,13 +59,13 @@ if __name__ == "__main__":
         jeu()
     
     except (ValueError, NotImplementedError, RuntimeError, AssertionError) as err:
-        # Erreurs suseptibles d'être élevées par les développeurs.
+        # Erreurs susceptibles d'être élevées par les développeurs.
         if not bool(params.mode_debug):
             afficher_erreur("Une erreur est survenue.", f"{type(err).__name__}: {err.args[0]}")
         raise err
     
     except Exception as err:
-        # Erreurs suseptibles d'être élevées par Python directement.
+        # Erreurs susceptibles d'être élevées par Python directement.
         if not bool(params.mode_debug):
             afficher_erreur("oups", "Le jeu est cassé, contactez un développeur.\nSi vous en êtes un, regardez la console.")
         raise err   # Comme ça la console à toutes les infos

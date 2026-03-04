@@ -1,13 +1,39 @@
 from UI           import *
 from import_local import *
-from Bouton       import Button
+from Bouton       import Bouton
 
 
-def _rafraichir_donnees() -> None:
-    from Carte  import Carte
+def _evenements_parametres(bouton_sortie : Bouton, bouton_actualiser : Bouton) -> bool:
+    """la boucle des évènements de `menu_paramètre()`. Renvoie si l'interruption s'arrête."""
+    for ev in pygame.event.get():
+        for parametre in PARAMETRES_NORMAUX:
+            parametre.prendre_input(ev)
+        
+        if params.mode_debug.case_cochee:
+            for parametre in PARAMETRES_TRICHE:
+                parametre.prendre_input(ev)
+        
+        
+        if ev.type == pygame.KEYDOWN and ev.key == Touches.PARAMETRES:
+            return True
+        
+        if ev.type != pygame.MOUSEBUTTONDOWN:
+            continue
+        
+        if bool(params.mode_debug):
+            bouton_actualiser.check_click(ev.pos)
+        
+        if bouton_sortie.check_click(ev.pos):
+            return True
+    return False
+
+
+def rafraichir_donnees() -> None:
+    from Carte   import Carte
     from Item    import Item
     from Monstre import MonstreJSON
-    from Boss import BossJSON
+    from Boss    import BossJSON
+    from Jeu     import Jeu
     
     logging.debug("Actualisation des cartes...")
     Carte.actualiser_donnees()
@@ -21,52 +47,28 @@ def _rafraichir_donnees() -> None:
     logging.debug("Actualisation des boss...")
     BossJSON.actualiser_donnees()
     
+    logging.debug("Actualisation des pools...")
+    Jeu.rafraichir_pools()
+    
     logging.debug("fini!")
-
-
-def _evenements_parametres(bouton_sortie : Button, bouton_actualiser : Button) -> bool:
-    """la boucle des évènements de `menu_paramètre()`. Renvoie si l'interruption s'arrête."""
-    for ev in pygame.event.get():
-        verifier_pour_quitter(ev)
-        
-        for parametre in PARAMETRES_NORMAUX:
-            parametre.prendre_input(ev)
-        
-        if params.mode_debug.case_cochee:
-            for parametre in PARAMETRES_TRICHE:
-                parametre.prendre_input(ev)
-        
-        
-        if ev.type == pygame.KEYDOWN and ev.key == Touches.SETTINGS:
-            return True
-        
-        if ev.type != pygame.MOUSEBUTTONDOWN:
-            continue
-        
-        if bool(params.mode_debug):
-            bouton_actualiser.check_click(ev.pos)
-        
-        if bouton_sortie.check_click(ev.pos):
-            return True
-    return False
 
 def menu_parametres() -> Interruption:
     logging.debug("→ Interruption: Paramètres")
     
-    bouton_sortir : Button = Button(
+    bouton_sortir : Bouton = Bouton(
         (
-            *Jeu.pourcentages_coordonnees(2, 2, ret_pos=False),
-            Jeu.pourcentage_largeur(4), Jeu.pourcentage_largeur(4),
+            *Fenetre.pourcentages_coordonnees(2, 2, ret_pos=False),
+            Fenetre.pourcentage_largeur(4), Fenetre.pourcentage_largeur(4),
         ),
-        img=f"{Chemins.IMG}/croix.png"
+        img=f"{Chemins.IMG}croix.png"
     )
     pos_dim_bouton_actualisation = (
-        *Jeu.pourcentages_coordonnees(50, 50, ret_pos=False),
-        *Jeu.pourcentages_fenetre(30, 7, ret_vec=False),
+        *Fenetre.pourcentages_coordonnees(50, 50, ret_pos=False),
+        *Fenetre.pourcentages_fenetre(30, 7, ret_vec=False),
     )
-    butt_actualisation = Button(pos_dim_bouton_actualisation, "actualiser données", action=_rafraichir_donnees)
+    butt_actualisation = Bouton(pos_dim_bouton_actualisation, "actualiser données", action=rafraichir_donnees)
     
-    police_titres : Font = Jeu.construire_police(Polices.TITRE, 10)
+    police_titres : Font = Fenetre.construire_police(Polices.TITRE, 10)
     TITRE_PARAMS : Surface = police_titres.render("Options de jeu"   , True, NOIR)
     TITRE_TRICHE : Surface = police_titres.render("Options de triche", True, NOIR)
     
@@ -74,31 +76,30 @@ def menu_parametres() -> Interruption:
         if _evenements_parametres(bouton_sortir, butt_actualisation):
             break
         
-        image : Surface = Surface((Jeu.largeur, Jeu.hauteur))
-        image.fill(BLANC)
+        Fenetre.surface.fill(BLANC)
         
-        blit_centre(image, TITRE_PARAMS, Jeu.pourcentages_coordonnees(50, 10, ret_pos=False))
-        fin_params : int = Parametre.dessiner_groupe(image, PARAMETRES_NORMAUX)
+        blit_centre(0, TITRE_PARAMS, Fenetre.pourcentages_coordonnees(50, 10, ret_pos=False))
+        fin_params : int = Parametre.dessiner_groupe(1, PARAMETRES_NORMAUX)
         
         if params.mode_debug.case_cochee:
             fin_params += 40
-            blit_centre(image, TITRE_TRICHE, (Jeu.pourcentage_largeur(50), fin_params))
-            fin_params = Parametre.dessiner_groupe(image, PARAMETRES_TRICHE)
+            blit_centre(0, TITRE_TRICHE, (Fenetre.pourcentage_largeur(50), fin_params))
+            fin_params = Parametre.dessiner_groupe(1, PARAMETRES_TRICHE)
             
             fin_params += 40
             pos_bouton : Pos = centrer_pos(
-                Pos(Jeu.centre_fenetre[0], fin_params),
+                Pos(Fenetre.centre_fenetre[0], fin_params),
                 Vecteur(butt_actualisation.rect.size),
                 centrer_y=False,
             )
             
-            butt_actualisation.change_pos(pos_bouton)
-            butt_actualisation.draw(Jeu.menus_surf, point_size=65)
+            butt_actualisation.changer_pos(pos_bouton)
+            butt_actualisation.dessiner(1, point_size=65)
         
-        bouton_sortir.draw(image, point_size=0)
+        bouton_sortir.dessiner(1, point_size=0)
         
         try:
-            yield image
+            yield
         except GeneratorExit:
             break
     logging.debug("← Fin interruption (paramètres).")

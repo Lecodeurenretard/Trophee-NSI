@@ -12,7 +12,7 @@ class Item:
     effet_affiche  : str
     stats_changees : Stat
     
-    ORDONEE_SPRITE     : int = Jeu.pourcentage_hauteur(10)
+    ORDONEE_SPRITE     : int = Fenetre.pourcentage_hauteur(10)
     DIMENSIONS_SPRITES : tuple[int, int] = (350, 350)
     
     
@@ -36,7 +36,7 @@ class Item:
         self.nom         = item["nom"]
         self.description = item["description"]
         
-        chemin : str = f"{Chemins.IMG}/"
+        chemin : str = f"{Chemins.IMG}"
         chemin += valeur_par_defaut(
             item['sprite'],
             si_non_none=f"items/{item['sprite']}",
@@ -61,7 +61,7 @@ class Item:
     @staticmethod
     def actualiser_items() -> None:
         """Ouvre item.json et prend tous les objets trouvés."""
-        with open(f"{Chemins.DATA}/items.json", 'r', encoding='utf-8') as fichier:
+        with open(f"{Chemins.JSON}items.json", 'r', encoding='utf-8') as fichier:
             Item.DONNEES_ITEMS = json.load(fichier)
     
     @staticmethod
@@ -107,17 +107,17 @@ class Item:
                 return i
         return None
     
-    def dessiner(self, surface : Surface, abscisses : int, afficher_avertissements : bool = True) -> None:
+    def dessiner(self, num_couche : int, abscisses : int, afficher_avertissements : bool = True) -> None:
         HAUTEUR_POLICE_PC : int = 7
         RECT_GLOBAL : Rect = Rect(
             abscisses - self.DIMENSIONS_SPRITES[0] // 2,
             0,
             self.DIMENSIONS_SPRITES[0],
-            Jeu.hauteur,
+            Fenetre.hauteur,
         )
         
-        nom  : Surface = Jeu.construire_police(Polices.TITRE, 12).render(self.nom, True, NOIR)
-        prix : Surface = Jeu.construire_police(Polices.TEXTE, 10).render(f"{self.prix} pieces", True, JAUNE_PIECE)
+        nom  : Surface = Fenetre.construire_police(Polices.TITRE, 12).render(self.nom, True, NOIR)
+        prix : Surface = Fenetre.construire_police(Polices.TEXTE, 10).render(f"{self.prix} pieces", True, JAUNE_PIECE)
         
         rect_sprite : Rect = Rect(
             (abscisses, Item.ORDONEE_SPRITE),
@@ -128,37 +128,35 @@ class Item:
            nom.size,
         )
         pos_prix   : Pos = Pos(
-            abscisses + rect_sprite.width // 2 + Jeu.pourcentage_largeur(1),
+            abscisses + rect_sprite.width // 2 + Fenetre.pourcentage_largeur(1),
             rect_sprite.y,
         )
         rect_effet : Rect = Rect(
             abscisses,
-            rect_nom.bottom + Jeu.pourcentage_hauteur(2),
+            rect_nom.bottom + Fenetre.pourcentage_hauteur(2),
             rect_sprite.width,
-            Jeu.pourcentage_hauteur(HAUTEUR_POLICE_PC)
+            Fenetre.pourcentage_hauteur(HAUTEUR_POLICE_PC)
         )
         rect_desc  : Rect = Rect(
             abscisses,
-            rect_effet.bottom + Jeu.pourcentage_hauteur(4),
+            rect_effet.bottom + Fenetre.pourcentage_hauteur(4),
             rect_sprite.width,
-            Jeu.pourcentage_hauteur(42)
+            Fenetre.pourcentage_hauteur(42)
         )
         
-        police = Jeu.construire_police(Polices.TEXTE, HAUTEUR_POLICE_PC)
+        police = Fenetre.construire_police(Polices.TEXTE, HAUTEUR_POLICE_PC)
         
-        blit_centre_rect(surface, self.sprite, RECT_GLOBAL, centre_rect_y=False, pos=Pos(-1, rect_sprite.centery))
-        blit_centre_rect(surface, nom        , RECT_GLOBAL, centre_rect_y=False, pos=Pos(-1, rect_nom.centery))
-        blit_centre(surface, prix, pos_prix.tuple)
+        blit_centre_rect(num_couche, self.sprite, RECT_GLOBAL, centre_rect_y=False, pos=Pos(-1, rect_sprite.centery))
+        blit_centre_rect(num_couche, nom        , RECT_GLOBAL, centre_rect_y=False, pos=Pos(-1, rect_nom.centery))
+        blit_centre(num_couche, prix, pos_prix.tuple)
         
         rect_effet.centerx = RECT_GLOBAL.centerx
         rect_desc.centerx  = RECT_GLOBAL.centerx
         
-        texte_non_dessine_effet = dessiner_texte(surface, self.effet_affiche, NOIR, rect_to_tuple(rect_effet), police)
-        texte_non_dessine_desc  = dessiner_texte(surface, self.description  , NOIR, rect_to_tuple(rect_desc), police)
+        texte_non_dessine_effet = dessiner_texte(num_couche, self.effet_affiche, NOIR, rect_to_tuple(rect_effet), police)
+        texte_non_dessine_desc  = dessiner_texte(num_couche, self.description  , NOIR, rect_to_tuple(rect_desc), police)
         
         if afficher_avertissements and texte_non_dessine_effet != '':
             logging.debug(f"Le texte suivant n'a pas pu être dessiné (effet d'un  item trop long): {texte_non_dessine_effet}")
         if afficher_avertissements and texte_non_dessine_desc != '':
             logging.debug(f"Le texte suivant n'a pas pu être dessiné (description d'un  item trop longue): {texte_non_dessine_desc}")
-
-Item.actualiser_items()

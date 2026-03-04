@@ -3,13 +3,13 @@ from import_local import *
 from Joueur       import Entite, Joueur, joueur
 from Carte        import Attaque, Carte
 from Item         import Item
-from Bouton       import Button
+from Bouton       import Bouton
 
-def demander_pseudo(surface : Surface) -> Interruption:
+def demander_pseudo() -> Interruption:
     logging.debug(f"→ Interruption: demande du pseudo.")
-    
+        
     pseudo : str  = ""
-    texte : Surface = Jeu.construire_police(Polices.TEXTE, 10).render("Entrez votre pseudo :", True, NOIR)
+    texte : Surface = Fenetre.construire_police(Polices.TEXTE, 10).render("Entrez votre pseudo :", True, NOIR)
     while True:
         Jeu.commencer_frame()
         
@@ -17,19 +17,19 @@ def demander_pseudo(surface : Surface) -> Interruption:
         if not continuer and pseudo != '':
             break
         
-        surface.fill(BLANC)
-        blit_centre(surface, texte, Jeu.pourcentages_coordonnees(50, 45, ret_pos=False))
+        Fenetre.surface.fill(BLANC)
+        blit_centre(0, texte, Fenetre.pourcentages_coordonnees(50, 45, ret_pos=False))
         
-        pseudo_affiche : Surface = Jeu.construire_police(Polices.FOURRE_TOUT, 12).render(pseudo, True, BLEU)
-        blit_centre(surface, pseudo_affiche, Jeu.centre_fenetre)
-        yield surface
+        pseudo_affiche : Surface = Fenetre.construire_police(Polices.FOURRE_TOUT, 12).render(pseudo, True, BLEU)
+        blit_centre(0, pseudo_affiche, Fenetre.centre_fenetre)
+        yield
     
     joueur.nom = pseudo
     logging.debug(f"← Fin interruption (demande du pseudo).")
 
 def texte_entree_event(texte : str) -> tuple[str, bool]:
     continuer : bool = True
-
+    
     TOUCHES_A_IGNORER : tuple[int, ...] = (
         pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN,   # flemme de faire un système de curseur
         pygame.K_LSHIFT, pygame.K_RSHIFT,
@@ -42,8 +42,6 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
         # on s'arrête ici pour l'instant
     )
     for event in pygame.event.get():
-        verifier_pour_quitter(event)
-        
         if event.type != pygame.KEYDOWN or event.key in TOUCHES_A_IGNORER:
             continue
         
@@ -69,66 +67,19 @@ def texte_entree_event(texte : str) -> tuple[str, bool]:
         texte = texte[:-1]                                              # les espaces, nouvelles lignes, tabs...
     return (texte, continuer)
 
-# TODO: TOREMOVE
-def trouve_carte_a_partir_du_curseur() -> Carte:
-    raise AssertionError("Cette fonction est cassée, elle sera réparée sous peu.")
-    
-    # Ce qui est important, c'est que le bouton soit dans le groupe Attaques
-    curseur_pos : Pos = Pos(0, 0)
-    
-    # Il faudra changer ça avec l'ajout du système de cartes
-    if curseur_pos == Pos(0, 0):
-        return Carte('Soin')
-    
-    if curseur_pos == Pos(1, 0):
-        return Carte('Magie')
-    
-    if curseur_pos == Pos(0, 1):
-        return Carte('Physique')
-    
-    if curseur_pos == Pos(1, 1):
-        return Carte('Skip')
-    
-    raise RuntimeError(f"Le curseur est à une position innatendue: {curseur_pos}.")
-
-def afficher_infos() -> Interruption:
-    logging.debug(f"→ Interruption: affichage des informations d'une attaque.")
-    
-    texte_puissance   : Surface
-    texte_description : Surface
-    
-    image : Surface = Surface((Jeu.largeur, Jeu.hauteur))
-    
-    image.fill(BLANC)
-    
-    carte : Carte = trouve_carte_a_partir_du_curseur()
-    texte_puissance   = Jeu.construire_police(Polices.TEXTE, 2).render(f"Puissance: {carte.puissance}", True, NOIR)
-    texte_description = Jeu.construire_police(Polices.TEXTE, 2).render(carte.description              , True, NOIR)
-    
-    blit_centre(image, texte_puissance  , Jeu.pourcentages_coordonnees(50, 50, ret_pos=False))
-    blit_centre(image, texte_description, Jeu.pourcentages_coordonnees(50, 57, ret_pos=False))
-    
-    return image_vers_generateur(
-        image,
-        Duree(s=2),
-        gerer_evenements=True,
-        derniere_etape=lambda: logging.debug(f"← Fin interruption (infos d'une attaque).")
-    )
-
-def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> Interruption:
+def faux_chargement(duree_totale : Duree = Duree(s=2.0)) -> Interruption:
     LONGUEUR_BARRE : int = 700
     ratio_barre : float = 0
     
     gradient : MultiGradient = MultiGradient([ROUGE, JAUNE, VERT])        # sinon ça donne un marron pas très estéthique
     while ratio_barre < 1:
         delta : Duree = Jeu.commencer_frame()
-        verifier_pour_quitter()
+        Fenetre.surface.fill(BLANC)
         
-        surface.fill(BLANC)
         # Le contour de la barre
         dessiner_rect(
-            surface,
-            Jeu.centre_fenetre,
+            1,
+            Fenetre.centre_fenetre,
             (round(ratio_barre * LONGUEUR_BARRE), 50),
             couleur_remplissage=gradient.calculer_valeur(ratio_barre),
             epaisseur_trait=0,
@@ -136,67 +87,67 @@ def faux_chargement(surface : Surface, duree_totale : Duree = Duree(s=2.0)) -> I
         )
         # Ce qui va remplir la barre
         dessiner_rect(
-            surface,
-            Jeu.centre_fenetre,
+            1,
+            Fenetre.centre_fenetre,
             (LONGUEUR_BARRE, 50),
             couleur_bords=NOIR, dessiner_interieur=False,
             epaisseur_trait=5,
             centre_x=True,
         )
         
-        texte_chargement : Surface = Jeu.construire_police(Polices.TITRE, 11).render("Chargement...", True, NOIR)
-        blit_centre(surface, texte_chargement, Jeu.pourcentages_coordonnees(50, 45, ret_pos=False))
+        texte_chargement : Surface = Fenetre.construire_police(Polices.TITRE, 11).render("Chargement...", True, NOIR)
+        blit_centre(1, texte_chargement, Fenetre.pourcentages_coordonnees(50, 45, ret_pos=False))
         
         ratio_barre += delta.secondes / duree_totale.secondes
-        yield surface
+        yield
 
 
-def ecran_nombre_combat() -> Generator[Surface, None, None]:
-    police_annonce = Jeu.construire_police(Polices.TITRE, 9)
+def ecran_nombre_combat(num_couche : int) -> Generator[None, None, None]:
+    police_annonce = Fenetre.construire_police(Polices.TITRE, 9)
     texte_combat : Surface = police_annonce.render(f"Combat n°{Jeu.num_etape}", True, NOIR)
     texte_shop   : Surface = police_annonce.render(f"Shop", True, NOIR)
-    image : Surface = Surface(Jeu.fenetre.get_size())
+    image : Surface = Surface(Fenetre.surface.get_size())
     
     logging.info("")
     logging.info("")
+    
     if Jeu.decision_shop(Jeu.num_etape):
         image.fill(CYAN)
-        blit_centre(image, texte_shop, Jeu.centre_fenetre)
-        
+        blit_centre(image, texte_shop, Fenetre.centre_fenetre)
         logging.info(f"Entrée dans le shop de la zone {Jeu.num_etape}.")
     else:
         image.fill(BLANC)
-        blit_centre(image, texte_combat, Jeu.centre_fenetre)
-        
+        blit_centre(image, texte_combat, Fenetre.centre_fenetre)
         logging.info(f"Début combat numéro {Jeu.num_etape}.")
-    return image_vers_generateur(image, Duree(s=2), gerer_evenements=True)
+        
+    return blit_generateur(num_couche, image, Duree(s=2), gerer_evenements=True)
 
 
-def dessiner_descriptions_entites(surface : Surface) -> None:
+def dessiner_descriptions_entites(num_couche : int) -> None:
     """Dessine les infos quand on appuie sur F9."""
     for i, entite in Entite.vivantes.no_holes():
         dessiner_texte(
-            surface,
+            num_couche,
             entite.decrire_stats(),
             rgb_to_rgba(GRIS_CLAIR, transparence=128),
             (
-                Jeu.pourcentage_largeur(33) * i + 2,
+                Fenetre.pourcentage_largeur(33) * i + 2,
                 0,
-                Jeu.pourcentage_largeur(33),
-                Jeu.hauteur
+                Fenetre.pourcentage_largeur(33),
+                Fenetre.hauteur
             ),
-            Jeu.construire_police(Polices.TEXTE, 7),
+            Fenetre.construire_police(Polices.TEXTE, 7),
             aa=True,
             ecart_entre_lignes=5
         )
         pygame.draw.line(
-            surface,
+            Fenetre.get_couche(num_couche),
             GRIS_CLAIR,
-            (Jeu.pourcentage_largeur(33) * i, 0),
-            (Jeu.pourcentage_largeur(33) * i, Jeu.hauteur)
+            (Fenetre.pourcentage_largeur(33) * i, 0),
+            (Fenetre.pourcentage_largeur(33) * i, Fenetre.hauteur)
         )
 
-def dessiner_diff_stats_joueur(surface : Surface) -> None:
+def dessiner_diff_stats_joueur(num_couche : int) -> None:
     """Dessine les gains/pertes par rapport aux stats de bases."""
     differences : dict[str, float] = {
         "vie maximum"        : joueur.stats_totales.vie_max         - Joueur.STATS_DE_BASE.vie_max,
@@ -214,33 +165,29 @@ def dessiner_diff_stats_joueur(surface : Surface) -> None:
         if diff < 0: coul = ROUGE
         if diff > 0: coul = VERT
         
-        txt = Jeu.construire_police(Polices.TEXTE, 7).render(f"{stat}: {int(diff):+d}", True, coul)
-        surface.blit(txt, (10, y))
+        txt = Fenetre.construire_police(Polices.TEXTE, 7).render(f"{stat}: {int(diff):+d}", True, coul)
+        Fenetre.get_couche(num_couche).blit(txt, (10, y))
         y += txt.get_rect().height + 5
 
 def dessiner_infos() -> None:
     """Si les bonnes touches sont pressées, dessine les infos."""
     if pygame.key.get_pressed()[Touches.DIFFS]:
-        dessiner_diff_stats_joueur(Jeu.infos_surf)
+        dessiner_diff_stats_joueur(2)
     
     elif pygame.key.get_pressed()[Touches.DBG_INFOS_ENTITES] and bool(params.mode_debug):
-        dessiner_descriptions_entites(Jeu.infos_surf)
+        dessiner_descriptions_entites(2)
 
-def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateurs_UI : list[Generator] = [], to_send_dessin : Any = None, to_send_UI : Any = None) -> None:
-    # Chemin vers l'image de fond
-    chemin_fond = os.path.join(Chemins.IMG, "stade", "terrain_plaine.png")
-    
-    image_fond = pygame.image.load(chemin_fond)
-    image_fond = pygame.transform.scale(image_fond, Jeu.fenetre.get_size()) # Redimensionne l'image
+def rafraichir_ecran_combat() -> None:
+    image_fond = pygame.image.load(f"{Chemins.IMG}etages/{Jeu.nom_etage()}.png")
+    image_fond = pygame.transform.scale(image_fond, Fenetre.surface.get_size())
     
     # Afficher l'image de fond 
-    Jeu.fenetre.blit(image_fond, (0, 0))    # pas besoin de faire un .fill(), ça couvre déjà tout l'écran
-    Jeu.menus_surf.fill(TRANSPARENT)
+    Fenetre.surface.blit(image_fond, (0, 0))    # pas besoin de faire un .fill(), ça couvre déjà tout l'écran
     
     # Dessiner les entités
     for _, entites in Entite.vivantes.no_holes():
-        entites.dessiner(Jeu.fenetre)
-        entites.dessiner_UI(Jeu.fenetre)
+        entites.dessiner(0)
+        entites.dessiner_UI(0)
     
     # Vérifie si les cartes doivent être dessinées
     dessiner_cartes : bool = True
@@ -254,7 +201,6 @@ def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateu
         it_carte = Carte.cartes_affichees.no_holes()
         it_carte = sorted(it_carte, key=lambda tpl: tpl[1].pos_defaut.x)  # trie les cartes suivant leur abscisse
         for _, carte in it_carte:
-            print("rf", carte, carte._id_affichage, carte.anim_etat, carte == Carte.derniere_enregistree)
             try:
                 next(carte.animation_generateur)
             except StopIteration:
@@ -262,20 +208,20 @@ def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateu
     
     # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:
-        blit_centre(Jeu.menus_surf, Carte.CRIT_IMG, Jeu.pourcentages_coordonnees(80, 60, ret_pos=False))
+        blit_centre(1, Carte.CRIT_IMG, Fenetre.pourcentages_coordonnees(80, 60, ret_pos=False))
     
     # Dessiner le nombre de coups restant
     dessiner_rect(
-        Jeu.menus_surf,
-        Jeu.pourcentages_coordonnees(85, 87),
-        Jeu.pourcentages_fenetre(20, 10, ret_vec=False),
+        1,
+        Fenetre.pourcentages_coordonnees(85, 87),
+        Fenetre.pourcentages_fenetre(20, 10, ret_vec=False),
         couleur_remplissage=GRIS_CLAIR,
         couleur_bords=BLANC,
         centre_x=True,
         centre_y=True,
         border_radius=3,
     )
-    txt_coups = Jeu.construire_police(Polices.FOURRE_TOUT, 9).render(
+    txt_coups = Fenetre.construire_police(Polices.FOURRE_TOUT, 9).render(
         f"{Jeu.attaques_restantes_joueur} coups restants",
         True,
         Gradient.calculer_valeur_s(
@@ -286,78 +232,78 @@ def rafraichir_ecran_combat(generateurs_dessin : list[Generator] = [], generateu
         )
     )
     blit_centre(
-        Jeu.menus_surf,
+        1,
         txt_coups,
-        Jeu.pourcentages_coordonnees(85, 87, ret_pos=False),
+        Fenetre.pourcentages_coordonnees(85, 87, ret_pos=False),
     )
-    
-    # Dessin supplémentaire
-    avancer_generateurs(generateurs_dessin, to_send_dessin)
-    avancer_generateurs(generateurs_UI,     to_send_UI)
     
     # Si les bonnes touches sont appuyées, affiche les infos ou les diffs
     dessiner_infos()
     
     # Mettre à jour l'affichage
-    Jeu.display_flip()
+    Fenetre.display_flip()
 
 
 
-def dessiner_nombre_pieces(surface : Surface, boite_inventaire : Rect, ordonnees : int = Jeu.pourcentage_hauteur(5)) -> None:
+def dessiner_nombre_pieces(num_couche : int, boite_inventaire : Rect, ordonnees : int = Fenetre.pourcentage_hauteur(5)) -> None:
     if params.argent_infini.case_cochee:
         dessiner_texte(
-            surface,
+            num_couche,
             "genre, beaucoup de p",
             JAUNE_PIECE,
             (
                 boite_inventaire.left + 10, ordonnees,
-                boite_inventaire.width, ordonnees + Jeu.pourcentage_hauteur(5)
+                boite_inventaire.width, ordonnees + Fenetre.pourcentage_hauteur(5)
             ),
-            Jeu.construire_police(Polices.TEXTE, 5),
+            Fenetre.construire_police(Polices.TEXTE, 5),
             True,
         )
     else:
-        TEXTE_PIECES = Jeu.construire_police(Polices.TEXTE, 8).render(
+        TEXTE_PIECES = Fenetre.construire_police(Polices.TEXTE, 8).render(
             f"{joueur.nb_pieces}p",
             True, JAUNE_PIECE,
         )
-        surface.blit(TEXTE_PIECES, (
-            boite_inventaire.left + boite_inventaire.width // 2,
-            ordonnees,
-        ))
+        Fenetre.blit_couche(
+            num_couche,
+            TEXTE_PIECES,
+            (
+                boite_inventaire.left + boite_inventaire.width // 2,
+                ordonnees,
+            )
+        )
 
 def dessiner_inventaire(surface : Surface, boite_inventaire : Rect) -> None:
-    y : int = Jeu.pourcentage_hauteur(9)     # début affichage items inventaire
+    y : int = Fenetre.pourcentage_hauteur(9)     # début affichage items inventaire
     for item in joueur.inventaire:
         icone : Surface = pygame.transform.scale_by(
             item.sprite,
-            (boite_inventaire.width - Jeu.pourcentage_hauteur(1)) / item.sprite.get_rect().width
+            (boite_inventaire.width - Fenetre.pourcentage_hauteur(1)) / item.sprite.get_rect().width
         )
         
         surface.blit(
             icone,
             (boite_inventaire.left, y)
         )
-        y += icone.get_bounding_rect().height + Jeu.pourcentage_hauteur(2)
+        y += icone.get_bounding_rect().height + Fenetre.pourcentage_hauteur(2)
 
-def rafraichir_ecran_shop(items : list[Item], abscisses : tuple[int, ...], rect_inventaire : Rect, epaisseur_trait : int, bouton : Button, afficher_avertissements : bool = False) -> None:
-    Jeu.fenetre.fill(BLANC)
+def rafraichir_ecran_shop(items : list[Item], abscisses : tuple[int, ...], rect_inventaire : Rect, epaisseur_trait : int, bouton : Bouton, afficher_avertissements : bool = False) -> None:
+    Fenetre.surface.fill(BLANC)
     
     # Dessine l'inventaire du joueur
     dessiner_rect(
-        Jeu.fenetre,
+        Fenetre.surface,
         rect_inventaire.topleft, rect_inventaire.size,
         couleur_remplissage=GRIS, couleur_bords=NOIR,
         epaisseur_trait=epaisseur_trait
     )
     
     # ...
-    dessiner_nombre_pieces(Jeu.menus_surf, rect_inventaire)
-    dessiner_inventaire(Jeu.fenetre, rect_inventaire)
+    dessiner_nombre_pieces(1, rect_inventaire)
+    dessiner_inventaire(Fenetre.surface, rect_inventaire)
     dessiner_infos()
     
-    bouton.draw(Jeu.menus_surf, point_size=0)
+    bouton.dessiner(1, point_size=0)
     for item, pourcentage_abscisse in zip(items, abscisses):
-        item.dessiner(Jeu.fenetre, pourcentage_abscisse, afficher_avertissements=afficher_avertissements)
+        item.dessiner(0, pourcentage_abscisse, afficher_avertissements=afficher_avertissements)
     
-    Jeu.display_flip()
+    Fenetre.display_flip()
