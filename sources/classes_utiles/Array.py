@@ -6,7 +6,7 @@ from imports import (
 )
 
 
-def iter_slice(s : slice[int, int, int]) -> Iterator[int]:
+def iter_slice(s : slice) -> Iterator[int]:
     """Renvoie un itérateur qui prend les valeurs de la slice."""
     for i in range(s.start, s.stop + 1, s.step):
         yield i

@@ -26,7 +26,7 @@ class Pool:
         return res
     
     @staticmethod
-    def parse_fichier_pools(chemin_fichier : str) -> dict[str, Pool]:
+    def parse_fichier_pools(chemin_fichier : str) -> 'dict[str, Pool]':
         donnees : dict[str, list[dict]]
         with open(chemin_fichier, encoding="utf-8") as f:
             donnees = json.load(f)
