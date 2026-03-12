@@ -196,6 +196,7 @@ class Jeu:
         with open(Jeu._CHEMIN_FICHIER_PARAMETRES, "r", encoding="utf-8") as f:
             # Lit chaque ligne et remplit 
             for ligne in f.readlines():
+                ligne = ligne.strip('\n')
                 nom, val = ligne.split('=', maxsplit=1)
                 type_val = recherche_map(nom[0], Jeu._TYPE_PREFIXES, type(None))
                 
@@ -204,6 +205,10 @@ class Jeu:
                         f"Préfixe '{nom[0]}' inconnu,"
                         " le fichier {Jeu.CHEMIN_FICHIER_PARAMETRES} est mal-formé."
                     )
+                if type_val is bool:
+                    print(f"'{val}'")
+                    Jeu.parametres[nom[1:]] = (val.lower() == "true" or val == '1')
+                    continue
                 Jeu.parametres[nom[1:]] = type_val(val)     # functional cast comme pour int()
     
     @staticmethod
