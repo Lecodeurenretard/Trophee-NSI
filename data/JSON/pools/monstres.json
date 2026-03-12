@@ -31,11 +31,16 @@
     "1": [
         {
             "nom"        : "Corbobo",
-            "poids"      : 10,
+            "poids"      : 7,
             "soustraire" : null
         },
         {
             "nom"        : "Secoupe",
+            "poids"      : 5,
+            "soustraire" : null
+        },
+        {
+            "nom"        : "Cangros",
             "poids"      : 5,
             "soustraire" : null
         }

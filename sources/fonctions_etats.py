@@ -57,16 +57,16 @@ def choix_attaque() -> None:
     
     if Jeu.attaques_restantes_joueur > 0:
         logging.debug('')
-        joueur.main_jouer_entrer()
+        joueur.main_entrer()
         for m in Monstre.vivants():
-            m.main_jouer_sortir()
+            m.main_sortir()
     
     interruption : Optional[Interruption] = None
     while Jeu.etat == Jeu.Etat.CHOIX_ATTAQUE:
-        Jeu.commencer_frame()
         if interruption is not None:
             terminer_interruption(interruption)
         
+        Jeu.commencer_frame()
         # Si le joueur ne peut pas jouer
         if Jeu.attaques_restantes_joueur <= 0:
             terminer_generateur(tour_des_monstres())
@@ -88,7 +88,7 @@ def choix_attaque() -> None:
                 if index_carte is None:
                     continue
                 
-                joueur.attaquer(Monstre.vivants()[0].id, index_carte)        # TODO: Ew.
+                joueur.attaquer(Monstre.adversaire().id, index_carte)
                 
                 Jeu.attaques_restantes_joueur -= 1
                 logging.debug(f"Il reste {Jeu.attaques_restantes_joueur} attaques au joueur.")
@@ -105,6 +105,7 @@ def affichage_attaque() -> None:
     
     if Carte.derniere_enregistree is None:
         raise RuntimeError("Il n'y a aucune dernière attaque alors que l'état AFFICHAGE_ATTAQUE est actif.")
+    
     # joue l'animation de l'attaque
     interruption : Optional[Interruption] = None
     while Carte.derniere_enregistree.est_affiche:
@@ -280,6 +281,10 @@ def preparation() -> None:
         # C'est juste plus simple et propre de faire comme ça ici
         Fenetre.set_texte_fenetre("Who am I?")
         terminer_interruption(demander_pseudo())
+        
+        if joueur.nom == '67' or joueur.nom.lower() == "six seven":
+            logging.info("Reviens quand tu seras en age.")
+            quit(69)
         
         Fenetre.set_texte_fenetre("Chargement...")
         terminer_interruption(faux_chargement())

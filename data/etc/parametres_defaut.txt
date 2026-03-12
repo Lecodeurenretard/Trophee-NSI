@@ -1,1 +1,3 @@
 ftemps min affichage info=.5
+bmode debug=False
+binvincibilité=False

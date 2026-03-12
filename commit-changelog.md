@@ -31,36 +31,33 @@ format:
 ------------------------------------
 -->
 _____
-## Ajout de pools de monstres.
+## Plus de cartes dans les mains.
 + Changements majeurs
-	- Ajout du système de Pool à la Isaac.
-		* Les blobs, les sorciers et Corbobo restent dans les plaines et Corbobo et Secoupe sont dans l'église satanique.
-		* Ajout de `Jeu.pools_monstres[]` et `Jeu.pool_monstres_etage[]`.
-	- Ajout de la classe `Pool` qui n'est pas restreinte aux monstre.
 + Sur plusieurs fichiers
 + Structure de fichiers
 + READMEs et documentation
+	- Le survol de carte est documenté.
 + Interactions joueur/testeur
-	- Magie et Torgnole enlèvent de la défense physique et magique respectivement.
-	- Les skips jusqu'au shop et au boss affichent de nouveau un message dans la console.
+	- Ajout de paramètres booléens pour sauvegarder le mode débug.
+	- Ajout d'un nouveau monstre: Cangros (rang 1).
+	- Les Corbobos spawn moins dans l'église satanique.
+	- Les cartes jouées sont montrées, le joueur peut voir les cartes lancées par le monstre.
+	- easter egg
 + Correction de bugs
-+ [fonctions_main.py](sources/fonctions_main.py)
-	- Suppression du paramètre `numero_combat` dans `initialiser_nouveau_combat()` car inutile.
-+ [Jeu.py](sources/Jeu.py)
-	- Ajout de `Jeu.NOMBRE_ETAGES`.
-	- Le numéro d'étape précédente est maintenant sauvegardé.
-		* Ajout de `Jeu.num_etape_precedente`, `Jeu.avancer_etape()` et `Jeu.aller_etape()`.
-	- Ajout de `Jeu.rafraichir_pools()`.
-	- Déplacement de tout le contenu graphique dans une nouvelle classe `Fenetre`.
-		* `Jeu.fenetre` devient `Fenetre.surface`.
-- `MonstreJSON`
-	- Ajout d'une overload pour le constructeur.
-	- Ajout de `chercher_nom()`.
-- `Monstre` (donc descendants)
-	- `spawn()` prend maintenant une pool en paramètre et pioche dedans.
+	- Les attaques de types `DIVERS` de puissance `0` (aka Skip) ne font plus de dégats.
+	- Le jeu ne crash plus quand un adversaire à une résistance aux crit de 0.
++ `Carte`
+	- Ajout de la méthode statique `ordre_dessin()`.
++ [fonctions_vrac.py](sources/fonctions_vrac.py)
+	- Ajout de `valeur_par_defaut_map()`.
++ `Monstre` (et descendantes)
+	- Ajout de `.adversaire()` pour camoufler un nombre magique.
 
 
 
 
 ____________
-Pleins de fichiers ont dû changer `Jeu.X` en `Fenetre.X` d'où tous les fichiers modifiés.
+Les monstres avec plus de deux cartes dans la main peuvent parfois faire freeze le Jeu (les évènements sont quand même actifs).
+Ce qui semble se passer c'est que ces cartes sont mal spawn mais je trouve pas ce qu'il y a de mal (v. `print()` commentés pour plus d'infos).
+
+Aussi, La bande verte en haut à gauche des plaines est remarquée mais aucun fix immédiat n'a été trouvé.

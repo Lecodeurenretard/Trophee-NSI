@@ -272,6 +272,10 @@ def valeur_par_defaut[T](a_tester : Optional[T], si_none : T, si_non_none : Opti
     
     return si_none if a_tester is None else si_non_none   # type: ignore
 
+def valeur_par_defaut_map[K, V](map : Mapping[K, V], clef : K, si_clef_inexistante) -> V:
+    """Renvoie `map[clef]` si ceci existe, sinon renvoie `si_clef_inexistante`."""
+    return map[clef] if clef in map.keys() else si_clef_inexistante
+
 def etirer_garder_ratio(surface : Surface, *, longueur : Optional[int] = None, hauteur : Optional[int] = None) -> Surface:
     """
     Etire l'image de façon à ce qu'elle ait, si fournies, une longueur `longueur` et une hauteur `hauteur`.

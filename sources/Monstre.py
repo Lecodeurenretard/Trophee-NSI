@@ -70,7 +70,7 @@ class MonstreJSON:
 class Monstre(Entite):
     _CARTES_DE_DOS           : bool = True
     _CARTE_MAIN_PREMIERE_POS : Pos  = Fenetre.pourcentages_coordonnees(33, 3)
-    POSITION                 : Pos  = Fenetre.pourcentages_coordonnees(60, 23)
+    POSITION_CENTREE         : Pos  = Fenetre.pourcentages_coordonnees(60, 23)
     
     @override
     def __init__(
@@ -119,6 +119,11 @@ class Monstre(Entite):
         ]
     
     @staticmethod
+    def adversaire() -> Monstre:
+        """Renvoie l'adversaire principal du combat."""
+        return Monstre.vivants()[0]     # Le premier monstre à être ajouté au combat
+    
+    @staticmethod
     def massacre() -> None:
         """Tue tous les monstres vivants."""
         for monstre in Monstre.vivants():
@@ -128,7 +133,7 @@ class Monstre(Entite):
     
     @property
     def pos_sprite_centree(self) -> Pos:
-        return Monstre.POSITION
+        return Monstre.POSITION_CENTREE
     
     @property
     def rang(self) -> int:
@@ -145,7 +150,10 @@ class Monstre(Entite):
         
         self._deck = list(nouveau_type.deck)
         
-        self._sprite = pygame.transform.scale(pygame.image.load(nouveau_type.sprite), self._SPRITE_TAILLE)
+        self._sprite = pygame.transform.scale(
+            pygame.image.load(nouveau_type.sprite),
+            self._SPRITE_TAILLE
+        )
         self._type = nouveau_type
     
     def choisir_index_carte_main(self) -> int:

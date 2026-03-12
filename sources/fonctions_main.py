@@ -123,11 +123,11 @@ def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Inter
             joueur.repiocher_tout()
         
         case Touches.DBG_PREDECENT_MONSTRE:
-            Monstre.vivants()[0].vers_type_precedent()
+            Monstre.adversaire().vers_type_precedent()
             return
        
         case Touches.DBG_PROCHAIN_MONSTRE:
-            Monstre.vivants()[0].vers_type_suivant()
+            Monstre.adversaire().vers_type_suivant()
             return
 
 def reagir_appui_touche_shop(ev : pygame.event.Event, lst_items : list['Item'],  min_max_items : tuple[int, int]) -> Optional[Interruption|bool]:
@@ -235,19 +235,18 @@ def shop_click(ev : pygame.event.Event, items : list[Item], bouton_sortie : Bout
     items.pop(index)
 
 def tour_des_monstres() -> Generator[None, None, None]:
-    joueur.main_jouer_sortir()
+    joueur.main_sortir()
     for monstre in Monstre.vivants():
-        monstre.main_jouer_entrer()
+        monstre.main_entrer()
     
     # laisse le temps au cartes d'entrer
-    # (encore un fois, on considère qu'ils arrivent tous au même moment)
-    while not Monstre.vivants()[0].cartes_main_sont_a_pos_defaut:
+    # (encore un fois, on considère qu'elles arrivent toutes au même moment)
+    while not Monstre.adversaire().cartes_main_sont_a_pos_defaut:
         Jeu.commencer_frame()
-        verifier_pour_quitter()
-        
         rafraichir_ecran_combat()
         Fenetre.display_flip()
         yield
+    # print("E") # AI: never reached by affeceted cards
     
     # fait attaquer les monstres
     for monstre in Monstre.vivants():

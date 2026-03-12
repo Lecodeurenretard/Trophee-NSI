@@ -131,7 +131,10 @@ class Entite(ABC):
     
     @property
     def cartes_main_sont_a_pos_defaut(self) -> bool:
-        # on admet que si l'un est à la position par défaut
+        if len(self._cartes_main) == 0:
+            return True
+        
+        # on admet que si l'une est à la position par défaut
         # alors elles le sont toutes
         return self._cartes_main[0].est_a_pos_defaut
     
@@ -139,8 +142,6 @@ class Entite(ABC):
     def pos_sprite(self) -> Pos:
         return centrer_pos(self.pos_sprite_centree, self._SPRITE_TAILLE)
     
-    # propriété car la position pourrait changer
-    # suivant la position du joueurs
     @property
     @abstractmethod
     def pos_sprite_centree(self) -> Pos:
@@ -183,7 +184,7 @@ class Entite(ABC):
         self._recalc_pos_cartes_main()
     
     def _enlever_carte_main(self, index : int) -> Carte:
-        assert(0 <= index < len(self._cartes_main)), f"L'index '{index}' ne correspond a aucune carte dans la main du joueur."
+        assert(0 <= index < len(self._cartes_main)), f"L'index '{index}' ne correspond à aucune carte dans la main du joueur."
         
         enleve : Carte = self._cartes_main.pop(index)
         self._recalc_pos_cartes_main()
@@ -269,35 +270,38 @@ class Entite(ABC):
         )
     
     def piocher(self) -> None:
+        """Pioche jusqu'à remplir la main."""
         if self.cartes_main_max <= 0:
             return
         
         while len(self._cartes_main) < self._cartes_main_max:
-            choisi = random.choice(self._deck)
-            if choisi == self._nom_derniere_carte_piochee and len(self._deck) > 1:
+            prit = random.choice(self._deck)
+            if prit == self._nom_derniere_carte_piochee and len(self._deck) > 1:
                 continue    # repioche, on évite la surpioche de cartes de même type
             
-            self._nom_derniere_carte_piochee = choisi
-            self._ajouter_carte_main(choisi)
+            self._nom_derniere_carte_piochee = prit
+            self._ajouter_carte_main(prit)
     
     def piocher_si_main_vide(self) -> None:
         if len(self._cartes_main) == 0:
             self.piocher()
     
-    def main_jouer_entrer(self) -> None:
-        self._main_dans_ecran = True
-        for c in self._cartes_main:
-            c.anim_etat = CarteAnimEtat.REVENIR
-    def main_jouer_sortir(self) -> None:
-        self._main_dans_ecran = False
-        for c in self._cartes_main:
-            c.anim_etat = CarteAnimEtat.PARTIR
-    
     def repiocher_tout(self) -> None:
+        """Vide la main puis la reremplit."""
         self._vider_main()
         self._nom_derniere_carte_piochee = ''
         
         self.piocher()
+    
+    def main_entrer(self) -> None:
+        self._main_dans_ecran = True
+        for c in self._cartes_main:
+            c.anim_etat = CarteAnimEtat.REVENIR
+    
+    def main_sortir(self) -> None:
+        self._main_dans_ecran = False
+        for c in self._cartes_main:
+            c.anim_etat = CarteAnimEtat.PARTIR
     
     def prendre_item(self, item : Item) -> None:
         """Ajoute un item à l'inventaire s'il n'y était pas déjà."""
@@ -324,4 +328,4 @@ class Entite(ABC):
         self._stats_temporaire.additionner(stat)
 
 Attaque.set_arr_entites(Entite.vivantes) # grâce au passage par référence ça marche
-                                          # C'est un hack, certes, mais j'ai pas trouvé mieux
+                                         # C'est un hack, certes, mais j'ai pas trouvé mieux

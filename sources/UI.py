@@ -198,9 +198,8 @@ def rafraichir_ecran_combat() -> None:
     
     if dessiner_cartes:
         # Avance et dessine l'animation des cartes affichées
-        it_carte = Carte.cartes_affichees.no_holes()
-        it_carte = sorted(it_carte, key=lambda tpl: tpl[1].pos_defaut.x)  # trie les cartes suivant leur abscisse
-        for _, carte in it_carte:
+        it_carte = (pair[1] for pair in Carte.cartes_affichees.no_holes())    # un itérateur sur les cartes
+        for carte in Carte.ordre_dessin(it_carte):
             try:
                 next(carte.animation_generateur)
             except StopIteration:

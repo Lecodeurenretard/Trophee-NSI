@@ -89,5 +89,24 @@
 			"crit_puissance"	: 1.4,
 			"crit_resitance"	: 1.1
 		}
+	},
+	{
+		"nom": "Cangros",
+		"sprite" : "cangros.png",
+		"moveset": [
+			"Torgnole",
+			"Skip"
+		],
+		"rang": 1,
+		"nombre_cartes_main": 1,
+		"stats": {
+			"vie_max"			: 50,
+			"force"				: 20,
+			"defense"			: 35,
+			"magie"				: 20,
+			"defense_magique"	: 35,
+			"crit_puissance"	: 1.2,
+			"crit_resitance"	: 1.3
+		}
 	}
 ]

@@ -233,6 +233,13 @@ class Parametre:
         
         return self._valeur # type: ignore
     
+    @case_cochee.setter
+    def case_cochee(self, val : bool) -> None:
+        if self._categorie != TypeParametre.CASE_A_COCHER:
+            raise TypeError(f"Une case ne peut être cochée que si c'est une CASE_A_COCHER, au lieu de cela c'est un.e {self._categorie}.")
+        
+        self._valeur = val
+    
     @valeurs_autorisees.setter
     def valeurs_autorisees(self, val : list[str]) -> None:
         assert(self._possibilites_finies), f"Le paramètre de catégorie {self._categorie} peut prendre un nombre trop grand de valeurs pour les avoir stockées dans une liste."

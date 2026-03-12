@@ -69,7 +69,7 @@ class Attaque:
     
     _DEFAUT_PROB_CRIT  : float        = .1
     _DEFAUT_FLAGS      : AttaqueFlag  = AttaqueFlag.ATTAQUE_ENNEMIS
-    _DEFAUT_AJUSTEMENT : _ajustements_t = _AJUSTEMENTS["base"]
+    _AJUSTEMENT_DEFAUT : _ajustements_t = _AJUSTEMENTS["base"]
     
     _liste          : list[dict]      = []
     _dico_entites   : ArrayStable['Entite'] = ArrayStable() # sera mis à Entite.vivantes[] plus tard  # type: ignore
@@ -117,7 +117,7 @@ class Attaque:
         nom_ajustement : Optional[str] = donnees_attaque["nom_ajustement"]
         self._ajustement_degats = valeur_par_defaut(
             Attaque._AJUSTEMENTS.get(nom_ajustement),   # type: ignore
-            Attaque._DEFAUT_AJUSTEMENT,
+            Attaque._AJUSTEMENT_DEFAUT,
         )
     
     def __eq__(self, obj : object) -> bool:
@@ -143,6 +143,7 @@ class Attaque:
     
     @staticmethod
     def set_arr_entites(dico : ArrayStable['Entite']) -> None: # pyright: ignore[reportUndefinedVariable]
+        """Met le tableau `Attaque._dico_entites` à une référence de `dico`."""
         Attaque._dico_entites = dico
     
     @staticmethod
@@ -150,9 +151,13 @@ class Attaque:
         """Cherche l'attaque avec le nom correspondant dans _liste."""
         try:
             return Attaque(
-                [att["nom"] for att in Attaque._liste].index(nom)   # Recherche le nom
+                [   # Recherche le nom
+                    i
+                    for i, att in enumerate(Attaque._liste)
+                    if nom == att["nom"]
+                ][0]
             )
-        except ValueError:
+        except IndexError:
             raise ValueError(f"L'attaque \"{nom}\" n'a pas été trouvée.")
     
     @property
@@ -247,13 +252,14 @@ class Attaque:
                 degats *= -attaque
             
             case TypeAttaque.DIVERS:
-                ...
+                if self._puissance == 0:
+                    degats = 0
             
             case _:
                 raise ValueError("type_degat n'est pas un membre de TypeAttaque dans Attaque.calculer_degats.")
         
         if self._crit:
-            crit_facteur : float = stats_attaquant.crit_puissance / stats_victime.crit_resitance
+            crit_facteur : float = stats_attaquant.crit_puissance / max(stats_victime.crit_resitance, .01)  # on évite la division par 0
             crit_facteur = max(1, crit_facteur) # un crit ne doit jamais baisser les dégats de l'attaque
             degats *= Attaque._PUISSANCE_CRIT * crit_facteur
         

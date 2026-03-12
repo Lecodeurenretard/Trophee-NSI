@@ -14,6 +14,7 @@ class Jeu:
     """
     _CHEMIN_FICHIER_PARAMETRES : str = f"{Chemins.SAVE}parametres.txt"
     _TYPE_PREFIXES             : dict[type, str] = {
+        bool: 'b',
         int: 'i',
         float: 'f',
         str: 's',
@@ -357,6 +358,7 @@ class Fenetre:
         res.set_strikethrough(barre)
         return res
     
+    # utile pour les exemples
     @staticmethod
     def changer_taille_fenetre(nouvelle_taille : tuple[int, int]) -> None:
         """Change la taille de la fenetre."""
@@ -367,7 +369,7 @@ class Fenetre:
     
     @staticmethod
     def display_flip() -> None:
-        """Met à jour le display et si `reset_menu` est actif, remplit `menus_surf` avec de la transparence."""
+        """Met à jour l'écran."""
         import parametres_vars as p
         if bool(p.mode_debug):
             surf : Surface = Fenetre.construire_police(FOURRE_TOUT, 10).render("Débug", True, ROUGE)

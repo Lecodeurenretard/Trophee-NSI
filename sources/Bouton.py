@@ -1,5 +1,4 @@
 from import_var import *
-from Curseur    import Curseur
 
 class Bouton:
     SON_APPUI  : Sound         = Sound(f"{Chemins.SFX}/select.mp3")
@@ -7,13 +6,13 @@ class Bouton:
     
     def __init__(
             self,
-            dim            : tuple[int, int, int, int],
-            txt            : str                       = '',
-            img            : Optional[str]             = None,
-            action         : Callable[[], None] | None = None,
-            epaisseur_ligne : int                      = 1,
-            coul_bg        : color                     = GRIS,
-            coul_ligne     : color                     = NOIR
+            dim             : tuple[int, int, int, int],
+            txt             : str                       = '',
+            img             : Optional[str]             = None,
+            action          : Callable[[], None] | None = None,
+            epaisseur_ligne : int                       = 1,
+            coul_bg         : color                     = GRIS,
+            coul_ligne      : color                     = NOIR
     ):
         self._rect   : Rect = Rect(*dim)
         self._texte  : str  = txt

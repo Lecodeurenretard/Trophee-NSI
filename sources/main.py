@@ -1,9 +1,10 @@
 import parametres_vars as params
 import pygame
-from imports           import afficher_erreur, NoReturn
-from Jeu               import Jeu
-from fonctions_boutons import rafraichir_donnees
+
 from fonctions_vrac    import creer_dossiers_non_commit
+from imports           import afficher_erreur, NoReturn
+from fonctions_boutons import rafraichir_donnees
+from Jeu               import Jeu
 
 from fonctions_etats import (
     ecran_titre,
@@ -20,6 +21,9 @@ from fonctions_etats import (
 def jeu() -> NoReturn:
     creer_dossiers_non_commit()
     Jeu.lire_parametres()
+    params.mode_debug.case_cochee        = Jeu.parametres["mode debug"]
+    params.joueur_invincible.case_cochee = Jeu.parametres["invincibilité"]
+    
     rafraichir_donnees()
     
     Jeu.changer_etat(Jeu.Etat.ECRAN_TITRE)
