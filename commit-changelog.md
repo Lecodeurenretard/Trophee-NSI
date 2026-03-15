@@ -31,33 +31,21 @@ format:
 ------------------------------------
 -->
 _____
-## Plus de cartes dans les mains.
+## Les modifications de stats par les attaques périment.
 + Changements majeurs
+	- Les modifications de stats apportées par les attaques s'estompent après un ou deux tours ainsi qu'à la fin du combat.
 + Sur plusieurs fichiers
+	- Actualisation des exemples.
 + Structure de fichiers
+	- Suppression de ex_curseur.py.
 + READMEs et documentation
-	- Le survol de carte est documenté.
 + Interactions joueur/testeur
-	- Ajout de paramètres booléens pour sauvegarder le mode débug.
-	- Ajout d'un nouveau monstre: Cangros (rang 1).
-	- Les Corbobos spawn moins dans l'église satanique.
-	- Les cartes jouées sont montrées, le joueur peut voir les cartes lancées par le monstre.
-	- easter egg
+	- Skip n'augmente les défenses que de 2 par utilisation.
+	- La fenêtre a toujours le nom du jeu en préfixe.
+	- Le pseudo est par défaut à "Esquimot".
+	- Ajout d'un système de comparaison des fichiers de paramètres pour empècher un oubli de copie et une erreur pas très parlante.
+		* S'il manque des paramètres dans paramètres.txt, une boite de dialogue s'ouvrira et demandera de reset les prarmètres.
 + Correction de bugs
-	- Les attaques de types `DIVERS` de puissance `0` (aka Skip) ne font plus de dégats.
-	- Le jeu ne crash plus quand un adversaire à une résistance aux crit de 0.
-+ `Carte`
-	- Ajout de la méthode statique `ordre_dessin()`.
-+ [fonctions_vrac.py](sources/fonctions_vrac.py)
-	- Ajout de `valeur_par_defaut_map()`.
-+ `Monstre` (et descendantes)
-	- Ajout de `.adversaire()` pour camoufler un nombre magique.
-
-
-
-
-____________
-Les monstres avec plus de deux cartes dans la main peuvent parfois faire freeze le Jeu (les évènements sont quand même actifs).
-Ce qui semble se passer c'est que ces cartes sont mal spawn mais je trouve pas ce qu'il y a de mal (v. `print()` commentés pour plus d'infos).
-
-Aussi, La bande verte en haut à gauche des plaines est remarquée mais aucun fix immédiat n'a été trouvé.
++ `Stat`
+	- Ajout de la méthode statique `remplies_de()`pour initialiser un objet plus facilement.
+	- Ne cause plus de `RuntimeError` si un un attribut n'est pas bon dans la lecture d'un objet Stat en JSON.

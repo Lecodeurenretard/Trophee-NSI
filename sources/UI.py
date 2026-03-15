@@ -8,7 +8,7 @@ from Bouton       import Bouton
 def demander_pseudo() -> Interruption:
     logging.debug(f"→ Interruption: demande du pseudo.")
         
-    pseudo : str  = ""
+    pseudo : str  = "Esquimot"
     texte : Surface = Fenetre.construire_police(Polices.TEXTE, 10).render("Entrez votre pseudo :", True, NOIR)
     while True:
         Jeu.commencer_frame()
@@ -21,7 +21,7 @@ def demander_pseudo() -> Interruption:
         blit_centre(0, texte, Fenetre.pourcentages_coordonnees(50, 45, ret_pos=False))
         
         pseudo_affiche : Surface = Fenetre.construire_police(Polices.FOURRE_TOUT, 12).render(pseudo, True, BLEU)
-        blit_centre(0, pseudo_affiche, Fenetre.centre_fenetre)
+        blit_centre(0, pseudo_affiche, Fenetre.centre)
         yield
     
     joueur.nom = pseudo
@@ -79,7 +79,7 @@ def faux_chargement(duree_totale : Duree = Duree(s=2.0)) -> Interruption:
         # Le contour de la barre
         dessiner_rect(
             1,
-            Fenetre.centre_fenetre,
+            Fenetre.centre,
             (round(ratio_barre * LONGUEUR_BARRE), 50),
             couleur_remplissage=gradient.calculer_valeur(ratio_barre),
             epaisseur_trait=0,
@@ -88,7 +88,7 @@ def faux_chargement(duree_totale : Duree = Duree(s=2.0)) -> Interruption:
         # Ce qui va remplir la barre
         dessiner_rect(
             1,
-            Fenetre.centre_fenetre,
+            Fenetre.centre,
             (LONGUEUR_BARRE, 50),
             couleur_bords=NOIR, dessiner_interieur=False,
             epaisseur_trait=5,
@@ -113,11 +113,11 @@ def ecran_nombre_combat(num_couche : int) -> Generator[None, None, None]:
     
     if Jeu.decision_shop(Jeu.num_etape):
         image.fill(CYAN)
-        blit_centre(image, texte_shop, Fenetre.centre_fenetre)
+        blit_centre(image, texte_shop, Fenetre.centre)
         logging.info(f"Entrée dans le shop de la zone {Jeu.num_etape}.")
     else:
         image.fill(BLANC)
-        blit_centre(image, texte_combat, Fenetre.centre_fenetre)
+        blit_centre(image, texte_combat, Fenetre.centre)
         logging.info(f"Début combat numéro {Jeu.num_etape}.")
         
     return blit_generateur(num_couche, image, Duree(s=2), gerer_evenements=True)

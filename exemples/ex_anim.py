@@ -8,7 +8,7 @@ sys.path.insert(0, str(next(Path(__file__).parent.parent.glob('sources/'))))
 
 # VsCode n'aime pas la magie noire, il reporte 5 erreurs
 import pygame
-from Jeu                            import Jeu, verifier_pour_quitter
+from Jeu                            import Jeu, Fenetre, verifier_pour_quitter
 from Constantes.Couleurs            import BLANC, NOIR, BLEU_CLAIR, BLEU, ROUGE, VERT, GRIS
 from classes_utiles.Animation       import MultiDeplacement, MultiGradient
 from classes_utiles.EasingConstants import FADE
@@ -17,11 +17,11 @@ from classes_utiles.Pos import Pos
 
 diamant_gen = MultiDeplacement.generateur_s(
 	[
-		Jeu.pourcentages_coordonees(25, 50),
-		Jeu.pourcentages_coordonees(50, 25),
-		Jeu.pourcentages_coordonees(75, 50),
-		Jeu.pourcentages_coordonees(50, 75),
-		Jeu.pourcentages_coordonees(25, 50),
+		Fenetre.pourcentages_coordonnees(25, 50),
+		Fenetre.pourcentages_coordonnees(50, 25),
+		Fenetre.pourcentages_coordonnees(75, 50),
+		Fenetre.pourcentages_coordonnees(50, 75),
+		Fenetre.pourcentages_coordonnees(25, 50),
 	],
 	[	# sur une fenêtre carrée de 100 pixel de côté, le rond atteindra (50, 25) au quart (.25) de l'animation, (75, 50) à la moitié (.50) de l'animation, ...
 		1/4,
@@ -54,21 +54,21 @@ while True:
 	
 	pos_rond = next(diamant_gen)
 	coul_rond = next(couleur_gen)
-	Jeu.fenetre.fill(BLANC)
+	Fenetre.surface.fill(BLANC)
 	
 	# dessin diamant
 	pygame.draw.polygon(
-		Jeu.fenetre,
+		Fenetre.surface,
 		BLEU_CLAIR,
 		(
-			Jeu.pourcentages_coordonees(25, 50, ret_pos=False),
-			Jeu.pourcentages_coordonees(50, 75, ret_pos=False),
-			Jeu.pourcentages_coordonees(75, 50, ret_pos=False),
-			Jeu.pourcentages_coordonees(50, 25, ret_pos=False),
+			Fenetre.pourcentages_coordonnees(25, 50, ret_pos=False),
+			Fenetre.pourcentages_coordonnees(50, 75, ret_pos=False),
+			Fenetre.pourcentages_coordonnees(75, 50, ret_pos=False),
+			Fenetre.pourcentages_coordonnees(50, 25, ret_pos=False),
 		),
 		width=2
 	)
 	
 	# dessin rond et affichage
-	pygame.draw.circle(Jeu.fenetre, coul_rond, pos_rond.tuple, 20)
+	pygame.draw.circle(Fenetre.surface, coul_rond, pos_rond.tuple, 20)
 	pygame.display.flip()

@@ -249,9 +249,10 @@ class Carte:
             return
         
         # Dessine le fond derrière les infos au dessus de la carte
+        ratio = Jeu.parametres["ratio hauteur menu carte"]
         rect = Rect(
-            *(self._pos - Vecteur(0, self._TAILLE_SPRITE[1] // 2)).tuple,
-            self._TAILLE_SPRITE[0], self._TAILLE_SPRITE[1] // 2
+            *(self._pos - Vecteur(0, self._TAILLE_SPRITE[1] * ratio)).tuple,
+            self._TAILLE_SPRITE[0], self._TAILLE_SPRITE[1] * ratio
         )
         dessiner_rect(
             num_couche,
@@ -281,26 +282,41 @@ class Carte:
         dessinateur = dessiner_dans_rect()
         next(dessinateur)   # démarre le générateur
         
-        def dessiner_stats_modifiees(stats : Stat, stats_de_qui : str) -> None:
+        def dessiner_stats_modifiees(stats : Stat, stats_de_qui : str, adversaire : bool) -> None:
             """Dessine le texte les stats modifées par l'attaque dans le rectangle."""
             aucun_changement = True
             dessinateur.send(f"Stats de {stats_de_qui} modifiées:")
             for nom, stat in stats.__dict__.items():
                 if not bool(params.mode_debug):
                     nom = Stat.joli_nom(nom)
+                
                 if stat != 0 and nom != "vie":
                     aucun_changement = False
                     dessinateur.send(f"    {nom}: {stat:+}")
+            
             if aucun_changement:
                 dessinateur.send("    aucune")
+            
+            # On pourrait faire un if...else mais c'est mieux de séparer les deux blocs
+            if not aucun_changement:
+                duree = self._attaque._modif_stats_lanceur_duree
+                if adversaire:
+                    duree = self._attaque._modif_stats_cible_duree
+                
+                if duree == -1:
+                    dessinateur.send(f"    effectif pour tout le combat")
+                elif duree == 0:
+                    dessinateur.send(f"    effectif pour le reste du tour")
+                else:
+                    dessinateur.send(f"    effectif pour {duree} tours")
         
         # Dessin
         dessinateur.send(f"Nom: {self._nom}")
         dessinateur.send(f"Type: {self._attaque.type.name}")
         dessinateur.send(f"Puissance: {self._attaque.puissance}")
         
-        dessiner_stats_modifiees(self._attaque.stats_changees_cible, "l'adversaire")
-        dessiner_stats_modifiees(self._attaque.stats_changees_lanceur, "Esquimot")
+        dessiner_stats_modifiees(self._attaque.stats_changees_cible, "l'adversaire", True)
+        dessiner_stats_modifiees(self._attaque.stats_changees_lanceur, "Esquimot", False)
     
     def _animation(self, num_couche : int) -> Generator[bool, None, None]:
         """Renvoie un générateur avançant l'animation de la carte."""
@@ -328,7 +344,6 @@ class Carte:
                 continue
             
             # On joue l'animation
-            # print(self.nom, deplacement, self.anim_etat)
             animation_ecrasee : bool = False
             while Jeu.duree_execution <= debut_anim + self._anim_infos.duree:
                 if self._finir_anim:
