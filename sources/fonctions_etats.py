@@ -37,7 +37,8 @@ def attente_prochaine_etape() -> None:
         Monstre.massacre()
         Boss.spawn_boss()
     
-    joueur.repiocher_tout()
+    for _, entite in Entite.vivantes.no_holes():
+        entite.nouveau_combat()
     Fenetre.set_texte_fenetre("Combat!")
     Jeu.changer_etat(Jeu.Etat.CHOIX_ATTAQUE)
 
@@ -48,8 +49,8 @@ def choix_attaque() -> None:
     if Jeu.attaques_restantes_joueur == Jeu.ATTAQUES_PAR_TOUR:
         Jeu.nb_tours_combat += 1
         joueur.piocher()
-        for boss in Boss.vivants_boss():
-            boss.nouveau_tour()
+        for _, entite in Entite.vivantes.no_holes():
+            entite.nouveau_tour()
     
     joueur.piocher_si_main_vide()
     for m in Monstre.vivants():

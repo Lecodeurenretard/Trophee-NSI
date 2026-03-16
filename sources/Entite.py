@@ -22,12 +22,13 @@ class Entite(ABC):
         ):
         
         self._nom                        : str         = nom
-        self._stats_temporaire           : Stat        = Stat(0, 0, 0, 0, 0, 0, 0)
         self._stats                      : Stat        = stats
         self._cartes_main                : list[Carte] = []
         self._deck                       : list[str]   = list(deck)
         self._inventaire                 : list[Item]  = list(inventaire)
         self._nom_derniere_carte_piochee : str         = ''
+        
+        self._modifs_stats : dict[int, Stat] = {}
         
         assert(0 < max_cartes_main <= self.__class__._CARTES_MAIN_MAX_DU_MAX), f"Le maximum de cartes en main ({max_cartes_main}) doit être entre 0 (exclus) et {self.__class__._CARTES_MAIN_MAX_DU_MAX} (inclus)."
         self._cartes_main_max : int = max_cartes_main
@@ -112,7 +113,14 @@ class Entite(ABC):
     @property
     def stats_totales(self) -> Stat:
         copie = copy(self._stats)
-        copie.additionner(self._stats_temporaire)
+        
+        # Ajoute les modifications de stats et les supprimme si elles sont obsolètes
+        for tour_peremption, stats in copy(self._modifs_stats).items():
+            if tour_peremption < Jeu.nb_tours_combat and tour_peremption != -1:
+                del self._modifs_stats[tour_peremption]
+            copie.additionner(stats)
+        
+        # Ajoute les modifications procurées par les objets
         for item in self._inventaire:
             copie.additionner(item.stats_changees)
         return copie
@@ -202,6 +210,11 @@ class Entite(ABC):
         # trie les cartes par ordre alphabetique
         self._cartes_main = sorted(self._cartes_main, key=lambda c: c._nom)
     
+    def _modifs_stats_garantie_clef(self, clef : int) -> None:
+        """S'assure que la clef `clef` existe dans `.modifs_stats[]`."""
+        if clef not in self._modifs_stats .keys():
+            self._modifs_stats[clef] = Stat.remplies_de(0)
+    
     def _dessiner_barre_de_vie(self, num_couche : int) -> None:
         ratio_vie = self._stats.vie / self._stats.vie_max
         
@@ -240,7 +253,7 @@ class Entite(ABC):
     
     def reset(self) -> None:
         self._stats.reset_vie()
-        self._stats_temporaire = Stat(0, 0, 0, 0, 0, 0, 0)
+        self._modifs_stats = {}
         self._inventaire.clear()
         self._vider_main()
     
@@ -281,6 +294,7 @@ class Entite(ABC):
             
             self._nom_derniere_carte_piochee = prit
             self._ajouter_carte_main(prit)
+            print(prit)
     
     def piocher_si_main_vide(self) -> None:
         if len(self._cartes_main) == 0:
@@ -319,13 +333,28 @@ class Entite(ABC):
         return (
             f"ID d'entité: {self._id}\n"
             f"Statistiques: {self._stats}\n"
+            f"Statistiques effectives: {self.stats_totales}\n"
             f"Deck: {self._deck}\n"
             f"Main: {self._cartes_main_noms}\n"
             f"Inventaire: {[item.nom for item in self._inventaire]}\n"
         )
+    
+    def ajouter_modif_stats(self, stat : Stat, valide_pendant : int) -> None:
+        """Ajoute une modification de stats valable pendant `valide_pendant` tours."""
+        tour = Jeu.nb_tours_combat + valide_pendant
+        if valide_pendant == -1:
+            tour = -1
+        
+        self._modifs_stats_garantie_clef(tour)
+        self._modifs_stats[tour].additionner(stat)
+    
+    def nouveau_tour(self) -> None:
+        pass
+    
+    def nouveau_combat(self) -> None:
+        self._modifs_stats = {}
+        self.repiocher_tout()
 
-    def additionner_stats_temporaire(self, stat : Stat):
-        self._stats_temporaire.additionner(stat)
 
 Attaque.set_arr_entites(Entite.vivantes) # grâce au passage par référence ça marche
                                          # C'est un hack, certes, mais j'ai pas trouvé mieux

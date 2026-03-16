@@ -17,7 +17,7 @@ class Stat:
         Après avoir décodé un fichier JSON, passez le dictionnaire correspondant à l'objet pour initialiser un objet Stat.
         Si une valeur n'est pas présente, `valeur_par_defaut` est utilisé.
         """
-        resultat : Stat = Stat(*([valeur_par_defaut] * 7))   # Initialise l'objet Stat avec tous les attributs à -100 sauf .VITESSE_MAX
+        resultat : Stat = Stat.remplies_de(valeur_par_defaut)
         for clef, valeur in json_dict.items():
             match clef:
                 case "vie_max"        : resultat.vie_max         = valeur
@@ -28,7 +28,7 @@ class Stat:
                 case "crit_puissance" : resultat.crit_puissance  = valeur
                 case "crit_resitance" : resultat.crit_resitance  = valeur
                 case "vie"            : resultat.vie             = valeur
-                case _                : raise RuntimeError(f"Mauvaise clef \"{clef}\" dans le JSON d'un objet Stat.")
+                case _                : continue
         return resultat
     
     @staticmethod
@@ -44,6 +44,11 @@ class Stat:
         if nom_base == "crit_puissance":
             return "puissance des crits"
         return nom_base.replace('_', ' ')
+    
+    @staticmethod
+    def remplies_de(val : int) -> Stat:
+        """Construit un objet avec tout ses membres intialisés à `val`."""
+        return Stat(*([val] * 8))
     
     def additionner(self, delta : 'Stat', ajouter_vie : bool = False) -> None:
         """Ajoute les attributs deux à deux. Si `ajouter_vie` est active, ajoute aussi les vies."""

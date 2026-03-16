@@ -85,11 +85,15 @@ class Attaque:
         # Définitions des valeurs non null dans le JSON
         self._nom       : str   = donnees_attaque["nom"]
         self._puissance : float = donnees_attaque["puissance"]
-        self._stats_changees_cible : Stat = Stat.depuis_dictionnaire_json(donnees_attaque["Modif stat cible"])
-        self._stats_changees_lanceur : Stat = Stat.depuis_dictionnaire_json(donnees_attaque["Modif stat lanceur"])
         self._type      : TypeAttaque = TypeAttaque.depuis_str(
             donnees_attaque["type"]
         )
+        
+        self._modif_stats_cible_duree : int  = donnees_attaque["Modif stat cible"]["duree"]
+        self._modif_stats_cible       : Stat = Stat.depuis_dictionnaire_json(donnees_attaque["Modif stat cible"])
+        
+        self._modif_stats_lanceur_duree : int  = donnees_attaque["Modif stat lanceur"]["duree"]
+        self._modif_stats_lanceur       : Stat = Stat.depuis_dictionnaire_json(donnees_attaque["Modif stat lanceur"])
         
         # Définitions des id du lanceur/cible.
         self._lanceur_id : int = -1
@@ -195,11 +199,11 @@ class Attaque:
     
     @property
     def stats_changees_cible(self) -> Stat:
-        return copy(self._stats_changees_cible)
+        return copy(self._modif_stats_cible)
     
     @property
     def stats_changees_lanceur(self) -> Stat:
-        return copy(self._stats_changees_lanceur)
+        return copy(self._modif_stats_lanceur)
     
     @property
     def peut_attaquer_lanceur(self) -> bool:
@@ -299,5 +303,5 @@ class Attaque:
         self._autoriser_animation = a_copier._autoriser_animation
 
     def appliquer_effet(self):
-        self.cible.additionner_stats_temporaire(self._stats_changees_cible)
-        self.lanceur.additionner_stats_temporaire(self._stats_changees_lanceur)
+        self.cible.ajouter_modif_stats(self._modif_stats_cible, self._modif_stats_cible_duree)
+        self.lanceur.ajouter_modif_stats(self._modif_stats_lanceur, self._modif_stats_lanceur_duree)

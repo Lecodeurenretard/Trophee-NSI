@@ -1,3 +1,4 @@
 ftemps min affichage info=.5
+fratio hauteur menu carte=.6
 bmode debug=False
 binvincibilité=False

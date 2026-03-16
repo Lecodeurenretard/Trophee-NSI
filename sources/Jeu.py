@@ -12,8 +12,10 @@ class Jeu:
     Classe statique gerant le jeu.
     Elle contient les variables globales.
     """
-    _CHEMIN_FICHIER_PARAMETRES : str = f"{Chemins.SAVE}parametres.txt"
-    _TYPE_PREFIXES             : dict[type, str] = {
+    _CHEMIN_FICHIER_PARAMETRES_DEFAUT : str = f"{Chemins.ETC}parametres_defaut.txt"
+    _CHEMIN_FICHIER_PARAMETRES        : str = f"{Chemins.SAVE}parametres.txt"
+    
+    _TYPE_PREFIXES : dict[type, str] = {
         bool: 'b',
         int: 'i',
         float: 'f',
@@ -174,10 +176,9 @@ class Jeu:
     
     @staticmethod
     def _creer_fichier_parametre() -> None:
-        CHEMIN_PARAM_DEFAUT = f"{Chemins.ETC}parametres_defaut.txt"
-        if not os.path.isfile(CHEMIN_PARAM_DEFAUT):
-            raise FileNotFoundError(f"{CHEMIN_PARAM_DEFAUT} non trouvé, veuillez le retélécharger de Github.")
-        shutil.copy(CHEMIN_PARAM_DEFAUT, Jeu._CHEMIN_FICHIER_PARAMETRES)
+        if not os.path.isfile(Jeu._CHEMIN_FICHIER_PARAMETRES_DEFAUT):
+            raise FileNotFoundError(f"{Jeu._CHEMIN_FICHIER_PARAMETRES_DEFAUT} non trouvé, veuillez le retélécharger de Github.")
+        shutil.copy(Jeu._CHEMIN_FICHIER_PARAMETRES_DEFAUT, Jeu._CHEMIN_FICHIER_PARAMETRES)
     
     @staticmethod
     def ecrire_parametres() -> None:
@@ -193,9 +194,16 @@ class Jeu:
             logging.warning(f"Le fichier {Jeu._CHEMIN_FICHIER_PARAMETRES} n'a pas été trouvé, on en recrée un.")
             Jeu._creer_fichier_parametre()
         
+        nb_lignes_defaut : int
+        with open(Jeu._CHEMIN_FICHIER_PARAMETRES_DEFAUT, "r", encoding="utf-8") as f:
+            nb_lignes_defaut = len(f.readlines())
+        
+        nb_lignes = 0
         with open(Jeu._CHEMIN_FICHIER_PARAMETRES, "r", encoding="utf-8") as f:
             # Lit chaque ligne et remplit 
             for ligne in f.readlines():
+                nb_lignes += 1
+                
                 ligne = ligne.strip('\n')
                 nom, val = ligne.split('=', maxsplit=1)
                 type_val = recherche_map(nom[0], Jeu._TYPE_PREFIXES, type(None))
@@ -206,10 +214,24 @@ class Jeu:
                         " le fichier {Jeu.CHEMIN_FICHIER_PARAMETRES} est mal-formé."
                     )
                 if type_val is bool:
-                    print(f"'{val}'")
                     Jeu.parametres[nom[1:]] = (val.lower() == "true" or val == '1')
                     continue
                 Jeu.parametres[nom[1:]] = type_val(val)     # functional cast comme pour int()
+        
+        # Contrôle si paramètres manquants
+        if nb_lignes > nb_lignes_defaut:
+            logging.warning(
+                "Il y a plus de paramètres dans parametres.txt que dans parametres_defaut.txt."
+                " Les paramètres en trop ne seront pas commit!"
+            )
+        if nb_lignes < nb_lignes_defaut:
+            reinitialiser = demander_ouinon(
+                title="Erreur fichier paramètre.",
+                message=f"Il manque des paramètres dans {Jeu._CHEMIN_FICHIER_PARAMETRES}, voulez-vous les réinitialiser?",
+                detail=f"Vous pouvez toujours le faire vous-même en copiant les lignes manquantes de {Jeu._CHEMIN_FICHIER_PARAMETRES_DEFAUT}."
+            )
+            if reinitialiser:
+                Jeu._creer_fichier_parametre()
     
     @staticmethod
     def rafraichir_pools() -> None:
@@ -228,7 +250,7 @@ class Fenetre:
     surface : Surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     
     largeur, hauteur = pygame.display.get_surface().get_size()  # type: ignore # la fenêtre à été créée du coup ce n'est jamais None
-    centre_fenetre : tuple[int, int] = (largeur // 2, hauteur // 2)
+    centre : tuple[int, int] = (largeur // 2, hauteur // 2)
     
     
     # on pourrait automatiser la création de surfaces avec
@@ -252,7 +274,7 @@ class Fenetre:
     
     @staticmethod
     def set_texte_fenetre(val : str) -> None:
-        pygame.display.set_caption(val)
+        pygame.display.set_caption(f"L'ascension d'Esquimot - {val}")
     
     @staticmethod
     def get_couche(numero_couche : int) -> Surface:
@@ -370,7 +392,7 @@ class Fenetre:
         pygame.display.set_mode(nouvelle_taille)
         
         Fenetre.largeur, Fenetre.hauteur = nouvelle_taille
-        Fenetre.centre_fenetre = (Fenetre.largeur // 2, Fenetre.hauteur // 2)
+        Fenetre.centre = (Fenetre.largeur // 2, Fenetre.hauteur // 2)
     
     @staticmethod
     def display_flip() -> None:

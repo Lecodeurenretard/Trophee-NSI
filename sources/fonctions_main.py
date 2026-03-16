@@ -23,7 +23,7 @@ def fin_partie(num_couche : int, gagne : bool) -> Interruption:
     
     image : Surface = Surface((Fenetre.largeur, Fenetre.hauteur))
     image.fill(couleur_fond)
-    blit_centre(image, texte_fin_render, Fenetre.centre_fenetre)
+    blit_centre(image, texte_fin_render, Fenetre.centre)
     
     return blit_generateur(num_couche, image, Duree(s=2), gerer_evenements=True)
 
@@ -246,7 +246,6 @@ def tour_des_monstres() -> Generator[None, None, None]:
         rafraichir_ecran_combat()
         Fenetre.display_flip()
         yield
-    # print("E") # AI: never reached by affeceted cards
     
     # fait attaquer les monstres
     for monstre in Monstre.vivants():

@@ -88,7 +88,7 @@ def menu_parametres() -> Interruption:
             
             fin_params += 40
             pos_bouton : Pos = centrer_pos(
-                Pos(Fenetre.centre_fenetre[0], fin_params),
+                Pos(Fenetre.centre[0], fin_params),
                 Vecteur(butt_actualisation.rect.size),
                 centrer_y=False,
             )

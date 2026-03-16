@@ -142,7 +142,9 @@ class Boss(Monstre):
         """Non implémenté pour Boss."""
         raise TypeError("La classe Boss n'a pas de méthode .vers_type_suivant().")
     
+    @override
     def nouveau_tour(self) -> None:
+        Monstre.nouveau_tour(self)
         fonction = self.callbacks.nouveau_tour
         if fonction is not None:
             fonction(self, self.callbacks.attributs_supplementaires)
