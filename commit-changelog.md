@@ -31,21 +31,17 @@ format:
 ------------------------------------
 -->
 _____
-## Les modifications de stats par les attaques périment.
+## Modification bug du coup critique.
 + Changements majeurs
-	- Les modifications de stats apportées par les attaques s'estompent après un ou deux tours ainsi qu'à la fin du combat.
+	- skip vas maintenant vers le joueur
+	- changement de resistance au crit en base de 0.15 et non 1
 + Sur plusieurs fichiers
-	- Actualisation des exemples.
 + Structure de fichiers
-	- Suppression de ex_curseur.py.
 + READMEs et documentation
 + Interactions joueur/testeur
-	- Skip n'augmente les défenses que de 2 par utilisation.
-	- La fenêtre a toujours le nom du jeu en préfixe.
-	- Le pseudo est par défaut à "Esquimot".
-	- Ajout d'un système de comparaison des fichiers de paramètres pour empècher un oubli de copie et une erreur pas très parlante.
-		* S'il manque des paramètres dans paramètres.txt, une boite de dialogue s'ouvrira et demandera de reset les prarmètres.
 + Correction de bugs
-+ `Stat`
-	- Ajout de la méthode statique `remplies_de()`pour initialiser un objet plus facilement.
-	- Ne cause plus de `RuntimeError` si un un attribut n'est pas bon dans la lecture d'un objet Stat en JSON.
+	- les critique ne tu plus en 1 coup
++ []()
+
+____
+il faut modifier l'addichage des stat avec F10 pour la resistance au crit qui affiche toujours 0

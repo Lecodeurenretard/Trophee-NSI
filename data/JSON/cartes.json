@@ -59,7 +59,7 @@
 				"magie"			: 0,
 				"defense_magique": 0,
 				"crit_puissance" : 0,
-				"crit_resitance" : -2
+				"crit_resitance" : -0.15
 			}
 		}
 	},
@@ -135,7 +135,7 @@
 			"puissance"			: 0,
 			"type"				: "divers",
 			"probabilité_crit"	: null,
-			"flags"				: null,
+			"flags"				: ["cible lanceur"],
 			"nom_ajustement"	: null,
 			"Modif stat cible": {
 				"duree"			: 0,
@@ -155,7 +155,7 @@
 				"magie"			: 0,
 				"defense_magique": 2,
 				"crit_puissance" : 0,
-				"crit_resitance" : 1
+				"crit_resitance" : 0.30
 			}
 		}
 	},
