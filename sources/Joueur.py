@@ -4,23 +4,15 @@ class Joueur(Entite):
     _CARTES_DE_DOS           : bool = False
     _CARTE_MAIN_PREMIERE_POS : Pos  = Fenetre.pourcentages_coordonnees(40, 60)
     
-    # Pas la peine de créer un JSON juste pour ça
-    STATS_DE_BASE : Stat = Stat(45, 32, 37, 22, 32, 1.3, 1).reset_vie()
-    
-    _nom_derniere_carte_piochee : str = ''
-    
     
     @override
-    def __init__(self, deck : Sequence[str], inventaire : list[Item] = []) -> None:
+    def __init__(self, inventaire : list[Item] = []) -> None:
         super().__init__(
-            "",
-            Joueur.STATS_DE_BASE,
-            deck,
-            6,
-            f"{Chemins.IMG}joueur.png",
+            EntiteJSON.joueur(),
             inventaire,
         )
         self._nombre_pieces : int = 0
+        self._nom_derniere_carte_piochee : str = ''
     
     
     @property
@@ -44,7 +36,7 @@ class Joueur(Entite):
     @override
     def reset(self) -> None:
         Entite.reset(self)      # Appelle la version de Entite au lieu de cette override
-        self._stats = copy(Joueur.STATS_DE_BASE)
+        self._stats = copy(EntiteJSON.joueur().stats)
     
     def index_carte_du_dessus(self, pos_souris : pos_t) -> Optional[int]:
         """
@@ -123,9 +115,4 @@ class Joueur(Entite):
         )
 
 
-joueur : Joueur = Joueur([
-    "Soin",
-    "Torgnole",
-    "Magie",
-    "Skip",
-])
+joueur : Joueur = Joueur()
