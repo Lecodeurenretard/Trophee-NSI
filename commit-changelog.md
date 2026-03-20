@@ -31,21 +31,22 @@ format:
 ------------------------------------
 -->
 _____
-## Les modifications de stats par les attaques périment.
+## Les decks sont des pools.
 + Changements majeurs
-	- Les modifications de stats apportées par les attaques s'estompent après un ou deux tours ainsi qu'à la fin du combat.
 + Sur plusieurs fichiers
-	- Actualisation des exemples.
 + Structure de fichiers
-	- Suppression de ex_curseur.py.
+	- Renommage de TypeMonstre.py en [TypesEntite.json](data/JSON/TypesEntite.json).
 + READMEs et documentation
 + Interactions joueur/testeur
-	- Skip n'augmente les défenses que de 2 par utilisation.
-	- La fenêtre a toujours le nom du jeu en préfixe.
-	- Le pseudo est par défaut à "Esquimot".
-	- Ajout d'un système de comparaison des fichiers de paramètres pour empècher un oubli de copie et une erreur pas très parlante.
-		* S'il manque des paramètres dans paramètres.txt, une boite de dialogue s'ouvrira et demandera de reset les prarmètres.
 + Correction de bugs
-+ `Stat`
-	- Ajout de la méthode statique `remplies_de()`pour initialiser un objet plus facilement.
-	- Ne cause plus de `RuntimeError` si un un attribut n'est pas bon dans la lecture d'un objet Stat en JSON.
++ [Entite.py](sources/Entite.py)
+	- Ajout de `EntiteJSON`.
+		* Transfert des fonctionalités de `MonstreJSON`.
+	- Ajout de `Entite._reset_deck()`.
+	- Changer `Entite.cartes_main_max` peut enlever des cartes à la main.
+	- Supression de `Entite._cartes_deck`.
++ `Pool`
+	- Ajout de filtre lors de `.tirer_n()`.
+	- Ajout de `.vider()`.
++ `Joueur`
+	- Suppression de `STATS_DE_BASE`.

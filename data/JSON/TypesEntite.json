@@ -3,8 +3,11 @@
 		"nom": "Exemple",
 		"sprite" : "Chemin vers le sprite depuis /sources/data/img/monstres/",
 		"moveset": [
-			"nom Attaque1",
-			"nom Attaque2"
+			{
+				"nom"		 : "nom de l'attaque",
+				"poids"		 : null,
+				"soustraire" : null
+			}
 		],
 		"rang": null,
 		"nombre_cartes_main": null,
@@ -19,12 +22,52 @@
 		}
 	},
 	{
+		"nom": "Esquimot",
+		"sprite" : "../joueur.png",
+		"moveset": [
+			{
+				"nom"		 : "Torgnole",
+				"poids"		 : 7,
+				"soustraire" : null
+			},
+			{
+				"nom"		 : "Magie",
+				"poids"		 : 7,
+				"soustraire" : null
+			},
+			{
+				"nom"		 : "Soin",
+				"poids"		 : 4,
+				"soustraire" : null
+			},
+			{
+				"nom"		 : "Skip",
+				"poids"		 : 3,
+				"soustraire" : null
+			}
+		],
+		"nombre_cartes_main": 6,
+		"stats": {
+			"vie_max"			: 45,
+			"force"				: 32,
+			"defense"			: 37,
+			"magie"				: 22,
+			"defense_magique"	: 32,
+			"crit_puissance"	: 1.3,
+			"crit_resitance"	: 1
+		}
+	},
+	{
 		"nom": "Blob",
 		"sprite": "blob.png",
 		"rang": 0,
 		"nombre_cartes_main": 1,
 		"moveset": [
-			"Torgnole"
+			{
+				"nom"		 : "Torgnole",
+				"poids"		 : 5,
+				"soustraire" : null
+			}
 		],
 		"stats": {
 			"vie_max"			: 40,
@@ -40,7 +83,11 @@
 		"nom": "Sorcier",
 		"sprite" : "sorcier.png",
 		"moveset": [
-			"Magie"
+			{
+				"nom"		 : "Magie",
+				"poids"		 : 5,
+				"soustraire" : null
+			}
 		],
 		"rang": 1,
 		"nombre_cartes_main": 1,
@@ -58,7 +105,11 @@
 		"nom": "Secoupe",
 		"sprite" : "secoupe.png",
 		"moveset": [
-			"Choc éléctrique"
+			{
+				"nom"		 : "Choc éléctrique",
+				"poids"		 : 5,
+				"soustraire" : null
+			}
 		],
 		"rang": 2,
 		"nombre_cartes_main": 1,
@@ -76,7 +127,11 @@
 		"nom": "Corbobo",
 		"sprite" : "corbobo.png",
 		"moveset": [
-			"Pique"
+			{
+				"nom"		 : "Pique",
+				"poids"		 : 5,
+				"soustraire" : null
+			}
 		],
 		"rang": 0,
 		"nombre_cartes_main": 1,
@@ -94,8 +149,16 @@
 		"nom": "Cangros",
 		"sprite" : "cangros.png",
 		"moveset": [
-			"Torgnole",
-			"Skip"
+			{
+				"nom"		 : "Torgnole",
+				"poids"		 : 8,
+				"soustraire" : null
+			},
+			{
+				"nom"		 : "Skip",
+				"poids"		 : 2,
+				"soustraire" : null
+			}
 		],
 		"rang": 1,
 		"nombre_cartes_main": 1,

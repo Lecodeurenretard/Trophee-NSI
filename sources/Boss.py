@@ -9,8 +9,8 @@ class BossJSON:
     
     nom            : str
     chemin_sprite  : str
-    deck_boss      : tuple[str, ...]
-    deck_joueur    : Optional[tuple[str, ...]]
+    deck_boss      : Pool
+    deck_joueur    : Optional[Pool]
     nb_cartes_main : int
     pos_sprite     : Pos
     rang           : int
@@ -34,10 +34,11 @@ class BossJSON:
         )
         
         self.nb_cartes_main = donnees["nombre_cartes_main"]
-        self.deck_boss   = tuple(donnees["moveset_boss"])
+        
+        self.deck_boss   = Pool(donnees["moveset_boss"])
         self.deck_joueur = donnees["moveset_joueur"]
         if self.deck_joueur is not None:
-            self.deck_joueur = tuple(self.deck_joueur)
+            self.deck_joueur = Pool(donnees["moveset_joueur"])
         
         self.pos_sprite = Pos(Fenetre.vecteur_pourcentage(
             Pos(

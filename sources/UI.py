@@ -1,6 +1,6 @@
 import os
 from import_local import *
-from Joueur       import Entite, Joueur, joueur
+from Joueur       import Entite, EntiteJSON, joueur
 from Carte        import Attaque, Carte
 from Item         import Item
 from Bouton       import Bouton
@@ -150,13 +150,13 @@ def dessiner_descriptions_entites(num_couche : int) -> None:
 def dessiner_diff_stats_joueur(num_couche : int) -> None:
     """Dessine les gains/pertes par rapport aux stats de bases."""
     differences : dict[str, float] = {
-        "vie maximum"        : joueur.stats_totales.vie_max         - Joueur.STATS_DE_BASE.vie_max,
-        "force"              : joueur.stats_totales.force           - Joueur.STATS_DE_BASE.force,
-        "défense"            : joueur.stats_totales.defense         - Joueur.STATS_DE_BASE.defense,
-        "magie"              : joueur.stats_totales.magie           - Joueur.STATS_DE_BASE.magie,
-        "défense magique"    : joueur.stats_totales.defense_magique - Joueur.STATS_DE_BASE.defense_magique,
-        "puissance des crits": joueur.stats_totales.crit_puissance  - Joueur.STATS_DE_BASE.crit_puissance,
-        "resitance aux crits": joueur.stats_totales.crit_resitance  - Joueur.STATS_DE_BASE.crit_resitance,
+        "vie maximum"        : joueur.stats_totales.vie_max         - EntiteJSON.joueur().stats.vie_max,
+        "force"              : joueur.stats_totales.force           - EntiteJSON.joueur().stats.force,
+        "défense"            : joueur.stats_totales.defense         - EntiteJSON.joueur().stats.defense,
+        "magie"              : joueur.stats_totales.magie           - EntiteJSON.joueur().stats.magie,
+        "défense magique"    : joueur.stats_totales.defense_magique - EntiteJSON.joueur().stats.defense_magique,
+        "puissance des crits": joueur.stats_totales.crit_puissance  - EntiteJSON.joueur().stats.crit_puissance,
+        "resitance aux crits": joueur.stats_totales.crit_resitance  - EntiteJSON.joueur().stats.crit_resitance,
     }
     
     y = 0

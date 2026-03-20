@@ -3,8 +3,11 @@
 		"nom": "Exemple",
 		"sprite" : "Chemin vers le sprite depuis /sources/data/img/boss/",
 		"moveset_boss": [
-			"nom Attaque1",
-			"nom Attaque2"
+			{
+				"nom"		 : "nom de l'attaque",
+				"poids"		 : null,
+				"soustraire" : null
+			}
 		],
 		"moveset_joueur": null,
 		"nombre_cartes_main": null,
@@ -24,8 +27,16 @@
 		"nom": "Roi Blob",
 		"sprite" : "Roi blob ph.png",
 		"moveset_boss": [
-			"Magie",
-			"Torgnole"
+			{
+				"nom"		 : "Torgnole",
+				"poids"		 : 5,
+				"soustraire" : null
+			},
+			{
+				"nom"		 : "Magie",
+				"poids"		 : 5,
+				"soustraire" : null
+			}
 		],
 		"rang": 1,
 		"moveset_joueur": null,

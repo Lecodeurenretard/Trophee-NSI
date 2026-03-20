@@ -2,59 +2,25 @@ from Entite import *
 from Pool import Pool
 
 @dataclass
-class MonstreJSON:
+class MonstreJSON(EntiteJSON):
     """La représentation d'un monstre dans le JSON."""
-    DONNEES_TYPES : list[dict] = field(repr=False)
-    
-    id             : int
-    nom            : str
-    sprite         : str
-    rang           : int
-    nb_cartes_main : int
-    deck           : tuple[str, ...]
-    stats          : Stat
+    rang : int # pyright: ignore[reportGeneralTypeIssues]   # Il aime pas le ClassVar de EntiteJSON
     
     @overload
     def __init__(self, id_ou_nom : int, autoriser_exemple : bool = False): ...
     @overload
     def __init__(self, id_ou_nom : str, autoriser_exemple : bool = False): ...
     
+    @override
     def __init__(self, id_ou_nom : int|str, autoriser_exemple : bool = False):
         if type(id_ou_nom) is str:
-            id_ou_nom = MonstreJSON.chercher_nom(id_ou_nom)
+            id_ou_nom = EntiteJSON.chercher_nom(id_ou_nom)
         assert(type(id_ou_nom) is int), f"{type(id_ou_nom)}"
         
-        if id_ou_nom == 0 and not autoriser_exemple:
-            raise RuntimeError("Le monstre d'exemple (id 0) est interdit.")
-        donnees : dict = MonstreJSON.DONNEES_TYPES[id_ou_nom]
         
-        self.id = id_ou_nom
-        self.nom = donnees["nom"]
-        
-        self.sprite = valeur_par_defaut(
-            donnees['sprite'],
-            si_non_none=f"{Chemins.IMG}monstres/{donnees['sprite']}",
-            si_none=f"{Chemins.IMG}erreur.png",
-        )
-        
+        super().__init__(id_ou_nom, autoriser_exemple=autoriser_exemple)
+        donnees : dict = EntiteJSON.DONNEES_TYPES[id_ou_nom]
         self.rang = donnees["rang"]
-        self.nb_cartes_main = donnees["nombre_cartes_main"]
-        self.deck = tuple(donnees["moveset"])
-        self.stats = Stat.depuis_dictionnaire_json(donnees["stats"]).reset_vie()
-    
-    @staticmethod
-    def actualiser_donnees() -> None:
-        """Actualise DONNEES_TYPES[]."""
-        with open(f"{Chemins.JSON}TypesMonstre.json", 'r', encoding='utf-8') as fichier:
-            MonstreJSON.DONNEES_TYPES = json.load(fichier)
-    
-    @staticmethod
-    def chercher_nom(nom : str) -> int:
-        """Cherche un nom et renvoie sont id."""
-        for i, dico in enumerate(MonstreJSON.DONNEES_TYPES):
-            if nom == dico["nom"]:
-                return i
-        return -1
     
     def type_precedent(self, autoriser_exemple : bool = False) -> 'MonstreJSON':
         if self.id == 0 or (not autoriser_exemple and self.id == 1):
@@ -80,11 +46,7 @@ class Monstre(Entite):
             _taille_sprite : Optional[Vecteur] = None
         ):
         super().__init__(
-            type.nom,
-            type.stats,
-            type.deck,
-            type.nb_cartes_main,
-            chemin_sprite=type.sprite,
+            type,
             inventaire=inventaire,
             _taille_sprite=_taille_sprite,
         )
@@ -141,20 +103,19 @@ class Monstre(Entite):
     
     
     def _vers_type(self, nouveau_type : MonstreJSON) -> None:
+        self._type = nouveau_type
         self._nom = nouveau_type.nom
+        self._deck = nouveau_type.deck
         
         ratio_vie = self._stats.vie / self._stats.vie_max
        
         self._stats = copy(nouveau_type.stats)
         self._stats.vie = round(self._stats.vie_max * ratio_vie)    # Conserve les proportions
         
-        self._deck = list(nouveau_type.deck)
-        
         self._sprite = pygame.transform.scale(
             pygame.image.load(nouveau_type.sprite),
             self._SPRITE_TAILLE
         )
-        self._type = nouveau_type
     
     def choisir_index_carte_main(self) -> int:
         assert(len(self._cartes_main) > 0), f"La main du monstre d'ID {self._id} (un {self._nom}) est vide!"

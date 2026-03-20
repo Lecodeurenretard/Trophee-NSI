@@ -31,7 +31,7 @@ def _evenements_parametres(bouton_sortie : Bouton, bouton_actualiser : Bouton) -
 def rafraichir_donnees() -> None:
     from Carte   import Carte
     from Item    import Item
-    from Monstre import MonstreJSON
+    from Entite  import EntiteJSON
     from Boss    import BossJSON
     from Jeu     import Jeu
     
@@ -41,8 +41,8 @@ def rafraichir_donnees() -> None:
     logging.debug("Actualisation des items...")
     Item.actualiser_items()
     
-    logging.debug("Actualisation des monstres...")
-    MonstreJSON.actualiser_donnees()
+    logging.debug("Actualisation des entite...")
+    EntiteJSON.actualiser_donnees()
     
     logging.debug("Actualisation des boss...")
     BossJSON.actualiser_donnees()

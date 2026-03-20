@@ -1,39 +1,102 @@
 from Carte import *
 from Item  import Item
+from Pool  import Pool
+
+@dataclass
+class EntiteJSON:
+    """La représentation d'une entite dans le JSON."""
+    INDEX_EXEMPLE : int = field(init=False, default=0, repr=False)
+    INDEX_JOUEUR  : int = field(init=False, default=1, repr=False)
+    
+    id             : int
+    nom            : str
+    sprite         : str
+    nb_cartes_main : int
+    deck           : Pool
+    stats          : Stat
+    
+    DONNEES_TYPES : ClassVar[list[dict]] = []
+    # ClassVar dit au décorateur que DONNEES_TYPE est statique
+    
+    def __init__(self, id_ou_nom : int|str, autoriser_exemple : bool = False):
+        # Ensure data is loaded before proceeding
+        if not EntiteJSON.DONNEES_TYPES:
+            EntiteJSON.actualiser_donnees()
+        
+        if type(id_ou_nom) is str:
+            id_ou_nom = EntiteJSON.chercher_nom(id_ou_nom)
+        assert(type(id_ou_nom) is int), f"{type(id_ou_nom)}"
+        
+        if id_ou_nom == EntiteJSON.INDEX_EXEMPLE and not autoriser_exemple:
+            raise ValueError("Le monstre d'exemple (id 0) est interdit.")
+        donnees : dict = EntiteJSON.DONNEES_TYPES[id_ou_nom]
+        
+        self.id = id_ou_nom
+        self.nom = donnees["nom"]
+        
+        self.sprite = valeur_par_defaut(
+            donnees['sprite'],
+            si_non_none=f"{Chemins.IMG}monstres/{donnees['sprite']}",
+            si_none=f"{Chemins.IMG}erreur.png",
+        )
+        
+        self.nb_cartes_main = donnees["nombre_cartes_main"]
+        self.deck = Pool(donnees["moveset"])
+        self.stats = Stat.depuis_dictionnaire_json(donnees["stats"]).reset_vie()
+    
+    @staticmethod
+    def actualiser_donnees() -> None:
+        """Actualise DONNEES_TYPES[]."""
+        with open(f"{Chemins.JSON}TypesEntite.json", 'r', encoding='utf-8') as fichier:
+            EntiteJSON.DONNEES_TYPES = json.load(fichier)
+    
+    @staticmethod
+    def chercher_nom(nom : str) -> int:
+        """Cherche un nom et renvoie sont id."""
+        for i, dico in enumerate(EntiteJSON.DONNEES_TYPES):
+            if nom == dico["nom"]:
+                return i
+        return -1
+    
+    @staticmethod
+    def exemple() -> EntiteJSON:
+        return EntiteJSON(EntiteJSON.INDEX_EXEMPLE)
+    @staticmethod
+    def joueur() -> EntiteJSON:
+        return EntiteJSON(EntiteJSON.INDEX_JOUEUR)
+        
 
 class Entite(ABC):
     _CARTES_DE_DOS           : bool    = True           # à changer dans les classes filles
     _CARTE_MAIN_PREMIERE_POS : Pos     = Pos(0, 0)      # à changer dans les classes filles
     _CARTES_MAIN_ESPACEMENT  : Vecteur = Fenetre.pourcentages_fenetre(4, 0)
-    _CARTES_MAIN_MAX_DU_MAX  : int     = 10
+    _CARTES_MAIN_MAX_DU_MAX  : int     = 10             # Possible de changer dans les classes filles
     _DIFF_LARG_ET_BARRE_SPRITE : int = 100
     
     vivantes : ArrayStable['Entite'] = ArrayStable['Entite'](2)
     
     def __init__(
             self,
-            nom             : str,
-            stats           : Stat, 
-            deck            : Sequence[str],
-            max_cartes_main : int,
-            chemin_sprite   : Optional[str]  = None,
+            donnees_json    : EntiteJSON,
             inventaire      : Sequence[Item] = [],
             _taille_sprite  : Optional[Vecteur] = None,
         ):
         
-        self._nom                        : str         = nom
-        self._stats                      : Stat        = stats
+        self._nom                        : str         = donnees_json.nom
+        self._stats                      : Stat        = donnees_json.stats
         self._cartes_main                : list[Carte] = []
-        self._deck                       : list[str]   = list(deck)
+        self._deck_rempli                : Pool        = deepcopy(donnees_json.deck)
+        self._deck                       : Pool        = donnees_json.deck
         self._inventaire                 : list[Item]  = list(inventaire)
         self._nom_derniere_carte_piochee : str         = ''
         
         self._modifs_stats : dict[int, Stat] = {}
         
+        max_cartes_main = donnees_json.nb_cartes_main
         assert(0 < max_cartes_main <= self.__class__._CARTES_MAIN_MAX_DU_MAX), f"Le maximum de cartes en main ({max_cartes_main}) doit être entre 0 (exclus) et {self.__class__._CARTES_MAIN_MAX_DU_MAX} (inclus)."
         self._cartes_main_max : int = max_cartes_main
-        self._main_dans_ecran : bool = False
         
+        self._main_dans_ecran : bool = False
         self._SPRITE_TAILLE : Vecteur = valeur_par_defaut(
             _taille_sprite,
             si_none=Vecteur(Fenetre.pourcentage_largeur(20), Fenetre.pourcentage_largeur(20)),
@@ -41,7 +104,7 @@ class Entite(ABC):
         self._LONGUEUR_BARRE_DE_VIE : int = int(self._SPRITE_TAILLE.x) - Entite._DIFF_LARG_ET_BARRE_SPRITE
         self._HAUTEUR_BARRE_DE_VIE  : int = 10
         
-        chemin_sprite = valeur_par_defaut(chemin_sprite, si_none=f"{Chemins.IMG}erreur.png")
+        chemin_sprite = valeur_par_defaut(donnees_json.sprite, si_none=f"{Chemins.IMG}erreur.png")
         self._sprite : Surface = pygame.transform.scale(pygame.image.load(chemin_sprite), self._SPRITE_TAILLE)
         self._id : int = Entite.vivantes.search(None)
         if self._id < 0:
@@ -71,13 +134,6 @@ class Entite(ABC):
                 echafaud.append(entite)
         
         return echafaud
-    
-    @property
-    def _cartes_deck(self) -> list[Carte]:
-        return [
-            Carte(nom, self._calculer_pos_carte(i), de_dos=self.__class__._CARTES_DE_DOS)
-            for i, nom in enumerate(self._deck)
-        ]
     
     @property
     def _cartes_main_noms(self) -> list[str]:
@@ -131,7 +187,7 @@ class Entite(ABC):
     
     @property
     def cartes_deck_noms(self) -> tuple[str, ...]:
-        return tuple(self._deck)
+        return tuple(self._deck.noms)
     
     @property
     def cartes_main_max(self) -> int:
@@ -165,7 +221,14 @@ class Entite(ABC):
     
     @cartes_main_max.setter
     def cartes_main_max(self, value : int) -> None:
-        self._cartes_main_max = clamp(value, 0, Entite._CARTES_MAIN_MAX_DU_MAX)
+        value = clamp(value, 0, self.__class__._CARTES_MAIN_MAX_DU_MAX)
+        
+        if value == 0:
+            self._cartes_main.clear()
+        if 0 < value < self.cartes_main_max:
+            self._cartes_main = self._cartes_main[0:value-1]
+        
+        self._cartes_main_max = value
     
     
     def _calculer_pos_carte(self, index : int) -> Pos:
@@ -209,6 +272,9 @@ class Entite(ABC):
     def _trier_main(self) -> None:
         # trie les cartes par ordre alphabetique
         self._cartes_main = sorted(self._cartes_main, key=lambda c: c._nom)
+    
+    def _reset_deck(self) -> None:
+        self._deck = deepcopy(self._deck_rempli)
     
     def _modifs_stats_garantie_clef(self, clef : int) -> None:
         """S'assure que la clef `clef` existe dans `.modifs_stats[]`."""
@@ -256,6 +322,7 @@ class Entite(ABC):
         self._modifs_stats = {}
         self._inventaire.clear()
         self._vider_main()
+        self._reset_deck()
     
     def attaquer(self, id_cible : int, index_carte : int) -> None:
         """Enregistre le lancement de l'attaque."""
@@ -284,17 +351,33 @@ class Entite(ABC):
     
     def piocher(self) -> None:
         """Pioche jusqu'à remplir la main."""
-        if self.cartes_main_max <= 0:
+        if self._cartes_main_max <= 0:
             return
         
-        while len(self._cartes_main) < self._cartes_main_max:
-            prit = random.choice(self._deck)
-            if prit == self._nom_derniere_carte_piochee and len(self._deck) > 1:
-                continue    # repioche, on évite la surpioche de cartes de même type
-            
-            self._nom_derniere_carte_piochee = prit
-            self._ajouter_carte_main(prit)
-            print(prit)
+        def filtre(nom : str) -> bool:
+            if len(self._deck_rempli) <= 1:
+                return True
+            res = (nom != self._nom_derniere_carte_piochee)
+            self._nom_derniere_carte_piochee = nom
+            return res
+        
+        noms_cartes = []
+        try:
+            noms_cartes = self._deck.tirer_n(
+                self._cartes_main_max - len(self._cartes_main),
+                filtre=filtre,
+            )
+        except IndexError:   # plus aucune de cartes
+            noms_cartes = self._deck.vider()
+            self._reset_deck()
+            self.piocher()
+        
+        # Sécurité
+        if len(self._cartes_main) + len(noms_cartes) > self.cartes_main_max:
+            noms_cartes = noms_cartes[0:self.cartes_main_max- len(self._cartes_main)]
+        
+        for nom in noms_cartes:
+            self._ajouter_carte_main(nom)
     
     def piocher_si_main_vide(self) -> None:
         if len(self._cartes_main) == 0:

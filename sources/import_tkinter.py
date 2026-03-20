@@ -34,7 +34,7 @@ except ModuleNotFoundError:
     ) -> bool:
         while True:
             if title is not None:
-                print(title)
+                logging.info(title)
             
             choix_accord = ("oui", 'o')
             choix_refus = ("non", 'n')
