@@ -125,7 +125,7 @@ def ecran_nombre_combat(num_couche : int) -> Generator[None, None, None]:
 
 def dessiner_descriptions_entites(num_couche : int) -> None:
     """Dessine les infos quand on appuie sur F9."""
-    for i, entite in Entite.vivantes.no_holes():
+    for i, entite in Entite.vivants().no_holes():
         dessiner_texte(
             num_couche,
             entite.decrire_stats(),
@@ -185,7 +185,7 @@ def rafraichir_ecran_combat() -> None:
     Fenetre.surface.blit(image_fond, (0, 0))    # pas besoin de faire un .fill(), ça couvre déjà tout l'écran
     
     # Dessiner les entités
-    for _, entites in Entite.vivantes.no_holes():
+    for _, entites in Entite.vivants().no_holes():
         entites.dessiner(0)
         entites.dessiner_UI(0)
     

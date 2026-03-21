@@ -72,7 +72,7 @@ class Attaque:
     _AJUSTEMENT_DEFAUT : _ajustements_t = _AJUSTEMENTS["base"]
     
     _liste          : list[dict]      = []
-    _dico_entites   : ArrayStable['Entite'] = ArrayStable() # sera mis à Entite.vivantes[] plus tard  # type: ignore
+    _dico_entites   : ArrayStable['Entite'] = ArrayStable() # sera mis à Entite.vivants() plus tard  # type: ignore
     toujours_crits  : bool            = False   # ne pas activer ici, utiliser les touches du mode debug plutôt
     attaques_jouees : list['Attaque'] = []
     
@@ -89,11 +89,21 @@ class Attaque:
             donnees_attaque["type"]
         )
         
-        self._modif_stats_cible_duree : int  = donnees_attaque["Modif stat cible"]["duree"]
-        self._modif_stats_cible       : Stat = Stat.depuis_dictionnaire_json(donnees_attaque["Modif stat cible"])
+        # Définition des modifications de stats
+        modif_stats_cible = valeur_par_defaut(
+            donnees_attaque["Modif stat cible"],
+            si_none={"duree": 0},
+        )
+        modif_stats_lanceur = valeur_par_defaut(
+            donnees_attaque["Modif stat lanceur"],
+            si_none={"duree": 0},
+        )
         
-        self._modif_stats_lanceur_duree : int  = donnees_attaque["Modif stat lanceur"]["duree"]
-        self._modif_stats_lanceur       : Stat = Stat.depuis_dictionnaire_json(donnees_attaque["Modif stat lanceur"])
+        self._modif_stats_cible_duree : int  = modif_stats_cible["duree"]
+        self._modif_stats_cible       : Stat = Stat.depuis_dictionnaire_json(modif_stats_cible)
+        
+        self._modif_stats_lanceur_duree : int  = modif_stats_lanceur["duree"]
+        self._modif_stats_lanceur       : Stat = Stat.depuis_dictionnaire_json(modif_stats_lanceur)
         
         # Définitions des id du lanceur/cible.
         self._lanceur_id : int = -1

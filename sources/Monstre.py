@@ -43,7 +43,7 @@ class Monstre(Entite):
             self,
             type       : MonstreJSON,
             inventaire : Sequence[Item] = (),
-            _taille_sprite : Optional[Vecteur] = None
+            _taille_sprite : Optional[Vecteur] = None,
         ):
         super().__init__(
             type,
@@ -71,26 +71,17 @@ class Monstre(Entite):
         return monstre
     
     @staticmethod
-    def vivants() -> list['Monstre']:
-        """Renvoie les monstres en vie."""
-        # on admet que c'est que des monstres
-        return [
-            monstre
-            for _, monstre in Entite.vivantes.no_holes()
-            if isinstance(monstre, Monstre)
-        ]
-    
-    @staticmethod
-    def adversaire() -> Monstre:
+    def adversaire() -> Optional[Monstre]:
         """Renvoie l'adversaire principal du combat."""
-        return Monstre.vivants()[0]     # Le premier monstre à être ajouté au combat
+        for _, m in Monstre.vivants().no_holes():   # no_holes() est un itérateur, pas de __getitem__
+            return m     # Le premier monstre à être ajouté au combat
+        return None
     
     @staticmethod
     def massacre() -> None:
         """Tue tous les monstres vivants."""
-        for monstre in Monstre.vivants():
+        for _, monstre in Monstre.vivants().no_holes():
             monstre.meurt()
-        Entite.tuer_les_entites_mortes()
     
     
     @property
@@ -117,10 +108,6 @@ class Monstre(Entite):
             self._SPRITE_TAILLE
         )
     
-    def choisir_index_carte_main(self) -> int:
-        assert(len(self._cartes_main) > 0), f"La main du monstre d'ID {self._id} (un {self._nom}) est vide!"
-        return random.randint(0, len(self._cartes_main)-1)
-    
     def vers_type_precedent(self) -> None:
         """Change le type du monstre vers le précédent."""
         self._vers_type(self._type.type_precedent())
@@ -128,6 +115,10 @@ class Monstre(Entite):
     def vers_type_suivant(self) -> None:
         """Change le type du monstre vers le suivant."""
         self._vers_type(self._type.type_suivant())
+    
+    def choisir_index_carte_main(self) -> int:
+        assert(len(self._cartes_main) > 0), f"La main du monstre d'ID {self._id} (un {self._nom}) est vide!"
+        return random.randint(0, len(self._cartes_main)-1)
     
     @override
     def decrire_stats(self) -> str:

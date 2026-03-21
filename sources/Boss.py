@@ -92,18 +92,8 @@ class Boss(Monstre):
             )
     
     @staticmethod
-    def vivants_boss() -> list['Boss']:
-        """Renvoie les boss en vie."""
-        return [
-            boss
-            for _, boss in Entite.vivantes.no_holes()
-            if isinstance(boss, Boss)
-        ]
-    
-    @staticmethod
     def spawn_boss(etage : int = Jeu.num_etage() + 1) -> None:
         Boss(BossJSON(etage))
-        # Le boss est enregistré dans Entite.vivantes[]
     
     @property
     def pos_sprite_centree(self) -> Pos:

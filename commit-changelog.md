@@ -31,22 +31,25 @@ format:
 ------------------------------------
 -->
 _____
-## Les decks sont des pools.
+## Meilleur [fight-system.md](doc/fight-system.md).
 + Changements majeurs
+	- Actualisation de [fight-system.md](doc/fight-system.md).
 + Sur plusieurs fichiers
+	- Plus de commentaires et de docstrings
+	- Transfer des fonctions `.index_carte_du_dessus()` et `.lever_carte_du_dessus()` de `Joueur` vers `Entite`.
 + Structure de fichiers
-	- Renommage de TypeMonstre.py en [TypesEntite.json](data/JSON/TypesEntite.json).
 + READMEs et documentation
 + Interactions joueur/testeur
+	- Si une entité à plus que sa vie maximum, affiche sa barre de vie en jaune pièce (pour l'instant impossible).
 + Correction de bugs
-+ [Entite.py](sources/Entite.py)
-	- Ajout de `EntiteJSON`.
-		* Transfert des fonctionalités de `MonstreJSON`.
-	- Ajout de `Entite._reset_deck()`.
-	- Changer `Entite.cartes_main_max` peut enlever des cartes à la main.
-	- Supression de `Entite._cartes_deck`.
-+ `Pool`
-	- Ajout de filtre lors de `.tirer_n()`.
-	- Ajout de `.vider()`.
-+ `Joueur`
-	- Suppression de `STATS_DE_BASE`.
++ `Attaque`
+	- Les modifications de stats peuvent être `null` dans le JSON.
++ `Carte`
+	- Suppression de `_DUREE_INTER_JEU` (inutilisé).
++ `Entite` (et descendantes)
+	- Ajout de `vivants()` qui renvoie toutes les entités vivantes de même type ou de type fils à la classe quil'a appelé.
+		* Par exemple, `Monstre.vivants()` renvoie tous les objets `Monstre` et `Boss`.
+		* Suppression de `Monstre.vivants()` et `Boss.vivants_boss()` qui avaient ce but.
+		* `vivantes` est maintenant	non publique.
+	- Différentiation entre un reset _hard_ et _soft_ du deck.
+		* `._reset_deck()` devient `._reset_deck_soft()`

@@ -23,7 +23,6 @@ class CarteAnimEtat(Enum):
 
 class Carte:
     _HAUTEUR_SPRITE  : int   = Fenetre.pourcentage_hauteur(40)
-    _DUREE_INTER_JEU : Duree = Duree(s=.5)
     
     _ANIM_SURVOL_DECALAGE : Vecteur = Fenetre.pourcentages_fenetre(0, -2)
     _ANIM_DICO : dict[CarteAnimEtat, CarteAnimInfo] = {
@@ -136,7 +135,7 @@ class Carte:
     
     @property
     def est_de_dos(self) -> bool:
-        """Renvoie si la carte doit être déssinée de dos en prenant en compte l'animation."""
+        """Renvoie si la carte doit être dessinée de dos en prenant en compte l'animation."""
         est_de_dos = self._anim_infos.de_dos
         if est_de_dos == CarteAnimInfo.GARDER:
             return self._de_dos_defaut
@@ -218,7 +217,7 @@ class Carte:
         
         res = Surface(img.get_bounding_rect().size, pygame.SRCALPHA)
         res.blit(img, (0, 0), img.get_bounding_rect())
-        return res
+        return res.convert_alpha()
     
     def _calcul_deplacement(self) -> Deplacement:
         """Détermine la destination de l'animation."""
@@ -244,6 +243,7 @@ class Carte:
         
         return Deplacement(self._pos, dest)
     
+    # TODO: déplacer les définitions de fonctions autre part pour raccourcir la fonction
     def _dessin_infos(self, num_couche : int) -> None:
         if self.est_de_dos:
             return
@@ -427,6 +427,7 @@ class Carte:
         Carte.derniere_enregistree = self
     
     def jouer_sfx(self) -> None:
+        """Joue l'effet sonore approprié au jeu de la carte."""
         if self._attaque._crit:
             Carte.SON_CRIT.play()
         elif self._attaque._type == TypeAttaque.SOIN:

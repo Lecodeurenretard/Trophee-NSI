@@ -12,7 +12,6 @@ class Joueur(Entite):
             inventaire,
         )
         self._nombre_pieces : int = 0
-        self._nom_derniere_carte_piochee : str = ''
     
     
     @property
@@ -38,38 +37,8 @@ class Joueur(Entite):
         Entite.reset(self)      # Appelle la version de Entite au lieu de cette override
         self._stats = copy(EntiteJSON.joueur().stats)
     
-    def index_carte_du_dessus(self, pos_souris : pos_t) -> Optional[int]:
-        """
-        Détermine quelle est la carte de la main s'affichant au dessus à la position `pos`.
-        Renvoie l'index (dans la main) de la carte, si aucune carte n'est à cette position, renvoie None.
-        """
-        pos_a_verifier : Pos = pos_t_vers_Pos(pos_souris)
-        index_cliquee : Optional[int] = None
-        
-        # ordre inverse de celui de dessin
-        # les cartes dessinées avant sont en dessous
-        iteration_inversee = range(len(self._cartes_main)-1, -1, -1)    # I miss C-style loops
-        for i in iteration_inversee:
-            if self._cartes_main[i].dans_hitbox(pos_a_verifier):
-                index_cliquee = i
-                break
-        
-        return index_cliquee
-    
-    def lever_carte_du_dessus(self, pos_souris : pos_t) -> None:
-        if not self._main_dans_ecran:
-            return
-        
-        # Baisse les cartes
-        for c in self._cartes_main:
-            c.anim_etat = CarteAnimEtat.REVENIR
-        
-        # Lève celle qui est survolée
-        i = self.index_carte_du_dessus(pos_souris)
-        if i is not None:
-            self._cartes_main[i].anim_etat = CarteAnimEtat.EN_SURVOL
-    
     def gerer_dessin_infos_cartes(self) -> None:
+        """Si les conditions sont bonnes, affiches les infos de la carte survolée."""
         for c in self._cartes_main:
             c.dessiner_infos = False
         
@@ -80,7 +49,7 @@ class Joueur(Entite):
         if i is not None:
             self._cartes_main[i].dessiner_infos = True
     
-    def gagner_pieces(self, gagne : int) -> None:
+    def ajouter_pieces(self, gagne : int) -> None:
         """Donne `gagne` pieces au joueur peu importe les options de triches."""
         self._nombre_pieces += gagne
         self._nombre_pieces = max(0, self._nombre_pieces)
@@ -90,7 +59,7 @@ class Joueur(Entite):
     
     def paiement(self, prelevement : int, payer_max : bool = True) -> int:
         """
-        `gagner_pieces()` mais enlève des pièces et respecte les paramètres de triches.
+        `ajouter_pieces()` mais enlève des pièces et respecte les paramètres de triches.
         Si `payer_max` est n'est pas actif, aucune piece ne sera enlevé au porte-monnaie du joueur s'il ne peut pas payer.
         Si le paramètre "argent infini" est actif, le joueur ne perd pas d'argent et la fonction renvoie 0.
         Renvoie Le nombre de pieces restantes à payer.
@@ -108,6 +77,7 @@ class Joueur(Entite):
         self._nombre_pieces = apres_payement
         return 0
     
+    @override
     def decrire_stats(self) -> str:
         return (
             Entite.decrire_stats(self)

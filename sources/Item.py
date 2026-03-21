@@ -108,7 +108,7 @@ class Item:
         return None
     
     def dessiner(self, num_couche : int, abscisses : int, afficher_avertissements : bool = True) -> None:
-        HAUTEUR_POLICE_PC : int = 7
+        HAUTEUR_POLICE_NORMALE : int = 7
         RECT_GLOBAL : Rect = Rect(
             abscisses - self.DIMENSIONS_SPRITES[0] // 2,
             0,
@@ -135,7 +135,7 @@ class Item:
             abscisses,
             rect_nom.bottom + Fenetre.pourcentage_hauteur(2),
             rect_sprite.width,
-            Fenetre.pourcentage_hauteur(HAUTEUR_POLICE_PC)
+            Fenetre.pourcentage_hauteur(HAUTEUR_POLICE_NORMALE)
         )
         rect_desc  : Rect = Rect(
             abscisses,
@@ -144,7 +144,7 @@ class Item:
             Fenetre.pourcentage_hauteur(42)
         )
         
-        police = Fenetre.construire_police(Polices.TEXTE, HAUTEUR_POLICE_PC)
+        police = Fenetre.construire_police(Polices.TEXTE, HAUTEUR_POLICE_NORMALE)
         
         blit_centre_rect(num_couche, self.sprite, RECT_GLOBAL, centre_rect_y=False, pos=Pos(-1, rect_sprite.centery))
         blit_centre_rect(num_couche, nom        , RECT_GLOBAL, centre_rect_y=False, pos=Pos(-1, rect_nom.centery))

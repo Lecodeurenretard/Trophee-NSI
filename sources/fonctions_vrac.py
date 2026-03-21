@@ -263,9 +263,10 @@ def clamp(x : float, a : float, b : float) -> float:
 
 def valeur_par_defaut[T](a_tester : Optional[T], si_none : T, si_non_none : Optional[T] = None) -> T:
     """
-    Renvoie si_non_none si a_tester n'est pas None, sinon renvoie si_none.
-    Si si_non_none n'est pas fourni, utilise a_tester.
-    Evite la syntaxe de la ternaire (long) et la syntaxe avec or (pas forcément compréhensible).
+    Equivalent à la ternaire:
+    si_none if a_tester is None else si_non_none
+    
+    Si `si_non_none` est None alors la valeur de a_tester sera utilisée.
     """
     if si_non_none is None:
         si_non_none = a_tester

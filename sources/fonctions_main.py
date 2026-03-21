@@ -123,11 +123,15 @@ def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Inter
             joueur.repiocher_tout()
         
         case Touches.DBG_PREDECENT_MONSTRE:
-            Monstre.adversaire().vers_type_precedent()
+            monstre = Monstre.adversaire()
+            if monstre is not None:
+                monstre.vers_type_precedent()
             return
        
         case Touches.DBG_PROCHAIN_MONSTRE:
-            Monstre.adversaire().vers_type_suivant()
+            monstre = Monstre.adversaire()
+            if monstre is not None:
+                monstre.vers_type_suivant()
             return
 
 def reagir_appui_touche_shop(ev : pygame.event.Event, lst_items : list['Item'],  min_max_items : tuple[int, int]) -> Optional[Interruption|bool]:
@@ -235,20 +239,24 @@ def shop_click(ev : pygame.event.Event, items : list[Item], bouton_sortie : Bout
     items.pop(index)
 
 def tour_des_monstres() -> Generator[None, None, None]:
+    adversaire = Monstre.adversaire()
+    if adversaire is None:   # aucun monstre vivant
+        return
+    
     joueur.main_sortir()
-    for monstre in Monstre.vivants():
+    for _, monstre in Monstre.vivants().no_holes():
         monstre.main_entrer()
     
     # laisse le temps au cartes d'entrer
     # (encore un fois, on considère qu'elles arrivent toutes au même moment)
-    while not Monstre.adversaire().cartes_main_sont_a_pos_defaut:
+    while not adversaire.cartes_main_sont_a_pos_defaut:
         Jeu.commencer_frame()
         rafraichir_ecran_combat()
         Fenetre.display_flip()
         yield
     
     # fait attaquer les monstres
-    for monstre in Monstre.vivants():
+    for _, monstre in Monstre.vivants().no_holes():
         monstre.attaquer(joueur.id, monstre.choisir_index_carte_main())
     
     Jeu.reset_etat()

@@ -17,9 +17,11 @@ class EntiteJSON:
     
     DONNEES_TYPES : ClassVar[list[dict]] = []
     # ClassVar dit au décorateur que DONNEES_TYPE est statique
+    # mauvaise compatibilité avec le linter, pour éviter les erreurs de celui-ci
+    # on le met à la fin
     
     def __init__(self, id_ou_nom : int|str, autoriser_exemple : bool = False):
-        # Ensure data is loaded before proceeding
+        # S'assure que les données soient chargée (construction avant appel de jeu())
         if not EntiteJSON.DONNEES_TYPES:
             EntiteJSON.actualiser_donnees()
         
@@ -52,7 +54,7 @@ class EntiteJSON:
     
     @staticmethod
     def chercher_nom(nom : str) -> int:
-        """Cherche un nom et renvoie sont id."""
+        """Cherche un nom et renvoie son id, si ne le trouve pas renvoie -1."""
         for i, dico in enumerate(EntiteJSON.DONNEES_TYPES):
             if nom == dico["nom"]:
                 return i
@@ -60,9 +62,12 @@ class EntiteJSON:
     
     @staticmethod
     def exemple() -> EntiteJSON:
+        """Renvoie la représentation de l'exemple."""
         return EntiteJSON(EntiteJSON.INDEX_EXEMPLE)
+    
     @staticmethod
     def joueur() -> EntiteJSON:
+        """Renvoie la représentation du joueur."""
         return EntiteJSON(EntiteJSON.INDEX_JOUEUR)
         
 
@@ -73,7 +78,7 @@ class Entite(ABC):
     _CARTES_MAIN_MAX_DU_MAX  : int     = 10             # Possible de changer dans les classes filles
     _DIFF_LARG_ET_BARRE_SPRITE : int = 100
     
-    vivantes : ArrayStable['Entite'] = ArrayStable['Entite'](2)
+    _vivantes : ArrayStable['Entite'] = ArrayStable['Entite'](2)
     
     def __init__(
             self,
@@ -106,17 +111,17 @@ class Entite(ABC):
         
         chemin_sprite = valeur_par_defaut(donnees_json.sprite, si_none=f"{Chemins.IMG}erreur.png")
         self._sprite : Surface = pygame.transform.scale(pygame.image.load(chemin_sprite), self._SPRITE_TAILLE)
-        self._id : int = Entite.vivantes.search(None)
+        self._id : int = Entite._vivantes.search(None)
         if self._id < 0:
-            self._id = len(Entite.vivantes)
+            self._id = len(Entite._vivantes)
         
-        Entite.vivantes[self._id] = self
+        Entite._vivantes[self._id] = self
     
     def __del__(self):
         # Appelé quand l'objet est détruit (quand nous ne pouvons plus accéder à l'objet)
         if (
             self._id > 0
-            and Entite.vivantes is not None
+            and Entite._vivantes is not None
         ):
             self.meurt()
     
@@ -128,19 +133,29 @@ class Entite(ABC):
         Renvoie la liste des entités morts.
         """
         echafaud : list[Entite] = []   # Quand les entites seront enlevés de la liste, ils seront "exécutés" par le rammasse-miette
-        for _, entite in Entite.vivantes.no_holes():
+        for _, entite in Entite._vivantes.no_holes():
             if not entite.en_vie:
                 entite.meurt()
                 echafaud.append(entite)
         
         return echafaud
     
+    @classmethod    # cls saisit la classe dynamiqument
+    def vivants(cls) -> ArrayStable[Self]:
+        return ArrayStable([
+            entite
+            for entite in Entite._vivantes
+            if isinstance(entite, cls)
+        ])
+    
     @property
     def _cartes_main_noms(self) -> list[str]:
+        """Une liste contenant les noms des cartes dans le même ordre que dans la main."""
         return [c._nom for c in self._cartes_main]
     
     @property
     def _pos_barre_de_vie(self) -> Pos:
+        """La position du coin haut gauche de la barre de vie."""
         barre_de_vie : Rect = Rect(0, 0, self._LONGUEUR_BARRE_DE_VIE, self._HAUTEUR_BARRE_DE_VIE)
         barre_de_vie.x = (
             self.pos_sprite.x
@@ -168,6 +183,7 @@ class Entite(ABC):
     
     @property
     def stats_totales(self) -> Stat:
+        """Les stats étant utilisées pour le calcul des dégats."""
         copie = copy(self._stats)
         
         # Ajoute les modifications de stats et les supprimme si elles sont obsolètes
@@ -187,14 +203,17 @@ class Entite(ABC):
     
     @property
     def cartes_deck_noms(self) -> tuple[str, ...]:
+        """Noms des cartes dans le deck."""
         return tuple(self._deck.noms)
     
     @property
     def cartes_main_max(self) -> int:
+        """La longueur maximum de la main de l'entite."""
         return self._cartes_main_max
     
     @property
     def cartes_main_sont_a_pos_defaut(self) -> bool:
+        """Si toutes les cartes de la main sont à leurs positions par défaut."""
         if len(self._cartes_main) == 0:
             return True
         
@@ -221,6 +240,7 @@ class Entite(ABC):
     
     @cartes_main_max.setter
     def cartes_main_max(self, value : int) -> None:
+        """Change le maximum des cartes dans la main, peut modifier la main en enlevant des cartes."""
         value = clamp(value, 0, self.__class__._CARTES_MAIN_MAX_DU_MAX)
         
         if value == 0:
@@ -232,6 +252,11 @@ class Entite(ABC):
     
     
     def _calculer_pos_carte(self, index : int) -> Pos:
+        """
+        Calcule la position d'une carte avec son indice dans la main.
+        Agit naïvement sans connaissance de la main. 
+        Les indices négatifs peuvent renvoyer des réultats inatendus.
+        """
         return self.__class__._CARTE_MAIN_PREMIERE_POS + index * Entite._CARTES_MAIN_ESPACEMENT
     
     def _recalc_pos_cartes_main(self) -> None:
@@ -253,18 +278,19 @@ class Entite(ABC):
         
         self._trier_main()
         self._recalc_pos_cartes_main()
+        # il y a maximum 10 cartes, c'est pas grave si
+        # on recalcule des positions plusieurs fois
     
     def _enlever_carte_main(self, index : int) -> Carte:
         assert(0 <= index < len(self._cartes_main)), f"L'index '{index}' ne correspond à aucune carte dans la main du joueur."
         
         enleve : Carte = self._cartes_main.pop(index)
         self._recalc_pos_cartes_main()
-        # il y a maximum 10 cartes, c'est pas grave si
-        # on recalcule des positions plusieurs fois
         
         return enleve
     
     def _vider_main(self) -> None:
+        """Enlève toutes les cartes de la main et les cache."""
         # itère à l'envers pour que les index restent cohérents
         for i in range(len(self._cartes_main) - 1, -1, -1):
             self._cartes_main.pop(i).cacher()
@@ -273,8 +299,13 @@ class Entite(ABC):
         # trie les cartes par ordre alphabetique
         self._cartes_main = sorted(self._cartes_main, key=lambda c: c._nom)
     
-    def _reset_deck(self) -> None:
+    def _reset_deck_soft(self) -> None:
+        """Reremplit le deck."""
         self._deck = deepcopy(self._deck_rempli)
+    
+    def _reset_deck_hard(self) -> None:
+        """Remet le deck comme au début de la partie, peut importe les cartes débloquées."""
+        self._deck = deepcopy(EntiteJSON.joueur().deck)
     
     def _modifs_stats_garantie_clef(self, clef : int) -> None:
         """S'assure que la clef `clef` existe dans `.modifs_stats[]`."""
@@ -284,13 +315,19 @@ class Entite(ABC):
     def _dessiner_barre_de_vie(self, num_couche : int) -> None:
         ratio_vie = self._stats.vie / self._stats.vie_max
         
-        couleur_remplissage : rgb = VERT
+        # On pourrait utiliser un gradient mais ceci
+        # rapporche des jeux Pokémons et est plus lisibles.
+        couleur_remplissage : rgb
         if ratio_vie <= .2:
             couleur_remplissage = ROUGE
         elif ratio_vie <= .5:
             couleur_remplissage = JAUNE
+        elif ratio_vie < 1:
+            couleur_remplissage = VERT
         elif ratio_vie == 1:
             couleur_remplissage = TURQUOISE
+        else:
+            couleur_remplissage = JAUNE_PIECE   # ne sert probablement pas
         
         dim_remplissage : tuple[int, int] = (int(ratio_vie * self._LONGUEUR_BARRE_DE_VIE), self._HAUTEUR_BARRE_DE_VIE)
         dim_bords       : tuple[int, int] = (                self._LONGUEUR_BARRE_DE_VIE , self._HAUTEUR_BARRE_DE_VIE)
@@ -311,22 +348,25 @@ class Entite(ABC):
         )
     
     def meurt(self) -> None:
-        del Entite.vivantes[self._id]
+        """S'enlève de la liste des entités vivantes."""
+        del Entite._vivantes[self._id]
         self._id = -1
     
+    # attaque_cause est là pour la compatibilité avec les boss.
     def recoit_degats(self, degats_recu : int, attaque_cause : Attaque) -> None:
         self._stats.baisser_vie(degats_recu)
     
     def reset(self) -> None:
+        """Remet le joueur comme en début de partie."""
         self._stats.reset_vie()
         self._modifs_stats = {}
         self._inventaire.clear()
         self._vider_main()
-        self._reset_deck()
+        self._reset_deck_hard()
     
     def attaquer(self, id_cible : int, index_carte : int) -> None:
         """Enregistre le lancement de l'attaque."""
-        assert(0 <= id_cible < len(Entite.vivantes)), "ID de la cible invalide."
+        assert(0 <= id_cible < len(Entite._vivantes)), "ID de la cible invalide."
         assert(0 <= index_carte < len(self._cartes_main)), f"Index invalide."
         
         carte : Carte = self._cartes_main[index_carte]
@@ -339,6 +379,7 @@ class Entite(ABC):
         carte.enregister_lancement(self._id, id_cible)
     
     def dessiner(self, num_couche : int) -> None:
+        """Dessine le sprite mais pas l'UI (barre de vie, nom, ...)."""
         Fenetre.blit_couche(num_couche, self._sprite, self.pos_sprite.tuple)
     
     def dessiner_UI(self, num_couche : int) -> None:
@@ -355,8 +396,10 @@ class Entite(ABC):
             return
         
         def filtre(nom : str) -> bool:
+            """Empèche le surplus de carte dans une main."""
             if len(self._deck_rempli) <= 1:
                 return True
+            # Empèche de piocher deux fois la même carte d'affilé.
             res = (nom != self._nom_derniere_carte_piochee)
             self._nom_derniere_carte_piochee = nom
             return res
@@ -369,10 +412,10 @@ class Entite(ABC):
             )
         except IndexError:   # plus aucune de cartes
             noms_cartes = self._deck.vider()
-            self._reset_deck()
+            self._reset_deck_soft()
             self.piocher()
         
-        # Sécurité
+        # Sécurité pour le except
         if len(self._cartes_main) + len(noms_cartes) > self.cartes_main_max:
             noms_cartes = noms_cartes[0:self.cartes_main_max- len(self._cartes_main)]
         
@@ -400,8 +443,39 @@ class Entite(ABC):
         for c in self._cartes_main:
             c.anim_etat = CarteAnimEtat.PARTIR
     
+    def index_carte_du_dessus(self, pos_souris : pos_t) -> Optional[int]:
+        """
+        Détermine quelle est la carte de la main s'affichant au dessus à la position `pos`.
+        Renvoie l'index (dans la main) de la carte, si aucune carte n'est à cette position, renvoie None.
+        """
+        pos_a_verifier : Pos = pos_t_vers_Pos(pos_souris)
+        index_cliquee : Optional[int] = None
+        
+        # ordre inverse de celui de dessin
+        # les cartes dessinées avant sont en dessous
+        iteration_inversee = range(len(self._cartes_main)-1, -1, -1)    # I miss C-style loops
+        for i in iteration_inversee:                               # L'idéal serait reversed(enumerate()) mais
+            if self._cartes_main[i].dans_hitbox(pos_a_verifier):   # enumerate n'est pas une séquence (n'implémente pas __getitem__)
+                index_cliquee = i
+                break
+        
+        return index_cliquee
+    
+    def lever_carte_du_dessus(self, pos_souris : pos_t) -> None:
+        """Met la carte du dessus dans l'état EN_SURVOL."""
+        if not self._main_dans_ecran:
+            return
+        
+        # Baisse les cartes
+        for c in self._cartes_main:
+            c.anim_etat = CarteAnimEtat.REVENIR
+        
+        # Lève celle qui est survolée
+        i = self.index_carte_du_dessus(pos_souris)
+        if i is not None:
+            self._cartes_main[i].anim_etat = CarteAnimEtat.EN_SURVOL
+    
     def prendre_item(self, item : Item) -> None:
-        """Ajoute un item à l'inventaire s'il n'y était pas déjà."""
         self._inventaire.append(item)
     
     def lacher_item(self, item : Item) -> bool:
@@ -412,13 +486,13 @@ class Entite(ABC):
         return False
     
     def decrire_stats(self) -> str:
-        """Renvoie une descriptions des cararistiques de l'instance de l'objet dans une string."""
+        """Renvoie une descriptions des caractéristiques de l'instance de l'objet dans une string."""
         return (
             f"ID d'entité: {self._id}\n"
             f"Statistiques: {self._stats}\n"
             f"Statistiques effectives: {self.stats_totales}\n"
-            f"Deck: {self._deck}\n"
             f"Main: {self._cartes_main_noms}\n"
+            f"Deck: {self._deck}\n"
             f"Inventaire: {[item.nom for item in self._inventaire]}\n"
         )
     
@@ -431,13 +505,16 @@ class Entite(ABC):
         self._modifs_stats_garantie_clef(tour)
         self._modifs_stats[tour].additionner(stat)
     
+    # Compatibilité avec Boss
     def nouveau_tour(self) -> None:
-        pass
+        """Appelé à chaque début de tour du combat."""
+        ...
     
     def nouveau_combat(self) -> None:
+        """Appelé au début de chaque combat."""
         self._modifs_stats = {}
         self.repiocher_tout()
 
 
-Attaque.set_arr_entites(Entite.vivantes) # grâce au passage par référence ça marche
+Attaque.set_arr_entites(Entite._vivantes) # grâce au passage par référence ça marche
                                          # C'est un hack, certes, mais j'ai pas trouvé mieux

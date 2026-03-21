@@ -37,7 +37,7 @@ def attente_prochaine_etape() -> None:
         Monstre.massacre()
         Boss.spawn_boss()
     
-    for _, entite in Entite.vivantes.no_holes():
+    for _, entite in Entite.vivants().no_holes():
         entite.nouveau_combat()
     Fenetre.set_texte_fenetre("Combat!")
     Jeu.changer_etat(Jeu.Etat.CHOIX_ATTAQUE)
@@ -49,17 +49,17 @@ def choix_attaque() -> None:
     if Jeu.attaques_restantes_joueur == Jeu.ATTAQUES_PAR_TOUR:
         Jeu.nb_tours_combat += 1
         joueur.piocher()
-        for _, entite in Entite.vivantes.no_holes():
+        for _, entite in Entite.vivants().no_holes():
             entite.nouveau_tour()
     
     joueur.piocher_si_main_vide()
-    for m in Monstre.vivants():
+    for _, m in Monstre.vivants().no_holes():
        m.piocher_si_main_vide()
     
     if Jeu.attaques_restantes_joueur > 0:
         logging.debug('')
         joueur.main_entrer()
-        for m in Monstre.vivants():
+        for _, m in Monstre.vivants().no_holes():
             m.main_sortir()
     
     interruption : Optional[Interruption] = None
@@ -85,11 +85,15 @@ def choix_attaque() -> None:
                 joueur.lever_carte_du_dessus(event.pos)
             
             if event.type == pygame.MOUSEBUTTONDOWN:
+                adversaire = Monstre.adversaire()
+                if adversaire is None:
+                    raise RuntimeError("Aucun adversaire est vivant.")
+                
                 index_carte : Optional[int] = joueur.index_carte_du_dessus(event.pos)
                 if index_carte is None:
                     continue
                 
-                joueur.attaquer(Monstre.adversaire().id, index_carte)
+                joueur.attaquer(adversaire.id, index_carte)
                 
                 Jeu.attaques_restantes_joueur -= 1
                 logging.debug(f"Il reste {Jeu.attaques_restantes_joueur} attaques au joueur.")
@@ -154,7 +158,7 @@ def affichage_attaque() -> None:
     
     # Animation pièces
     if pieces_gagnees != 0:
-        joueur.gagner_pieces(pieces_gagnees)
+        joueur.ajouter_pieces(pieces_gagnees)
         terminer_interruption(animation_argent_gagne(pieces_gagnees))
     
     # Passage au prochain combat

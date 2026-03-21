@@ -9,7 +9,7 @@
 			"probabilité_crit"	: null,
 			"flags"				: ["Une liste de AttaqueFlag.", "v. doc..."],
 			"nom_ajustement"	: "clef de Attaque._AJUSTEMENTS",
-			"Modif stat cible": {
+			"Modif stat cible"  : {
 				"duree"			: 0,
 				"vie_max"		: 0,
 				"force"			: 0,
@@ -41,16 +41,7 @@
 			"probabilité_crit"	: 0.2,
 			"flags"				: ["cible lanceur"],
 			"nom_ajustement"	: null,
-			"Modif stat cible": {
-				"duree"			: 0,
-				"vie_max"		: 0,
-				"force"			: 0,
-				"defense"		: 0,
-				"magie"			: 0,
-				"defense_magique": 0,
-				"crit_puissance" : 0,
-				"crit_resitance" : 0
-			},
+			"Modif stat cible": null,
 			"Modif stat lanceur": {
 				"duree"			: 2,
 				"vie_max"		: -1,
@@ -137,16 +128,7 @@
 			"probabilité_crit"	: null,
 			"flags"				: ["cible lanceur"],
 			"nom_ajustement"	: null,
-			"Modif stat cible": {
-				"duree"			: 0,
-				"vie_max"		: 0,
-				"force"			: 0,
-				"defense"		: 0,
-				"magie"			: 0,
-				"defense_magique": 0,
-				"crit_puissance" : 0,
-				"crit_resitance" : 0
-			},
+			"Modif stat cible": null,
 			"Modif stat lanceur": {
 				"duree"			: -1,
 				"vie_max"		: 0,
@@ -170,26 +152,8 @@
 			"probabilité_crit"	: null,
 			"flags"				: null,
 			"nom_ajustement"	: null,
-			"Modif stat cible": {
-				"duree"			: 0,
-				"vie_max"		: 0,
-				"force"			: 0,
-				"defense"		: 0,
-				"magie"			: 0,
-				"defense_magique": 0,
-				"crit_puissance" : 0,
-				"crit_resitance" : 0
-			},
-			"Modif stat lanceur": {
-				"duree"			: 0,
-				"vie_max"		: 0,
-				"force"			: 0,
-				"defense"		: 0,
-				"magie"			: 0,
-				"defense_magique": 0,
-				"crit_puissance" : 0,
-				"crit_resitance" : 0
-			}
+			"Modif stat cible"  : null,
+			"Modif stat lanceur": null
 		}
 	},
 	{
@@ -203,26 +167,8 @@
 			"probabilité_crit"	: 0.3,
 			"flags"				: null,
 			"nom_ajustement"	: null,
-			"Modif stat cible": {
-				"duree"			: 0,
-				"vie_max"		: 0,
-				"force"			: 0,
-				"defense"		: 0,
-				"magie"			: 0,
-				"defense_magique": 0,
-				"crit_puissance" : 0,
-				"crit_resitance" : 0
-			},
-			"Modif stat lanceur": {
-				"duree"			: 0,
-				"vie_max"		: 0,
-				"force"			: 0,
-				"defense"		: 0,
-				"magie"			: 0,
-				"defense_magique": 0,
-				"crit_puissance" : 0,
-				"crit_resitance" : 0
-			}
+			"Modif stat cible"  : null,
+			"Modif stat lanceur": null
 		}
 	}
 ]
