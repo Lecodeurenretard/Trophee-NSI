@@ -1,3 +1,5 @@
+"""Contient la classe Duree."""
+
 from imports import total_ordering, overload, logging
 
 @total_ordering

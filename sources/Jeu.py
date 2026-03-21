@@ -1,3 +1,4 @@
+"""Contient les classes Jeu et Fenetre ainsi que verifier_pour_quitter() et recherche_map()."""
 from imports import *
 from classes_utiles import Duree, Pos, pos_t, pos_t_vers_tuple
 from Constantes import Touches, Chemins

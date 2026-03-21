@@ -1,10 +1,7 @@
-# Ce fichier pré-importe les variables globales
-
+"""Importe les dossiers ainsi que les contenu de Jeu.py"""
 from imports import *
 from Jeu import Jeu, Fenetre, Interruption
 Fenetre.init()
-
-
 
 from Constantes          import *	# évite d'écrire "Constantes." à chaque fois
 from Constantes.Couleurs import *

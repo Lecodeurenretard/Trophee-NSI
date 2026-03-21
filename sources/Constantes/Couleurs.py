@@ -1,3 +1,8 @@
+"""
+Contient les différentes couleurs (sous forme de tuples RGB/RGBA) ainsi que les fonctions de convertions.
+Les fonctions de convertions permettent 
+"""
+
 from typing import TypeAlias, Sequence
 
 rgb   : TypeAlias = tuple[int, int, int]
@@ -33,13 +38,13 @@ def rgba_to_rgb(couleur : rgba) -> rgb:
     return (couleur[0], couleur[1], couleur[2])
 
 def color_to_rgba(couleur : color, nouvelle_transparence : int = 255) -> rgba:
-    """Cette fonction est pour éviter les longues ternaires et ne pas calmer le vérifieur de types: si necessaire, elle appelle rgb_to_rgba()"""
+    """Pour calmer le vérifieur de type. Renvoie une couleur RGBA."""
     if len(couleur) == 3:
         return rgb_to_rgba(couleur, nouvelle_transparence)
     return couleur
 
 def color_to_rgb(couleur : color) -> rgb:
-    """Cette fonction est pour éviter les longues ternaires et ne pas calmer le vérifieur de types: si necessaire, elle appelle rgba_to_rgb()"""
+    """Pour calmer le vérifieur de type. Renvoie une couleur RGB."""
     if len(couleur) == 4:
         return rgba_to_rgb(couleur)
     return couleur

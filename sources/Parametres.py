@@ -1,3 +1,4 @@
+"""Contient la classe Parametre et TypeParametre."""
 from import_var import *
 from dessin import dessiner_rect
 from fonctions_vrac import blit_centre

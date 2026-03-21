@@ -1,3 +1,4 @@
+"""Contient la classe Entite EntiteJSON."""
 from Carte import *
 from Item  import Item
 from Pool  import Pool
@@ -69,7 +70,6 @@ class EntiteJSON:
     def joueur() -> EntiteJSON:
         """Renvoie la représentation du joueur."""
         return EntiteJSON(EntiteJSON.INDEX_JOUEUR)
-        
 
 class Entite(ABC):
     _CARTES_DE_DOS           : bool    = True           # à changer dans les classes filles
@@ -78,7 +78,7 @@ class Entite(ABC):
     _CARTES_MAIN_MAX_DU_MAX  : int     = 10             # Possible de changer dans les classes filles
     _DIFF_LARG_ET_BARRE_SPRITE : int = 100
     
-    _vivantes : ArrayStable['Entite'] = ArrayStable['Entite'](2)
+    _vivantes : ListeStable['Entite'] = ListeStable['Entite'](2)
     
     def __init__(
             self,
@@ -141,8 +141,8 @@ class Entite(ABC):
         return echafaud
     
     @classmethod    # cls saisit la classe dynamiqument
-    def vivants(cls) -> ArrayStable[Self]:
-        return ArrayStable([
+    def vivants(cls) -> ListeStable[Self]:
+        return ListeStable([
             entite
             for entite in Entite._vivantes
             if isinstance(entite, cls)

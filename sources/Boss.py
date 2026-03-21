@@ -1,3 +1,4 @@
+"""Contient la classe Boss et BossJSON."""
 from Monstre import *
 from fonctions_boss import callbacks as boss_callbacks
 from fonctions_boss import BossInterfaceMethodes

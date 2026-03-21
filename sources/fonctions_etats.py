@@ -1,6 +1,7 @@
 """
-Ce fichier contient tout le code pour les états de jeu (comme pour une machine à états).
-Chaque fonction éponyme à une valeur de `EtatJeu` sera une boucle stournant tant que l'état correspondant est dans `etat`.
+Ce fichier contient tout le code pour les états de jeu.
+Chaque fonction est nommée d'après les nom des états de `Jeu.Etat`.
+De même elles sont exécutées tant que `Jeu.etat` à la bonne valeur.
 """
 
 from fonctions_main import *

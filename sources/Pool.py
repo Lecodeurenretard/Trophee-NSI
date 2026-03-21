@@ -1,6 +1,11 @@
 from imports import random, dataclass, copy, json, overload, Callable, math
 
 class Pool:
+    """
+    Structure de donnée permettant de piocher des choses de manière aléatoire.
+    Il est possible de comparer ceci à une boite remplie de papiers,
+    le poids de ces bouts de papiers étant leurs nombre.
+    """
     @dataclass
     class PoolObj:
         nom         : str

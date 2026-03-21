@@ -1,3 +1,5 @@
+"""Contient EasingT"""
+
 import math
 
 from typing import TypeAlias, Callable
@@ -19,11 +21,11 @@ class EasingType(Enum):
     TRIGONOMETRIC = auto()
     
     # Tout le commentaire est un essai d'overload pour ease_in(), ease_out() et ease_in_out(). C'est impossible à faire.
-    # Par contre, j'ai trouvé une libraire externe pour ça, je ne sais pas si ça vaut le coup de l'intaller encore
+    # Par contre, j'ai trouvé une libraire externe pour ça. Elle n'est pas installée car son usage serait trop limité.
     # https://github.com/t2y/extenum
     ## Voilà pourquoi les headers sont importants
     ## @classmethod
-    ## @overload(NONE)
+    ## @overload
     ## def ease_in(cls, type) -> EasingFunction:
     ##     """Renvoie la fonction d'easing n'ayant aucun effet. La fonction retounée admet que son argument est entre 0 et 1 (inclus)."""
     ## @classmethod

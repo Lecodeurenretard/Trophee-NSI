@@ -1,3 +1,5 @@
+"""Contient les chemins de fichiers vers les différents dossiers."""
+
 import logging
 from os import getcwd
 

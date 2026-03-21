@@ -1,3 +1,4 @@
+"""Contient la classe Mostre et MonstreJSON."""
 from Entite import *
 from Pool import Pool
 

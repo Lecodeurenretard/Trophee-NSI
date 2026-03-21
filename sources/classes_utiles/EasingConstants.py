@@ -1,3 +1,5 @@
+"""Contient les fonctions d'easing."""
+
 from .EasingFunctions import EasingFunction, EasingType
 
 NO_EASING     : EasingFunction = EasingType.ease_in_out(EasingType.NONE)

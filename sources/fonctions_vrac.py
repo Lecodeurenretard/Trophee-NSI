@@ -1,4 +1,4 @@
-# Fonctions qui n'ont nulle part d'autre où aller
+"""Fonctions qui n'ont nulle part d'autre où aller."""
 from import_var import *
 from Jeu import Jeu
 from classes_utiles.Animation import valeurs_regulieres_entre_01

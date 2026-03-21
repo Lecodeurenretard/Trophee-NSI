@@ -1,4 +1,4 @@
-from unittest import case
+"""Contient la classe Attaque et les classes associées (TypeAttaque et AttaqueFlag)."""
 from import_local import *
 
 class TypeAttaque(Enum):
@@ -6,10 +6,7 @@ class TypeAttaque(Enum):
     PHYSIQUE = auto(),
     MAGIQUE  = auto(),
     SOIN     = auto(),
-    CHARGE   = auto(),
     DIVERS   = auto(),
-    PLUS_ATK = auto(),
-    MOINS_ATK= auto()
     
     @staticmethod
     def depuis_str(s : str) -> 'TypeAttaque':
@@ -20,8 +17,6 @@ class TypeAttaque(Enum):
                 return TypeAttaque.MAGIQUE
             case "soin":
                 return TypeAttaque.SOIN
-            case "charge":
-                return TypeAttaque.CHARGE
             case "divers":
                 return TypeAttaque.DIVERS
             case _:
@@ -72,7 +67,7 @@ class Attaque:
     _AJUSTEMENT_DEFAUT : _ajustements_t = _AJUSTEMENTS["base"]
     
     _liste          : list[dict]      = []
-    _dico_entites   : ArrayStable['Entite'] = ArrayStable() # sera mis à Entite.vivants() plus tard  # type: ignore
+    _dico_entites   : ListeStable['Entite'] = ListeStable() # sera mis à Entite.vivants() plus tard  # type: ignore
     toujours_crits  : bool            = False   # ne pas activer ici, utiliser les touches du mode debug plutôt
     attaques_jouees : list['Attaque'] = []
     
@@ -156,7 +151,7 @@ class Attaque:
         Attaque._liste = lst
     
     @staticmethod
-    def set_arr_entites(dico : ArrayStable['Entite']) -> None: # pyright: ignore[reportUndefinedVariable]
+    def set_arr_entites(dico : ListeStable['Entite']) -> None: # pyright: ignore[reportUndefinedVariable]
         """Met le tableau `Attaque._dico_entites` à une référence de `dico`."""
         Attaque._dico_entites = dico
     

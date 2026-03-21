@@ -1,3 +1,4 @@
+"""Essaye d'importer Tkinter, s'il n'est pas trouvé, crée les fonctions nécessaires."""
 import logging
 from typing import Literal
 

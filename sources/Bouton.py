@@ -1,3 +1,4 @@
+"""Contient la classe Bouton."""
 from import_var import *
 
 class Bouton:

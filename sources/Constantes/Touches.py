@@ -1,3 +1,5 @@
+"""Contient les différentes actions du jeu avec leurs touches."""
+
 import pygame
 
 DBG_SHOP_AJOUT_ITEM : tuple[int, ...] = (

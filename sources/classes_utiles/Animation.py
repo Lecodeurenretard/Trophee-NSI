@@ -1,4 +1,9 @@
-from imports import Generator, Optional, logging, Any, TypeVar, Enum, auto, Iterable, Generic
+"""
+Contient les classes permettant l'interpolation de valeurs.
+La fonction valeurs_regulieres_entre_01() est aussi présente.
+"""
+
+from imports import Generator, Optional, logging, Any, TypeVar, Enum, auto
 from Constantes.Couleurs import rgba, color, color_to_rgba, sequence_to_rgba
 
 from .Pos import Pos

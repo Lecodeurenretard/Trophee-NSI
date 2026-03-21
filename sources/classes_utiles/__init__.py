@@ -1,7 +1,7 @@
-from .      import EasingConstants as Easing
-from .Array import ArrayStable
-from .Duree import Duree
-from .Pos   import Pos, pos_t, pos_t_vers_Pos, pos_t_vers_tuple
+from .            import EasingConstants as Easing
+from .ListeStable import ListeStable
+from .Duree       import Duree
+from .Pos         import Pos, pos_t, pos_t_vers_Pos, pos_t_vers_tuple
 
 from .Animation import (
     SensLecture,

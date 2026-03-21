@@ -1,4 +1,4 @@
-import os
+"""Contient des fonctions de dessin et des interruptions pour les états."""
 from import_local import *
 from Joueur       import Entite, EntiteJSON, joueur
 from Carte        import Attaque, Carte

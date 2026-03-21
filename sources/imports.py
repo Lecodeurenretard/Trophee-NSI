@@ -1,4 +1,4 @@
-"""imports externes et de modules."""
+"""imports externes."""
 
 import logging
 import pygame

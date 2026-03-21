@@ -44,7 +44,7 @@ class Carte:
     
     donnees_JSON : list[dict]
     derniere_enregistree : 'Optional[Carte]' = None
-    cartes_affichees : ArrayStable['Carte'] = ArrayStable()
+    cartes_affichees : ListeStable['Carte'] = ListeStable()
     
     
     @overload 

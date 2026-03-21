@@ -1,3 +1,4 @@
+"""Contient les fonctions devant s'exécuter à l'appui d'un bouton."""
 from UI           import *
 from import_local import *
 from Bouton       import Bouton

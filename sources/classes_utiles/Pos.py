@@ -1,3 +1,4 @@
+"""Contient la classe Pos."""
 from imports import dataclass, overload, Vecteur, TypeAlias
 
 @dataclass

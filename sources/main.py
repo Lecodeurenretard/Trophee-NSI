@@ -1,3 +1,4 @@
+"""Lance le jeu."""
 import parametres_vars as params
 import pygame
 

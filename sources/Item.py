@@ -1,3 +1,4 @@
+"""Contient la classe Item."""
 from import_local import *
 
 @dataclass

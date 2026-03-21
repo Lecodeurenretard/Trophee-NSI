@@ -27,7 +27,7 @@ Le constructeur est aussi override pour prendre un objet `BossJSON` en entrée.
 Tout le code utilisant l'interface est dans [fonctions_boss.py](../sources/fonctions_boss.py).
 
 Pour plus de flexibilité, les boss peuvent exécuter des fonctions en dehors de leurs méthodes, c'est _l'interface des boss_. Ces fonctions doivent être conçue comme des méthodes de `Monstre`, par conséquent, elles doivent avoir un attribut `self` (typé).  
-Pour transferer des données entre fonctions ou juste en sauvegarder entre appels, les méthodes peuvent modifier le dictionnaire `attributs_supplementaires` (passé sous le nom `attr` ci-dessous).
+Pour transferer des données entre fonctions ou juste en sauvegarder entre appels, les méthodes peuvent modifier le dictionnaire `attributs_supplementaires` (passé sous le nom `attr` ci-dessous). Même si en Python il est possible de créer des membres après construction de d'un objet, pour un code plus propre il faudrait mieux utiliser le dictionnaire.
 
 Il est possible de programmer trois callbacks differents:
 ```Python

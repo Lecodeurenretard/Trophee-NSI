@@ -1,3 +1,4 @@
+"""Contient la classe ListeStable."""
 from imports import (
     overload, copy,
     Iterable,  Iterator,
@@ -11,11 +12,11 @@ def iter_slice(s : slice) -> Iterator[int]:
     for i in range(s.start, s.stop + 1, s.step):
         yield i
 
-# Python va considérer ArrayStable comme une liste (pas précis du tout mais c'est dans l'esprit)
+# Python va considérer ListeStable comme une liste (pas précis du tout mais c'est dans l'esprit)
 # Si vous voulez en savoir plus, allez voir l'hérédité et les génériques (on utilise la nouvelle syntaxe de ces génériques)
-class ArrayStable[T](MutableSequence[T|None]):
+class ListeStable[T](MutableSequence[T|None]):
     """
-    Une liste mais les valeurs ne peuvent pas changer d'index (pas de décalage).
+    Une liste avec des indices stables.
     Ce design impose qu'il existe des index n'ayant pas de valeur associée, La classe les considère comme `None`.
     
     Bien que la méthode `.insert()` ne soit pas implémentée, la classe est une MutableSequence.
@@ -128,7 +129,7 @@ class ArrayStable[T](MutableSequence[T|None]):
             return False
         return item in self._valeurs.values()
     
-    def __add__(self, other : 'ArrayStable[T]|Sequence[T]'):
+    def __add__(self, other : 'ListeStable[T]|Sequence[T]'):
         res = copy(self)
         for val in other:
             res.append(val)
@@ -138,7 +139,7 @@ class ArrayStable[T](MutableSequence[T|None]):
         if type(other) is not int:
             raise TypeError("On ne peut multiplier un array par autre chose qu'un entier.")
         
-        res = ArrayStable(len(self) * other)
+        res = ListeStable(len(self) * other)
         for i, val in enumerate(res):
             for n in range(1, other+1):       # itère de cette manière (pour les index)
                 res[i + len(self) * n] = val  # [[0, 3, 6],  [1, 4, 7],  [2, 5, 8]]
@@ -175,7 +176,7 @@ class ArrayStable[T](MutableSequence[T|None]):
     
     def insert(self, index: int, value: T | None) -> None:
         raise TypeError(
-            "La classe Array n'implémente pas la méthode .insert().\n"
+            f"La classe {self.__class__.__name__} n'implémente pas la méthode .insert().\n"
             "Pour ajouter un élément à l'index i, utilisez .__setitem__()."
         )
     

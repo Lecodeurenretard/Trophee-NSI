@@ -1,3 +1,4 @@
+"""Contient les variables représentants les paramètres du jeu."""
 from Parametres import *
 
 _HAUTEUR_PREMIER_PARAMETRE : int = Fenetre.pourcentage_hauteur(11)

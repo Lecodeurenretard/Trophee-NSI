@@ -1,3 +1,4 @@
+"""Contient la classe Stat."""
 from imports import *
 
 @dataclass

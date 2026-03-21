@@ -1,3 +1,4 @@
+"""Contient la classe Joueur et la variable globale joueur."""
 from Entite import *
 
 class Joueur(Entite):

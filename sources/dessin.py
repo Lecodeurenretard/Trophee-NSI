@@ -1,6 +1,6 @@
+"""Contient les fonctions de dessin élémentaires (dessiner des forme, blit, ...)."""
 from import_var import *
 from Jeu import verifier_pour_quitter
-from fonctions_vrac import blit_centre
 
 def dessiner_rect(
         surface : Surface|int,
