@@ -125,6 +125,12 @@ def ecran_nombre_combat(num_couche : int) -> Generator[None, None, None]:
 
 def dessiner_descriptions_entites(num_couche : int) -> None:
     """Dessine les infos quand on appuie sur F9."""
+    # assombrit l'écran pour que l'on puisse mieux voir les stats.
+    (Fenetre
+        .get_couche(num_couche)         # Try to curry in Python challenge (impossible)
+        .fill(rgb_to_rgba(NOIR, transparence=30)))
+    
+    # dessine lesdites stats
     for i, entite in Entite.vivants().no_holes():
         dessiner_texte(
             num_couche,
@@ -149,6 +155,10 @@ def dessiner_descriptions_entites(num_couche : int) -> None:
 
 def dessiner_diff_stats_joueur(num_couche : int) -> None:
     """Dessine les gains/pertes par rapport aux stats de bases."""
+    (Fenetre
+        .get_couche(num_couche)
+        .fill(rgb_to_rgba(NOIR, 30)))
+    
     differences : dict[str, float] = {
         "vie maximum"        : joueur.stats_totales.vie_max         - EntiteJSON.joueur().stats.vie_max,
         "force"              : joueur.stats_totales.force           - EntiteJSON.joueur().stats.force,

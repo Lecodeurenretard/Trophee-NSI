@@ -316,7 +316,7 @@ class Carte:
         dessinateur.send(f"Puissance: {self._attaque.puissance}")
         
         dessiner_stats_modifiees(self._attaque.stats_changees_cible, "l'adversaire", True)
-        dessiner_stats_modifiees(self._attaque.stats_changees_lanceur, "Esquimot", False)
+        dessiner_stats_modifiees(self._attaque.stats_changees_lanceur, "Esquimot (vous)", False)
     
     def _animation(self, num_couche : int) -> Generator[bool, None, None]:
         """Renvoie un générateur avançant l'animation de la carte."""
