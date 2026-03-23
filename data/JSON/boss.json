@@ -51,5 +51,34 @@
 			"crit_puissance"	: 1.4,
 			"crit_resitance"	: 1.4
 		}
+	},
+	{
+		"nom": "Monstre statique thermofluide",
+		"sprite" : "mst.png",
+		"moveset_boss": [
+			{
+				"nom"		 : "little shield",
+				"poids"		 : 3,
+				"soustraire" : null
+			},
+			{
+				"nom"		 : "Torgnole",
+				"poids"		 : 5,
+				"soustraire" : null
+			}
+		],
+		"rang": 3,
+		"moveset_joueur": null,
+		"pos_sprite": [60, 18],
+		"nombre_cartes_main": 2,
+		"stats": {
+			"vie_max"			: 130,
+			"force"				: 45,
+			"defense"			: 60,
+			"magie"				: 15,
+			"defense_magique"	: 25,
+			"crit_puissance"	: 1.4,
+			"crit_resitance"	: 1.1
+		}
 	}
 ]

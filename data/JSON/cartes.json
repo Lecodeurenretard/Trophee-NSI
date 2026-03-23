@@ -64,26 +64,8 @@
 			"probabilité_crit"	: null,
 			"flags"				: null,
 			"nom_ajustement"	: null,
-			"Modif stat cible": {
-				"duree"			: 1,
-				"vie_max"		: 0,
-				"force"			: 0,
-				"defense"		: -1,
-				"magie"			: 0,
-				"defense_magique": 2,
-				"crit_puissance" : 0,
-				"crit_resitance" : 0
-			},
-			"Modif stat lanceur": {
-				"duree"			: 0,
-				"vie_max"		: 0,
-				"force"			: 0,
-				"defense"		: 0,
-				"magie"			: 1,
-				"defense_magique": 0,
-				"crit_puissance" : 0,
-				"crit_resitance" : 0
-			}
+			"Modif stat cible"  : null, 
+			"Modif stat lanceur": null
 		}
 	},
 	{
@@ -96,26 +78,8 @@
 			"probabilité_crit"	: null,
 			"flags"				: null,
 			"nom_ajustement"	: null,
-			"Modif stat cible": {
-				"duree"			: 1,
-				"vie_max"		: 0,
-				"force"			: 0,
-				"defense"		: 2,
-				"magie"			: 0,
-				"defense_magique": -1,
-				"crit_puissance" : 0,
-				"crit_resitance" : 0
-			},
-			"Modif stat lanceur": {
-				"duree"			: 0,
-				"vie_max"		: 0,
-				"force"			: 1,
-				"defense"		: 0,
-				"magie"			: 0,
-				"defense_magique": 0,
-				"crit_puissance" : 0,
-				"crit_resitance" : 0
-			}
+			"Modif stat cible"  : null,
+			"Modif stat lanceur": null
 		}
 	},
 	{
@@ -152,8 +116,26 @@
 			"probabilité_crit"	: null,
 			"flags"				: null,
 			"nom_ajustement"	: null,
-			"Modif stat cible"  : null,
-			"Modif stat lanceur": null
+			"Modif stat cible"  : {
+				"duree"			: 1,
+				"vie_max"		: 0,
+				"force"			: 0,
+				"defense"		: -1,
+				"magie"			: 0,
+				"defense_magique": 2,
+				"crit_puissance" : 0,
+				"crit_resitance" : 0
+			},
+			"Modif stat lanceur": {
+				"duree"			: 0,
+				"vie_max"		: 0,
+				"force"			: 0,
+				"defense"		: 0,
+				"magie"			: 1,
+				"defense_magique": 0,
+				"crit_puissance" : 0,
+				"crit_resitance" : 0
+			}
 		}
 	},
 	{
@@ -164,6 +146,102 @@
 		"attaque": {
 			"puissance"			: 9,
 			"type"				: "physique",
+			"probabilité_crit"	: 0.3,
+			"flags"				: null,
+			"nom_ajustement"	: null,
+			"Modif stat cible"  : {
+				"duree"			: 1,
+				"vie_max"		: 0,
+				"force"			: 0,
+				"defense"		: 2,
+				"magie"			: 0,
+				"defense_magique": -1,
+				"crit_puissance" : 0,
+				"crit_resitance" : 0
+			},
+			"Modif stat lanceur": {
+				"duree"			: 0,
+				"vie_max"		: 0,
+				"force"			: 1,
+				"defense"		: 0,
+				"magie"			: 0,
+				"defense_magique": 0,
+				"crit_puissance" : 0,
+				"crit_resitance" : 0
+			}
+		}
+	},
+	{
+		"nom"			: "little shield",
+		"description"	: "Augmentez vôtre defense !.",
+		"sprite"		: "little shield",
+		"animer"		: null,
+		"attaque": {
+			"puissance"			: 0,
+			"type"				: "divers",
+			"probabilité_crit"	: 0.3,
+			"flags"				: null,
+			"nom_ajustement"	: null,
+			"Modif stat cible"  : {
+			    "duree"			: -1,
+				"vie_max"		: 0,
+				"force"			: -2,
+				"defense"		: 0,
+				"magie"			: 0,
+				"defense_magique": 0,
+				"crit_puissance" : 0,
+				"crit_resitance" : 0
+			},
+			"Modif stat lanceur": {
+				"duree"			: -1,
+				"vie_max"		: 0,
+				"force"			: 0,
+				"defense"		: 3,
+				"magie"			: 0,
+				"defense_magique": 1,
+				"crit_puissance" : 0,
+				"crit_resitance" : 0
+			}
+		}
+	},
+	{
+		"nom"			: "pacifiste",
+		"description"	: "peace and love <3.",
+		"sprite"		: "pacifiste",
+		"animer"		: null,
+		"attaque": {
+			"puissance"			: 0,
+			"type"				: "divers",
+			"probabilité_crit"	: 0.3,
+			"flags"				: null,
+			"nom_ajustement"	: null,
+			"Modif stat cible"  : null,
+			"Modif stat lanceur": null
+		}
+	},
+	{
+		"nom"			: "quitte ou double",
+		"description"	: "Avez vous de la chance ?.",
+		"sprite"		: "quitte ou double",
+		"animer"		: null,
+		"attaque": {
+			"puissance"			: 0,
+			"type"				: "divers",
+			"probabilité_crit"	: 0.3,
+			"flags"				: null,
+			"nom_ajustement"	: null,
+			"Modif stat cible"  : null,
+			"Modif stat lanceur": null
+			}
+	},
+	{
+		"nom"			: "roulette russe",
+		"description"	: "au moins ce n'est pas un missile.",
+		"sprite"		: "roulette russe",
+		"animer"		: null,
+		"attaque": {
+			"puissance"			: 0,
+			"type"				: "divers",
 			"probabilité_crit"	: 0.3,
 			"flags"				: null,
 			"nom_ajustement"	: null,

@@ -56,5 +56,16 @@
 		},
 		"sprite": "placeholder3.png",
 		"prix": 10
+	},
+	{
+		"nom": "coupon",
+		"description": "c'est les soldes !.",
+		"effets": {
+			"message utilisateur": "baisse des prix",
+			"stats": {
+			}
+		},
+		"sprite": "coupon.png",
+		"prix": 12
 	}
 ]
