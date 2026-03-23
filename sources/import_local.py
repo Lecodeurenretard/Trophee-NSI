@@ -1,4 +1,4 @@
-"""Importe les classes et fonctions necéssaire à la majorité du code."""
+"""Importe les classes et fonctions nécessaire à la majorité du code."""
 import parametres_vars as params
 
 from Parametres import Parametre, TypeParametre

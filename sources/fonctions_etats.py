@@ -86,13 +86,13 @@ def choix_attaque() -> None:
                 joueur.lever_carte_du_dessus(event.pos)
             
             if event.type == pygame.MOUSEBUTTONDOWN:
-                adversaire = Monstre.adversaire()
-                if adversaire is None:
-                    raise RuntimeError("Aucun adversaire est vivant.")
-                
                 index_carte : Optional[int] = joueur.index_carte_du_dessus(event.pos)
                 if index_carte is None:
                     continue
+                
+                adversaire = Monstre.adversaire()
+                if adversaire is None:
+                    raise RuntimeError("Aucun adversaire est vivant.")
                 
                 joueur.attaquer(adversaire.id, index_carte)
                 
@@ -121,7 +121,7 @@ def affichage_attaque() -> None:
         
         # Ce n'est pas sûr que les cartes soient dans cet état apparament
         Carte.derniere_enregistree.anim_etat = CarteAnimEtat.JOUER
-        
+        #print(Carte.derniere_enregistree._id_affichage)
         skip : bool = False
         for ev in pygame.event.get():
             if testeur_skip(ev):
@@ -146,12 +146,11 @@ def affichage_attaque() -> None:
         Jeu.changer_etat(Jeu.Etat.GAME_OVER)
         return
     
-    # Si c'est la fin
-    # fait gagner les pieces
+    # Si c'est la fin fait gagner les pièces
     pieces_gagnees : int = 0
     for monstre in Entite.tuer_les_entites_mortes():
         if type(monstre) is Monstre:
-            pieces_gagnees += 2**monstre.rang + random.randint(1, 4)  # Dites non au décalage de bit et exponentiez
+            pieces_gagnees += 2**monstre.rang + random.randint(1, 4)
         elif type(monstre) is Boss:
             pieces_gagnees += 10**monstre.rang + random.randint(5, 10)
         else:

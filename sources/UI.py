@@ -165,9 +165,13 @@ def dessiner_diff_stats_joueur(num_couche : int) -> None:
         "défense"            : joueur.stats_totales.defense         - EntiteJSON.joueur().stats.defense,
         "magie"              : joueur.stats_totales.magie           - EntiteJSON.joueur().stats.magie,
         "défense magique"    : joueur.stats_totales.defense_magique - EntiteJSON.joueur().stats.defense_magique,
-        "puissance des crits": joueur.stats_totales.crit_puissance  - EntiteJSON.joueur().stats.crit_puissance,
-        "resitance aux crits": joueur.stats_totales.crit_resitance  - EntiteJSON.joueur().stats.crit_resitance,
+        "puissance des crits": (joueur.stats_totales.crit_puissance  - EntiteJSON.joueur().stats.crit_puissance),
+        "resitance aux crits": (joueur.stats_totales.crit_resitance  - EntiteJSON.joueur().stats.crit_resitance),
     }
+    
+    Jeu.verifier_parametre("precision stats")
+    differences["puissance des crits"] = round(differences["puissance des crits"], ndigits=Jeu.parametres["precision stats"])
+    differences["resitance aux crits"] = round(differences["resitance aux crits"], ndigits=Jeu.parametres["precision stats"])
     
     y = 0
     for stat, diff in differences.items():
@@ -175,7 +179,7 @@ def dessiner_diff_stats_joueur(num_couche : int) -> None:
         if diff < 0: coul = ROUGE
         if diff > 0: coul = VERT
         
-        txt = Fenetre.construire_police(Polices.TEXTE, 7).render(f"{stat}: {int(diff):+d}", True, coul)
+        txt = Fenetre.construire_police(Polices.TEXTE, 7).render(f"{stat}: {diff}", True, coul)
         Fenetre.get_couche(num_couche).blit(txt, (10, y))
         y += txt.get_rect().height + 5
 
@@ -191,8 +195,8 @@ def rafraichir_ecran_combat() -> None:
     image_fond = pygame.image.load(f"{Chemins.IMG}etages/{Jeu.nom_etage()}.png")
     image_fond = pygame.transform.scale(image_fond, Fenetre.surface.get_size())
     
-    # Afficher l'image de fond 
-    Fenetre.surface.blit(image_fond, (0, 0))    # pas besoin de faire un .fill(), ça couvre déjà tout l'écran
+    # Afficher l'image de fond
+    Fenetre.surface.blit(image_fond, (0, 0))
     
     # Dessiner les entités
     for _, entites in Entite.vivants().no_holes():
@@ -209,19 +213,35 @@ def rafraichir_ecran_combat() -> None:
     if dessiner_cartes:
         # Avance et dessine l'animation des cartes affichées
         it_carte = (pair[1] for pair in Carte.cartes_affichees.no_holes())    # un itérateur sur les cartes
+        #print(Carte.derniere_enregistree in Carte.cartes_affichees)
+        cartes_a_cacher = []
         for carte in Carte.ordre_dessin(it_carte):
             try:
                 next(carte.animation_generateur)
             except StopIteration:
-                ...
+                cartes_a_cacher.append(carte)
+        
+        for carte in cartes_a_cacher:
+            carte.cacher()
+        #print("")
     
     # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:
         blit_centre(1, Carte.CRIT_IMG, Fenetre.pourcentages_coordonnees(80, 60, ret_pos=False))
     
-    # Dessiner le nombre de coups restant
+    # ...
+    dessiner_nb_coups_restants(1)
+    
+    # Si les bonnes touches sont appuyées, affiche les infos ou les diffs
+    dessiner_infos()
+    
+    # Mettre à jour l'affichage
+    Fenetre.display_flip()
+
+
+def dessiner_nb_coups_restants(num_couche : int) -> None:
     dessiner_rect(
-        1,
+        num_couche,
         Fenetre.pourcentages_coordonnees(85, 87),
         Fenetre.pourcentages_fenetre(20, 10, ret_vec=False),
         couleur_remplissage=GRIS_CLAIR,
@@ -230,8 +250,13 @@ def rafraichir_ecran_combat() -> None:
         centre_y=True,
         border_radius=3,
     )
-    txt_coups = Fenetre.construire_police(Polices.FOURRE_TOUT, 9).render(
-        f"{Jeu.attaques_restantes_joueur} coups restants",
+    
+    txt_coups = f"{Jeu.attaques_restantes_joueur} coups restants"
+    if abs(Jeu.attaques_restantes_joueur) < 2:
+        txt_coups = f"{Jeu.attaques_restantes_joueur} coup restant"
+    
+    surf_coups = Fenetre.construire_police(Polices.FOURRE_TOUT, 9).render(
+        txt_coups,
         True,
         Gradient.calculer_valeur_s(
             CYAN,
@@ -241,18 +266,10 @@ def rafraichir_ecran_combat() -> None:
         )
     )
     blit_centre(
-        1,
-        txt_coups,
+        num_couche,
+        surf_coups,
         Fenetre.pourcentages_coordonnees(85, 87, ret_pos=False),
     )
-    
-    # Si les bonnes touches sont appuyées, affiche les infos ou les diffs
-    dessiner_infos()
-    
-    # Mettre à jour l'affichage
-    Fenetre.display_flip()
-
-
 
 def dessiner_nombre_pieces(num_couche : int, boite_inventaire : Rect, ordonnees : int = Fenetre.pourcentage_hauteur(5)) -> None:
     if params.argent_infini.case_cochee:

@@ -240,6 +240,8 @@ class Parametre:
             raise TypeError(f"Une case ne peut être cochée que si c'est une CASE_A_COCHER, au lieu de cela c'est un.e {self._categorie}.")
         
         self._valeur = val
+        if self._changement_utilisateur is not None:
+            self._changement_utilisateur(self._valeur)
     
     @valeurs_autorisees.setter
     def valeurs_autorisees(self, val : list[str]) -> None:

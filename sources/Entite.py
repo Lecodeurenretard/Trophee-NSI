@@ -195,7 +195,9 @@ class Entite(ABC):
         # Ajoute les modifications procurées par les objets
         for item in self._inventaire:
             copie.additionner(item.stats_changees)
-        return copie
+        
+        Jeu.verifier_parametre("precision stats")
+        return copie.arrondi(ndigits=Jeu.parametres["precision stats"])
     
     @property
     def inventaire(self) -> list[Item]:
@@ -278,7 +280,7 @@ class Entite(ABC):
         
         self._trier_main()
         self._recalc_pos_cartes_main()
-        # il y a maximum 10 cartes, c'est pas grave si
+        # il y a maximum 20 cartes sur l'écran, c'est pas grave si
         # on recalcule des positions plusieurs fois
     
     def _enlever_carte_main(self, index : int) -> Carte:

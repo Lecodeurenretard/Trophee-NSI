@@ -86,3 +86,19 @@ class Stat:
     def baisser_vie(self, combien : int) -> None:
         self.vie -= combien
         self.vie = min(self.vie_max, self.vie)  # vie <= vie_max
+    
+    def arrondi(self, ndigits : int = 0, arrondir_vie : bool = False) -> Stat:
+        """Renvoie une copie de l'objet arrondie pour que chanque attribut ait au plus n décimales."""
+        vie = self.vie
+        if arrondir_vie:
+            vie = round(self.vie            , ndigits=ndigits)
+        return Stat(
+            self.vie_max        ,
+            self.force          ,
+            self.defense        ,
+            self.magie          ,
+            self.defense_magique,
+            round(self.crit_puissance , ndigits=ndigits),
+            round(self.crit_resitance , ndigits=ndigits),
+            vie=vie,
+        )

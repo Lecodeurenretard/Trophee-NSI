@@ -8,7 +8,7 @@
 - Afficher/cacher le menu des paramètres: tab
 - Afficher les gains/pertes de stats: F10 (maintenir)
 
-Survoler une carte assez longtmeps avec la souris affichera une description de celle-ci.
+Survoler une carte assez longtemps avec la souris affichera une description de celle-ci.
 
 ___
 > Touches qui marchent seulement en mode débug:

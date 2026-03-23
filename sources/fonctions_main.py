@@ -52,6 +52,7 @@ def initialiser_nouveau_combat(reset_joueur : bool = False) -> None:
     if reset_joueur:
         joueur.reset()
     Carte.vider_cartes_affichees()
+    Carte.derniere_enregistree = None
 
 def reagir_appui_touche(ev : pygame.event.Event) -> Optional[Interruption]:
     if ev.type != pygame.KEYDOWN:

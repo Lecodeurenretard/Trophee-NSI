@@ -234,12 +234,20 @@ class Jeu:
             if reinitialiser:
                 Jeu._creer_fichier_parametre()
     
+    # Lance un message d'erreur plus compréhensible que les KeyError
+    @staticmethod
+    def verifier_parametre(parametre : str) -> None:
+        """Garantit qu'un paramètre existe."""
+        if parametre not in Jeu.parametres:
+            raise RuntimeError(f"Le paramètre '{parametre}' n'est pas présent dans parametres.txt.")
+    
     @staticmethod
     def rafraichir_pools() -> None:
         # rafraichit aussi les autres pools
+        pools : dict[str, Pool] = Pool.parse_fichier_pools(f"{Chemins.POOLS}monstres.json")
         Jeu.pools_monstres = {
             int(i): pool
-            for i, pool in Pool.parse_fichier_pools(f"{Chemins.POOLS}monstres.json").items()
+            for i, pool in pools.items()
         }
 
 
