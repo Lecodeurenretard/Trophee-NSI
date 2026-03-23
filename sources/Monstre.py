@@ -19,18 +19,21 @@ class MonstreJSON(EntiteJSON):
         assert(type(id_ou_nom) is int), f"{type(id_ou_nom)}"
         
         
-        super().__init__(id_ou_nom, autoriser_exemple=autoriser_exemple)
-        donnees : dict = EntiteJSON.DONNEES_TYPES[id_ou_nom]
-        self.rang = donnees["rang"]
+        try:
+            super().__init__(id_ou_nom, autoriser_exemple=autoriser_exemple)
+            donnees : dict = EntiteJSON.DONNEES_TYPES[id_ou_nom]
+            self.rang = donnees["rang"]
+        except KeyError as err:
+            raise RuntimeError(f"La clef {err.args[0]} n'est pas définie dans le JSON.")
     
-    def type_precedent(self, autoriser_exemple : bool = False) -> 'MonstreJSON':
-        if self.id == 0 or (not autoriser_exemple and self.id == 1):
+    def type_precedent(self) -> 'MonstreJSON':
+        if self.id <= EntiteJSON.INDEX_JOUEUR + 1:
             return MonstreJSON(len(MonstreJSON.DONNEES_TYPES) - 1)
         return MonstreJSON(self.id - 1)
     
-    def type_suivant(self, autoriser_exemple : bool = False) -> 'MonstreJSON':
-        if self.id == len(MonstreJSON.DONNEES_TYPES) - 1:
-            return MonstreJSON(0 if autoriser_exemple else 1)
+    def type_suivant(self) -> 'MonstreJSON':
+        if self.id <= len(MonstreJSON.DONNEES_TYPES) - 1:
+            return MonstreJSON(EntiteJSON.INDEX_JOUEUR)
         return MonstreJSON(self.id + 1)
 
 

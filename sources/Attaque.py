@@ -95,10 +95,10 @@ class Attaque:
         )
         
         self._modif_stats_cible_duree : int  = modif_stats_cible["duree"]
-        self._modif_stats_cible       : Stat = Stat.depuis_dictionnaire_json(modif_stats_cible)
+        self._modif_stats_cible       : Stat = Stat.depuis_dictionnaire_json(modif_stats_cible, valeur_par_defaut=0)
         
         self._modif_stats_lanceur_duree : int  = modif_stats_lanceur["duree"]
-        self._modif_stats_lanceur       : Stat = Stat.depuis_dictionnaire_json(modif_stats_lanceur)
+        self._modif_stats_lanceur       : Stat = Stat.depuis_dictionnaire_json(modif_stats_lanceur, valeur_par_defaut=0)
         
         # Définitions des id du lanceur/cible.
         self._lanceur_id : int = -1

@@ -125,8 +125,7 @@ class ListeStable[T](MutableSequence[T|None]):
             yield self[i]
     
     def __contains__(self, item : object):
-        if type(item) is not T:
-            return False
+        # On ne vérifie pas le type car T n'est pas une vraie classe
         return item in self._valeurs.values()
     
     def __add__(self, other : 'ListeStable[T]|Sequence[T]'):

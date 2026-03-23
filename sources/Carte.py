@@ -86,6 +86,8 @@ class Carte:
             f"nom={self._nom}"
             f"; sprite={self._nom_sprite}"
             f"; pos={self._pos}"
+            f"; pos_defaut={self._pos_defaut}"
+            f"; anim_etat={self._anim_etat}"
             f"; attaque={self._attaque}"
             ")"
         )
@@ -115,7 +117,7 @@ class Carte:
         """
         Renvoie les cartes dans l'ordre où elles seront dessinées.
         Si inverse est True, les renvoie dans l'ordre inverse,
-        les cartes visuellement au dessus sont donc en première.
+        dans ce cas les cartes visuellement au dessus sont donc en première.
         """
         return sorted(cartes, reverse=inverse, key=lambda c: c.pos_defaut.x)
     
@@ -189,7 +191,7 @@ class Carte:
     def animation_generateur(self) -> Generator[bool, None, None]:
         """
         Renvoie le générateur pour l'animation.
-        Suppose que la carte est montrée, pour la dévoiler utiliser .afficher().
+        Suppose que la carte est affichée, pour la dévoiler utiliser .afficher().
         """
         assert(self.est_affiche), "La carte est cachée (elle n'est pas dans Carte.animations_affichees)."
         return self._anim_gen   # type: ignore  # on vérifie en haut que c'est non none
@@ -249,6 +251,7 @@ class Carte:
             return
         
         # Dessine le fond derrière les infos au dessus de la carte
+        Jeu.verifier_parametre("ratio hauteur menu carte")
         ratio = Jeu.parametres["ratio hauteur menu carte"]
         rect = Rect(
             *(self._pos - Vecteur(0, self._TAILLE_SPRITE[1] * ratio)).tuple,
@@ -369,7 +372,7 @@ class Carte:
             if animation_en_cours == CarteAnimEtat.JOUER:
                 self.jouer_sfx()
                 self._attaque.appliquer()
-                self.cacher()
+                #self.cacher()
                 return      # La carte ne doit plus être dessinée après
            
             if not animation_ecrasee:
@@ -425,6 +428,7 @@ class Carte:
         
         Attaque.attaques_jouees.append(self._attaque)
         Carte.derniere_enregistree = self
+        self.afficher()     # Aide peut-être?
     
     def jouer_sfx(self) -> None:
         """Joue l'effet sonore approprié au jeu de la carte."""

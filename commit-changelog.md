@@ -31,25 +31,21 @@ format:
 ------------------------------------
 -->
 _____
-## Meilleur [fight-system.md](doc/fight-system.md).
+## Bugfix no1
 + Changements majeurs
-	- Actualisation de [fight-system.md](doc/fight-system.md).
 + Sur plusieurs fichiers
-	- Plus de commentaires et de docstrings
-	- Transfer des fonctions `.index_carte_du_dessus()` et `.lever_carte_du_dessus()` de `Joueur` vers `Entite`.
 + Structure de fichiers
 + READMEs et documentation
+	- Ajout d'un guide de lancement.
+	- Meilleur README pour les trophées.
 + Interactions joueur/testeur
-	- Si une entité à plus que sa vie maximum, affiche sa barre de vie en jaune pièce (pour l'instant impossible).
+	- Les stats sont arrondies aux joueur.
 + Correction de bugs
-+ `Attaque`
-	- Les modifications de stats peuvent être `null` dans le JSON.
+	- Les attaques ne changeant aucunes stats n'enlèvent plus 100 aux stats.
+	- Les logs sont activés dès le départ quand le mode débug est lancé de base.
++ `ListeStable`
+	- `.__contains__()` peut renvoyer true.
 + `Carte`
-	- Suppression de `_DUREE_INTER_JEU` (inutilisé).
-+ `Entite` (et descendantes)
-	- Ajout de `vivants()` qui renvoie toutes les entités vivantes de même type ou de type fils à la classe quil'a appelé.
-		* Par exemple, `Monstre.vivants()` renvoie tous les objets `Monstre` et `Boss`.
-		* Suppression de `Monstre.vivants()` et `Boss.vivants_boss()` qui avaient ce but.
-		* `vivantes` est maintenant	non publique.
-	- Différentiation entre un reset _hard_ et _soft_ du deck.
-		* `._reset_deck()` devient `._reset_deck_soft()`
+	- Meilleur `.__repr__()`
++ `Jeu`
+	- Ajout de `verifier_parametre()` pour avoir un meilleur message d'erreur en cas deparamètre non trouvé.

@@ -44,6 +44,7 @@ class Joueur(Entite):
             c.dessiner_infos = False
         
         # Affiche les infos de la carte du dessus si le joueur la survole assez longtemps
+        Jeu.verifier_parametre("temps min affichage info")
         if Jeu.duree_execution - Jeu.dernier_mouvement_souris < Duree(s=Jeu.parametres["temps min affichage info"]):
             return
         i = self.index_carte_du_dessus(pygame.mouse.get_pos())

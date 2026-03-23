@@ -22,7 +22,11 @@ from fonctions_etats import (
 def jeu() -> NoReturn:
     creer_dossiers_non_commit()
     Jeu.lire_parametres()
-    params.mode_debug.case_cochee        = Jeu.parametres["mode debug"]
+    
+    Jeu.verifier_parametre("mode debug")
+    params.mode_debug.case_cochee = Jeu.parametres["mode debug"]
+    
+    Jeu.verifier_parametre("invincibilité")
     params.joueur_invincible.case_cochee = Jeu.parametres["invincibilité"]
     
     rafraichir_donnees()
