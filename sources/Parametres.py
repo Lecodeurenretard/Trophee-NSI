@@ -1,4 +1,8 @@
-"""Contient la classe Parametre et TypeParametre."""
+"""
+Contient la classe Parametre et TypeParametre.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 from import_var import *
 from dessin import dessiner_rect
 from fonctions_vrac import blit_centre

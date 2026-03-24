@@ -1,4 +1,8 @@
-"""Essaye d'importer Tkinter, s'il n'est pas trouvé, crée les fonctions nécessaires."""
+"""
+Essaye d'importer Tkinter, s'il n'est pas trouvé, crée les fonctions nécessaires.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 import logging
 from typing import Literal
 

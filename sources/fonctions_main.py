@@ -1,4 +1,8 @@
-"""Fonctions seulements utilisées dans fonctions_etat.py."""
+"""
+Fonctions seulements utilisées dans fonctions_etat.py.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 from fonctions_boutons import *
 from Item    import Item
 from Carte   import Carte

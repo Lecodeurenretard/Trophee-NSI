@@ -1,4 +1,8 @@
-"""Contient des fonctions de dessin et des interruptions pour les états."""
+"""
+Contient des fonctions de dessin et des interruptions pour les états.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 from import_local import *
 from Joueur       import Entite, EntiteJSON, joueur
 from Carte        import Attaque, Carte

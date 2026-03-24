@@ -1,6 +1,8 @@
 """
 Contient les différentes couleurs (sous forme de tuples RGB/RGBA) ainsi que les fonctions de convertions.
 Les fonctions de convertions permettent 
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
 """
 
 from typing import TypeAlias, Sequence

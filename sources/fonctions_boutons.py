@@ -1,4 +1,8 @@
-"""Contient les fonctions devant s'exécuter à l'appui d'un bouton."""
+"""
+Contient les fonctions devant s'exécuter à l'appui d'un bouton.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 from UI           import *
 from import_local import *
 from Bouton       import Bouton

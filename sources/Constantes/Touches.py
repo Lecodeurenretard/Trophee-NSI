@@ -1,4 +1,8 @@
-"""Contient les différentes actions du jeu avec leurs touches."""
+"""
+Contient les différentes actions du jeu avec leurs touches.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 
 import pygame
 

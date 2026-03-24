@@ -1,10 +1,5 @@
 # Touches
 > Touches qui marchent dans tous les modes:
-- Séléctionner dans les menus:
-	+ espace
-	+ entrée (clavier ou pavé numérique)
-- Déplacer les curseurs:
-	+ les flèches du clavier
 - Afficher/cacher le menu des paramètres: tab
 - Afficher les gains/pertes de stats: F10 (maintenir)
 

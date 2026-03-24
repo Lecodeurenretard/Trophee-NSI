@@ -1,4 +1,8 @@
-"""Contient la classe Attaque et les classes associées (TypeAttaque et AttaqueFlag)."""
+"""
+Contient la classe Attaque et les classes associées (TypeAttaque et AttaqueFlag).
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 from import_local import *
 
 class TypeAttaque(Enum):

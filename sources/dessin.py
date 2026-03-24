@@ -1,4 +1,8 @@
-"""Contient les fonctions de dessin élémentaires (dessiner des forme, blit, ...)."""
+"""
+Contient les fonctions de dessin élémentaires (dessiner des forme, blit, ...).
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 from import_var import *
 from Jeu import verifier_pour_quitter
 
