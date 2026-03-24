@@ -19,13 +19,13 @@ class BossInterfaceMethodes:
 
 def roi_blob_nouveau_tour(monstre: Monstre, attributs: dict[str, Any]) -> None:
     if "sprite physique" not in attributs.keys():
-        sprite_physique = pygame.image.load("data/img/boss/Roi blob ph.png").convert_alpha()
-        sprite_magie = pygame.image.load("data/img/boss/Roi blob mg.png").convert_alpha()
-
+        sprite_physique = pygame.image.load(f"{Chemins.IMG}boss/Roi blob ph.png").convert_alpha()
+        sprite_magie = pygame.image.load(f"{Chemins.IMG}boss/Roi blob mg.png").convert_alpha()
+        
         w, h = sprite_physique.get_size()
         facteur = 6
         attributs["sprite physique"] = pygame.transform.scale(sprite_physique, (int(w * facteur), int(h * facteur)))
-
+        
         w, h = sprite_magie.get_size()
         attributs["sprite magie"] = pygame.transform.scale(sprite_magie, (int(w * facteur), int(h * facteur)))
     
@@ -43,19 +43,15 @@ def roi_blob_nouveau_tour(monstre: Monstre, attributs: dict[str, Any]) -> None:
         monstre._sprite = attributs["sprite magie"]
 
 
-callbacks : dict[str, BossInterfaceMethodes] = {
-    "Roi Blob": BossInterfaceMethodes(roi_blob_nouveau_tour),
-    }
-
 def demon_nouveau_tour(monstre: Monstre, attributs: dict[str, Any]) -> None:
     if "sprite physique" not in attributs.keys():
-        sprite_demon = pygame.image.load("data/img/boss/demon.png").convert_alpha()
-        sprite_pretre = pygame.image.load("data/img/boss/pretre.png").convert_alpha()
-
+        sprite_demon = pygame.image.load(f"{Chemins.IMG}boss/demon.png").convert_alpha()
+        sprite_pretre = pygame.image.load(f"{Chemins.IMG}boss/pretre.png").convert_alpha()
+        
         w, h = sprite_demon.get_size()
         facteur = 6
         attributs["sprite physique"] = pygame.transform.scale(sprite_demon, (int(w * facteur), int(h * facteur)))
-
+        
         w, h = sprite_pretre.get_size()
         attributs["sprite magie"] = pygame.transform.scale(sprite_pretre, (int(w * facteur), int(h * facteur)))
     
@@ -74,5 +70,6 @@ def demon_nouveau_tour(monstre: Monstre, attributs: dict[str, Any]) -> None:
 
 
 callbacks : dict[str, BossInterfaceMethodes] = {
-    "demon": BossInterfaceMethodes(roi_blob_nouveau_tour),
+    "Roi Blob": BossInterfaceMethodes(roi_blob_nouveau_tour),
+    "demon": BossInterfaceMethodes(demon_nouveau_tour),
 }
