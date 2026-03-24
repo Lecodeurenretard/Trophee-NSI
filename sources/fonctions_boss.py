@@ -71,5 +71,5 @@ def demon_nouveau_tour(monstre: Monstre, attributs: dict[str, Any]) -> None:
 
 callbacks : dict[str, BossInterfaceMethodes] = {
     "Roi Blob": BossInterfaceMethodes(roi_blob_nouveau_tour),
-    "demon": BossInterfaceMethodes(demon_nouveau_tour),
+    "Démon": BossInterfaceMethodes(demon_nouveau_tour),
 }
