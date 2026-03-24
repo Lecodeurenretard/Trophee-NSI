@@ -1,4 +1,8 @@
-"""Contient la classe Item."""
+"""
+Contient la classe Item.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 from import_local import *
 
 @dataclass

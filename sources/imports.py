@@ -1,4 +1,9 @@
-"""imports externes."""
+"""
+imports externes.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
+
 
 import logging
 import pygame

@@ -1,4 +1,8 @@
-"""Contient la classe Entite EntiteJSON."""
+"""
+Contient la classe Entite EntiteJSON.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 from Carte import *
 from Item  import Item
 from Pool  import Pool

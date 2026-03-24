@@ -1,4 +1,8 @@
-"""Contient la classe Joueur et la variable globale joueur."""
+"""
+Contient la classe Joueur et la variable globale joueur.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 from Entite import *
 
 class Joueur(Entite):

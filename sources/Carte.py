@@ -1,6 +1,8 @@
 """
 Contient les classes relatives aux cartes sauf les attaques en elles-mêmes.
 Tout le côté graphique, animation, effets, etc... se fait ici. Les dégats, et tout le reste se fait dans Attaques.py.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
 """
 from Attaque import *
 

@@ -1,4 +1,8 @@
-"""Contient la classe Stat."""
+"""
+Contient la classe Stat.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 from imports import *
 
 @dataclass

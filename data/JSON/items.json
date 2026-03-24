@@ -67,5 +67,17 @@
 		},
 		"sprite": "coupon.png",
 		"prix": 12
+	},
+	{
+		"nom" : "corbeille",
+		"description" : "tu appele ça un casque? ",
+		"effets" : {
+			"message utilisateur" : "augmente la defense",
+			"stats" : {
+				"defense" : 15
+			}
+		},
+		"sprite" : "corbeille.png",
+		"prix" : 15
 	}
 ]
