@@ -2,6 +2,8 @@
 Ce fichier contient tout le code pour les états de jeu.
 Chaque fonction est nommée d'après les nom des états de `Jeu.Etat`.
 De même elles sont exécutées tant que `Jeu.etat` à la bonne valeur.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
 """
 
 from fonctions_main import *
@@ -225,12 +227,12 @@ def credits(duree : Duree = Duree(s=5)) -> None:
     if duree == Duree(s=0):
         return
     
-    texte_credits  : Surface = Fenetre.construire_police(Polices.TEXTE, 10).render("Développé par Jules, Lucas", True, BLANC)
-    texte_credits2 : Surface = Fenetre.construire_police(Polices.TEXTE, 6).render("et Nils", True, BLANC)
+    texte_credits  : Surface = Fenetre.construire_police(Polices.TEXTE, 10).render("Développé par Jules, Lucas et ...", True, BLANC)
+    texte_credits2 : Surface = Fenetre.construire_police(Polices.TEXTE, 140).render("Nils", True, BLANC)
     
     deplacement : Deplacement = Deplacement(
         Pos(Fenetre.pourcentage_largeur(50), Fenetre.hauteur),
-        Pos(Fenetre.pourcentage_largeur(50), - texte_credits2.height - 20),  # pour laisser le "et Nils" aller hors écran
+        Pos(Fenetre.pourcentage_largeur(50), - texte_credits2.height - 20),  # pour laisser le "Nils" aller hors écran
     )
     
     debut : Duree = copy(Jeu.duree_execution)

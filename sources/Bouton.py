@@ -1,4 +1,8 @@
-"""Contient la classe Bouton."""
+"""
+Contient la classe Bouton.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 from import_var import *
 
 class Bouton:

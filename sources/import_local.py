@@ -1,4 +1,8 @@
-"""Importe les classes et fonctions nécessaire à la majorité du code."""
+"""
+Importe les classes et fonctions nécessaire à la majorité du code.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 import parametres_vars as params
 
 from Parametres import Parametre, TypeParametre

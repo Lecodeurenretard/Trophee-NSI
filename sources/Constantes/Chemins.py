@@ -1,4 +1,8 @@
-"""Contient les chemins de fichiers vers les différents dossiers."""
+"""
+Contient les chemins de fichiers vers les différents dossiers.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 
 import logging
 from os import getcwd

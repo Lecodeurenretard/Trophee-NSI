@@ -1,4 +1,8 @@
-"""Lance le jeu."""
+"""
+Lance le jeu.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 import parametres_vars as params
 import pygame
 

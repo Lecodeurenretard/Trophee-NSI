@@ -1,4 +1,8 @@
-"""Contient la classe Boss et BossJSON."""
+"""
+Contient la classe Boss et BossJSON.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 from Monstre import *
 from fonctions_boss import callbacks as boss_callbacks
 from fonctions_boss import BossInterfaceMethodes

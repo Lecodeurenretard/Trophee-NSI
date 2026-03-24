@@ -31,21 +31,12 @@ format:
 ------------------------------------
 -->
 _____
-## Bugfix no1
+## ajout indentaton nom du projet + nom dev
 + Changements majeurs
+	- ajout item corbeille qui augmente la defence 
 + Sur plusieurs fichiers
+	- ajout indentation pour le nom du projet et nos nom de dev a chaque fichier py
 + Structure de fichiers
 + READMEs et documentation
-	- Ajout d'un guide de lancement.
-	- Meilleur README pour les trophées.
 + Interactions joueur/testeur
-	- Les stats sont arrondies aux joueur.
 + Correction de bugs
-	- Les attaques ne changeant aucunes stats n'enlèvent plus 100 aux stats.
-	- Les logs sont activés dès le départ quand le mode débug est lancé de base.
-+ `ListeStable`
-	- `.__contains__()` peut renvoyer true.
-+ `Carte`
-	- Meilleur `.__repr__()`
-+ `Jeu`
-	- Ajout de `verifier_parametre()` pour avoir un meilleur message d'erreur en cas deparamètre non trouvé.

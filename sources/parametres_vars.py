@@ -1,4 +1,8 @@
-"""Contient les variables représentants les paramètres du jeu."""
+"""
+Contient les variables représentants les paramètres du jeu.
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
 from Parametres import *
 
 _HAUTEUR_PREMIER_PARAMETRE : int = Fenetre.pourcentage_hauteur(11)

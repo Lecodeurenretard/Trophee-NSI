@@ -1,3 +1,8 @@
+"""
+projet : L'ascension de Esquimot
+auteur : Dooheli, Lecodeurenretard, hibou509
+"""
+
 from imports import random, dataclass, copy, json, overload, Callable, math
 
 class Pool:
