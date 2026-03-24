@@ -57,7 +57,7 @@
 		"sprite" : "mst.png",
 		"moveset_boss": [
 			{
-				"nom"		 : "little shield",
+				"nom"		 : "Skip",
 				"poids"		 : 3,
 				"soustraire" : null
 			},
@@ -72,13 +72,47 @@
 		"pos_sprite": [60, 18],
 		"nombre_cartes_main": 2,
 		"stats": {
-			"vie_max"			: 130,
+			"vie_max"			: 150,
 			"force"				: 45,
 			"defense"			: 60,
 			"magie"				: 15,
 			"defense_magique"	: 25,
 			"crit_puissance"	: 1.4,
 			"crit_resitance"	: 1.1
+		}
+	},
+	{
+		"nom": "Démon",
+		"sprite" : "demon.png",
+		"moveset_boss": [
+			{
+				"nom"		 : "Torgnole",
+				"poids"		 : 5,
+				"soustraire" : null
+			},
+			{
+				"nom"		 : "little shield",
+				"poids"		 : 5,
+				"soustraire" : null
+			},
+			{
+				"nom"		 : "Soin",
+				"poids"		 : 8,
+				"soustraire" : null
+			}
+		],
+		"rang": 2,
+		"moveset_joueur": null,
+		"nombre_cartes_main": 3,
+		"pos_sprite": [60, 18],
+		"stats": {
+			"vie_max"			: 120,
+			"force"				: 50,
+			"defense"			: 50,
+			"magie"				: 30,
+			"defense_magique"	: 25,
+			"crit_puissance"	: 1.4,
+			"crit_resitance"	: 1.4
 		}
 	}
 ]
