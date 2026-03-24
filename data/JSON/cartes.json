@@ -172,7 +172,7 @@
 		}
 	},
 	{
-		"nom"			: "little shield",
+		"nom"			: "Little shield",
 		"description"	: "Augmentez vôtre defense !.",
 		"sprite"		: "little shield",
 		"animer"		: null,
@@ -205,7 +205,7 @@
 		}
 	},
 	{
-		"nom"			: "pacifiste",
+		"nom"			: "Pacifiste",
 		"description"	: "peace and love <3.",
 		"sprite"		: "pacifiste",
 		"animer"		: null,
@@ -220,8 +220,8 @@
 		}
 	},
 	{
-		"nom"			: "quitte ou double",
-		"description"	: "Avez vous de la chance ?.",
+		"nom"			: "Quitte ou double",
+		"description"	: "Avez vous de la chance ?",
 		"sprite"		: "quitte ou double",
 		"animer"		: null,
 		"attaque": {
@@ -235,8 +235,8 @@
 			}
 	},
 	{
-		"nom"			: "roulette russe",
-		"description"	: "au moins ce n'est pas un missile.",
+		"nom"			: "Roulette russe",
+		"description"	: "Au moins ce n'est pas un missile.",
 		"sprite"		: "roulette russe",
 		"animer"		: null,
 		"attaque": {

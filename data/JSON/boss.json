@@ -57,7 +57,7 @@
 		"sprite" : "mst.png",
 		"moveset_boss": [
 			{
-				"nom"		 : "little shield",
+				"nom"		 : "Little shield",
 				"poids"		 : 3,
 				"soustraire" : null
 			},

@@ -82,27 +82,25 @@ def reagir_appui_touche(ev : pygame.event.Event) -> Optional[Interruption]:
             for i in range(Jeu.num_etape, Jeu.COMBAT_MAX):
                 if Jeu.decision_shop(i):
                     Jeu.aller_etape(i)
-                    Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
                     break
             else:   # boucle for... else, le msg n'est affiché que si on ne break pas
                 logging.error("Le dernier shop a été dépassé.")
                 return
             
             logging.info(f"Skip jusqu'au combat {Jeu.num_etape}.")
-            Jeu.changer_etat(Jeu.Etat.SHOP)
+            Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
         
         case Touches.DBG_BOSS:
             for i in range(Jeu.num_etape, Jeu.COMBAT_MAX):
                 if Jeu.decision_boss(i):
                     Jeu.aller_etape(i)
-                    Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
                     break
             else:
                 logging.error("Le dernier boss a été dépassé.")
                 return
             
             logging.info(f"Skip jusqu'au combat {Jeu.num_etape}.")
-            Jeu.changer_etat(Jeu.Etat.SHOP)
+            Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
 
 def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Interruption]:
     if ev.type != pygame.KEYDOWN:
