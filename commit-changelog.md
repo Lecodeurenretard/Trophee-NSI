@@ -31,12 +31,13 @@ format:
 ------------------------------------
 -->
 _____
-## Bugfix no2?
+## Ajout d'un bouton pour skip son tour.
 + Changements majeurs
+	- Ajout du bouton.
 + Sur plusieurs fichiers
 + Structure de fichiers
 + READMEs et documentation
 + Interactions joueur/testeur
 + Correction de bugs
-	- Le bug qui fait planter le jeu en lançant une carte semble réparé.
-		* Il semblait résider dans le fait que l'ID affichage était à `-1` quand la carte n'était plus affichée.
++ `Jeu`
+	- Les méthodes `pourcentages_*` sont cohérente dans leur utilistation.

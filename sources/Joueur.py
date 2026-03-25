@@ -7,7 +7,7 @@ from Entite import *
 
 class Joueur(Entite):
     _CARTES_DE_DOS           : bool = False
-    _CARTE_MAIN_PREMIERE_POS : Pos  = Fenetre.pourcentages_coordonnees(40, 60)
+    _CARTE_MAIN_PREMIERE_POS : Pos  = Fenetre.pos_pourcentage(40, 60)
     
     
     @override
@@ -25,7 +25,7 @@ class Joueur(Entite):
     
     @property
     def pos_sprite_centree(self) -> Pos:
-        return Fenetre.pourcentages_coordonnees(31, 75)
+        return Fenetre.pos_pourcentage(31, 75)
     
     
     @override

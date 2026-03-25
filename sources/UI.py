@@ -22,7 +22,7 @@ def demander_pseudo() -> Interruption:
             break
         
         Fenetre.surface.fill(BLANC)
-        blit_centre(0, texte, Fenetre.pourcentages_coordonnees(50, 45, ret_pos=False))
+        blit_centre(0, texte, Fenetre.pourcentages_fenetre(50, 45))
         
         pseudo_affiche : Surface = Fenetre.construire_police(Polices.FOURRE_TOUT, 12).render(pseudo, True, BLEU)
         blit_centre(0, pseudo_affiche, Fenetre.centre)
@@ -100,7 +100,7 @@ def faux_chargement(duree_totale : Duree = Duree(s=2.0)) -> Interruption:
         )
         
         texte_chargement : Surface = Fenetre.construire_police(Polices.TITRE, 11).render("Chargement...", True, NOIR)
-        blit_centre(1, texte_chargement, Fenetre.pourcentages_coordonnees(50, 45, ret_pos=False))
+        blit_centre(1, texte_chargement, Fenetre.pourcentages_fenetre(50, 45))
         
         ratio_barre += delta.secondes / duree_totale.secondes
         yield
@@ -187,14 +187,6 @@ def dessiner_diff_stats_joueur(num_couche : int) -> None:
         Fenetre.get_couche(num_couche).blit(txt, (10, y))
         y += txt.get_rect().height + 5
 
-def dessiner_infos() -> None:
-    """Si les bonnes touches sont pressées, dessine les infos."""
-    if pygame.key.get_pressed()[Touches.DIFFS]:
-        dessiner_diff_stats_joueur(2)
-    
-    elif pygame.key.get_pressed()[Touches.DBG_INFOS_ENTITES] and bool(params.mode_debug):
-        dessiner_descriptions_entites(2)
-
 def rafraichir_ecran_combat() -> None:
     image_fond = pygame.image.load(f"{Chemins.IMG}etages/{Jeu.nom_etage()}.png")
     image_fond = pygame.transform.scale(image_fond, Fenetre.surface.get_size())
@@ -229,13 +221,17 @@ def rafraichir_ecran_combat() -> None:
     
     # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:
-        blit_centre(1, Carte.CRIT_IMG, Fenetre.pourcentages_coordonnees(80, 60, ret_pos=False))
+        blit_centre(1, Carte.CRIT_IMG, Fenetre.pourcentages_fenetre(80, 60))
     
     # ...
     dessiner_nb_coups_restants(1)
     
     # Si les bonnes touches sont appuyées, affiche les infos ou les diffs
-    dessiner_infos()
+    if pygame.key.get_pressed()[Touches.DIFFS]:
+        dessiner_diff_stats_joueur(2)
+    
+    elif pygame.key.get_pressed()[Touches.DBG_INFOS_ENTITES] and bool(params.mode_debug):
+        dessiner_descriptions_entites(2)
     
     # Mettre à jour l'affichage
     Fenetre.display_flip()
@@ -244,8 +240,8 @@ def rafraichir_ecran_combat() -> None:
 def dessiner_nb_coups_restants(num_couche : int) -> None:
     dessiner_rect(
         num_couche,
-        Fenetre.pourcentages_coordonnees(85, 87),
-        Fenetre.pourcentages_fenetre(20, 10, ret_vec=False),
+        Fenetre.pos_pourcentage(85, 87),
+        Fenetre.pourcentages_fenetre(20, 10),
         couleur_remplissage=GRIS_CLAIR,
         couleur_bords=BLANC,
         centre_x=True,
@@ -270,7 +266,7 @@ def dessiner_nb_coups_restants(num_couche : int) -> None:
     blit_centre(
         num_couche,
         surf_coups,
-        Fenetre.pourcentages_coordonnees(85, 87, ret_pos=False),
+        Fenetre.pourcentages_fenetre(85, 87),
     )
 
 def dessiner_nombre_pieces(num_couche : int, boite_inventaire : Rect, ordonnees : int = Fenetre.pourcentage_hauteur(5)) -> None:
@@ -328,7 +324,6 @@ def rafraichir_ecran_shop(items : list[Item], abscisses : tuple[int, ...], rect_
     # ...
     dessiner_nombre_pieces(1, rect_inventaire)
     dessiner_inventaire(Fenetre.surface, rect_inventaire)
-    dessiner_infos()
     
     bouton.dessiner(1, point_size=0)
     for item, pourcentage_abscisse in zip(items, abscisses):

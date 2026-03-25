@@ -339,42 +339,20 @@ class Fenetre:
         """Renvoie pourcentage de la largeur de l'écran en pixels"""
         return round(Fenetre.largeur * pourcents / 100)
     
-    @overload
     @staticmethod
-    def pourcentages_coordonnees(pc_largeur : float, pc_hauteur : float, ret_pos : Literal[True] = True) -> Pos:
-        """Raccourcit pour Pos(Fenetre.pourcentage_largeur(pc_largeur), Fenetre.pourcentage_largeur(pc_hauteur))"""
-    
-    @overload
-    @staticmethod
-    def pourcentages_coordonnees(pc_largeur : float, pc_hauteur : float, ret_pos : Literal[False]) -> tuple[int, int]:
-        """Raccourcit pour (Fenetre.pourcentage_largeur(pc_largeur), Fenetre.pourcentage_largeur(pc_hauteur))"""
-    
-    @staticmethod
-    def pourcentages_coordonnees(pc_largeur : float, pc_hauteur : float, ret_pos : bool = True) -> pos_t:
-        if ret_pos:
-            return Pos(Fenetre.pourcentages_coordonnees(pc_largeur, pc_hauteur, ret_pos=False))
-        return (Fenetre.pourcentage_largeur(pc_largeur), Fenetre.pourcentage_hauteur(pc_hauteur))
-    
-    @overload
-    @staticmethod
-    def pourcentages_fenetre(pc_largeur : float, pc_hauteur : float, ret_vec : Literal[True] = True) -> Vecteur:
-        """Raccourcit pour Vecteur(Fenetre.pourcentage_largeur(pc_largeur), Fenetre.pourcentage_largeur(pc_hauteur))"""
-    
-    @overload
-    @staticmethod
-    def pourcentages_fenetre(pc_largeur : float, pc_hauteur : float, ret_vec : Literal[False]) -> tuple[int, int]:
-        """Raccourcit pour (Fenetre.pourcentage_largeur(pc_largeur), Fenetre.pourcentage_largeur(pc_hauteur))"""
-    
-    @staticmethod
-    def pourcentages_fenetre(pc_largeur : float, pc_hauteur : float, ret_vec : bool = True) -> Vecteur|tuple[int, int]:
-        if ret_vec:
-            return Vecteur(Fenetre.pourcentages_coordonnees(pc_largeur, pc_hauteur, ret_pos=False))
+    def pourcentages_fenetre(pc_largeur : float, pc_hauteur : float) -> tuple[int, int]:
+        """Raccourci pour (Fenetre.pourcentage_largeur(pc_largeur), Fenetre.pourcentage_largeur(pc_hauteur))"""
         return (Fenetre.pourcentage_largeur(pc_largeur), Fenetre.pourcentage_hauteur(pc_hauteur))
     
     @staticmethod
-    def vecteur_pourcentage(v : Vecteur) -> Vecteur:
-        """pourcentages_fenetre() mais prend un vecteur en entrée."""
-        return Vecteur(*Fenetre.pourcentages_fenetre(v.x, v.y))
+    def pos_pourcentage(pc_largeur : float, pc_hauteur : float) -> Pos:
+        """pourcentages_fenetre() mais renvoie un Pos."""
+        return Pos(Fenetre.pourcentages_fenetre(pc_largeur, pc_hauteur))
+    
+    @staticmethod
+    def vecteur_pourcentage(pc_largeur : float, pc_hauteur : float) -> Vecteur:
+        """pourcentages_fenetre() mais renvoie un vecteur."""
+        return Vecteur(*Fenetre.pourcentages_fenetre(pc_largeur, pc_hauteur))
     
     @staticmethod
     def pourcentage_hauteur_police(pourcents : float) -> int:

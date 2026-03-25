@@ -43,8 +43,8 @@ class MonstreJSON(EntiteJSON):
 
 class Monstre(Entite):
     _CARTES_DE_DOS           : bool = True
-    _CARTE_MAIN_PREMIERE_POS : Pos  = Fenetre.pourcentages_coordonnees(33, 3)
-    POSITION_CENTREE         : Pos  = Fenetre.pourcentages_coordonnees(60, 23)
+    _CARTE_MAIN_PREMIERE_POS : Pos  = Fenetre.pos_pourcentage(33, 3)
+    POSITION_CENTREE         : Pos  = Fenetre.pos_pourcentage(60, 23)
     
     @override
     def __init__(

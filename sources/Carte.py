@@ -26,7 +26,7 @@ class CarteAnimEtat(Enum):
 class Carte:
     _HAUTEUR_SPRITE  : int   = Fenetre.pourcentage_hauteur(40)
     
-    _ANIM_SURVOL_DECALAGE : Vecteur = Fenetre.pourcentages_fenetre(0, -2)
+    _ANIM_SURVOL_DECALAGE : Vecteur = Fenetre.vecteur_pourcentage(0, -2)
     _ANIM_DICO : dict[CarteAnimEtat, CarteAnimInfo] = {
         CarteAnimEtat.IDLE     : CarteAnimInfo(Pos(CarteAnimInfo.GARDER , CarteAnimInfo.GARDER) , Duree(s=0) , Easing.NO_EASING, CarteAnimInfo.GARDER),
         CarteAnimEtat.REVENIR  : CarteAnimInfo(Pos(CarteAnimInfo.CHANGER, CarteAnimInfo.CHANGER), Duree(s=.3), Easing.FADE     , CarteAnimInfo.GARDER),

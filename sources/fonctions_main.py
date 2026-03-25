@@ -116,6 +116,7 @@ def reagir_appui_touche_choix_attaque(ev : pygame.event.Event) -> Optional[Inter
     
     match ev.key:
         # Il ne se passe rien sans le mode débug
+        # Qui ne soit fait par reagir_appui_touche()
         case _:
             ...
     

@@ -45,10 +45,12 @@ class BossJSON:
         if self.deck_joueur is not None:
             self.deck_joueur = Pool(donnees["moveset_joueur"])
         
+        x_sprite, y_sprite = Pos(
+            donnees["pos_sprite"]
+        ).tuple
         self.pos_sprite = Pos(Fenetre.vecteur_pourcentage(
-            Pos(
-                donnees["pos_sprite"]
-            ).vecteur
+            x_sprite,
+            y_sprite
         ))
 
         self.rang  = donnees["rang"]
