@@ -221,11 +221,11 @@ class ListeStable[T](MutableSequence[T|None]):
         """
         return list(self).index(value, start, stop)
     
-    def search(self, value : T|None, start : int = 0, end : int = sys.maxsize) -> int:
+    def search(self, value : T|None, start : int = 0, stop : int = sys.maxsize) -> int:
         """Alternative à .index() qui renvoie -1 quand l'élément n'est pas dans la liste au lieu de lancer une exception."""
         # on est civilisés
         try:
-            return self.index(value, start=start, stop=end)
+            return self.index(value, start=start, stop=stop)
         except ValueError:
             return -1
     

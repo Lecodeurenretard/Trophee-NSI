@@ -203,9 +203,9 @@ def rafraichir_ecran_combat() -> None:
     Fenetre.surface.blit(image_fond, (0, 0))
     
     # Dessiner les entités
-    for _, entites in Entite.vivants().no_holes():
-        entites.dessiner(0)
-        entites.dessiner_UI(0)
+    for _, entite in Entite.vivants().no_holes():
+        entite.dessiner(0)
+        entite.dessiner_UI(0)
     
     # Vérifie si les cartes doivent être dessinées
     dessiner_cartes : bool = True
@@ -217,8 +217,7 @@ def rafraichir_ecran_combat() -> None:
     if dessiner_cartes:
         # Avance et dessine l'animation des cartes affichées
         it_carte = (pair[1] for pair in Carte.cartes_affichees.no_holes())    # un itérateur sur les cartes
-        #print(Carte.derniere_enregistree in Carte.cartes_affichees)
-        cartes_a_cacher = []
+        cartes_a_cacher : list[Carte] = []
         for carte in Carte.ordre_dessin(it_carte):
             try:
                 next(carte.animation_generateur)
@@ -227,7 +226,6 @@ def rafraichir_ecran_combat() -> None:
         
         for carte in cartes_a_cacher:
             carte.cacher()
-        #print("")
     
     # Dessiner l'icône du toujours_crit
     if Attaque.toujours_crits:

@@ -123,7 +123,6 @@ def affichage_attaque() -> None:
         
         # Ce n'est pas sûr que les cartes soient dans cet état apparament
         Carte.derniere_enregistree.anim_etat = CarteAnimEtat.JOUER
-        #print(Carte.derniere_enregistree._id_affichage)
         skip : bool = False
         for ev in pygame.event.get():
             if testeur_skip(ev):

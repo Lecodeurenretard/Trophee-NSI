@@ -65,7 +65,7 @@ class Carte:
         
         self._pos          : Pos = position
         self._anim_etat    : CarteAnimEtat = CarteAnimEtat.IDLE
-        self._id_affichage : int = -1
+        self._id_affichage : Optional[int] = None
         
         donnees_JSON : dict = Carte.donnees_JSON[id]
         
@@ -111,8 +111,10 @@ class Carte:
     
     @staticmethod
     def vider_cartes_affichees() -> None:
-        for _, c in Carte.cartes_affichees.no_holes():
+        copie = copy(Carte.cartes_affichees)
+        for _, c in copie.no_holes():
             c.cacher()
+        Carte.cartes_affichees.clear()
     
     @staticmethod
     def ordre_dessin(cartes : Iterable[Carte], inverse : bool = False) -> list[Carte]:
@@ -184,7 +186,7 @@ class Carte:
     
     @property
     def est_affiche(self) -> bool:
-        if self._id_affichage >= 0:
+        if self._id_affichage is not None:
             assert(self._anim_gen is not None), "Tout objet dans Carte.cartes_affichees[] doit avoir un générateur d'animation."
             return True
         return False
@@ -374,7 +376,6 @@ class Carte:
             if animation_en_cours == CarteAnimEtat.JOUER:
                 self.jouer_sfx()
                 self._attaque.appliquer()
-                #self.cacher()
                 return      # La carte ne doit plus être dessinée après
            
             if not animation_ecrasee:
@@ -391,16 +392,18 @@ class Carte:
             return
         
         self._anim_gen = self._animation(0)
-        self._id_affichage = Carte.cartes_affichees.search(None)
-        if self._id_affichage >= 0:
-            Carte.cartes_affichees[self._id_affichage] = self
+        nouvel_index = Carte.cartes_affichees.search(None)
+        if nouvel_index >= 0:
+            self._id_affichage = nouvel_index
+            Carte.cartes_affichees[nouvel_index] = self
         else:
             self._id_affichage = len(Carte.cartes_affichees)
             Carte.cartes_affichees.append(self)
     
     def cacher(self) -> None:
-        Carte.cartes_affichees.pop(self._id_affichage)
-        self._id_affichage = -1
+        if self.est_affiche:
+            Carte.cartes_affichees.pop(self._id_affichage)  # type: ignore
+            self._id_affichage = None
     
     def dessiner(self, num_couche : int) -> None:
         if not self.est_affiche:

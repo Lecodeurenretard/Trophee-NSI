@@ -297,9 +297,9 @@ class Entite(ABC):
     
     def _vider_main(self) -> None:
         """Enlève toutes les cartes de la main et les cache."""
-        # itère à l'envers pour que les index restent cohérents
-        for i in range(len(self._cartes_main) - 1, -1, -1):
-            self._cartes_main.pop(i).cacher()
+        for carte in self._cartes_main:
+            carte.cacher()        # itère à l'envers pour que les index restent cohérents
+        self._cartes_main.clear()
     
     def _trier_main(self) -> None:
         # trie les cartes par ordre alphabetique

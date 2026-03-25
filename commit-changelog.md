@@ -31,12 +31,12 @@ format:
 ------------------------------------
 -->
 _____
-## ajout indentaton nom du projet + nom dev
+## Bugfix no2?
 + Changements majeurs
-	- ajout item corbeille qui augmente la defence 
 + Sur plusieurs fichiers
-	- ajout indentation pour le nom du projet et nos nom de dev a chaque fichier py
 + Structure de fichiers
 + READMEs et documentation
 + Interactions joueur/testeur
 + Correction de bugs
+	- Le bug qui fait planter le jeu en lançant une carte semble réparé.
+		* Il semblait résider dans le fait que l'ID affichage était à `-1` quand la carte n'était plus affichée.
