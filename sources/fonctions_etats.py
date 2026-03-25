@@ -29,7 +29,6 @@ def attente_prochaine_etape() -> None:
         except StopIteration:
             break
         
-        dessiner_infos()
         Fenetre.display_flip()
     
     if Jeu.etape_est_shop():
@@ -47,6 +46,19 @@ def attente_prochaine_etape() -> None:
 
 def choix_attaque() -> None:
     logging.debug(f"Activation de l'état {Jeu.Etat.CHOIX_ATTAQUE.name}.")
+    
+    # Définition du bouton pour skip son tour
+    def skip_tour() -> None:
+        Jeu.attaques_restantes_joueur = 0
+    bouton_skip = Bouton(
+        (
+            *Fenetre.pourcentages_fenetre(80, 92),
+            *Fenetre.pourcentages_fenetre(10, 5)
+        ),
+        "Finir tour",
+        action=skip_tour,
+    )
+    TAILLE_TEXTE_BOUTON : int = 40
     
     # Si nouveau tour (commencement tour joueur)
     if Jeu.attaques_restantes_joueur == Jeu.ATTAQUES_PAR_TOUR:
@@ -88,6 +100,9 @@ def choix_attaque() -> None:
                 joueur.lever_carte_du_dessus(event.pos)
             
             if event.type == pygame.MOUSEBUTTONDOWN:
+                if bouton_skip.check_click(event.pos):
+                    continue
+                
                 index_carte : Optional[int] = joueur.index_carte_du_dessus(event.pos)
                 if index_carte is None:
                     continue
@@ -104,6 +119,7 @@ def choix_attaque() -> None:
                 break
         
         rafraichir_ecran_combat()
+        bouton_skip.dessiner(1, TAILLE_TEXTE_BOUTON)
     
     if Jeu.decision_etat_en_cours():
         Jeu.changer_etat(Jeu.Etat.AFFICHAGE_ATTAQUE)
@@ -334,7 +350,7 @@ def shop() -> None:
     
     bouton_sortie : Bouton = Bouton(
         (
-            *Fenetre.pourcentages_coordonnees(2, 2, ret_pos=False),
+            *Fenetre.pourcentages_fenetre(2, 2),
             Fenetre.pourcentage_largeur(4), Fenetre.pourcentage_largeur(4),
         ),
         img=f"{Chemins.IMG}retour.png",

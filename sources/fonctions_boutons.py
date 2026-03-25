@@ -62,14 +62,14 @@ def menu_parametres() -> Interruption:
     
     bouton_sortir : Bouton = Bouton(
         (
-            *Fenetre.pourcentages_coordonnees(2, 2, ret_pos=False),
+            *Fenetre.pourcentages_fenetre(2, 2),
             Fenetre.pourcentage_largeur(4), Fenetre.pourcentage_largeur(4),
         ),
         img=f"{Chemins.IMG}croix.png"
     )
     pos_dim_bouton_actualisation = (
-        *Fenetre.pourcentages_coordonnees(50, 50, ret_pos=False),
-        *Fenetre.pourcentages_fenetre(30, 7, ret_vec=False),
+        *Fenetre.pourcentages_fenetre(50, 50),
+        *Fenetre.pourcentages_fenetre(30, 7),
     )
     butt_actualisation = Bouton(pos_dim_bouton_actualisation, "actualiser données", action=rafraichir_donnees)
     
@@ -83,7 +83,7 @@ def menu_parametres() -> Interruption:
         
         Fenetre.surface.fill(BLANC)
         
-        blit_centre(0, TITRE_PARAMS, Fenetre.pourcentages_coordonnees(50, 10, ret_pos=False))
+        blit_centre(0, TITRE_PARAMS, Fenetre.pourcentages_fenetre(50, 10))
         fin_params : int = Parametre.dessiner_groupe(1, PARAMETRES_NORMAUX)
         
         if params.mode_debug.case_cochee:

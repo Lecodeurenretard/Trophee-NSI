@@ -78,7 +78,7 @@ class EntiteJSON:
 class Entite(ABC):
     _CARTES_DE_DOS           : bool    = True           # à changer dans les classes filles
     _CARTE_MAIN_PREMIERE_POS : Pos     = Pos(0, 0)      # à changer dans les classes filles
-    _CARTES_MAIN_ESPACEMENT  : Vecteur = Fenetre.pourcentages_fenetre(4, 0)
+    _CARTES_MAIN_ESPACEMENT  : Vecteur = Fenetre.vecteur_pourcentage(4, 0)
     _CARTES_MAIN_MAX_DU_MAX  : int     = 10             # Possible de changer dans les classes filles
     _DIFF_LARG_ET_BARRE_SPRITE : int = 100
     
