@@ -56,7 +56,7 @@
 	},
 	{
 		"nom"			: "Magie",
-		"description"	: "Infligez des dégâts magique à l'adversaire.",
+		"description"	: "Infligez des dégâts magiques à l'adversaire.",
 		"sprite"		: "magie",
 		"attaque"		: {
 			"puissance"			: 12,
@@ -107,7 +107,7 @@
 	},
 	{
 		"nom"			: "Choc éléctrique",
-		"description"	: "Infligez un coup d'éléctriciter a l'adversaire.",
+		"description"	: "Infligez un coup d'éléctricité à l'adversaire.",
 		"sprite"		: "choc_electrique",
 		"animer"		: null,
 		"attaque": {
@@ -140,7 +140,7 @@
 	},
 	{
 		"nom"			: "Pique",
-		"description"	: "Infligez un coup de bec a l'adversaire.",
+		"description"	: "Infligez un coup de bec à l'adversaire.",
 		"sprite"		: "pique",
 		"animer"		: null,
 		"attaque": {
@@ -173,7 +173,7 @@
 	},
 	{
 		"nom"			: "Little shield",
-		"description"	: "Augmentez vôtre defense !.",
+		"description"	: "Augmentez votre defense !",
 		"sprite"		: "little shield",
 		"animer"		: null,
 		"attaque": {
@@ -206,7 +206,7 @@
 	},
 	{
 		"nom"			: "Pacifiste",
-		"description"	: "peace and love <3.",
+		"description"	: "Peace and love <3.",
 		"sprite"		: "pacifiste",
 		"animer"		: null,
 		"attaque": {
@@ -221,7 +221,7 @@
 	},
 	{
 		"nom"			: "Quitte ou double",
-		"description"	: "Avez vous de la chance ?",
+		"description"	: "Avez-vous de la chance ?",
 		"sprite"		: "quitte ou double",
 		"animer"		: null,
 		"attaque": {
@@ -236,7 +236,7 @@
 	},
 	{
 		"nom"			: "Roulette russe",
-		"description"	: "Au moins ce n'est pas un missile.",
+		"description"	: "Au moins ce n'est pas un missile...",
 		"sprite"		: "roulette russe",
 		"animer"		: null,
 		"attaque": {

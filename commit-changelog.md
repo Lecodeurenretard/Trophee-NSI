@@ -31,13 +31,18 @@ format:
 ------------------------------------
 -->
 _____
-## Ajout d'un bouton pour skip son tour.
+## Adaptation de l'interface des boss pour les cartes et les items.
 + Changements majeurs
-	- Ajout du bouton.
+	- Ajout de `CarteInterfaceMethodes`.
+		* Ajout de `Carte.callbacks`.
+		* Ajout de `carte.interface`
+	- Même chose pour Item.
 + Sur plusieurs fichiers
+	- Création de [fonctions_cartes.py](sources/fonctions_cartes.py).
 + Structure de fichiers
 + READMEs et documentation
 + Interactions joueur/testeur
+	- Correction de fautes d'orthographes/grammaire.
 + Correction de bugs
-+ `Jeu`
-	- Les méthodes `pourcentages_*` sont cohérente dans leur utilistation.
++ `Item`
+	- Les items peuvent être en promotion.

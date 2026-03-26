@@ -6,6 +6,12 @@ auteur : Dooheli, Lecodeurenretard, hibou509
 """
 from Attaque import *
 
+@dataclass
+class CarteInterfaceMethodes:
+    jouee : None|Callable[[Carte, dict[str, Any]], None] = None
+    
+    attributs_supplementaires : dict[str, Any] = field(default_factory=dict)
+
 @dataclass(frozen=True)
 class CarteAnimInfo:
     GARDER  : int = field(default=-1, init=False)
@@ -48,6 +54,8 @@ class Carte:
     derniere_enregistree : 'Optional[Carte]' = None
     cartes_affichees : ListeStable['Carte'] = ListeStable()
     
+    callbacks : dict[str, CarteInterfaceMethodes] = {}
+    
     
     @overload 
     def __init__(self, nom_ou_id_attaque : str, pos_defaut : pos_t, de_dos = True): ...
@@ -73,6 +81,10 @@ class Carte:
         self._desc       : str     = donnees_JSON["description"]
         self._nom_sprite : str     = donnees_JSON["sprite"]
         self._attaque    : Attaque = Attaque(id)
+        
+        self.interface : CarteInterfaceMethodes = CarteInterfaceMethodes()
+        if self.nom in Carte.callbacks.keys():
+            self.interface = Carte.callbacks[self.nom]
         
         self._anim_gen      : Optional[Generator[bool, None, None]] = None
         self._de_dos_defaut : bool = de_dos
@@ -155,6 +167,10 @@ class Carte:
     @property
     def peut_attaquer_lanceur(self) -> bool:
         return self._attaque.peut_attaquer_lanceur
+    
+    @property
+    def lanceur(self) -> 'Entite':  # type: ignore
+        return self._attaque.lanceur
     
     @property
     def nom(self) -> str:
@@ -376,6 +392,7 @@ class Carte:
             if animation_en_cours == CarteAnimEtat.JOUER:
                 self.jouer_sfx()
                 self._attaque.appliquer()
+                self.jouee()
                 return      # La carte ne doit plus être dessinée après
            
             if not animation_ecrasee:
@@ -446,3 +463,9 @@ class Carte:
     
     def dans_hitbox(self, pos : pos_t) -> bool:
         return self._hitbox.collidepoint(pos_t_vers_tuple(pos))
+    
+    def jouee(self) -> None:
+        """Appelée quand la carte est jouée."""
+        callback = self.interface.jouee
+        if callback is not None:
+            callback(self, self.interface.attributs_supplementaires)
