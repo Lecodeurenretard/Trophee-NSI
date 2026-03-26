@@ -60,16 +60,25 @@ def demon_nouveau_tour(monstre: Monstre, attributs: dict[str, Any]) -> None:
         monstre._stats.defense = 70
         monstre._stats.magie = 25
         monstre._stats.force = 90
-        monstre._sprite = attributs["sprite demon"]
+        monstre._sprite = attributs["sprite physique"]
     else :
         monstre._stats.defense_magique = 80
         monstre._stats.defense = 70
         monstre._stats.magie = 50
         monstre._stats.force = 15
-        monstre._sprite = attributs["sprite pretre"]
+        monstre._sprite = attributs["sprite magie"]
+
+def monstre_statique_thermofluide_nouveau_tour(monstre: Monstre, attributs: dict[str, Any]) -> None:
+    if "sprite" not in attributs.keys():
+        sprite = pygame.image.load(f"{Chemins.IMG}boss/monstre statique thermofluide.png").convert_alpha()
+        
+        w, h = sprite.get_size()
+        facteur = 6
+        attributs["sprite"] = pygame.transform.scale(sprite, (int(w * facteur), int(h * facteur)))
 
 
 callbacks : dict[str, BossInterfaceMethodes] = {
     "Roi Blob": BossInterfaceMethodes(roi_blob_nouveau_tour),
     "Démon": BossInterfaceMethodes(demon_nouveau_tour),
+    "Monstre statique thermofluide": BossInterfaceMethodes(monstre_statique_thermofluide_nouveau_tour),
 }

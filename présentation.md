@@ -20,6 +20,8 @@ Le projet est commencé en mai 2025 par [@Dooheli](https://github.com/Dooheli) e
 
 ## Etapes du projet
 ### Avant l'arrivée de @LeRetardatN
+Avant l'arrivée de Nils, le projet n'était pas tout à fait bien défini, ni Lucas ni Jules n'avaient eu une idée précise de ce qu'ils voulaient faire. L'idée initiale vient du fait que Lucas adorait le système des rogues likes et donc à partir de ce moment-là nous avons décidé de créer le nôtre. Au début du projet, vers avril 2025, nous n'avions pas encore envisagé de participer aux trophées de NSI. Nous avions tout fait sur une même page de code et nous nous partagions le projet à l'aide de clés USB, nous n'avions pas encore envisagé la possibilité d'utiliser GitHub pour notre travail.
+
 ### La refactorisation
 De ce moment, jusqu'à la rentrée en septembre. J'était seul sur le développement du fait à des erreurs de communications et du fait que ni @Dooheli ni @hibou509 connaissaient Git.
 
