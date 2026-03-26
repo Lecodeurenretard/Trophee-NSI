@@ -38,10 +38,17 @@
             "nom"        : "Secoupe",
             "poids"      : 5,
             "soustraire" : null
-        },
+        }
+    ],
+    "2": [
         {
             "nom"        : "Cangros",
             "poids"      : 5,
+            "soustraire" : null
+        },
+        {
+            "nom"        : "Secoupe",
+            "poids"      : 7,
             "soustraire" : null
         }
     ]

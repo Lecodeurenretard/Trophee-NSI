@@ -99,7 +99,9 @@ class Boss(Monstre):
             )
     
     @staticmethod
-    def spawn_boss(etage : int = Jeu.num_etage() + 1) -> None:
+    def spawn_boss(etage : Optional[int] = None) -> None:
+        if etage is None:
+            etage = Jeu.num_etage() + 1
         Boss(BossJSON(etage))
     
     @property
