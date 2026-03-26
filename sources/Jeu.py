@@ -28,7 +28,7 @@ class Jeu:
     }
     
     ETAPE_PAR_ETAGE   : int = 10
-    NOMBRE_ETAGES     : int = 2
+    NOMBRE_ETAGES     : int = 3
     COMBAT_MAX        : int = NOMBRE_ETAGES * ETAPE_PAR_ETAGE
     ATTAQUES_PAR_TOUR : int = 3
     
@@ -88,9 +88,11 @@ class Jeu:
                 return "plaines"
             case 1:
                 return "eglise_satanique"
+            case 2:
+                return "la_fin"
             case _:
                 return "le_vide"
-    
+
     @staticmethod
     def _application_contraintes_etape() -> None:
         # on s'assure que 0 < num_etape <= Jeu.COMBAT_MAX
