@@ -233,7 +233,6 @@ def shop_click(ev : pygame.event.Event, items : list[Item], bouton_sortie : Bout
         return
     
     if joueur.paiement(items[index].prix, payer_max=False) > 0:
-        pass    # Ajouter animation
         return
     
     son_paiment = Sound(f"{Chemins.SFX}/argent2.wav")

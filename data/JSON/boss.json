@@ -53,8 +53,42 @@
 		}
 	},
 	{
+		"nom": "Démon",
+		"sprite" : "demon.png",
+		"moveset_boss": [
+			{
+				"nom"		 : "Torgnole",
+				"poids"		 : 5,
+				"soustraire" : null
+			},
+			{
+				"nom"		 : "Little shield",
+				"poids"		 : 5,
+				"soustraire" : null
+			},
+			{
+				"nom"		 : "Soin",
+				"poids"		 : 8,
+				"soustraire" : null
+			}
+		],
+		"rang": 2,
+		"moveset_joueur": null,
+		"nombre_cartes_main": 3,
+		"pos_sprite": [60, 18],
+		"stats": {
+			"vie_max"			: 120,
+			"force"				: 50,
+			"defense"			: 50,
+			"magie"				: 30,
+			"defense_magique"	: 25,
+			"crit_puissance"	: 1.4,
+			"crit_resitance"	: 1.4
+		}
+	},
+	{
 		"nom": "Monstre statique thermofluide",
-		"sprite" : "mst.png",
+		"sprite" : "monstre statique thermofluide.png",
 		"moveset_boss": [
 			{
 				"nom"		 : "Little shield",
@@ -80,6 +114,7 @@
 			"crit_puissance"	: 1.4,
 			"crit_resitance"	: 1.1
 		}
+<<<<<<< HEAD
 	},
 	{
 		"nom": "Démon",
@@ -114,5 +149,7 @@
 			"crit_puissance"	: 1.4,
 			"crit_resitance"	: 1.4
 		}
+=======
+>>>>>>> cc95dc5832cfeee9fcea01b57bb669fe6efb7600
 	}
 ]
