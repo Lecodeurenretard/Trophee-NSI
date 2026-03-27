@@ -206,8 +206,26 @@
 			"probabilité_crit"	: 0.3,
 			"flags"				: null,
 			"nom_ajustement"	: null,
-			"Modif stat cible"  : null,
-			"Modif stat lanceur": null
+			"Modif stat cible"  : {
+				"duree"			: -1,
+				"vie_max"		: 0,
+				"force"			: 0,
+				"defense"		: 3,
+				"magie"			: 0,
+				"defense_magique": 0,
+				"crit_puissance" : -20,
+				"crit_resitance" : 10
+			},
+			"Modif stat lanceur": {
+				"duree"			: -1,
+				"vie_max"		: 0,
+				"force"			: 0,
+				"defense"		: 0,
+				"magie"			: 0,
+				"defense_magique": 0,
+				"crit_puissance" : -20,
+				"crit_resitance" : 10
+			}
 		}
 	},
 	{
@@ -236,8 +254,59 @@
 			"probabilité_crit"	: 0.3,
 			"flags"				: null,
 			"nom_ajustement"	: null,
-			"Modif stat cible"  : null,
-			"Modif stat lanceur": null
+			"Modif stat cible"  : {
+				"duree"			: -1,
+				"vie_max"		: 0,
+				"force"			: 0,
+				"defense"		: 0,
+				"magie"			: 0,
+				"defense_magique": 0,
+				"crit_puissance" : 20,
+				"crit_resitance" : -10
+			},
+			"Modif stat lanceur": {
+				"duree"			: -1,
+				"vie_max"		: 0,
+				"force"			: 0,
+				"defense"		: 0,
+				"magie"			: 0,
+				"defense_magique": 0,
+				"crit_puissance" : 20,
+				"crit_resitance" : -10
+			}
+		}
+	},
+	{
+		"nom"			: "Reverse",
+		"description"	: "baisser la défense de l'adversaire et augmenter la votre !",
+		"sprite"		: "reverse",
+		"animer"		: null,
+		"attaque": {
+			"puissance"			: 9,
+			"type"				: "physique",
+			"probabilité_crit"	: 0.3,
+			"flags"				: null,
+			"nom_ajustement"	: null,
+			"Modif stat cible"  : {
+				"duree"			: -1,
+				"vie_max"		: 0,
+				"force"			: 2,
+				"defense"		: -4,
+				"magie"			: 0,
+				"defense_magique": -4,
+				"crit_puissance" : 2,
+				"crit_resitance" : -2
+			},
+			"Modif stat lanceur": {
+				"duree"			: -1,
+				"vie_max"		: 0,
+				"force"			: -4,
+				"defense"		: 6,
+				"magie"			: 0,
+				"defense_magique": 6,
+				"crit_puissance" : -2,
+				"crit_resitance" : 2
+			}
 		}
 	}
 ]
