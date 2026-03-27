@@ -47,7 +47,7 @@ Le jeu est presque terminé, il lui manque quelques éléments:
 - L'ajout de nouvelles cartes et de nouveaux items (les [discussions Github](https://github.com/Lecodeurenretard/Trophee-NSI/discussions) contiennent quleques idées),
 - L'ajout d'un tutoriel et d'une histoire.
 
-### approches mises en œuvre pour vérifier l’absence de bugs
+### Méthodes de débug
 Beaucoups de playtests.
 
 ### difficultés rencontrées et solutions apportées.
@@ -55,13 +55,16 @@ La codebase est tellement grande qu'il a fallu utiliser des IA (Claude) pour le 
 
 ## Ouverture
 ### idées d'amélioration du projet
-Elements pour casser la routine du RPG car le jeu est ennuyeux si l'on regarde au delà du coté technique.
+Elements pour casser la routine du RPG car le jeu est ennuyeux si l'on regarde au delà du coté technique.  
+Un mode multijoueur serait aussi un bon atout.
 
 ### analyse critique
 
-### compétences personnelles développées.
+### Compétences personnelles développées
 #### Pour Nils
 Avant les trophées, je n'avais jamais eu de projet en Python, ce projet m'a permis d'apprendre Python au dela de la syntaxe que l'on apprend (utilisation des dataclasses, des générateurs, plusieurs moyens de tirer des choses au hasard, gestions des modules).  
 J'ai aussi vu des concepts propre au jeux vidéos (horloge interne (je n'avais jusqu'ici utilisé que le delta timing), courbes d'animations).
+
+
 
 ### démarche d'inclusion.
