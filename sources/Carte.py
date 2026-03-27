@@ -9,7 +9,6 @@ from Attaque import *
 @dataclass
 class CarteInterfaceMethodes:
     jouee : None|Callable[[Carte, dict[str, Any]], None] = None
-    
     attributs_supplementaires : dict[str, Any] = field(default_factory=dict)
 
 @dataclass(frozen=True)
