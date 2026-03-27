@@ -157,10 +157,6 @@ def affichage_attaque() -> None:
         rafraichir_ecran_combat()
     rafraichir_ecran_combat()   # comme ça on a pas de dernière frame moche
     
-    for item in Carte.derniere_enregistree.lanceur.inventaire:
-        assert(type(item) is Item)      # juste utile pour le type checker
-        item.carte_jouee(Carte.derniere_enregistree)
-    
     # Vérifie si c'est la fin du combat
     if not joueur.en_vie:
         Jeu.a_gagne = False

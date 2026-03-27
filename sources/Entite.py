@@ -355,7 +355,7 @@ class Entite(ABC):
     
     def meurt(self) -> None:
         """S'enlève de la liste des entités vivantes."""
-        del Entite._vivantes[self._id]
+        Entite._vivantes.pop(self._id)
         self._id = -1
     
     # attaque_cause est là pour la compatibilité avec les boss.
@@ -363,10 +363,10 @@ class Entite(ABC):
         self._stats.baisser_vie(degats_recu)
         
         for item in self._inventaire:
-            item.porteur_subit_dmg(attaque_cause, self._id)
+            item.porteur_subit_dmg(copy(attaque_cause), self._id)
         
         for item in attaque_cause.lanceur._inventaire:
-            item.adversaire_subit_dmg(attaque_cause, self._id)
+            item.adversaire_subit_dmg(copy(attaque_cause), self._id)
     
     def reset(self) -> None:
         """Remet le joueur comme en début de partie."""
@@ -389,6 +389,9 @@ class Entite(ABC):
         
         carte.anim_etat = CarteAnimEtat.JOUER
         carte.enregister_lancement(self._id, id_cible)
+        
+        for item in self.inventaire:
+            item.carte_jouee(carte)
     
     def dessiner(self, num_couche : int) -> None:
         """Dessine le sprite mais pas l'UI (barre de vie, nom, ...)."""
