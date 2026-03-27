@@ -87,7 +87,7 @@
 		"moveset_boss": [
 			{
 				"nom"		 : "Torgnole",
-				"poids"		 : 5,
+				"poids"		 : 7,
 				"soustraire" : null
 			},
 			{
@@ -97,7 +97,7 @@
 			},
 			{
 				"nom"		 : "Soin",
-				"poids"		 : 8,
+				"poids"		 : 2,
 				"soustraire" : null
 			}
 		],
