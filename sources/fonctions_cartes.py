@@ -7,12 +7,12 @@ auteur : Dooheli, Lecodeurenretard, hibou509
 from Carte import *
 
 
-def quitte_ou_double_aplliquer(self : Carte, attr : dict[str, Any]) -> None:
-    if random.randint(0, 1) <= 0.5:
-        self._attaque.cible.recoit_degats(40, self)
-    else:
-        self._attaque.lanceur.recoit_degats(40, self)
+def quitte_ou_double_jouee(self : Carte, attr : dict[str, Any]) -> None:
+    if random.random() <= 0.4:
+        self._attaque._cible_id = self._attaque._lanceur_id
+    self._attaque.cible.recoit_degats(self._attaque.calculer_degats(), self._attaque)
+
 
 callbacks : dict[str, CarteInterfaceMethodes]  = {
-    "quitte ou double" : CarteInterfaceMethodes(quitte_ou_double_aplliquer)
+    "quitte ou double" : CarteInterfaceMethodes(jouee=quitte_ou_double_jouee)
 }

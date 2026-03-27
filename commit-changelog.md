@@ -31,18 +31,15 @@ format:
 ------------------------------------
 -->
 _____
-## Adaptation de l'interface des boss pour les cartes et les items.
+## Commit final.
 + Changements majeurs
-	- Ajout de `CarteInterfaceMethodes`.
-		* Ajout de `Carte.callbacks`.
-		* Ajout de `carte.interface`
-	- Même chose pour Item.
 + Sur plusieurs fichiers
-	- Création de [fonctions_cartes.py](sources/fonctions_cartes.py).
 + Structure de fichiers
 + READMEs et documentation
 + Interactions joueur/testeur
-	- Correction de fautes d'orthographes/grammaire.
 + Correction de bugs
-+ `Item`
-	- Les items peuvent être en promotion.
+
+
+
+______
+Je suis un peu dramatique non? Après, c'est le deriner commit <!--wink, wink-->.

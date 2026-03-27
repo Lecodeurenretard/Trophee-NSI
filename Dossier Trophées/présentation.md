@@ -50,21 +50,24 @@ Le jeu est presque terminé, il lui manque quelques éléments:
 ### Méthodes de débug
 Beaucoups de playtests.
 
-### difficultés rencontrées et solutions apportées.
+### Difficultés rencontrées
 La codebase est tellement grande qu'il a fallu utiliser des IA (Claude) pour le débug.
 
 ## Ouverture
-### idées d'amélioration du projet
+### Idées d'amélioration du projet
 Elements pour casser la routine du RPG car le jeu est ennuyeux si l'on regarde au delà du coté technique.  
 Un mode multijoueur serait aussi un bon atout.
 
-### analyse critique
+### Analyse critique
+Même après les 9 mois de développements, le jeu n'est pas très fun à jouer.
 
 ### Compétences personnelles développées
 #### Pour Nils
 Avant les trophées, je n'avais jamais eu de projet en Python, ce projet m'a permis d'apprendre Python au dela de la syntaxe que l'on apprend (utilisation des dataclasses, des générateurs, plusieurs moyens de tirer des choses au hasard, gestions des modules).  
 J'ai aussi vu des concepts propre au jeux vidéos (horloge interne (je n'avais jusqu'ici utilisé que le delta timing), courbes d'animations).
 
+#### Pour Jules
+L'organisation du travail.
 
-
-### démarche d'inclusion.
+#### Pour Lucas
+J'ai appris pleins de choses qui ne sont pas en NSI et à mieux gérer les classes. C'était aussi la première fois que je faisait un tel projet en equipe.
