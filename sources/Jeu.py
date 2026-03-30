@@ -255,6 +255,11 @@ class Jeu:
             int(i): pool
             for i, pool in pools.items()
         }
+    
+    @staticmethod
+    def quitter(exit_code : int = 0) -> NoReturn:
+        pygame.quit()
+        sys.exit(exit_code)
 
 
 
@@ -435,7 +440,7 @@ def verifier_pour_quitter(ev : pygame.event.Event) -> None:
 def verifier_pour_quitter(ev : Optional[pygame.event.Event] = None) -> None:
     if ev is not None:
         if ev.type == pygame.QUIT or (ev.type == pygame.KEYDOWN and ev.key == Touches.QUITTER):
-            quit()
+            Jeu.quitter()
         return
     
     for event in pygame.event.get():

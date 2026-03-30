@@ -287,7 +287,7 @@ def game_over() -> None:
         Fenetre.display_flip()
     
     if bool(params.fermer_a_la_fin):
-        quit()
+        Jeu.quitter()
     
     joueur.reset()
     Jeu.aller_etape(1)
@@ -306,7 +306,7 @@ def preparation() -> None:
         
         if joueur.nom == '67' or joueur.nom.lower() == "six seven":
             logging.info("Reviens quand tu seras en age.")
-            quit(69)
+            Jeu.quitter(69)
         
         Fenetre.set_texte_fenetre("Chargement...")
         terminer_interruption(faux_chargement())

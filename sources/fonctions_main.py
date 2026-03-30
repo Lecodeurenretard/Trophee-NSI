@@ -8,10 +8,6 @@ from Item    import Item
 from Carte   import Carte
 from Monstre import Monstre
 
-def quit(exit_code : int = 0) -> NoReturn:
-    pygame.quit()
-    sys.exit(exit_code)
-
 def fin_partie(num_couche : int, gagne : bool) -> Interruption:
     couleur_fond : rgb
     texte_fin : str
