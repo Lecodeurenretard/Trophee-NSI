@@ -1,5 +1,7 @@
 # L'ascension d'Esquimot
-Ce jeu est un RPG joué avec des cartes.
+L'ascension d'Esquimot est un RPG/Roguelite tour par tour inspiré de PokéRogue.
+Toutes les attaques se font par des cartes.
+Le joueur a aussi accès à un shop qui lui permet d'acheter des items pouvant modifier ses statistiques (attaque, défense, ...). A la fin de chacun des trois étages, Esquimot affronte un boss ayant une mécanique unique.
 
 ## Jouer au jeu
 Pour jouer au jeu, il faut avoir Python les dépendances installées comme indiqué dans [la prochaine section](#configuration-minimum), si vous savez pas comment faire suivez les indications dans [Installer.md](Installer.md).
@@ -24,4 +26,4 @@ Jeu produit pour Les Trophées de NSI par:
 + **[hibou509](https://github.com/hibou509)**: Système de combat, béta-test et équilibrage.
 
 ## Usage de l'IA
-Ni le code, ni les graphismes ont été générés par IA. Son usage est restreint au débogage.
+L'utilisation de LLM est restriente au débogage. Nous entendons par "débogage" l'aide utilisée pour résoudre un problème empêchant de jouer au jeu (plantage, erreur, ...).
