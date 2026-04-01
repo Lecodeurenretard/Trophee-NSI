@@ -16,34 +16,46 @@ class BossInterfaceMethodes:
     
     attributs_supplementaires : dict[str, Any] = field(default_factory=dict)
 
+def _charger_sprite(nom_fichier : str) -> Surface:
+    return pygame.image.load(f"{Chemins.IMG}boss/{nom_fichier}").convert_alpha()
 
-def roi_blob_nouveau_tour(monstre: Monstre, attributs: dict[str, Any]) -> None:
+def roi_blob_nouveau_tour(self : Monstre, attributs : dict[str, Any]) -> None:
+    DUREE_TYPE : int = 2        # la durée du type (att ou magie)  en nombre de tours
+    if Jeu.nb_tours_combat % DUREE_TYPE != 0:
+        return
+    
     if "sprite physique" not in attributs.keys():
-        sprite_physique = pygame.image.load(f"{Chemins.IMG}boss/Roi blob ph.png").convert_alpha()
-        sprite_magie = pygame.image.load(f"{Chemins.IMG}boss/Roi blob mg.png").convert_alpha()
+        sprite_physique = _charger_sprite("Roi blob ph.png")
+        sprite_magie    = _charger_sprite("Roi blob mg.png")
         
-        w, h = sprite_physique.get_size()
         facteur = 6
+        w, h = sprite_physique.get_size()
         attributs["sprite physique"] = pygame.transform.scale(sprite_physique, (int(w * facteur), int(h * facteur)))
         
         w, h = sprite_magie.get_size()
         attributs["sprite magie"] = pygame.transform.scale(sprite_magie, (int(w * facteur), int(h * facteur)))
     
-    if Jeu.nb_tours_combat % 3 == 0:
-        monstre._stats.defense_magique = 50
-        monstre._stats.defense = 25
-        monstre._stats.magie = 30
-        monstre._stats.force = 50
-        monstre._sprite = attributs["sprite physique"]
-    else :
-        monstre._stats.defense_magique = 25
-        monstre._stats.defense = 50
-        monstre._stats.magie = 50
-        monstre._stats.force = 30
-        monstre._sprite = attributs["sprite magie"]
+    # intervertit les stats du boss de sorte à ce que
+    # ses stats les plus fortes soient du bon type
+    min_att, max_att = sorted((self._stats.magie, self._stats.force))
+    min_def, max_def = sorted((self._stats.defense_magique, self._stats.defense))
+    if Jeu.nb_tours_combat % (DUREE_TYPE * 2) == 0:
+        # Si DUREE_TYPE == 1, s'active pour les tours 0, 2, 4, ...
+        self._stats.magie           = min_att
+        self._stats.defense_magique = min_def
+        self._stats.force   = max_att
+        self._stats.defense = max_def
+        self._sprite = attributs["sprite physique"]
+    else:
+        # Si DUREE_TYPE == 1, s'active pour les tours 1, 3, 5, ...
+        self._stats.magie           = max_att
+        self._stats.defense_magique = max_def
+        self._stats.force   = min_att
+        self._stats.defense = min_def
+        self._sprite = attributs["sprite magie"]
 
 
-def demon_nouveau_tour(monstre: Monstre, attributs: dict[str, Any]) -> None:
+def demon_nouveau_tour(self : Monstre, attributs : dict[str, Any]) -> None:
     if "sprite physique" not in attributs.keys():
         sprite_demon = pygame.image.load(f"{Chemins.IMG}boss/demon.png").convert_alpha()
         sprite_pretre = pygame.image.load(f"{Chemins.IMG}boss/pretre.png").convert_alpha()
@@ -56,29 +68,30 @@ def demon_nouveau_tour(monstre: Monstre, attributs: dict[str, Any]) -> None:
         attributs["sprite magie"] = pygame.transform.scale(sprite_pretre, (int(w * facteur), int(h * facteur)))
     
     if Jeu.nb_tours_combat % 3 == 0:
-        monstre._stats.defense_magique = 40
-        monstre._stats.defense = 70
-        monstre._stats.magie = 25
-        monstre._stats.force = 90
-        monstre._sprite = attributs["sprite physique"]
+        self._stats.defense_magique = 40
+        self._stats.defense = 70
+        self._stats.magie = 25
+        self._stats.force = 90
+        self._sprite = attributs["sprite physique"]
     else :
-        monstre._stats.defense_magique = 80
-        monstre._stats.defense = 70
-        monstre._stats.magie = 50
-        monstre._stats.force = 15
-        monstre._sprite = attributs["sprite magie"]
+        self._stats.defense_magique = 80
+        self._stats.defense = 70
+        self._stats.magie = 50
+        self._stats.force = 15
+        self._sprite = attributs["sprite magie"]
 
-def monstre_statique_thermofluide_nouveau_tour(monstre: Monstre, attributs: dict[str, Any]) -> None:
-    if "sprite" not in attributs.keys():
-        sprite = pygame.image.load(f"{Chemins.IMG}boss/monstre statique thermofluide.png").convert_alpha()
-        
-        w, h = sprite.get_size()
-        facteur = 6
-        attributs["sprite"] = pygame.transform.scale(sprite, (int(w * facteur), int(h * facteur)))
+def monstre_statique_thermofluide_nouveau_tour(self : Monstre, attributs : dict[str, Any]) -> None:
+    ...
 
 
 callbacks : dict[str, BossInterfaceMethodes] = {
-    "Roi Blob": BossInterfaceMethodes(roi_blob_nouveau_tour),
-    "Démon": BossInterfaceMethodes(demon_nouveau_tour),
-    "Monstre statique thermofluide": BossInterfaceMethodes(monstre_statique_thermofluide_nouveau_tour),
+    "Roi Blob": BossInterfaceMethodes(
+        nouveau_tour=roi_blob_nouveau_tour,
+    ),
+    "Démon": BossInterfaceMethodes(
+        nouveau_tour=demon_nouveau_tour,
+    ),
+    "Monstre statique thermofluide": BossInterfaceMethodes(
+        nouveau_tour=monstre_statique_thermofluide_nouveau_tour,
+    ),
 }
