@@ -79,7 +79,7 @@ def reagir_appui_touche(ev : pygame.event.Event) -> Optional[Interruption]:
             Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
         
         case Touches.DBG_SHOP:
-            for i in range(Jeu.num_etape, Jeu.COMBAT_MAX):
+            for i in range(Jeu.num_etape + 1, Jeu.COMBAT_MAX + 1):
                 if Jeu.decision_shop(i):
                     Jeu.aller_etape(i)
                     break
@@ -91,7 +91,7 @@ def reagir_appui_touche(ev : pygame.event.Event) -> Optional[Interruption]:
             Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
         
         case Touches.DBG_BOSS:
-            for i in range(Jeu.num_etape, Jeu.COMBAT_MAX):
+            for i in range(Jeu.num_etape + 1, Jeu.COMBAT_MAX + 1):
                 if Jeu.decision_boss(i):
                     Jeu.aller_etape(i)
                     break

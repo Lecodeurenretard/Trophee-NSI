@@ -20,6 +20,7 @@ class BossJSON:
     pos_sprite     : Pos
     rang           : int
     stats          : Stat
+    autres_attributs : dict[str, Any]
     
     def __init__(
         self,
@@ -55,6 +56,10 @@ class BossJSON:
 
         self.rang  = donnees["rang"]
         self.stats = Stat.depuis_dictionnaire_json(donnees["stats"]).reset_vie()
+        self.autres_attributs = valeur_par_defaut(
+            donnees["autres_attributs"],
+            {},
+        )
         
     @staticmethod
     def actualiser_donnees() -> None:
@@ -91,6 +96,7 @@ class Boss(Monstre):
         )
         self._deck_joueur = boss_json.deck_joueur
         self._pos_sprite  = boss_json.pos_sprite
+        self.callbacks.attributs_supplementaires = deepcopy(boss_json.autres_attributs)
         
         if self._nom not in boss_callbacks:
             raise AssertionError(

@@ -31,15 +31,17 @@ format:
 ------------------------------------
 -->
 _____
-## Commit final.
+## Amélioration de l'API des boss.
 + Changements majeurs
+	- Ajout de l'attribut JSON "autres_attributs" pour apporter des données supplémentaire au boss (évite de les hardcoder dans fonctions_boss).
+		* Ajout du membre dans `BossJSON` et est servi lors de l'initialisation de `attributs_supplementaires[]`.
 + Sur plusieurs fichiers
 + Structure de fichiers
 + READMEs et documentation
+	- Ajout du binaire dans le README.
 + Interactions joueur/testeur
+	- Le démon change bien tout les 2 tours.
 + Correction de bugs
-
-
-
-______
-Je suis un peu dramatique non? Après, c'est le deriner commit <!--wink, wink-->.
+	- Les boutons pour cherche le boss et le shop cherchent à partir du combat suivant et n'excluent plus le dernier combat.
++ `Stat`
+	- Ajout de la méthode `.copier()` qui permet la copie en place d'un autre objet `Stat`.

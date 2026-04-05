@@ -4,9 +4,15 @@ Toutes les attaques se font par des cartes.
 Le joueur a aussi accès à un shop qui lui permet d'acheter des items pouvant modifier ses statistiques (attaque, défense, ...). A la fin de chacun des trois étages, Esquimot affronte un boss ayant une mécanique unique.
 
 ## Jouer au jeu
+Le moyen le plus facile de jouer est d'obtenir la dernière version stable dans l'onglet "release" à droite dans la page Github (seulement pour Windows).
+
+Si votre machine n'est pas sur Windows (macOs, distribution Linux, ...) ou que vous projetez de modifier le code source, suivez les instructions suivantes.  
 Pour jouer au jeu, il faut avoir Python les dépendances installées comme indiqué dans [la prochaine section](#configuration-minimum), si vous savez pas comment faire suivez les indications dans [Installer.md](Installer.md).
 
-Une faois prêt, lancer le jeu en double-cliquant sur [sources/main.py](sources/main.py) ou en le lançant depuis la ligne de commande si Tkinter n'est pas disponible (il l'est sur Windows et mac).
+Une fois prêt, lancer le jeu en double-cliquant sur [sources/main.py](sources/main.py) ou en le lançant depuis la ligne de commande si Tkinter n'est pas disponible (il l'est sur Windows et mac).
+
+## Les touches
+Les touches sont dans [Touches.md](Touches.md).
 
 ## Configuration minimum
 + [Python 3.14.2](https://www.python.org/downloads/release/python-3142/) ou plus récent
@@ -15,9 +21,6 @@ Une faois prêt, lancer le jeu en double-cliquant sur [sources/main.py](sources/
 + [Pygame 2.6](https://www.pygame.org/news) ou plus récent
 
 Pas de configuration minimum pour les composants du PC à moins que ce soit littéralement une patate.
-
-## Les touches
-Les touches sont dans [Touches.md](Touches.md).
 
 ## Crédits
 Jeu produit pour Les Trophées de NSI par:
