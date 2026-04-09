@@ -28,7 +28,7 @@
 				"force": 7
 			}
 		},
-		"sprite": "placeholder1.png",
+		"sprite": "teto.png",
 		"prix": 3
 	},
 	{
@@ -42,7 +42,7 @@
 				"crit_puissance": 1.1
 			}
 		},
-		"sprite": "placeholder2.png",
+		"sprite": "hornet.png",
 		"prix": 7
 	},
 	{
@@ -54,12 +54,12 @@
 			"stats": {
 			}
 		},
-		"sprite": "placeholder3.png",
+		"sprite": "masque de pierre.png",
 		"prix": 10
 	},
 	{
 		"nom": "Coupon",
-		"description": "Baisse des prix.",
+		"description": "Promos généralisées.",
 		"effets": {
 			"message utilisateur": "C'est les soldes!",
 			"stats": {
@@ -69,10 +69,10 @@
 		"prix": 12
 	},
 	{
-		"nom" : "Corbeille",
+		"nom" : "corbeille",
 		"description" : "tu appele ça un casque? ",
 		"effets" : {
-			"message utilisateur" : "Augmente la défense.",
+			"message utilisateur" : "augmente la defense",
 			"stats" : {
 				"defense" : 8
 			}

@@ -8,10 +8,6 @@ from Item    import Item
 from Carte   import Carte
 from Monstre import Monstre
 
-def quit(exit_code : int = 0) -> NoReturn:
-    pygame.quit()
-    sys.exit(exit_code)
-
 def fin_partie(num_couche : int, gagne : bool) -> Interruption:
     couleur_fond : rgb
     texte_fin : str
@@ -83,7 +79,7 @@ def reagir_appui_touche(ev : pygame.event.Event) -> Optional[Interruption]:
             Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
         
         case Touches.DBG_SHOP:
-            for i in range(Jeu.num_etape, Jeu.COMBAT_MAX):
+            for i in range(Jeu.num_etape + 1, Jeu.COMBAT_MAX + 1):
                 if Jeu.decision_shop(i):
                     Jeu.aller_etape(i)
                     break
@@ -95,7 +91,7 @@ def reagir_appui_touche(ev : pygame.event.Event) -> Optional[Interruption]:
             Jeu.changer_etat(Jeu.Etat.ATTENTE_PROCHAINE_ETAPE)
         
         case Touches.DBG_BOSS:
-            for i in range(Jeu.num_etape, Jeu.COMBAT_MAX):
+            for i in range(Jeu.num_etape + 1, Jeu.COMBAT_MAX + 1):
                 if Jeu.decision_boss(i):
                     Jeu.aller_etape(i)
                     break
@@ -233,7 +229,6 @@ def shop_click(ev : pygame.event.Event, items : list[Item], bouton_sortie : Bout
         return
     
     if joueur.paiement(items[index].prix, payer_max=False) > 0:
-        pass    # Ajouter animation
         return
     
     son_paiment = Sound(f"{Chemins.SFX}/argent2.wav")

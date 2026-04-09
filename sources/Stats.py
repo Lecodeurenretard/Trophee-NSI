@@ -79,6 +79,16 @@ class Stat:
         if ajouter_vie:
             self.vie -= delta.vie
     
+    def copier(self, other : Stat, copier_vie : bool = True) -> None:
+        """Copie les attributs de `other` dans self."""
+        this = self.__dict__
+        for attr in this.keys():
+            if attr == "vie" and not copier_vie:
+                continue
+            self.__setattr__(attr, other.__dict__[attr])
+            # si attr == "force", équivalent à
+            # self.force = other.force
+    
     @property
     def est_mort(self) -> bool:
         return self.vie <= 0

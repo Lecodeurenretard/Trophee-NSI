@@ -11,6 +11,10 @@ from imports           import afficher_erreur, NoReturn
 from fonctions_boutons import rafraichir_donnees
 from Jeu               import Jeu
 
+# Exécute le code de ces fichiers
+import fonctions_cartes
+import fonctions_items
+
 from fonctions_etats import (
     ecran_titre,
     credits,

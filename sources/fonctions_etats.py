@@ -287,7 +287,7 @@ def game_over() -> None:
         Fenetre.display_flip()
     
     if bool(params.fermer_a_la_fin):
-        quit()
+        Jeu.quitter()
     
     joueur.reset()
     Jeu.aller_etape(1)
@@ -306,7 +306,7 @@ def preparation() -> None:
         
         if joueur.nom == '67' or joueur.nom.lower() == "six seven":
             logging.info("Reviens quand tu seras en age.")
-            quit(69)
+            Jeu.quitter(69)
         
         Fenetre.set_texte_fenetre("Chargement...")
         terminer_interruption(faux_chargement())
@@ -346,7 +346,7 @@ def shop() -> None:
     def nouv_items() -> list[Item]:
         gen_item = Item.generateur_items(consecutifs_differents=True)
         return [next(gen_item) for _ in range(random.randint(2, 3))]
-    items : list[Item] = nouv_items()
+    items_shop : list[Item] = nouv_items()
     
     bouton_sortie : Bouton = Bouton(
         (
@@ -357,36 +357,45 @@ def shop() -> None:
         action=Jeu.reset_etat,
     )
     
-    premiere_frame : bool = True
     interruption : Optional[bool|Interruption] = None
+    for item_joueur in joueur.inventaire:
+        item_joueur.nouveau_shop(items_shop)
+    
+    # Affiche les avertissments si besoin
+    rafraichir_ecran_shop(
+        items_shop,
+        ABSCISSES_ITEMS[len(items_shop)],
+        INVENTAIRE_BOITE,
+        INVENTAIRE_EPAISSEUR_TRAIT,
+        bouton_sortie,
+        afficher_avertissements=True,
+    )
     
     radio = gerer_radio()
     while Jeu.etat == Jeu.Etat.SHOP:
         Jeu.commencer_frame()
         
         for ev in pygame.event.get():
-            interruption = reagir_appui_touche_shop(ev, items, (0, len(ABSCISSES_ITEMS) - 1))
+            interruption = reagir_appui_touche_shop(ev, items_shop, (0, len(ABSCISSES_ITEMS) - 1))
             if interruption is not None:
-                items = nouv_items()
+                items_shop = nouv_items()
             
             if ev.type == pygame.MOUSEWHEEL and bool(params.mode_debug):
-                dbg_shop_scroll(ev, items, ABSCISSES_ITEMS[len(items)])
+                dbg_shop_scroll(ev, items_shop, ABSCISSES_ITEMS[len(items_shop)])
             
             if ev.type == pygame.MOUSEBUTTONDOWN:
-                shop_click(ev, items, bouton_sortie, ABSCISSES_ITEMS[len(items)])
+                shop_click(ev, items_shop, bouton_sortie, ABSCISSES_ITEMS[len(items_shop)])
         
         
         # Si il n'y a plus de musique, en charge une aléatoire.
         next(radio)
         rafraichir_ecran_shop(
-            items,
-            ABSCISSES_ITEMS[len(items)],
+            items_shop,
+            ABSCISSES_ITEMS[len(items_shop)],
             INVENTAIRE_BOITE,
             INVENTAIRE_EPAISSEUR_TRAIT,
             bouton_sortie,
-            afficher_avertissements=premiere_frame,
         )
-        premiere_frame = False
     
     if Jeu.decision_etat_en_cours():
         Jeu.avancer_etape(1)

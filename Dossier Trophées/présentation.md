@@ -20,6 +20,8 @@ Le projet est commencé en mai 2025 par [@Dooheli](https://github.com/Dooheli) e
 
 ## Etapes du projet
 ### Avant l'arrivée de @LeRetardatN
+Avant l'arrivée de Nils, le projet n'était pas tout à fait bien défini, ni Lucas ni Jules n'avaient eu une idée précise de ce qu'ils voulaient faire. L'idée initiale vient du fait que Lucas adorait le système des rogues likes et donc à partir de ce moment-là nous avons décidé de créer le nôtre. Au début du projet, vers avril 2025, nous n'avions pas encore envisagé de participer aux trophées de NSI. Nous avions tout fait sur une même page de code et nous nous partagions le projet à l'aide de clés USB, nous n'avions pas encore envisagé la possibilité d'utiliser GitHub pour notre travail.
+
 ### La refactorisation
 De ce moment, jusqu'à la rentrée en septembre. J'était seul sur le développement du fait à des erreurs de communications et du fait que ni @Dooheli ni @hibou509 connaissaient Git.
 
@@ -45,21 +47,27 @@ Le jeu est presque terminé, il lui manque quelques éléments:
 - L'ajout de nouvelles cartes et de nouveaux items (les [discussions Github](https://github.com/Lecodeurenretard/Trophee-NSI/discussions) contiennent quleques idées),
 - L'ajout d'un tutoriel et d'une histoire.
 
-### approches mises en œuvre pour vérifier l’absence de bugs
+### Méthodes de débug
 Beaucoups de playtests.
 
-### difficultés rencontrées et solutions apportées.
+### Difficultés rencontrées
 La codebase est tellement grande qu'il a fallu utiliser des IA (Claude) pour le débug.
 
 ## Ouverture
-### idées d'amélioration du projet
-Elements pour casser la routine du RPG car le jeu est ennuyeux si l'on regarde au delà du coté technique.
+### Idées d'amélioration du projet
+Elements pour casser la routine du RPG car le jeu est ennuyeux si l'on regarde au delà du coté technique.  
+Un mode multijoueur serait aussi un bon atout.
 
-### analyse critique
+### Analyse critique
+Même après les 9 mois de développements, le jeu n'est pas très fun à jouer.
 
-### compétences personnelles développées.
+### Compétences personnelles développées
 #### Pour Nils
 Avant les trophées, je n'avais jamais eu de projet en Python, ce projet m'a permis d'apprendre Python au dela de la syntaxe que l'on apprend (utilisation des dataclasses, des générateurs, plusieurs moyens de tirer des choses au hasard, gestions des modules).  
 J'ai aussi vu des concepts propre au jeux vidéos (horloge interne (je n'avais jusqu'ici utilisé que le delta timing), courbes d'animations).
 
-### démarche d'inclusion.
+#### Pour Jules
+L'organisation du travail.
+
+#### Pour Lucas
+J'ai appris pleins de choses qui ne sont pas en NSI et à mieux gérer les classes. C'était aussi la première fois que je faisait un tel projet en equipe.

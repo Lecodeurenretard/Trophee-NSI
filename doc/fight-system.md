@@ -2,11 +2,11 @@
 
 Les classes décrites dans ce fichier sont:
 + [`Stat`](../sources/Stats.py): Représente les statistiques d'une entité.
-+ [`Entite`](../sources/Entite.py) (et descendants): Tout acteur dans un combat, c'est-à-dire le joueur et les monstres.
-	- la classe `Boss` à [son propre fichier](boss.md).
-+ [`Carte`](../sources/Carte.py): Une carte en elle-même.
++ [`Entite`](../sources/Entite.py) (et descendants): Tout acteur dans un combat, c'est-à-dire le joueur, les monstres et les boss.
 + [`Attaque`](../sources/Attaque.py) (ainsi que les enums/_wrappers_ en lien): S'assure du calcul de dégats.
 + [`Item`](../sources/Item.py): Un objet avec un effet passif.
+
+Les interfaces de [`Item`](interfaces.md#linterface-des-items), [`Carte`](interfaces.md#linterface-des-cartes), [`Boss`](interfaces.md#linterface-des-boss) sont décrites dans [interfaces.md](interfaces.md).
 
 ## Les entités
 Une entité est un personnage pouvant prendre part au combat et  y étant indépendant.  
@@ -69,6 +69,25 @@ Tous les attributs, propriétés et fonctions de `Entite` sont hérités.
 - `massacre()` Appelle `meurt()` sur tous les monstres en vie.
 - `.vers_type_precedent()`/`.vers_type_suivant()` Change le type du monstre.
 - `.choisir_index_carte_main()` choisi la carte à être jouer.
+
+## `Boss`
+### Héritage
+En tant que fille de `Monstre`, `Boss` hérite de toutes les méthodes et propriétés publiques (les non-publiques ne sont pas couvertes dans cette documentation) à l'exception de ces deux méthodes qui élèverons une `TypeError`:
+- `.vers_type_precedent()`
+- `.vers_type_suivant()`
+
+### Overrides
+Implémentations des [de l'interface](#linterface):
+* `.choisir_index_carte_main()`
+* `.recoit_degats()`
+
+Le constructeur est aussi override pour prendre un objet `BossJSON` en entrée.
+
+### Ajouts
+- `vivants_boss()` (statique): Renvoie les boss en vie.
+- `spawn_boss()` (statique): fait spawn le boss correspondant à l'étage en argument.
+- `.callbacks` (propriété): Renvoie l'objet `BossMethodeWrapper` correspondant au boss.
+- `.nouveau_tour()`: Exécute le prédicat `nouveau_tour()` du boss s'il existe
 
 ## Les stats
 Pour représenter les stats d'une entités, on utilise une instance de `Stat` (classe définie dans [Stat.py](../sources/Stats.py)).

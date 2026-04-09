@@ -9,7 +9,11 @@
 
 **/__pycache__
 data/save
+dist
+build
+bin
 .vscode
 
 test.py
 *.piskel
+*.spec

@@ -31,13 +31,17 @@ format:
 ------------------------------------
 -->
 _____
-## Ajout d'un bouton pour skip son tour.
+## Amélioration de l'API des boss.
 + Changements majeurs
-	- Ajout du bouton.
+	- Ajout de l'attribut JSON "autres_attributs" pour apporter des données supplémentaire au boss (évite de les hardcoder dans fonctions_boss).
+		* Ajout du membre dans `BossJSON` et est servi lors de l'initialisation de `attributs_supplementaires[]`.
 + Sur plusieurs fichiers
 + Structure de fichiers
 + READMEs et documentation
+	- Ajout du binaire dans le README.
 + Interactions joueur/testeur
+	- Le démon change bien tout les 2 tours.
 + Correction de bugs
-+ `Jeu`
-	- Les méthodes `pourcentages_*` sont cohérente dans leur utilistation.
+	- Les boutons pour cherche le boss et le shop cherchent à partir du combat suivant et n'excluent plus le dernier combat.
++ `Stat`
+	- Ajout de la méthode `.copier()` qui permet la copie en place d'un autre objet `Stat`.
