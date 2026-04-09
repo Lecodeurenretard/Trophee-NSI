@@ -183,7 +183,7 @@ def dessiner_diff_stats_joueur(num_couche : int) -> None:
         if diff < 0: coul = ROUGE
         if diff > 0: coul = VERT
         
-        txt = Fenetre.construire_police(Polices.TEXTE, 7).render(f"{stat}: {diff}", True, coul)
+        txt = Fenetre.construire_police(Polices.TEXTE, 7).render(f"{stat}: {diff:+}", True, coul)
         Fenetre.get_couche(num_couche).blit(txt, (10, y))
         y += txt.get_rect().height + 5
 
@@ -297,6 +297,7 @@ def dessiner_nombre_pieces(num_couche : int, boite_inventaire : Rect, ordonnees 
         )
 
 def dessiner_inventaire(surface : Surface, boite_inventaire : Rect) -> None:
+    """Dessine l'inventaire tel que montré dans le shop."""
     y : int = Fenetre.pourcentage_hauteur(9)     # début affichage items inventaire
     for item in joueur.inventaire:
         icone : Surface = pygame.transform.scale_by(

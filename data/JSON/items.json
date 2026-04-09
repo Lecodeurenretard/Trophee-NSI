@@ -58,10 +58,10 @@
 		"prix": 10
 	},
 	{
-		"nom": "coupon",
-		"description": "c'est les soldes !.",
+		"nom": "Coupon",
+		"description": "Baisse des prix.",
 		"effets": {
-			"message utilisateur": "baisse des prix",
+			"message utilisateur": "C'est les soldes!",
 			"stats": {
 			}
 		},
@@ -69,15 +69,15 @@
 		"prix": 12
 	},
 	{
-		"nom" : "corbeille",
+		"nom" : "Corbeille",
 		"description" : "tu appele ça un casque? ",
 		"effets" : {
-			"message utilisateur" : "augmente la defense",
+			"message utilisateur" : "Augmente la défense.",
 			"stats" : {
-				"defense" : 15
+				"defense" : 8
 			}
 		},
 		"sprite" : "corbeille.png",
-		"prix" : 15
+		"prix" : 12
 	}
 ]
